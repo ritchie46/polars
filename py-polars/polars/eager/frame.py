@@ -38,7 +38,6 @@ except ImportError:
 
     warnings.warn("binary files missing")
 
-
 try:
     import pandas as pd
 except ImportError:
