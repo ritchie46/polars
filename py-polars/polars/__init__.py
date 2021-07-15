@@ -1,8 +1,8 @@
-# flake8: noqa
-from .datatypes import *
-from .eager import *
-from .functions import *
-from .lazy import *
+from . import datatypes, eager, functions, lazy
+from .datatypes import *  # noqa: F401, F403
+from .eager import *  # noqa: F401, F403
+from .functions import *  # noqa: F401, F403
+from .lazy import *  # noqa: F401, F403
 
 # during docs building the binary code is not yet available
 try:
@@ -11,3 +11,5 @@ try:
     __version__ = version()
 except ImportError:
     pass
+
+__all__ = datatypes.__all__ + eager.__all__ + functions.__all__ + lazy.__all__
