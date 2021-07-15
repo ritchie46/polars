@@ -38,8 +38,6 @@ except ImportError:
 
 import polars as pl
 
-from .functions import from_rows
-
 __all__ = [
     "read_csv",
     "read_parquet",
@@ -607,4 +605,4 @@ def read_sql(sql: str, engine: Any) -> "pl.DataFrame":
             result = con.execute(text(sql))
 
         rows = result.fetchall()
-        return from_rows(rows, list(result.keys()))
+        return pl.DataFrame.from_rows(rows, list(result.keys()))
