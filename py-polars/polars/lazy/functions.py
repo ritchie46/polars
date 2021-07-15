@@ -63,7 +63,7 @@ def col(name: str) -> "pl.Expr":
     """
     A column in a DataFrame.
     """
-    return pl.wrap_expr(pycol(name))
+    return pl.lazy.expr.wrap_expr(pycol(name))
 
 
 def except_(name: str) -> "pl.Expr":
@@ -102,7 +102,7 @@ def except_(name: str) -> "pl.Expr":
     ╰─────┴─────╯
     ```
     """
-    return pl.wrap_expr(pyexcept(name))
+    return pl.lazy.expr.wrap_expr(pyexcept(name))
 
 
 def count(column: Union[str, "pl.Series"] = "") -> Union["pl.Expr", int]:
@@ -348,14 +348,14 @@ def lit(
     if isinstance(value, pl.Series):
         name = value.name
         value = value._s
-        return pl.wrap_expr(pylit(value)).alias(name)
+        return pl.lazy.expr.wrap_expr(pylit(value)).alias(name)
 
     if isinstance(value, np.ndarray):
         return lit(pl.Series("", value))
 
     if dtype:
-        return pl.wrap_expr(pylit(value)).cast(dtype)
-    return pl.wrap_expr(pylit(value))
+        return pl.lazy.expr.wrap_expr(pylit(value)).cast(dtype)
+    return pl.lazy.expr.wrap_expr(pylit(value))
 
 
 def pearson_corr(
@@ -376,7 +376,7 @@ def pearson_corr(
         a = col(a)
     if isinstance(b, str):
         b = col(b)
-    return pl.wrap_expr(pypearson_corr(a._pyexpr, b._pyexpr))
+    return pl.lazy.expr.wrap_expr(pypearson_corr(a._pyexpr, b._pyexpr))
 
 
 def cov(
@@ -397,7 +397,7 @@ def cov(
         a = col(a)
     if isinstance(b, str):
         b = col(b)
-    return pl.wrap_expr(pycov(a._pyexpr, b._pyexpr))
+    return pl.lazy.expr.wrap_expr(pycov(a._pyexpr, b._pyexpr))
 
 
 def map_binary(
@@ -424,7 +424,9 @@ def map_binary(
         a = col(a)
     if isinstance(b, str):
         b = col(b)
-    return pl.wrap_expr(pybinary_function(a._pyexpr, b._pyexpr, f, return_dtype))
+    return pl.lazy.expr.wrap_expr(
+        pybinary_function(a._pyexpr, b._pyexpr, f, return_dtype)
+    )
 
 
 def fold(
@@ -582,7 +584,7 @@ def argsort_by(
     if not isinstance(reverse, list):
         reverse = [reverse]
     exprs = pl.lazy.expr._selection_to_pyexpr_list(exprs)
-    return pl.wrap_expr(pyargsort_by(exprs, reverse))
+    return pl.lazy.expr.wrap_expr(pyargsort_by(exprs, reverse))
 
 
 def concat_str(exprs: tp.List["pl.Expr"], delimiter: str = "") -> "pl.Expr":
@@ -597,4 +599,4 @@ def concat_str(exprs: tp.List["pl.Expr"], delimiter: str = "") -> "pl.Expr":
         String value that will be used to separate the values.
     """
     exprs = pl.lazy.expr._selection_to_pyexpr_list(exprs)
-    return pl.wrap_expr(_concat_str(exprs, delimiter))
+    return pl.lazy.expr.wrap_expr(_concat_str(exprs, delimiter))

@@ -23,7 +23,6 @@ except ImportError:
     __pdoc__ = {"wrap_ldf": False}
 
 __all__ = [
-    "wrap_ldf",
     "LazyFrame",
 ]
 
@@ -267,7 +266,7 @@ class LazyFrame:
             simplify_expression,
             string_cache,
         )
-        return pl.wrap_df(ldf.collect())
+        return pl.eager.frame.wrap_df(ldf.collect())
 
     def fetch(
         self,
@@ -320,7 +319,7 @@ class LazyFrame:
             simplify_expression,
             string_cache,
         )
-        return pl.wrap_df(ldf.fetch(n_rows))
+        return pl.eager.frame.wrap_df(ldf.fetch(n_rows))
 
     def cache(
         self,

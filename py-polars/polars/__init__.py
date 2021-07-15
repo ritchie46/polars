@@ -1,3 +1,8 @@
+from polars.eager.frame import DataFrame  # noqa: F401
+from polars.eager.series import Series  # noqa: F401
+from polars.lazy.expr import Expr  # noqa: F401
+from polars.lazy.frame import LazyFrame  # noqa: F401
+
 from . import datatypes, eager, functions, lazy
 from .datatypes import *  # noqa: F401, F403
 from .eager import *  # noqa: F401, F403
