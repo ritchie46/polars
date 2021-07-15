@@ -5,7 +5,6 @@ import os
 import typing as tp
 from io import BytesIO, StringIO
 from pathlib import Path
-from types import TracebackType
 from typing import (
     Any,
     BinaryIO,
@@ -34,7 +33,6 @@ from ..utils import _process_null_values, coerce_arrow
 
 try:
     from ..polars import PyDataFrame, PySeries
-    from ..polars import toggle_string_cache as pytoggle_string_cache
 except ImportError:
     import warnings
 
@@ -48,8 +46,6 @@ except ImportError:
 
 __all__ = [
     "DataFrame",
-    "StringCache",
-    "toggle_string_cache",
 ]
 
 
@@ -2537,33 +2533,3 @@ class GBSelection:
             df[name] = s
 
         return df
-
-
-class StringCache:
-    """
-    Context manager that allows data sources to share the same categorical features.
-    This will temporarily cache the string categories until the context manager is finished.
-    """
-
-    def __init__(self) -> None:
-        pass
-
-    def __enter__(self) -> "StringCache":
-        pytoggle_string_cache(True)
-        return self
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> None:
-        pytoggle_string_cache(False)
-
-
-def toggle_string_cache(toggle: bool) -> None:
-    """
-    Turn on/off the global string cache. This ensures that casts to Categorical types have the categories when string
-    values are equal.
-    """
-    pytoggle_string_cache(toggle)
