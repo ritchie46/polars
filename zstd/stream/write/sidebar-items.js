@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AutoFinishEncoder","A wrapper around an `Encoder<W>` that finishes the stream on drop."],["Decoder","A decoder that decompress and forward data to another writer."],["Encoder","An encoder that compress and forward data to another writer."]]});

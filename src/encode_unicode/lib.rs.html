@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;encode_unicode-0.3.6&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../encode_unicode/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+</pre><pre class="rust">
+<span class="comment">/* Copyright 2016 The encode_unicode Developers
+ *
+ * Licensed under the Apache License, Version 2.0, &lt;LICENSE-APACHE or
+ * http://apache.org/licenses/LICENSE-2.0&gt; or the MIT license &lt;LICENSE-MIT or
+ * http://opensource.org/licenses/MIT&gt;, at your option. This file may not be
+ * copied, modified, or distributed except according to those terms.
+ */</span>
+
+
+<span class="doccomment">/*!
+Miscellaneous UTF-8 and UTF-16 types and methods.
+
+# Optional features:
+* `#![no_std]`-mode: There are a few differences:
+  * `Error` doesn&#39;t exist, but `description()` is made available as an inherent impl.
+  * `Extend`/`FromIterator`-implementations for `String`/`Vec&lt;u8&gt;`/`Vec&lt;u16&gt;` are missing.
+  * There is no `io`, so `Utf8Iterator` and `Utf8CharSplitter` doesn&#39;t implement `Read`.
+
+  This feature is enabled by setting `default-features=false` in `Cargo.toml`:
+  `encode_unicode = {version=&quot;0.3.4&quot;, default-features=false}`
+* Integration with the [ascii](https://tomprogrammer.github.io/rust-ascii/ascii/index.html) crate:  
+  Convert `Utf8Char` and `Utf16Char` to and from
+  [ascii::`AsciiChar`](https://tomprogrammer.github.io/rust-ascii/ascii/enum.AsciiChar.html).
+
+The minimum supported version of Rust is 1.15,
+older versions might work now but can break with a minor update.
+
+[crates.io page](https://crates.io/crates/encode_unicode)  
+[github repository](https://github.com/tormol/encode_unicode)
+
+*/</span>
+
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
+
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+<span class="comment">// either `cargo clippy` doesn&#39;t see theese, or I get a warning when I build.</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">feature</span>(<span class="ident">plugin</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">plugin</span>(<span class="ident">clippy</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">derive_hash_xor_eq</span>))]</span><span class="comment">// tested</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">len_without_is_empty</span>))]</span><span class="comment">// UtfxChar is never empty</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">match_same_arms</span>))]</span><span class="comment">// looks better IMO</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">needless_return</span>))]</span><span class="comment">// `foo.bar(); foo` looks unfinished</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">redundant_closure</span>))]</span><span class="comment">// keep it explicit</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">redundant_closure_call</span>))]</span><span class="comment">// not redundant in macros</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">cast_lossless</span>))]</span><span class="comment">// too much noise (and too verbose)</span>
+<span class="comment">// precedence: I prefer spaces to parentheses, but it&#39;s nice to recheck.</span>
+
+<span class="kw">mod</span> <span class="ident">errors</span>;
+<span class="kw">mod</span> <span class="ident">traits</span>;
+<span class="kw">mod</span> <span class="ident">utf8_char</span>;
+<span class="kw">mod</span> <span class="ident">utf8_iterators</span>;
+<span class="kw">mod</span> <span class="ident">utf16_char</span>;
+<span class="kw">mod</span> <span class="ident">utf16_iterators</span>;
+<span class="kw">mod</span> <span class="ident">decoding_iterators</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traits</span>::{<span class="ident">CharExt</span>, <span class="ident">U8UtfExt</span>, <span class="ident">U16UtfExt</span>, <span class="ident">StrExt</span>, <span class="ident">IterExt</span>, <span class="ident">SliceExt</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf8_char::Utf8Char</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf16_char::Utf16Char</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf8_iterators</span>::{<span class="ident">Utf8Iterator</span>, <span class="ident">iter_bytes</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf16_iterators</span>::{<span class="ident">Utf16Iterator</span>, <span class="ident">iter_units</span>};
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span> {<span class="comment">// keeping the public interface in one file</span>
+    <span class="doccomment">//! Errors returned by various conversion methods in this crate.</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::{<span class="ident">FromStrError</span>, <span class="ident">EmptyStrError</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::{<span class="ident">InvalidCodepoint</span>, <span class="ident">InvalidUtf8</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::{<span class="ident">InvalidUtf8FirstByte</span>,<span class="ident">InvalidUtf16FirstUnit</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::{<span class="ident">InvalidUtf8Slice</span>,<span class="ident">InvalidUtf16Slice</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors</span>::{<span class="ident">InvalidUtf8Array</span>,<span class="ident">InvalidUtf16Array</span>,<span class="ident">InvalidUtf16Tuple</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">errors::Utf16PairError</span>;
+}
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iterator</span> {
+    <span class="doccomment">//! Iterator types that you should rarely need to name</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf8_iterators</span>::{<span class="ident">Utf8Iterator</span>, <span class="ident">Utf8CharSplitter</span>, <span class="ident">Utf8Chars</span>, <span class="ident">Utf8CharIndices</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utf16_iterators</span>::{<span class="ident">Utf16Iterator</span>, <span class="ident">Utf16CharSplitter</span>, <span class="ident">Utf16Chars</span>, <span class="ident">Utf16CharIndices</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">decoding_iterators</span>::{<span class="ident">Utf8CharMerger</span>, <span class="ident">Utf8CharDecoder</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">decoding_iterators</span>::{<span class="ident">Utf16CharMerger</span>, <span class="ident">Utf16CharDecoder</span>};
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="encode_unicode" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

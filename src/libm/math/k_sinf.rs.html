@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;k_sinf.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>k_sinf.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+</pre><pre class="rust">
+<span class="comment">/* origin: FreeBSD /usr/src/lib/msun/src/k_sinf.c */</span>
+<span class="comment">/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */</span>
+<span class="comment">/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunPro, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */</span>
+
+<span class="comment">/* |sin(x)/x - s(x)| &lt; 2**-37.5 (~[-4.89e-12, 4.824e-12]). */</span>
+<span class="kw">const</span> <span class="ident">S1</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.166666666416265235595</span>; <span class="comment">/* -0x15555554cbac77.0p-55 */</span>
+<span class="kw">const</span> <span class="ident">S2</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.0083333293858894631756</span>; <span class="comment">/*  0x111110896efbb2.0p-59 */</span>
+<span class="kw">const</span> <span class="ident">S3</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.000198393348360966317347</span>; <span class="comment">/* -0x1a00f9e2cae774.0p-65 */</span>
+<span class="kw">const</span> <span class="ident">S4</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.0000027183114939898219064</span>; <span class="comment">/*  0x16cd878c3b46a7.0p-71 */</span>
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">k_sinf</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+    <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">z</span>;
+    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">S3</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">S4</span>;
+    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">x</span>;
+    ((<span class="ident">x</span> <span class="op">+</span> <span class="ident">s</span> <span class="op">*</span> (<span class="ident">S1</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">S2</span>)) <span class="op">+</span> <span class="ident">s</span> <span class="op">*</span> <span class="ident">w</span> <span class="op">*</span> <span class="ident">r</span>) <span class="kw">as</span> <span class="ident">f32</span>
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

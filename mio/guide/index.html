@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Getting started guide."><meta name="keywords" content="rust, rustlang, rust-lang, guide"><title>mio::guide - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../mio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module guide</p><div class="sidebar-elems"><div id="sidebar-vars" data-name="guide" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">mio</a>::<wbr><a class="mod" href="#">guide</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/mio/lib.rs.html#121-265" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="getting-started-guide" class="section-header"><a href="#getting-started-guide">Getting started guide.</a></h1>
+<p>In this guide we’ll do the following:</p>
+<ol>
+<li>Create a <a href="../struct.Poll.html"><code>Poll</code></a> instance (and learn what it is).</li>
+<li>Register an <a href="../event/trait.Source.html">event source</a>.</li>
+<li>Create an event loop.</li>
+</ol>
+<p>At the end you’ll have a very small (but quick) TCP server that accepts
+connections and then drops (disconnects) them.</p>
+<h2 id="1-creating-a-poll-instance" class="section-header"><a href="#1-creating-a-poll-instance">1. Creating a <code>Poll</code> instance</a></h2>
+<p>Using Mio starts by creating a <a href="../struct.Poll.html"><code>Poll</code></a> instance, which monitors events
+from the OS and puts them into <a href="../event/struct.Events.html"><code>Events</code></a>. This allows us to execute I/O
+operations based on what operations are ready.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// `Poll` allows for polling of readiness events.</span>
+<span class="kw">let</span> <span class="ident">poll</span> <span class="op">=</span> <span class="ident">Poll::new</span>()<span class="question-mark">?</span>;
+<span class="comment">// `Events` is collection of readiness `Event`s and can be filled by</span>
+<span class="comment">// calling `Poll::poll`.</span>
+<span class="kw">let</span> <span class="ident">events</span> <span class="op">=</span> <span class="ident">Events::with_capacity</span>(<span class="number">128</span>);</pre></div>
+<p>For example if we’re using a <a href="../net/struct.TcpListener.html"><code>TcpListener</code></a>,  we’ll only want to
+attempt to accept an incoming connection <em>iff</em> any connections are
+queued and ready to be accepted. We don’t want to waste our time if no
+connections are ready.</p>
+<h2 id="2-registering-event-source" class="section-header"><a href="#2-registering-event-source">2. Registering event source</a></h2>
+<p>After we’ve created a <a href="../struct.Poll.html"><code>Poll</code></a> instance that monitors events from the OS
+for us, we need to provide it with a source of events. This is done by
+registering an <a href="../event/trait.Source.html">event source</a>. As the name “event source” suggests it is
+a source of events which can be polled using a <code>Poll</code> instance. On Unix
+systems this is usually a file descriptor, or a socket/handle on
+Windows.</p>
+<p>In the example below we’ll use a <a href="../net/struct.TcpListener.html"><code>TcpListener</code></a> for which we’ll receive
+an event (from <a href="../struct.Poll.html"><code>Poll</code></a>) once a connection is ready to be accepted.</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Create a `TcpListener`, binding it to `address`.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">listener</span> <span class="op">=</span> <span class="ident">TcpListener::bind</span>(<span class="ident">address</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// Next we register it with `Poll` to receive events for it. The `SERVER`</span>
+<span class="comment">// `Token` is used to determine that we received an event for the listener</span>
+<span class="comment">// later on.</span>
+<span class="kw">const</span> <span class="ident">SERVER</span>: <span class="ident">Token</span> <span class="op">=</span> <span class="ident">Token</span>(<span class="number">0</span>);
+<span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">listener</span>, <span class="ident">SERVER</span>, <span class="ident">Interest::READABLE</span>)<span class="question-mark">?</span>;</pre></div>
+<p>Multiple event sources can be <a href="../struct.Registry.html#method.register">registered</a> (concurrently), so we can
+monitor multiple sources at a time.</p>
+<h2 id="3-creating-the-event-loop" class="section-header"><a href="#3-creating-the-event-loop">3. Creating the event loop</a></h2>
+<p>After we’ve created a <a href="../struct.Poll.html"><code>Poll</code></a> instance and registered one or more
+<a href="../event/trait.Source.html">event sources</a> with it, we can <a href="../struct.Poll.html#method.poll">poll</a> it for events. Polling for events
+is simple, we need a container to store the events: <a href="../event/struct.Events.html"><code>Events</code></a> and need
+to do something based on the polled events (this part is up to you, we
+can’t do it all!). If we do this in a loop we’ve got ourselves an event
+loop.</p>
+<p>The example below shows the event loop in action, completing our small
+TCP server.</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Start our event loop.</span>
+<span class="kw">loop</span> {
+    <span class="comment">// Poll the OS for events, waiting at most 100 milliseconds.</span>
+    <span class="ident">poll</span>.<span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">events</span>, <span class="prelude-val">Some</span>(<span class="ident">Duration::from_millis</span>(<span class="number">100</span>)))<span class="question-mark">?</span>;
+
+    <span class="comment">// Process each event.</span>
+    <span class="kw">for</span> <span class="ident">event</span> <span class="kw">in</span> <span class="ident">events</span>.<span class="ident">iter</span>() {
+        <span class="comment">// We can use the token we previously provided to `register` to</span>
+        <span class="comment">// determine for which type the event is.</span>
+        <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">token</span>() {
+            <span class="ident">SERVER</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">loop</span> {
+                <span class="comment">// One or more connections are ready, so we&#39;ll attempt to</span>
+                <span class="comment">// accept them (in a loop).</span>
+                <span class="kw">match</span> <span class="ident">listener</span>.<span class="ident">accept</span>() {
+                    <span class="prelude-val">Ok</span>((<span class="ident">connection</span>, <span class="ident">address</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">println!</span>(<span class="string">&quot;Got a connection from: {}&quot;</span>, <span class="ident">address</span>);
+                    },
+                    <span class="comment">// A &quot;would block error&quot; is returned if the operation</span>
+                    <span class="comment">// is not ready, so we&#39;ll stop trying to accept</span>
+                    <span class="comment">// connections.</span>
+                    <span class="prelude-val">Err</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) <span class="kw">if</span> <span class="ident">would_block</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+                }
+            }
+        }
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">would_block</span>(<span class="ident">err</span>: <span class="kw-2">&amp;</span><span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">err</span>.<span class="ident">kind</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">io::ErrorKind::WouldBlock</span>
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="mio" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

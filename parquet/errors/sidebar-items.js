@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ParquetError",""]],"type":[["Result","A specialized `Result` for Parquet errors."]]});

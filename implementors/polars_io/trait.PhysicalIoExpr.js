@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["polars_lazy"] = [{"text":"impl <a class=\"trait\" href=\"polars_io/trait.PhysicalIoExpr.html\" title=\"trait polars_io::PhysicalIoExpr\">PhysicalIoExpr</a> for <a class=\"struct\" href=\"polars_lazy/physical_plan/expressions/struct.PhysicalIoHelper.html\" title=\"struct polars_lazy::physical_plan::expressions::PhysicalIoHelper\">PhysicalIoHelper</a>","synthetic":false,"types":["polars_lazy::physical_plan::expressions::PhysicalIoHelper"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

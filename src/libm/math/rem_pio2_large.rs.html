@@ -1,0 +1,945 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;rem_pio2_large.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rem_pio2_large.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+</pre><pre class="rust">
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">unused_unsafe</span>)]</span>
+<span class="comment">/* origin: FreeBSD /usr/src/lib/msun/src/k_rem_pio2.c */</span>
+<span class="comment">/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */</span>
+
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::floor</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::scalbn</span>;
+
+<span class="comment">// initial value for jk</span>
+<span class="kw">const</span> <span class="ident">INIT_JK</span>: [<span class="ident">usize</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">6</span>];
+
+<span class="comment">// Table of constants for 2/pi, 396 Hex digits (476 decimal) of 2/pi</span>
+<span class="comment">//</span>
+<span class="comment">//              integer array, contains the (24*i)-th to (24*i+23)-th</span>
+<span class="comment">//              bit of 2/pi after binary point. The corresponding</span>
+<span class="comment">//              floating value is</span>
+<span class="comment">//</span>
+<span class="comment">//                      ipio2[i] * 2^(-24(i+1)).</span>
+<span class="comment">//</span>
+<span class="comment">// NB: This table must have at least (e0-3)/24 + jk terms.</span>
+<span class="comment">//     For quad precision (e0 &lt;= 16360, jk = 6), this is 686.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;32&quot;</span>)]</span>
+<span class="kw">const</span> <span class="ident">IPIO2</span>: [<span class="ident">i32</span>; <span class="number">66</span>] <span class="op">=</span> [
+    <span class="number">0xA2F983</span>, <span class="number">0x6E4E44</span>, <span class="number">0x1529FC</span>, <span class="number">0x2757D1</span>, <span class="number">0xF534DD</span>, <span class="number">0xC0DB62</span>, <span class="number">0x95993C</span>, <span class="number">0x439041</span>, <span class="number">0xFE5163</span>,
+    <span class="number">0xABDEBB</span>, <span class="number">0xC561B7</span>, <span class="number">0x246E3A</span>, <span class="number">0x424DD2</span>, <span class="number">0xE00649</span>, <span class="number">0x2EEA09</span>, <span class="number">0xD1921C</span>, <span class="number">0xFE1DEB</span>, <span class="number">0x1CB129</span>,
+    <span class="number">0xA73EE8</span>, <span class="number">0x8235F5</span>, <span class="number">0x2EBB44</span>, <span class="number">0x84E99C</span>, <span class="number">0x7026B4</span>, <span class="number">0x5F7E41</span>, <span class="number">0x3991D6</span>, <span class="number">0x398353</span>, <span class="number">0x39F49C</span>,
+    <span class="number">0x845F8B</span>, <span class="number">0xBDF928</span>, <span class="number">0x3B1FF8</span>, <span class="number">0x97FFDE</span>, <span class="number">0x05980F</span>, <span class="number">0xEF2F11</span>, <span class="number">0x8B5A0A</span>, <span class="number">0x6D1F6D</span>, <span class="number">0x367ECF</span>,
+    <span class="number">0x27CB09</span>, <span class="number">0xB74F46</span>, <span class="number">0x3F669E</span>, <span class="number">0x5FEA2D</span>, <span class="number">0x7527BA</span>, <span class="number">0xC7EBE5</span>, <span class="number">0xF17B3D</span>, <span class="number">0x0739F7</span>, <span class="number">0x8A5292</span>,
+    <span class="number">0xEA6BFB</span>, <span class="number">0x5FB11F</span>, <span class="number">0x8D5D08</span>, <span class="number">0x560330</span>, <span class="number">0x46FC7B</span>, <span class="number">0x6BABF0</span>, <span class="number">0xCFBC20</span>, <span class="number">0x9AF436</span>, <span class="number">0x1DA9E3</span>,
+    <span class="number">0x91615E</span>, <span class="number">0xE61B08</span>, <span class="number">0x659985</span>, <span class="number">0x5F14A0</span>, <span class="number">0x68408D</span>, <span class="number">0xFFD880</span>, <span class="number">0x4D7327</span>, <span class="number">0x310606</span>, <span class="number">0x1556CA</span>,
+    <span class="number">0x73A8C9</span>, <span class="number">0x60E27B</span>, <span class="number">0xC08C6B</span>,
+];
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>)]</span>
+<span class="kw">const</span> <span class="ident">IPIO2</span>: [<span class="ident">i32</span>; <span class="number">690</span>] <span class="op">=</span> [
+    <span class="number">0xA2F983</span>, <span class="number">0x6E4E44</span>, <span class="number">0x1529FC</span>, <span class="number">0x2757D1</span>, <span class="number">0xF534DD</span>, <span class="number">0xC0DB62</span>, <span class="number">0x95993C</span>, <span class="number">0x439041</span>, <span class="number">0xFE5163</span>,
+    <span class="number">0xABDEBB</span>, <span class="number">0xC561B7</span>, <span class="number">0x246E3A</span>, <span class="number">0x424DD2</span>, <span class="number">0xE00649</span>, <span class="number">0x2EEA09</span>, <span class="number">0xD1921C</span>, <span class="number">0xFE1DEB</span>, <span class="number">0x1CB129</span>,
+    <span class="number">0xA73EE8</span>, <span class="number">0x8235F5</span>, <span class="number">0x2EBB44</span>, <span class="number">0x84E99C</span>, <span class="number">0x7026B4</span>, <span class="number">0x5F7E41</span>, <span class="number">0x3991D6</span>, <span class="number">0x398353</span>, <span class="number">0x39F49C</span>,
+    <span class="number">0x845F8B</span>, <span class="number">0xBDF928</span>, <span class="number">0x3B1FF8</span>, <span class="number">0x97FFDE</span>, <span class="number">0x05980F</span>, <span class="number">0xEF2F11</span>, <span class="number">0x8B5A0A</span>, <span class="number">0x6D1F6D</span>, <span class="number">0x367ECF</span>,
+    <span class="number">0x27CB09</span>, <span class="number">0xB74F46</span>, <span class="number">0x3F669E</span>, <span class="number">0x5FEA2D</span>, <span class="number">0x7527BA</span>, <span class="number">0xC7EBE5</span>, <span class="number">0xF17B3D</span>, <span class="number">0x0739F7</span>, <span class="number">0x8A5292</span>,
+    <span class="number">0xEA6BFB</span>, <span class="number">0x5FB11F</span>, <span class="number">0x8D5D08</span>, <span class="number">0x560330</span>, <span class="number">0x46FC7B</span>, <span class="number">0x6BABF0</span>, <span class="number">0xCFBC20</span>, <span class="number">0x9AF436</span>, <span class="number">0x1DA9E3</span>,
+    <span class="number">0x91615E</span>, <span class="number">0xE61B08</span>, <span class="number">0x659985</span>, <span class="number">0x5F14A0</span>, <span class="number">0x68408D</span>, <span class="number">0xFFD880</span>, <span class="number">0x4D7327</span>, <span class="number">0x310606</span>, <span class="number">0x1556CA</span>,
+    <span class="number">0x73A8C9</span>, <span class="number">0x60E27B</span>, <span class="number">0xC08C6B</span>, <span class="number">0x47C419</span>, <span class="number">0xC367CD</span>, <span class="number">0xDCE809</span>, <span class="number">0x2A8359</span>, <span class="number">0xC4768B</span>, <span class="number">0x961CA6</span>,
+    <span class="number">0xDDAF44</span>, <span class="number">0xD15719</span>, <span class="number">0x053EA5</span>, <span class="number">0xFF0705</span>, <span class="number">0x3F7E33</span>, <span class="number">0xE832C2</span>, <span class="number">0xDE4F98</span>, <span class="number">0x327DBB</span>, <span class="number">0xC33D26</span>,
+    <span class="number">0xEF6B1E</span>, <span class="number">0x5EF89F</span>, <span class="number">0x3A1F35</span>, <span class="number">0xCAF27F</span>, <span class="number">0x1D87F1</span>, <span class="number">0x21907C</span>, <span class="number">0x7C246A</span>, <span class="number">0xFA6ED5</span>, <span class="number">0x772D30</span>,
+    <span class="number">0x433B15</span>, <span class="number">0xC614B5</span>, <span class="number">0x9D19C3</span>, <span class="number">0xC2C4AD</span>, <span class="number">0x414D2C</span>, <span class="number">0x5D000C</span>, <span class="number">0x467D86</span>, <span class="number">0x2D71E3</span>, <span class="number">0x9AC69B</span>,
+    <span class="number">0x006233</span>, <span class="number">0x7CD2B4</span>, <span class="number">0x97A7B4</span>, <span class="number">0xD55537</span>, <span class="number">0xF63ED7</span>, <span class="number">0x1810A3</span>, <span class="number">0xFC764D</span>, <span class="number">0x2A9D64</span>, <span class="number">0xABD770</span>,
+    <span class="number">0xF87C63</span>, <span class="number">0x57B07A</span>, <span class="number">0xE71517</span>, <span class="number">0x5649C0</span>, <span class="number">0xD9D63B</span>, <span class="number">0x3884A7</span>, <span class="number">0xCB2324</span>, <span class="number">0x778AD6</span>, <span class="number">0x23545A</span>,
+    <span class="number">0xB91F00</span>, <span class="number">0x1B0AF1</span>, <span class="number">0xDFCE19</span>, <span class="number">0xFF319F</span>, <span class="number">0x6A1E66</span>, <span class="number">0x615799</span>, <span class="number">0x47FBAC</span>, <span class="number">0xD87F7E</span>, <span class="number">0xB76522</span>,
+    <span class="number">0x89E832</span>, <span class="number">0x60BFE6</span>, <span class="number">0xCDC4EF</span>, <span class="number">0x09366C</span>, <span class="number">0xD43F5D</span>, <span class="number">0xD7DE16</span>, <span class="number">0xDE3B58</span>, <span class="number">0x929BDE</span>, <span class="number">0x2822D2</span>,
+    <span class="number">0xE88628</span>, <span class="number">0x4D58E2</span>, <span class="number">0x32CAC6</span>, <span class="number">0x16E308</span>, <span class="number">0xCB7DE0</span>, <span class="number">0x50C017</span>, <span class="number">0xA71DF3</span>, <span class="number">0x5BE018</span>, <span class="number">0x34132E</span>,
+    <span class="number">0x621283</span>, <span class="number">0x014883</span>, <span class="number">0x5B8EF5</span>, <span class="number">0x7FB0AD</span>, <span class="number">0xF2E91E</span>, <span class="number">0x434A48</span>, <span class="number">0xD36710</span>, <span class="number">0xD8DDAA</span>, <span class="number">0x425FAE</span>,
+    <span class="number">0xCE616A</span>, <span class="number">0xA4280A</span>, <span class="number">0xB499D3</span>, <span class="number">0xF2A606</span>, <span class="number">0x7F775C</span>, <span class="number">0x83C2A3</span>, <span class="number">0x883C61</span>, <span class="number">0x78738A</span>, <span class="number">0x5A8CAF</span>,
+    <span class="number">0xBDD76F</span>, <span class="number">0x63A62D</span>, <span class="number">0xCBBFF4</span>, <span class="number">0xEF818D</span>, <span class="number">0x67C126</span>, <span class="number">0x45CA55</span>, <span class="number">0x36D9CA</span>, <span class="number">0xD2A828</span>, <span class="number">0x8D61C2</span>,
+    <span class="number">0x77C912</span>, <span class="number">0x142604</span>, <span class="number">0x9B4612</span>, <span class="number">0xC459C4</span>, <span class="number">0x44C5C8</span>, <span class="number">0x91B24D</span>, <span class="number">0xF31700</span>, <span class="number">0xAD43D4</span>, <span class="number">0xE54929</span>,
+    <span class="number">0x10D5FD</span>, <span class="number">0xFCBE00</span>, <span class="number">0xCC941E</span>, <span class="number">0xEECE70</span>, <span class="number">0xF53E13</span>, <span class="number">0x80F1EC</span>, <span class="number">0xC3E7B3</span>, <span class="number">0x28F8C7</span>, <span class="number">0x940593</span>,
+    <span class="number">0x3E71C1</span>, <span class="number">0xB3092E</span>, <span class="number">0xF3450B</span>, <span class="number">0x9C1288</span>, <span class="number">0x7B20AB</span>, <span class="number">0x9FB52E</span>, <span class="number">0xC29247</span>, <span class="number">0x2F327B</span>, <span class="number">0x6D550C</span>,
+    <span class="number">0x90A772</span>, <span class="number">0x1FE76B</span>, <span class="number">0x96CB31</span>, <span class="number">0x4A1679</span>, <span class="number">0xE27941</span>, <span class="number">0x89DFF4</span>, <span class="number">0x9794E8</span>, <span class="number">0x84E6E2</span>, <span class="number">0x973199</span>,
+    <span class="number">0x6BED88</span>, <span class="number">0x365F5F</span>, <span class="number">0x0EFDBB</span>, <span class="number">0xB49A48</span>, <span class="number">0x6CA467</span>, <span class="number">0x427271</span>, <span class="number">0x325D8D</span>, <span class="number">0xB8159F</span>, <span class="number">0x09E5BC</span>,
+    <span class="number">0x25318D</span>, <span class="number">0x3974F7</span>, <span class="number">0x1C0530</span>, <span class="number">0x010C0D</span>, <span class="number">0x68084B</span>, <span class="number">0x58EE2C</span>, <span class="number">0x90AA47</span>, <span class="number">0x02E774</span>, <span class="number">0x24D6BD</span>,
+    <span class="number">0xA67DF7</span>, <span class="number">0x72486E</span>, <span class="number">0xEF169F</span>, <span class="number">0xA6948E</span>, <span class="number">0xF691B4</span>, <span class="number">0x5153D1</span>, <span class="number">0xF20ACF</span>, <span class="number">0x339820</span>, <span class="number">0x7E4BF5</span>,
+    <span class="number">0x6863B2</span>, <span class="number">0x5F3EDD</span>, <span class="number">0x035D40</span>, <span class="number">0x7F8985</span>, <span class="number">0x295255</span>, <span class="number">0xC06437</span>, <span class="number">0x10D86D</span>, <span class="number">0x324832</span>, <span class="number">0x754C5B</span>,
+    <span class="number">0xD4714E</span>, <span class="number">0x6E5445</span>, <span class="number">0xC1090B</span>, <span class="number">0x69F52A</span>, <span class="number">0xD56614</span>, <span class="number">0x9D0727</span>, <span class="number">0x50045D</span>, <span class="number">0xDB3BB4</span>, <span class="number">0xC576EA</span>,
+    <span class="number">0x17F987</span>, <span class="number">0x7D6B49</span>, <span class="number">0xBA271D</span>, <span class="number">0x296996</span>, <span class="number">0xACCCC6</span>, <span class="number">0x5414AD</span>, <span class="number">0x6AE290</span>, <span class="number">0x89D988</span>, <span class="number">0x50722C</span>,
+    <span class="number">0xBEA404</span>, <span class="number">0x940777</span>, <span class="number">0x7030F3</span>, <span class="number">0x27FC00</span>, <span class="number">0xA871EA</span>, <span class="number">0x49C266</span>, <span class="number">0x3DE064</span>, <span class="number">0x83DD97</span>, <span class="number">0x973FA3</span>,
+    <span class="number">0xFD9443</span>, <span class="number">0x8C860D</span>, <span class="number">0xDE4131</span>, <span class="number">0x9D3992</span>, <span class="number">0x8C70DD</span>, <span class="number">0xE7B717</span>, <span class="number">0x3BDF08</span>, <span class="number">0x2B3715</span>, <span class="number">0xA0805C</span>,
+    <span class="number">0x93805A</span>, <span class="number">0x921110</span>, <span class="number">0xD8E80F</span>, <span class="number">0xAF806C</span>, <span class="number">0x4BFFDB</span>, <span class="number">0x0F9038</span>, <span class="number">0x761859</span>, <span class="number">0x15A562</span>, <span class="number">0xBBCB61</span>,
+    <span class="number">0xB989C7</span>, <span class="number">0xBD4010</span>, <span class="number">0x04F2D2</span>, <span class="number">0x277549</span>, <span class="number">0xF6B6EB</span>, <span class="number">0xBB22DB</span>, <span class="number">0xAA140A</span>, <span class="number">0x2F2689</span>, <span class="number">0x768364</span>,
+    <span class="number">0x333B09</span>, <span class="number">0x1A940E</span>, <span class="number">0xAA3A51</span>, <span class="number">0xC2A31D</span>, <span class="number">0xAEEDAF</span>, <span class="number">0x12265C</span>, <span class="number">0x4DC26D</span>, <span class="number">0x9C7A2D</span>, <span class="number">0x9756C0</span>,
+    <span class="number">0x833F03</span>, <span class="number">0xF6F009</span>, <span class="number">0x8C402B</span>, <span class="number">0x99316D</span>, <span class="number">0x07B439</span>, <span class="number">0x15200C</span>, <span class="number">0x5BC3D8</span>, <span class="number">0xC492F5</span>, <span class="number">0x4BADC6</span>,
+    <span class="number">0xA5CA4E</span>, <span class="number">0xCD37A7</span>, <span class="number">0x36A9E6</span>, <span class="number">0x9492AB</span>, <span class="number">0x6842DD</span>, <span class="number">0xDE6319</span>, <span class="number">0xEF8C76</span>, <span class="number">0x528B68</span>, <span class="number">0x37DBFC</span>,
+    <span class="number">0xABA1AE</span>, <span class="number">0x3115DF</span>, <span class="number">0xA1AE00</span>, <span class="number">0xDAFB0C</span>, <span class="number">0x664D64</span>, <span class="number">0xB705ED</span>, <span class="number">0x306529</span>, <span class="number">0xBF5657</span>, <span class="number">0x3AFF47</span>,
+    <span class="number">0xB9F96A</span>, <span class="number">0xF3BE75</span>, <span class="number">0xDF9328</span>, <span class="number">0x3080AB</span>, <span class="number">0xF68C66</span>, <span class="number">0x15CB04</span>, <span class="number">0x0622FA</span>, <span class="number">0x1DE4D9</span>, <span class="number">0xA4B33D</span>,
+    <span class="number">0x8F1B57</span>, <span class="number">0x09CD36</span>, <span class="number">0xE9424E</span>, <span class="number">0xA4BE13</span>, <span class="number">0xB52333</span>, <span class="number">0x1AAAF0</span>, <span class="number">0xA8654F</span>, <span class="number">0xA5C1D2</span>, <span class="number">0x0F3F0B</span>,
+    <span class="number">0xCD785B</span>, <span class="number">0x76F923</span>, <span class="number">0x048B7B</span>, <span class="number">0x721789</span>, <span class="number">0x53A6C6</span>, <span class="number">0xE26E6F</span>, <span class="number">0x00EBEF</span>, <span class="number">0x584A9B</span>, <span class="number">0xB7DAC4</span>,
+    <span class="number">0xBA66AA</span>, <span class="number">0xCFCF76</span>, <span class="number">0x1D02D1</span>, <span class="number">0x2DF1B1</span>, <span class="number">0xC1998C</span>, <span class="number">0x77ADC3</span>, <span class="number">0xDA4886</span>, <span class="number">0xA05DF7</span>, <span class="number">0xF480C6</span>,
+    <span class="number">0x2FF0AC</span>, <span class="number">0x9AECDD</span>, <span class="number">0xBC5C3F</span>, <span class="number">0x6DDED0</span>, <span class="number">0x1FC790</span>, <span class="number">0xB6DB2A</span>, <span class="number">0x3A25A3</span>, <span class="number">0x9AAF00</span>, <span class="number">0x9353AD</span>,
+    <span class="number">0x0457B6</span>, <span class="number">0xB42D29</span>, <span class="number">0x7E804B</span>, <span class="number">0xA707DA</span>, <span class="number">0x0EAA76</span>, <span class="number">0xA1597B</span>, <span class="number">0x2A1216</span>, <span class="number">0x2DB7DC</span>, <span class="number">0xFDE5FA</span>,
+    <span class="number">0xFEDB89</span>, <span class="number">0xFDBE89</span>, <span class="number">0x6C76E4</span>, <span class="number">0xFCA906</span>, <span class="number">0x70803E</span>, <span class="number">0x156E85</span>, <span class="number">0xFF87FD</span>, <span class="number">0x073E28</span>, <span class="number">0x336761</span>,
+    <span class="number">0x86182A</span>, <span class="number">0xEABD4D</span>, <span class="number">0xAFE7B3</span>, <span class="number">0x6E6D8F</span>, <span class="number">0x396795</span>, <span class="number">0x5BBF31</span>, <span class="number">0x48D784</span>, <span class="number">0x16DF30</span>, <span class="number">0x432DC7</span>,
+    <span class="number">0x356125</span>, <span class="number">0xCE70C9</span>, <span class="number">0xB8CB30</span>, <span class="number">0xFD6CBF</span>, <span class="number">0xA200A4</span>, <span class="number">0xE46C05</span>, <span class="number">0xA0DD5A</span>, <span class="number">0x476F21</span>, <span class="number">0xD21262</span>,
+    <span class="number">0x845CB9</span>, <span class="number">0x496170</span>, <span class="number">0xE0566B</span>, <span class="number">0x015299</span>, <span class="number">0x375550</span>, <span class="number">0xB7D51E</span>, <span class="number">0xC4F133</span>, <span class="number">0x5F6E13</span>, <span class="number">0xE4305D</span>,
+    <span class="number">0xA92E85</span>, <span class="number">0xC3B21D</span>, <span class="number">0x3632A1</span>, <span class="number">0xA4B708</span>, <span class="number">0xD4B1EA</span>, <span class="number">0x21F716</span>, <span class="number">0xE4698F</span>, <span class="number">0x77FF27</span>, <span class="number">0x80030C</span>,
+    <span class="number">0x2D408D</span>, <span class="number">0xA0CD4F</span>, <span class="number">0x99A520</span>, <span class="number">0xD3A2B3</span>, <span class="number">0x0A5D2F</span>, <span class="number">0x42F9B4</span>, <span class="number">0xCBDA11</span>, <span class="number">0xD0BE7D</span>, <span class="number">0xC1DB9B</span>,
+    <span class="number">0xBD17AB</span>, <span class="number">0x81A2CA</span>, <span class="number">0x5C6A08</span>, <span class="number">0x17552E</span>, <span class="number">0x550027</span>, <span class="number">0xF0147F</span>, <span class="number">0x8607E1</span>, <span class="number">0x640B14</span>, <span class="number">0x8D4196</span>,
+    <span class="number">0xDEBE87</span>, <span class="number">0x2AFDDA</span>, <span class="number">0xB6256B</span>, <span class="number">0x34897B</span>, <span class="number">0xFEF305</span>, <span class="number">0x9EBFB9</span>, <span class="number">0x4F6A68</span>, <span class="number">0xA82A4A</span>, <span class="number">0x5AC44F</span>,
+    <span class="number">0xBCF82D</span>, <span class="number">0x985AD7</span>, <span class="number">0x95C7F4</span>, <span class="number">0x8D4D0D</span>, <span class="number">0xA63A20</span>, <span class="number">0x5F57A4</span>, <span class="number">0xB13F14</span>, <span class="number">0x953880</span>, <span class="number">0x0120CC</span>,
+    <span class="number">0x86DD71</span>, <span class="number">0xB6DEC9</span>, <span class="number">0xF560BF</span>, <span class="number">0x11654D</span>, <span class="number">0x6B0701</span>, <span class="number">0xACB08C</span>, <span class="number">0xD0C0B2</span>, <span class="number">0x485551</span>, <span class="number">0x0EFB1E</span>,
+    <span class="number">0xC37295</span>, <span class="number">0x3B06A3</span>, <span class="number">0x3540C0</span>, <span class="number">0x7BDC06</span>, <span class="number">0xCC45E0</span>, <span class="number">0xFA294E</span>, <span class="number">0xC8CAD6</span>, <span class="number">0x41F3E8</span>, <span class="number">0xDE647C</span>,
+    <span class="number">0xD8649B</span>, <span class="number">0x31BED9</span>, <span class="number">0xC397A4</span>, <span class="number">0xD45877</span>, <span class="number">0xC5E369</span>, <span class="number">0x13DAF0</span>, <span class="number">0x3C3ABA</span>, <span class="number">0x461846</span>, <span class="number">0x5F7555</span>,
+    <span class="number">0xF5BDD2</span>, <span class="number">0xC6926E</span>, <span class="number">0x5D2EAC</span>, <span class="number">0xED440E</span>, <span class="number">0x423E1C</span>, <span class="number">0x87C461</span>, <span class="number">0xE9FD29</span>, <span class="number">0xF3D6E7</span>, <span class="number">0xCA7C22</span>,
+    <span class="number">0x35916F</span>, <span class="number">0xC5E008</span>, <span class="number">0x8DD7FF</span>, <span class="number">0xE26A6E</span>, <span class="number">0xC6FDB0</span>, <span class="number">0xC10893</span>, <span class="number">0x745D7C</span>, <span class="number">0xB2AD6B</span>, <span class="number">0x9D6ECD</span>,
+    <span class="number">0x7B723E</span>, <span class="number">0x6A11C6</span>, <span class="number">0xA9CFF7</span>, <span class="number">0xDF7329</span>, <span class="number">0xBAC9B5</span>, <span class="number">0x5100B7</span>, <span class="number">0x0DB2E2</span>, <span class="number">0x24BA74</span>, <span class="number">0x607DE5</span>,
+    <span class="number">0x8AD874</span>, <span class="number">0x2C150D</span>, <span class="number">0x0C1881</span>, <span class="number">0x94667E</span>, <span class="number">0x162901</span>, <span class="number">0x767A9F</span>, <span class="number">0xBEFDFD</span>, <span class="number">0xEF4556</span>, <span class="number">0x367ED9</span>,
+    <span class="number">0x13D9EC</span>, <span class="number">0xB9BA8B</span>, <span class="number">0xFC97C4</span>, <span class="number">0x27A831</span>, <span class="number">0xC36EF1</span>, <span class="number">0x36C594</span>, <span class="number">0x56A8D8</span>, <span class="number">0xB5A8B4</span>, <span class="number">0x0ECCCF</span>,
+    <span class="number">0x2D8912</span>, <span class="number">0x34576F</span>, <span class="number">0x89562C</span>, <span class="number">0xE3CE99</span>, <span class="number">0xB920D6</span>, <span class="number">0xAA5E6B</span>, <span class="number">0x9C2A3E</span>, <span class="number">0xCC5F11</span>, <span class="number">0x4A0BFD</span>,
+    <span class="number">0xFBF4E1</span>, <span class="number">0x6D3B8E</span>, <span class="number">0x2C86E2</span>, <span class="number">0x84D4E9</span>, <span class="number">0xA9B4FC</span>, <span class="number">0xD1EEEF</span>, <span class="number">0xC9352E</span>, <span class="number">0x61392F</span>, <span class="number">0x442138</span>,
+    <span class="number">0xC8D91B</span>, <span class="number">0x0AFC81</span>, <span class="number">0x6A4AFB</span>, <span class="number">0xD81C2F</span>, <span class="number">0x84B453</span>, <span class="number">0x8C994E</span>, <span class="number">0xCC2254</span>, <span class="number">0xDC552A</span>, <span class="number">0xD6C6C0</span>,
+    <span class="number">0x96190B</span>, <span class="number">0xB8701A</span>, <span class="number">0x649569</span>, <span class="number">0x605A26</span>, <span class="number">0xEE523F</span>, <span class="number">0x0F117F</span>, <span class="number">0x11B5F4</span>, <span class="number">0xF5CBFC</span>, <span class="number">0x2DBC34</span>,
+    <span class="number">0xEEBC34</span>, <span class="number">0xCC5DE8</span>, <span class="number">0x605EDD</span>, <span class="number">0x9B8E67</span>, <span class="number">0xEF3392</span>, <span class="number">0xB817C9</span>, <span class="number">0x9B5861</span>, <span class="number">0xBC57E1</span>, <span class="number">0xC68351</span>,
+    <span class="number">0x103ED8</span>, <span class="number">0x4871DD</span>, <span class="number">0xDD1C2D</span>, <span class="number">0xA118AF</span>, <span class="number">0x462C21</span>, <span class="number">0xD7F359</span>, <span class="number">0x987AD9</span>, <span class="number">0xC0549E</span>, <span class="number">0xFA864F</span>,
+    <span class="number">0xFC0656</span>, <span class="number">0xAE79E5</span>, <span class="number">0x362289</span>, <span class="number">0x22AD38</span>, <span class="number">0xDC9367</span>, <span class="number">0xAAE855</span>, <span class="number">0x382682</span>, <span class="number">0x9BE7CA</span>, <span class="number">0xA40D51</span>,
+    <span class="number">0xB13399</span>, <span class="number">0x0ED7A9</span>, <span class="number">0x480569</span>, <span class="number">0xF0B265</span>, <span class="number">0xA7887F</span>, <span class="number">0x974C88</span>, <span class="number">0x36D1F9</span>, <span class="number">0xB39221</span>, <span class="number">0x4A827B</span>,
+    <span class="number">0x21CF98</span>, <span class="number">0xDC9F40</span>, <span class="number">0x5547DC</span>, <span class="number">0x3A74E1</span>, <span class="number">0x42EB67</span>, <span class="number">0xDF9DFE</span>, <span class="number">0x5FD45E</span>, <span class="number">0xA4677B</span>, <span class="number">0x7AACBA</span>,
+    <span class="number">0xA2F655</span>, <span class="number">0x23882B</span>, <span class="number">0x55BA41</span>, <span class="number">0x086E59</span>, <span class="number">0x862A21</span>, <span class="number">0x834739</span>, <span class="number">0xE6E389</span>, <span class="number">0xD49EE5</span>, <span class="number">0x40FB49</span>,
+    <span class="number">0xE956FF</span>, <span class="number">0xCA0F1C</span>, <span class="number">0x8A59C5</span>, <span class="number">0x2BFA94</span>, <span class="number">0xC5C1D3</span>, <span class="number">0xCFC50F</span>, <span class="number">0xAE5ADB</span>, <span class="number">0x86C547</span>, <span class="number">0x624385</span>,
+    <span class="number">0x3B8621</span>, <span class="number">0x94792C</span>, <span class="number">0x876110</span>, <span class="number">0x7B4C2A</span>, <span class="number">0x1A2C80</span>, <span class="number">0x12BF43</span>, <span class="number">0x902688</span>, <span class="number">0x893C78</span>, <span class="number">0xE4C4A8</span>,
+    <span class="number">0x7BDBE5</span>, <span class="number">0xC23AC4</span>, <span class="number">0xEAF426</span>, <span class="number">0x8A67F7</span>, <span class="number">0xBF920D</span>, <span class="number">0x2BA365</span>, <span class="number">0xB1933D</span>, <span class="number">0x0B7CBD</span>, <span class="number">0xDC51A4</span>,
+    <span class="number">0x63DD27</span>, <span class="number">0xDDE169</span>, <span class="number">0x19949A</span>, <span class="number">0x9529A8</span>, <span class="number">0x28CE68</span>, <span class="number">0xB4ED09</span>, <span class="number">0x209F44</span>, <span class="number">0xCA984E</span>, <span class="number">0x638270</span>,
+    <span class="number">0x237C7E</span>, <span class="number">0x32B90F</span>, <span class="number">0x8EF5A7</span>, <span class="number">0xE75614</span>, <span class="number">0x08F121</span>, <span class="number">0x2A9DB5</span>, <span class="number">0x4D7E6F</span>, <span class="number">0x5119A5</span>, <span class="number">0xABF9B5</span>,
+    <span class="number">0xD6DF82</span>, <span class="number">0x61DD96</span>, <span class="number">0x023616</span>, <span class="number">0x9F3AC4</span>, <span class="number">0xA1A283</span>, <span class="number">0x6DED72</span>, <span class="number">0x7A8D39</span>, <span class="number">0xA9B882</span>, <span class="number">0x5C326B</span>,
+    <span class="number">0x5B2746</span>, <span class="number">0xED3400</span>, <span class="number">0x7700D2</span>, <span class="number">0x55F4FC</span>, <span class="number">0x4D5901</span>, <span class="number">0x8071E0</span>,
+];
+
+<span class="kw">const</span> <span class="ident">PIO2</span>: [<span class="ident">f64</span>; <span class="number">8</span>] <span class="op">=</span> [
+    <span class="number">1.57079625129699707031e+00</span>, <span class="comment">/* 0x3FF921FB, 0x40000000 */</span>
+    <span class="number">7.54978941586159635335e-08</span>, <span class="comment">/* 0x3E74442D, 0x00000000 */</span>
+    <span class="number">5.39030252995776476554e-15</span>, <span class="comment">/* 0x3CF84698, 0x80000000 */</span>
+    <span class="number">3.28200341580791294123e-22</span>, <span class="comment">/* 0x3B78CC51, 0x60000000 */</span>
+    <span class="number">1.27065575308067607349e-29</span>, <span class="comment">/* 0x39F01B83, 0x80000000 */</span>
+    <span class="number">1.22933308981111328932e-36</span>, <span class="comment">/* 0x387A2520, 0x40000000 */</span>
+    <span class="number">2.73370053816464559624e-44</span>, <span class="comment">/* 0x36E38222, 0x80000000 */</span>
+    <span class="number">2.16741683877804819444e-51</span>, <span class="comment">/* 0x3569F31D, 0x00000000 */</span>
+];
+
+<span class="comment">// fn rem_pio2_large(x : &amp;[f64], y : &amp;mut [f64], e0 : i32, prec : usize) -&gt; i32</span>
+<span class="comment">//</span>
+<span class="comment">// Input parameters:</span>
+<span class="comment">//      x[]     The input value (must be positive) is broken into nx</span>
+<span class="comment">//              pieces of 24-bit integers in double precision format.</span>
+<span class="comment">//              x[i] will be the i-th 24 bit of x. The scaled exponent</span>
+<span class="comment">//              of x[0] is given in input parameter e0 (i.e., x[0]*2^e0</span>
+<span class="comment">//              match x&#39;s up to 24 bits.</span>
+<span class="comment">//</span>
+<span class="comment">//              Example of breaking a double positive z into x[0]+x[1]+x[2]:</span>
+<span class="comment">//                      e0 = ilogb(z)-23</span>
+<span class="comment">//                      z  = scalbn(z,-e0)</span>
+<span class="comment">//              for i = 0,1,2</span>
+<span class="comment">//                      x[i] = floor(z)</span>
+<span class="comment">//                      z    = (z-x[i])*2**24</span>
+<span class="comment">//</span>
+<span class="comment">//      y[]     ouput result in an array of double precision numbers.</span>
+<span class="comment">//              The dimension of y[] is:</span>
+<span class="comment">//                      24-bit  precision       1</span>
+<span class="comment">//                      53-bit  precision       2</span>
+<span class="comment">//                      64-bit  precision       2</span>
+<span class="comment">//                      113-bit precision       3</span>
+<span class="comment">//              The actual value is the sum of them. Thus for 113-bit</span>
+<span class="comment">//              precison, one may have to do something like:</span>
+<span class="comment">//</span>
+<span class="comment">//              long double t,w,r_head, r_tail;</span>
+<span class="comment">//              t = (long double)y[2] + (long double)y[1];</span>
+<span class="comment">//              w = (long double)y[0];</span>
+<span class="comment">//              r_head = t+w;</span>
+<span class="comment">//              r_tail = w - (r_head - t);</span>
+<span class="comment">//</span>
+<span class="comment">//      e0      The exponent of x[0]. Must be &lt;= 16360 or you need to</span>
+<span class="comment">//              expand the ipio2 table.</span>
+<span class="comment">//</span>
+<span class="comment">//      prec    an integer indicating the precision:</span>
+<span class="comment">//                      0       24  bits (single)</span>
+<span class="comment">//                      1       53  bits (double)</span>
+<span class="comment">//                      2       64  bits (extended)</span>
+<span class="comment">//                      3       113 bits (quad)</span>
+<span class="comment">//</span>
+<span class="comment">// Here is the description of some local variables:</span>
+<span class="comment">//</span>
+<span class="comment">//      jk      jk+1 is the initial number of terms of ipio2[] needed</span>
+<span class="comment">//              in the computation. The minimum and recommended value</span>
+<span class="comment">//              for jk is 3,4,4,6 for single, double, extended, and quad.</span>
+<span class="comment">//              jk+1 must be 2 larger than you might expect so that our</span>
+<span class="comment">//              recomputation test works. (Up to 24 bits in the integer</span>
+<span class="comment">//              part (the 24 bits of it that we compute) and 23 bits in</span>
+<span class="comment">//              the fraction part may be lost to cancelation before we</span>
+<span class="comment">//              recompute.)</span>
+<span class="comment">//</span>
+<span class="comment">//      jz      local integer variable indicating the number of</span>
+<span class="comment">//              terms of ipio2[] used.</span>
+<span class="comment">//</span>
+<span class="comment">//      jx      nx - 1</span>
+<span class="comment">//</span>
+<span class="comment">//      jv      index for pointing to the suitable ipio2[] for the</span>
+<span class="comment">//              computation. In general, we want</span>
+<span class="comment">//                      ( 2^e0*x[0] * ipio2[jv-1]*2^(-24jv) )/8</span>
+<span class="comment">//              is an integer. Thus</span>
+<span class="comment">//                      e0-3-24*jv &gt;= 0 or (e0-3)/24 &gt;= jv</span>
+<span class="comment">//              Hence jv = max(0,(e0-3)/24).</span>
+<span class="comment">//</span>
+<span class="comment">//      jp      jp+1 is the number of terms in PIo2[] needed, jp = jk.</span>
+<span class="comment">//</span>
+<span class="comment">//      q[]     double array with integral value, representing the</span>
+<span class="comment">//              24-bits chunk of the product of x and 2/pi.</span>
+<span class="comment">//</span>
+<span class="comment">//      q0      the corresponding exponent of q[0]. Note that the</span>
+<span class="comment">//              exponent for q[i] would be q0-24*i.</span>
+<span class="comment">//</span>
+<span class="comment">//      PIo2[]  double precision array, obtained by cutting pi/2</span>
+<span class="comment">//              into 24 bits chunks.</span>
+<span class="comment">//</span>
+<span class="comment">//      f[]     ipio2[] in floating point</span>
+<span class="comment">//</span>
+<span class="comment">//      iq[]    integer array by breaking up q[] in 24-bits chunk.</span>
+<span class="comment">//</span>
+<span class="comment">//      fq[]    final product of x*(2/pi) in fq[0],..,fq[jk]</span>
+<span class="comment">//</span>
+<span class="comment">//      ih      integer. If &gt;0 it indicates q[] is &gt;= 0.5, hence</span>
+<span class="comment">//              it also indicates the *sign* of the result.</span>
+
+<span class="doccomment">/// Return the last three digits of N with y = x - N*pi/2</span>
+<span class="doccomment">/// so that |y| &lt; pi/2.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The method is to compute the integer (mod 8) and fraction parts of</span>
+<span class="doccomment">/// (2/pi)*x without doing the full multiplication. In general we</span>
+<span class="doccomment">/// skip the part of the product that are known to be a huge integer (</span>
+<span class="doccomment">/// more accurately, = 0 mod 8 ). Thus the number of operations are</span>
+<span class="doccomment">/// independent of the exponent of the input.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rem_pio2_large</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span>[<span class="ident">f64</span>], <span class="ident">y</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">f64</span>], <span class="ident">e0</span>: <span class="ident">i32</span>, <span class="ident">prec</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">let</span> <span class="ident">x1p24</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x4170000000000000</span>); <span class="comment">// 0x1p24 === 2 ^ 24</span>
+    <span class="kw">let</span> <span class="ident">x1p_24</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3e70000000000000</span>); <span class="comment">// 0x1p_24 === 2 ^ (-24)</span>
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;checked&quot;</span>))]</span>
+    <span class="macro">assert!</span>(<span class="ident">e0</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16360</span>);
+
+    <span class="kw">let</span> <span class="ident">nx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">len</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fw</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span>: <span class="ident">i32</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ih</span>: <span class="ident">i32</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span>: [<span class="ident">f64</span>; <span class="number">20</span>] <span class="op">=</span> [<span class="number">0.</span>; <span class="number">20</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fq</span>: [<span class="ident">f64</span>; <span class="number">20</span>] <span class="op">=</span> [<span class="number">0.</span>; <span class="number">20</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q</span>: [<span class="ident">f64</span>; <span class="number">20</span>] <span class="op">=</span> [<span class="number">0.</span>; <span class="number">20</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iq</span>: [<span class="ident">i32</span>; <span class="number">20</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">20</span>];
+
+    <span class="comment">/* initialize jk*/</span>
+    <span class="kw">let</span> <span class="ident">jk</span> <span class="op">=</span> <span class="ident">INIT_JK</span>[<span class="ident">prec</span>];
+    <span class="kw">let</span> <span class="ident">jp</span> <span class="op">=</span> <span class="ident">jk</span>;
+
+    <span class="comment">/* determine jx,jv,q0, note that 3&gt;q0 */</span>
+    <span class="kw">let</span> <span class="ident">jx</span> <span class="op">=</span> <span class="ident">nx</span> <span class="op">-</span> <span class="number">1</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jv</span> <span class="op">=</span> (<span class="ident">e0</span> <span class="op">-</span> <span class="number">3</span>) <span class="op">/</span> <span class="number">24</span>;
+    <span class="kw">if</span> <span class="ident">jv</span> <span class="op">&lt;</span> <span class="number">0</span> {
+        <span class="ident">jv</span> <span class="op">=</span> <span class="number">0</span>;
+    }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">q0</span> <span class="op">=</span> <span class="ident">e0</span> <span class="op">-</span> <span class="number">24</span> <span class="op">*</span> (<span class="ident">jv</span> <span class="op">+</span> <span class="number">1</span>);
+    <span class="kw">let</span> <span class="ident">jv</span> <span class="op">=</span> <span class="ident">jv</span> <span class="kw">as</span> <span class="ident">usize</span>;
+
+    <span class="comment">/* set up f[0] to f[jx+jk] where f[jx+jk] = ipio2[jv+jk] */</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> (<span class="ident">jv</span> <span class="kw">as</span> <span class="ident">i32</span>) <span class="op">-</span> (<span class="ident">jx</span> <span class="kw">as</span> <span class="ident">i32</span>);
+    <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">jx</span> <span class="op">+</span> <span class="ident">jk</span>;
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">m</span> {
+        <span class="macro">i!</span>(<span class="ident">f</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="kw">if</span> <span class="ident">j</span> <span class="op">&lt;</span> <span class="number">0</span> {
+            <span class="number">0.</span>
+        } <span class="kw">else</span> {
+            <span class="macro">i!</span>(<span class="ident">IPIO2</span>, <span class="ident">j</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="kw">as</span> <span class="ident">f64</span>
+        });
+        <span class="ident">j</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">/* compute q[0],q[1],...q[jk] */</span>
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">jk</span> {
+        <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">jx</span> {
+            <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">x</span>, <span class="ident">j</span>) <span class="op">*</span> <span class="macro">i!</span>(<span class="ident">f</span>, <span class="ident">jx</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">-</span> <span class="ident">j</span>);
+        }
+        <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">jz</span> <span class="op">=</span> <span class="ident">jk</span>;
+
+    <span class="lifetime">&#39;recompute</span>: <span class="kw">loop</span> {
+        <span class="comment">/* distill q[] into iq[] reversingly */</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0i32</span>;
+        <span class="ident">z</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">jz</span>);
+        <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> (<span class="number">1</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+            <span class="ident">fw</span> <span class="op">=</span> (<span class="ident">x1p_24</span> <span class="op">*</span> <span class="ident">z</span>) <span class="kw">as</span> <span class="ident">i32</span> <span class="kw">as</span> <span class="ident">f64</span>;
+            <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="op">=</span>, (<span class="ident">z</span> <span class="op">-</span> <span class="ident">x1p24</span> <span class="op">*</span> <span class="ident">fw</span>) <span class="kw">as</span> <span class="ident">i32</span>);
+            <span class="ident">z</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">+</span> <span class="ident">fw</span>;
+            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+
+        <span class="comment">/* compute n */</span>
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">scalbn</span>(<span class="ident">z</span>, <span class="ident">q0</span>); <span class="comment">/* actual value of z */</span>
+        <span class="ident">z</span> <span class="op">-</span><span class="op">=</span> <span class="number">8.0</span> <span class="op">*</span> <span class="ident">floor</span>(<span class="ident">z</span> <span class="op">*</span> <span class="number">0.125</span>); <span class="comment">/* trim off integer &gt;= 8 */</span>
+        <span class="ident">n</span> <span class="op">=</span> <span class="ident">z</span> <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="ident">z</span> <span class="op">-</span><span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="ident">ih</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">if</span> <span class="ident">q0</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="comment">/* need iq[jz-1] to determine n */</span>
+            <span class="ident">i</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">24</span> <span class="op">-</span> <span class="ident">q0</span>);
+            <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="ident">i</span>;
+            <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">-</span><span class="op">=</span>, <span class="ident">i</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">24</span> <span class="op">-</span> <span class="ident">q0</span>));
+            <span class="ident">ih</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">23</span> <span class="op">-</span> <span class="ident">q0</span>);
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">q0</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">ih</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">23</span>;
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">z</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.5</span> {
+            <span class="ident">ih</span> <span class="op">=</span> <span class="number">2</span>;
+        }
+
+        <span class="kw">if</span> <span class="ident">ih</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="comment">/* q &gt; 0.5 */</span>
+            <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">carry</span> <span class="op">=</span> <span class="number">0i32</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">jz</span> {
+                <span class="comment">/* compute 1-q */</span>
+                <span class="kw">let</span> <span class="ident">j</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span>);
+                <span class="kw">if</span> <span class="ident">carry</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="kw">if</span> <span class="ident">j</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="ident">carry</span> <span class="op">=</span> <span class="number">1</span>;
+                        <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="number">0x1000000</span> <span class="op">-</span> <span class="ident">j</span>);
+                    }
+                } <span class="kw">else</span> {
+                    <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="number">0xffffff</span> <span class="op">-</span> <span class="ident">j</span>);
+                }
+            }
+            <span class="kw">if</span> <span class="ident">q0</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                <span class="comment">/* rare case: chance is 1 in 12 */</span>
+                <span class="kw">match</span> <span class="ident">q0</span> {
+                    <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">&amp;=</span>, <span class="number">0x7fffff</span>);
+                    }
+                    <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">&amp;=</span>, <span class="number">0x3fffff</span>);
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                }
+            }
+            <span class="kw">if</span> <span class="ident">ih</span> <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+                <span class="ident">z</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span>;
+                <span class="kw">if</span> <span class="ident">carry</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+                    <span class="ident">z</span> <span class="op">-</span><span class="op">=</span> <span class="ident">scalbn</span>(<span class="number">1.</span>, <span class="ident">q0</span>);
+                }
+            }
+        }
+
+        <span class="comment">/* check if recomputation is needed */</span>
+        <span class="kw">if</span> <span class="ident">z</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="ident">jk</span>..<span class="op">=</span><span class="ident">jz</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">rev</span>() {
+                <span class="ident">j</span> <span class="op">|</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span>);
+            }
+            <span class="kw">if</span> <span class="ident">j</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="comment">/* need recomputation */</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">while</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jk</span> <span class="op">-</span> <span class="ident">k</span>, <span class="op">=</span><span class="op">=</span>, <span class="number">0</span>) {
+                    <span class="ident">k</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>; <span class="comment">/* k = no. of terms needed */</span>
+                }
+
+                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="ident">jz</span> <span class="op">+</span> <span class="number">1</span>)..<span class="op">=</span>(<span class="ident">jz</span> <span class="op">+</span> <span class="ident">k</span>) {
+                    <span class="comment">/* add q[jz+1] to q[jz+k] */</span>
+                    <span class="macro">i!</span>(<span class="ident">f</span>, <span class="ident">jx</span> <span class="op">+</span> <span class="ident">i</span>, <span class="op">=</span>, <span class="macro">i!</span>(<span class="ident">IPIO2</span>, <span class="ident">jv</span> <span class="op">+</span> <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">f64</span>);
+                    <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+                    <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">jx</span> {
+                        <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">x</span>, <span class="ident">j</span>) <span class="op">*</span> <span class="macro">i!</span>(<span class="ident">f</span>, <span class="ident">jx</span> <span class="op">+</span> <span class="ident">i</span> <span class="op">-</span> <span class="ident">j</span>);
+                    }
+                    <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+                }
+                <span class="ident">jz</span> <span class="op">+</span><span class="op">=</span> <span class="ident">k</span>;
+                <span class="kw">continue</span> <span class="lifetime">&#39;recompute</span>;
+            }
+        }
+
+        <span class="kw">break</span>;
+    }
+
+    <span class="comment">/* chop off zero terms */</span>
+    <span class="kw">if</span> <span class="ident">z</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.</span> {
+        <span class="ident">jz</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="ident">q0</span> <span class="op">-</span><span class="op">=</span> <span class="number">24</span>;
+        <span class="kw">while</span> <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="ident">jz</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">q0</span> <span class="op">-</span><span class="op">=</span> <span class="number">24</span>;
+        }
+    } <span class="kw">else</span> {
+        <span class="comment">/* break z into 24-bit if necessary */</span>
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">scalbn</span>(<span class="ident">z</span>, <span class="op">-</span><span class="ident">q0</span>);
+        <span class="kw">if</span> <span class="ident">z</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">x1p24</span> {
+            <span class="ident">fw</span> <span class="op">=</span> (<span class="ident">x1p_24</span> <span class="op">*</span> <span class="ident">z</span>) <span class="kw">as</span> <span class="ident">i32</span> <span class="kw">as</span> <span class="ident">f64</span>;
+            <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span>, <span class="op">=</span>, (<span class="ident">z</span> <span class="op">-</span> <span class="ident">x1p24</span> <span class="op">*</span> <span class="ident">fw</span>) <span class="kw">as</span> <span class="ident">i32</span>);
+            <span class="ident">jz</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">q0</span> <span class="op">+</span><span class="op">=</span> <span class="number">24</span>;
+            <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span>, <span class="op">=</span>, <span class="ident">fw</span> <span class="kw">as</span> <span class="ident">i32</span>);
+        } <span class="kw">else</span> {
+            <span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">jz</span>, <span class="op">=</span>, <span class="ident">z</span> <span class="kw">as</span> <span class="ident">i32</span>);
+        }
+    }
+
+    <span class="comment">/* convert integer &quot;bit&quot; chunk to floating-point value */</span>
+    <span class="ident">fw</span> <span class="op">=</span> <span class="ident">scalbn</span>(<span class="number">1.</span>, <span class="ident">q0</span>);
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+        <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">i</span>, <span class="op">=</span>, <span class="ident">fw</span> <span class="op">*</span> (<span class="macro">i!</span>(<span class="ident">iq</span>, <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">f64</span>));
+        <span class="ident">fw</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x1p_24</span>;
+    }
+
+    <span class="comment">/* compute PIo2[0,...,jp]*q[jz,...,0] */</span>
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+        <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">k</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">while</span> (<span class="ident">k</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">jp</span>) <span class="op">&amp;&amp;</span> (<span class="ident">k</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">jz</span> <span class="op">-</span> <span class="ident">i</span>) {
+            <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">PIO2</span>, <span class="ident">k</span>) <span class="op">*</span> <span class="macro">i!</span>(<span class="ident">q</span>, <span class="ident">i</span> <span class="op">+</span> <span class="ident">k</span>);
+            <span class="ident">k</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+        <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">jz</span> <span class="op">-</span> <span class="ident">i</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+    }
+
+    <span class="comment">/* compress fq[] into y[] */</span>
+    <span class="kw">match</span> <span class="ident">prec</span> {
+        <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+                <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+            }
+            <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">0</span>, <span class="op">=</span>, <span class="kw">if</span> <span class="ident">ih</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="ident">fw</span> } <span class="kw">else</span> { <span class="op">-</span><span class="ident">fw</span> });
+        }
+        <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+                <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+            }
+            <span class="comment">// TODO: drop excess precision here once double_t is used</span>
+            <span class="ident">fw</span> <span class="op">=</span> <span class="ident">fw</span> <span class="kw">as</span> <span class="ident">f64</span>;
+            <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">0</span>, <span class="op">=</span>, <span class="kw">if</span> <span class="ident">ih</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="ident">fw</span> } <span class="kw">else</span> { <span class="op">-</span><span class="ident">fw</span> });
+            <span class="ident">fw</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="number">0</span>) <span class="op">-</span> <span class="ident">fw</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="ident">jz</span> {
+                <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+            }
+            <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">1</span>, <span class="op">=</span>, <span class="kw">if</span> <span class="ident">ih</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> { <span class="ident">fw</span> } <span class="kw">else</span> { <span class="op">-</span><span class="ident">fw</span> });
+        }
+        <span class="number">3</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">/* painful */</span>
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">1</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+                <span class="ident">fw</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">+</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+                <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>, <span class="op">+</span><span class="op">=</span>, <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">-</span> <span class="ident">fw</span>);
+                <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+            }
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">2</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+                <span class="ident">fw</span> <span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">+</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+                <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>, <span class="op">+</span><span class="op">=</span>, <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">-</span> <span class="ident">fw</span>);
+                <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+            }
+            <span class="ident">fw</span> <span class="op">=</span> <span class="number">0f64</span>;
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">2</span>..<span class="op">=</span><span class="ident">jz</span>).<span class="ident">rev</span>() {
+                <span class="ident">fw</span> <span class="op">+</span><span class="op">=</span> <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="ident">i</span>);
+            }
+            <span class="kw">if</span> <span class="ident">ih</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">0</span>, <span class="op">=</span>, <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="number">0</span>));
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">1</span>, <span class="op">=</span>, <span class="macro">i!</span>(<span class="ident">fq</span>, <span class="number">1</span>));
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">2</span>, <span class="op">=</span>, <span class="ident">fw</span>);
+            } <span class="kw">else</span> {
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">0</span>, <span class="op">=</span>, <span class="op">-</span><span class="macro">i!</span>(<span class="ident">fq</span>, <span class="number">0</span>));
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">1</span>, <span class="op">=</span>, <span class="op">-</span><span class="macro">i!</span>(<span class="ident">fq</span>, <span class="number">1</span>));
+                <span class="macro">i!</span>(<span class="ident">y</span>, <span class="number">2</span>, <span class="op">=</span>, <span class="op">-</span><span class="ident">fw</span>);
+            }
+        }
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+    }
+    <span class="ident">n</span> <span class="op">&amp;</span> <span class="number">7</span>
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Slice argument constructor."><meta name="keywords" content="rust, rustlang, rust-lang, s"><title>s in ndarray - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ndarray/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">ndarray</a></p><div id="sidebar-vars" data-name="s" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">ndarray</a>::<wbr><a class="macro" href="#">s</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ndarray/slice.rs.html#545-632" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">s</span> {
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">expr</span> ,) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span> ,) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>;<span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">dim</span>:<span class="ident">expr</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">stack</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> <span class="ident">::std::marker::PhantomData</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::Ix0</span><span class="op">&gt;</span>, []) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">parse</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">convert</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (@<span class="ident">convert</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">s</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Slice argument constructor.</p>
+<p><code>s![]</code> takes a list of ranges/slices/indices, separated by comma, with
+optional step sizes that are separated from the range by a semicolon. It is
+converted into a <a href="struct.SliceInfo.html"><code>&amp;SliceInfo</code></a> instance.</p>
+<p>Each range/slice/index uses signed indices, where a negative value is
+counted from the end of the axis. Step sizes are also signed and may be
+negative, but must not be zero.</p>
+<p>The syntax is <code>s![</code> <em>[ axis-slice-or-index [, axis-slice-or-index [ , … ]
+] ]</em> <code>]</code>, where <em>axis-slice-or-index</em> is any of the following:</p>
+<ul>
+<li><em>index</em>: an index to use for taking a subview with respect to that axis.
+(The index is selected. The axis is removed except with
+<a href="struct.ArrayBase.html#method.slice_collapse"><code>.slice_collapse()</code></a>.)</li>
+<li><em>range</em>: a range with step size 1 to use for slicing that axis.</li>
+<li><em>range</em> <code>;</code> <em>step</em>: a range with step size <em>step</em> to use for slicing that axis.</li>
+<li><em>slice</em>: a <a href="struct.Slice.html"><code>Slice</code></a> instance to use for slicing that axis.</li>
+<li><em>slice</em> <code>;</code> <em>step</em>: a range constructed from the start and end of a <a href="struct.Slice.html"><code>Slice</code></a>
+instance, with new step size <em>step</em>, to use for slicing that axis.</li>
+</ul>
+<p>The number of <em>axis-slice-or-index</em> must match the number of axes in the
+array. <em>index</em>, <em>range</em>, <em>slice</em>, and <em>step</em> can be expressions. <em>index</em>
+must be of type <code>isize</code>, <code>usize</code>, or <code>i32</code>. <em>range</em> must be of type
+<code>Range&lt;I&gt;</code>, <code>RangeTo&lt;I&gt;</code>, <code>RangeFrom&lt;I&gt;</code>, or <code>RangeFull</code> where <code>I</code> is
+<code>isize</code>, <code>usize</code>, or <code>i32</code>. <em>step</em> must be a type that can be converted to
+<code>isize</code> with the <code>as</code> keyword.</p>
+<p>For example <code>s![0..4;2, 6, 1..5]</code> is a slice of the first axis for 0..4
+with step size 2, a subview of the second axis at index 6, and a slice of
+the third axis for 1..5 with default step size 1. The input array must have
+3 dimensions. The resulting slice would have shape <code>[2, 4]</code> for
+<a href="struct.ArrayBase.html#method.slice"><code>.slice()</code></a>, <a href="struct.ArrayBase.html#method.slice_mut"><code>.slice_mut()</code></a>, and <a href="struct.ArrayBase.html#method.slice_move"><code>.slice_move()</code></a>, and shape
+<code>[2, 1, 4]</code> for <a href="struct.ArrayBase.html#method.slice_collapse"><code>.slice_collapse()</code></a>.</p>
+<p>See also <a href="struct.ArrayBase.html#slicing"><em>Slicing</em></a>.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">ndarray</span>;
+
+<span class="kw">use</span> <span class="ident">ndarray</span>::{<span class="ident">s</span>, <span class="ident">Array2</span>, <span class="ident">ArrayView2</span>};
+
+<span class="kw">fn</span> <span class="ident">laplacian</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">ArrayView2</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Array2</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> {
+    <span class="op">-</span><span class="number">4.</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">1</span>..<span class="op">-</span><span class="number">1</span>, <span class="number">1</span>..<span class="op">-</span><span class="number">1</span>])
+    <span class="op">+</span> <span class="ident">v</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[ ..<span class="op">-</span><span class="number">2</span>, <span class="number">1</span>..<span class="op">-</span><span class="number">1</span>])
+    <span class="op">+</span> <span class="ident">v</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">1</span>..<span class="op">-</span><span class="number">1</span>,  ..<span class="op">-</span><span class="number">2</span>])
+    <span class="op">+</span> <span class="ident">v</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">1</span>..<span class="op">-</span><span class="number">1</span>, <span class="number">2</span>..  ])
+    <span class="op">+</span> <span class="ident">v</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">2</span>..  , <span class="number">1</span>..<span class="op">-</span><span class="number">1</span>])
+}</pre></div>
+<h1 id="negative-step" class="section-header"><a href="#negative-step">Negative <em>step</em></a></h1>
+<p>The behavior of negative <em>step</em> arguments is most easily understood with
+slicing as a two-step process:</p>
+<ol>
+<li>
+<p>First, perform a slice with <em>range</em>.</p>
+</li>
+<li>
+<p>If <em>step</em> is positive, start with the front of the slice; if <em>step</em> is
+negative, start with the back of the slice. Then, add <em>step</em> until
+reaching the other end of the slice (inclusive).</p>
+</li>
+</ol>
+<p>An equivalent way to think about step 2 is, “If <em>step</em> is negative, reverse
+the slice. Start at the front of the (possibly reversed) slice, and add
+<em>step.abs()</em> until reaching the back of the slice (inclusive).”</p>
+<p>For example,</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">arr</span> <span class="op">=</span> <span class="macro">array!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="macro">assert_eq!</span>(<span class="ident">arr</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">1</span>..<span class="number">3</span>;<span class="op">-</span><span class="number">1</span>]), <span class="macro">array!</span>[<span class="number">2</span>, <span class="number">1</span>]);
+<span class="macro">assert_eq!</span>(<span class="ident">arr</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">1</span>..;<span class="op">-</span><span class="number">2</span>]), <span class="macro">array!</span>[<span class="number">3</span>, <span class="number">1</span>]);
+<span class="macro">assert_eq!</span>(<span class="ident">arr</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">0</span>..<span class="number">4</span>;<span class="op">-</span><span class="number">2</span>]), <span class="macro">array!</span>[<span class="number">3</span>, <span class="number">1</span>]);
+<span class="macro">assert_eq!</span>(<span class="ident">arr</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[<span class="number">0</span>..;<span class="op">-</span><span class="number">2</span>]), <span class="macro">array!</span>[<span class="number">3</span>, <span class="number">1</span>]);
+<span class="macro">assert_eq!</span>(<span class="ident">arr</span>.<span class="ident">slice</span>(<span class="macro">s!</span>[..;<span class="op">-</span><span class="number">2</span>]), <span class="macro">array!</span>[<span class="number">3</span>, <span class="number">1</span>]);</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ndarray" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

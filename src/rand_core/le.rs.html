@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;rand_core-0.6.3&#x2F;src&#x2F;le.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>le.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rand_core/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2018 Developers of the Rand project.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or https://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
+
+<span class="doccomment">//! Little-Endian utilities</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Little-Endian order has been chosen for internal usage; this makes some</span>
+<span class="doccomment">//! useful functions available.</span>
+
+<span class="kw">use</span> <span class="ident">core::convert::TryInto</span>;
+
+<span class="doccomment">/// Reads unsigned 32 bit integers from `src` into `dst`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u32_into</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u32</span>]) {
+    <span class="macro">assert!</span>(<span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span> <span class="op">*</span> <span class="ident">dst</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> (<span class="ident">out</span>, <span class="ident">chunk</span>) <span class="kw">in</span> <span class="ident">dst</span>.<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">src</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>)) {
+        <span class="kw-2">*</span><span class="ident">out</span> <span class="op">=</span> <span class="ident">u32::from_le_bytes</span>(<span class="ident">chunk</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
+    }
+}
+
+<span class="doccomment">/// Reads unsigned 64 bit integers from `src` into `dst`.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u64_into</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u64</span>]) {
+    <span class="macro">assert!</span>(<span class="ident">src</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">8</span> <span class="op">*</span> <span class="ident">dst</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> (<span class="ident">out</span>, <span class="ident">chunk</span>) <span class="kw">in</span> <span class="ident">dst</span>.<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">src</span>.<span class="ident">chunks_exact</span>(<span class="number">8</span>)) {
+        <span class="kw-2">*</span><span class="ident">out</span> <span class="op">=</span> <span class="ident">u64::from_le_bytes</span>(<span class="ident">chunk</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>());
+    }
+}
+
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">test_read</span>() {
+    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>];
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">4</span>];
+    <span class="ident">read_u32_into</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">0</span>], <span class="number">0x04030201</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">3</span>], <span class="number">0x100F0E0D</span>);
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u32</span>; <span class="number">3</span>];
+    <span class="ident">read_u32_into</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">1</span>..<span class="number">13</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>); <span class="comment">// unaligned</span>
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">0</span>], <span class="number">0x05040302</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">2</span>], <span class="number">0x0D0C0B0A</span>);
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">2</span>];
+    <span class="ident">read_u64_into</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">0</span>], <span class="number">0x0807060504030201</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">1</span>], <span class="number">0x100F0E0D0C0B0A09</span>);
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">1</span>];
+    <span class="ident">read_u64_into</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="number">7</span>..<span class="number">15</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>); <span class="comment">// unaligned</span>
+    <span class="macro">assert_eq!</span>(<span class="ident">buf</span>[<span class="number">0</span>], <span class="number">0x0F0E0D0C0B0A0908</span>);
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rand_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

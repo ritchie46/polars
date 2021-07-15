@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Asserts that the traits support dynamic dispatch (object-safety)."><meta name="keywords" content="rust, rustlang, rust-lang, assert_obj_safe"><title>assert_obj_safe in static_assertions - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../static_assertions/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;nvzqz&#x2F;static-assertions-rs&#x2F;assets&#x2F;Icon.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">static_assertions</a></p><div id="sidebar-vars" data-name="assert_obj_safe" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">static_assertions</a>::<wbr><a class="macro" href="#">assert_obj_safe</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/static_assertions/assert_obj_safe.rs.html#72-76" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">assert_obj_safe</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">xs</span>:<span class="ident">path</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Asserts that the traits support dynamic dispatch
+(<a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html#object-safety-is-required-for-trait-objects">object-safety</a>).</p>
+<p>This is useful for when changes are made to a trait that accidentally
+prevent it from being used as an <a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html#object-safety-is-required-for-trait-objects">object</a>. Such a case would be adding a
+generic method and forgetting to add <code>where Self: Sized</code> after it. If left
+unnoticed, that mistake will affect crate users and break both forward and
+backward compatibility.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>When exposing a public API, it’s important that traits that could previously
+use dynamic dispatch can still do so in future compatible crate versions.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">trait</span> <span class="ident">MySafeTrait</span> {
+    <span class="kw">fn</span> <span class="ident">foo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>;
+}
+
+<span class="macro">assert_obj_safe!</span>(<span class="ident">std::fmt::Write</span>, <span class="ident">MySafeTrait</span>);</pre></div>
+<p>Works with traits that are not in the calling module:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">mod</span> <span class="ident">inner</span> {
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">BasicTrait</span> {
+        <span class="kw">fn</span> <span class="ident">bar</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+    }
+    <span class="macro">assert_obj_safe!</span>(<span class="ident">BasicTrait</span>);
+}
+
+<span class="macro">assert_obj_safe!</span>(<span class="ident">inner::BasicTrait</span>);</pre></div>
+<p>The following example fails to compile because raw pointers cannot be sent
+between threads safely:</p>
+
+<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
+<span class="macro">assert_impl!</span>(<span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>, <span class="ident">Send</span>);</pre></div>
+<p>The following example fails to compile because generics without
+<code>where Self: Sized</code> are not allowed in <a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html#object-safety-is-required-for-trait-objects">object-safe</a> trait methods:</p>
+
+<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
+<span class="kw">trait</span> <span class="ident">MyUnsafeTrait</span> {
+    <span class="kw">fn</span> <span class="ident">baz</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
+}
+
+<span class="macro">assert_obj_safe!</span>(<span class="ident">MyUnsafeTrait</span>);</pre></div>
+<p>When we fix that, the previous code will compile:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">trait</span> <span class="ident">MyUnsafeTrait</span> {
+    <span class="kw">fn</span> <span class="ident">baz</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>;
+}
+
+<span class="macro">assert_obj_safe!</span>(<span class="ident">MyUnsafeTrait</span>);</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="static_assertions" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Tokens representing Rust punctuation, keywords, and delimiters."><meta name="keywords" content="rust, rustlang, rust-lang, token"><title>syn::token - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module token</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="token" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">syn</a>::<wbr><a class="mod" href="#">token</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/syn/token.rs.html#1-1013" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Tokens representing Rust punctuation, keywords, and delimiters.</p>
+<p>The type names in this module can be difficult to keep straight, so we
+prefer to use the <a href="../macro.Token.html"><code>Token!</code></a> macro instead. This is a type-macro that
+expands to the token type of the given token.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>The <a href="../struct.ItemStatic.html"><code>ItemStatic</code></a> syntax tree node is defined like this.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ItemStatic</span> {
+    <span class="kw">pub</span> <span class="ident">attrs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">vis</span>: <span class="ident">Visibility</span>,
+    <span class="kw">pub</span> <span class="ident">static_token</span>: <span class="macro">Token!</span>[<span class="kw">static</span>],
+    <span class="kw">pub</span> <span class="ident">mutability</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="kw-2">mut</span>]<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">ident</span>: <span class="ident">Ident</span>,
+    <span class="kw">pub</span> <span class="ident">colon_token</span>: <span class="macro">Token!</span>[:],
+    <span class="kw">pub</span> <span class="ident">ty</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">eq_token</span>: <span class="macro">Token!</span>[<span class="op">=</span>],
+    <span class="kw">pub</span> <span class="ident">expr</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">semi_token</span>: <span class="macro">Token!</span>[;],
+}</pre></div>
+<h1 id="parsing" class="section-header"><a href="#parsing">Parsing</a></h1>
+<p>Keywords and punctuation can be parsed through the <a href="../parse/struct.ParseBuffer.html#method.parse"><code>ParseStream::parse</code></a>
+method. Delimiter tokens are parsed using the <a href="../macro.parenthesized.html"><code>parenthesized!</code></a>,
+<a href="../macro.bracketed.html"><code>bracketed!</code></a> and <a href="../macro.braced.html"><code>braced!</code></a> macros.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Attribute</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// Parse the ItemStatic struct shown above.</span>
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">ItemStatic</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">ItemStatic</span> {
+            <span class="ident">attrs</span>: <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">Attribute::parse_outer</span>)<span class="question-mark">?</span>,
+            <span class="ident">vis</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">static_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">mutability</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">ident</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">colon_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">ty</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">expr</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">semi_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+        })
+    }
+}</pre></div>
+<h1 id="other-operations" class="section-header"><a href="#other-operations">Other operations</a></h1>
+<p>Every keyword and punctuation token supports the following operations.</p>
+<ul>
+<li>
+<p><a href="../parse/struct.ParseBuffer.html#method.peek">Peeking</a> — <code>input.peek(Token![...])</code></p>
+</li>
+<li>
+<p><a href="../parse/struct.ParseBuffer.html#method.parse">Parsing</a> — <code>input.parse::&lt;Token![...]&gt;()?</code></p>
+</li>
+<li>
+<p><a href="https://docs.rs/quote/1.0/quote/trait.ToTokens.html">Printing</a> — <code>quote!( ... #the_token ... )</code></p>
+</li>
+<li>
+<p>Construction from a <a href="https://docs.rs/proc-macro2/1.0/proc_macro2/struct.Span.html"><code>Span</code></a> — <code>let the_token = Token![...](sp)</code></p>
+</li>
+<li>
+<p>Field access to its span — <code>let sp = the_token.span</code></p>
+</li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Abstract.html" title="syn::token::Abstract struct">Abstract</a></div><div class="item-right docblock-short"><p><code>abstract</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Add.html" title="syn::token::Add struct">Add</a></div><div class="item-right docblock-short"><p><code>+</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.AddEq.html" title="syn::token::AddEq struct">AddEq</a></div><div class="item-right docblock-short"><p><code>+=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.And.html" title="syn::token::And struct">And</a></div><div class="item-right docblock-short"><p><code>&amp;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.AndAnd.html" title="syn::token::AndAnd struct">AndAnd</a></div><div class="item-right docblock-short"><p><code>&amp;&amp;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.AndEq.html" title="syn::token::AndEq struct">AndEq</a></div><div class="item-right docblock-short"><p><code>&amp;=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.As.html" title="syn::token::As struct">As</a></div><div class="item-right docblock-short"><p><code>as</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Async.html" title="syn::token::Async struct">Async</a></div><div class="item-right docblock-short"><p><code>async</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.At.html" title="syn::token::At struct">At</a></div><div class="item-right docblock-short"><p><code>@</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Auto.html" title="syn::token::Auto struct">Auto</a></div><div class="item-right docblock-short"><p><code>auto</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Await.html" title="syn::token::Await struct">Await</a></div><div class="item-right docblock-short"><p><code>await</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Bang.html" title="syn::token::Bang struct">Bang</a></div><div class="item-right docblock-short"><p><code>!</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Become.html" title="syn::token::Become struct">Become</a></div><div class="item-right docblock-short"><p><code>become</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Box.html" title="syn::token::Box struct">Box</a></div><div class="item-right docblock-short"><p><code>box</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Brace.html" title="syn::token::Brace struct">Brace</a></div><div class="item-right docblock-short"><p><code>{...}</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Bracket.html" title="syn::token::Bracket struct">Bracket</a></div><div class="item-right docblock-short"><p><code>[...]</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Break.html" title="syn::token::Break struct">Break</a></div><div class="item-right docblock-short"><p><code>break</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Caret.html" title="syn::token::Caret struct">Caret</a></div><div class="item-right docblock-short"><p><code>^</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CaretEq.html" title="syn::token::CaretEq struct">CaretEq</a></div><div class="item-right docblock-short"><p><code>^=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Colon.html" title="syn::token::Colon struct">Colon</a></div><div class="item-right docblock-short"><p><code>:</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Colon2.html" title="syn::token::Colon2 struct">Colon2</a></div><div class="item-right docblock-short"><p><code>::</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Comma.html" title="syn::token::Comma struct">Comma</a></div><div class="item-right docblock-short"><p><code>,</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Const.html" title="syn::token::Const struct">Const</a></div><div class="item-right docblock-short"><p><code>const</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Continue.html" title="syn::token::Continue struct">Continue</a></div><div class="item-right docblock-short"><p><code>continue</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Crate.html" title="syn::token::Crate struct">Crate</a></div><div class="item-right docblock-short"><p><code>crate</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Default.html" title="syn::token::Default struct">Default</a></div><div class="item-right docblock-short"><p><code>default</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Div.html" title="syn::token::Div struct">Div</a></div><div class="item-right docblock-short"><p><code>/</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DivEq.html" title="syn::token::DivEq struct">DivEq</a></div><div class="item-right docblock-short"><p><code>/=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Do.html" title="syn::token::Do struct">Do</a></div><div class="item-right docblock-short"><p><code>do</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Dollar.html" title="syn::token::Dollar struct">Dollar</a></div><div class="item-right docblock-short"><p><code>$</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Dot.html" title="syn::token::Dot struct">Dot</a></div><div class="item-right docblock-short"><p><code>.</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Dot2.html" title="syn::token::Dot2 struct">Dot2</a></div><div class="item-right docblock-short"><p><code>..</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Dot3.html" title="syn::token::Dot3 struct">Dot3</a></div><div class="item-right docblock-short"><p><code>...</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DotDotEq.html" title="syn::token::DotDotEq struct">DotDotEq</a></div><div class="item-right docblock-short"><p><code>..=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Dyn.html" title="syn::token::Dyn struct">Dyn</a></div><div class="item-right docblock-short"><p><code>dyn</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Else.html" title="syn::token::Else struct">Else</a></div><div class="item-right docblock-short"><p><code>else</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Enum.html" title="syn::token::Enum struct">Enum</a></div><div class="item-right docblock-short"><p><code>enum</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Eq.html" title="syn::token::Eq struct">Eq</a></div><div class="item-right docblock-short"><p><code>=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.EqEq.html" title="syn::token::EqEq struct">EqEq</a></div><div class="item-right docblock-short"><p><code>==</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Extern.html" title="syn::token::Extern struct">Extern</a></div><div class="item-right docblock-short"><p><code>extern</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FatArrow.html" title="syn::token::FatArrow struct">FatArrow</a></div><div class="item-right docblock-short"><p><code>=&gt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Final.html" title="syn::token::Final struct">Final</a></div><div class="item-right docblock-short"><p><code>final</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Fn.html" title="syn::token::Fn struct">Fn</a></div><div class="item-right docblock-short"><p><code>fn</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.For.html" title="syn::token::For struct">For</a></div><div class="item-right docblock-short"><p><code>for</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Ge.html" title="syn::token::Ge struct">Ge</a></div><div class="item-right docblock-short"><p><code>&gt;=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Group.html" title="syn::token::Group struct">Group</a></div><div class="item-right docblock-short"><p>None-delimited group</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Gt.html" title="syn::token::Gt struct">Gt</a></div><div class="item-right docblock-short"><p><code>&gt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.If.html" title="syn::token::If struct">If</a></div><div class="item-right docblock-short"><p><code>if</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Impl.html" title="syn::token::Impl struct">Impl</a></div><div class="item-right docblock-short"><p><code>impl</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.In.html" title="syn::token::In struct">In</a></div><div class="item-right docblock-short"><p><code>in</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LArrow.html" title="syn::token::LArrow struct">LArrow</a></div><div class="item-right docblock-short"><p><code>&lt;-</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Le.html" title="syn::token::Le struct">Le</a></div><div class="item-right docblock-short"><p><code>&lt;=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Let.html" title="syn::token::Let struct">Let</a></div><div class="item-right docblock-short"><p><code>let</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Loop.html" title="syn::token::Loop struct">Loop</a></div><div class="item-right docblock-short"><p><code>loop</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Lt.html" title="syn::token::Lt struct">Lt</a></div><div class="item-right docblock-short"><p><code>&lt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Macro.html" title="syn::token::Macro struct">Macro</a></div><div class="item-right docblock-short"><p><code>macro</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Match.html" title="syn::token::Match struct">Match</a></div><div class="item-right docblock-short"><p><code>match</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Mod.html" title="syn::token::Mod struct">Mod</a></div><div class="item-right docblock-short"><p><code>mod</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Move.html" title="syn::token::Move struct">Move</a></div><div class="item-right docblock-short"><p><code>move</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MulEq.html" title="syn::token::MulEq struct">MulEq</a></div><div class="item-right docblock-short"><p><code>*=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Mut.html" title="syn::token::Mut struct">Mut</a></div><div class="item-right docblock-short"><p><code>mut</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Ne.html" title="syn::token::Ne struct">Ne</a></div><div class="item-right docblock-short"><p><code>!=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Or.html" title="syn::token::Or struct">Or</a></div><div class="item-right docblock-short"><p><code>|</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.OrEq.html" title="syn::token::OrEq struct">OrEq</a></div><div class="item-right docblock-short"><p><code>|=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.OrOr.html" title="syn::token::OrOr struct">OrOr</a></div><div class="item-right docblock-short"><p><code>||</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Override.html" title="syn::token::Override struct">Override</a></div><div class="item-right docblock-short"><p><code>override</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Paren.html" title="syn::token::Paren struct">Paren</a></div><div class="item-right docblock-short"><p><code>(...)</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Pound.html" title="syn::token::Pound struct">Pound</a></div><div class="item-right docblock-short"><p><code>#</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Priv.html" title="syn::token::Priv struct">Priv</a></div><div class="item-right docblock-short"><p><code>priv</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Pub.html" title="syn::token::Pub struct">Pub</a></div><div class="item-right docblock-short"><p><code>pub</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Question.html" title="syn::token::Question struct">Question</a></div><div class="item-right docblock-short"><p><code>?</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RArrow.html" title="syn::token::RArrow struct">RArrow</a></div><div class="item-right docblock-short"><p><code>-&gt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Ref.html" title="syn::token::Ref struct">Ref</a></div><div class="item-right docblock-short"><p><code>ref</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Rem.html" title="syn::token::Rem struct">Rem</a></div><div class="item-right docblock-short"><p><code>%</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RemEq.html" title="syn::token::RemEq struct">RemEq</a></div><div class="item-right docblock-short"><p><code>%=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Return.html" title="syn::token::Return struct">Return</a></div><div class="item-right docblock-short"><p><code>return</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SelfType.html" title="syn::token::SelfType struct">SelfType</a></div><div class="item-right docblock-short"><p><code>Self</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SelfValue.html" title="syn::token::SelfValue struct">SelfValue</a></div><div class="item-right docblock-short"><p><code>self</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Semi.html" title="syn::token::Semi struct">Semi</a></div><div class="item-right docblock-short"><p><code>;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Shl.html" title="syn::token::Shl struct">Shl</a></div><div class="item-right docblock-short"><p><code>&lt;&lt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ShlEq.html" title="syn::token::ShlEq struct">ShlEq</a></div><div class="item-right docblock-short"><p><code>&lt;&lt;=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Shr.html" title="syn::token::Shr struct">Shr</a></div><div class="item-right docblock-short"><p><code>&gt;&gt;</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ShrEq.html" title="syn::token::ShrEq struct">ShrEq</a></div><div class="item-right docblock-short"><p><code>&gt;&gt;=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Star.html" title="syn::token::Star struct">Star</a></div><div class="item-right docblock-short"><p><code>*</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Static.html" title="syn::token::Static struct">Static</a></div><div class="item-right docblock-short"><p><code>static</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Struct.html" title="syn::token::Struct struct">Struct</a></div><div class="item-right docblock-short"><p><code>struct</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Sub.html" title="syn::token::Sub struct">Sub</a></div><div class="item-right docblock-short"><p><code>-</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SubEq.html" title="syn::token::SubEq struct">SubEq</a></div><div class="item-right docblock-short"><p><code>-=</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Super.html" title="syn::token::Super struct">Super</a></div><div class="item-right docblock-short"><p><code>super</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Tilde.html" title="syn::token::Tilde struct">Tilde</a></div><div class="item-right docblock-short"><p><code>~</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Trait.html" title="syn::token::Trait struct">Trait</a></div><div class="item-right docblock-short"><p><code>trait</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Try.html" title="syn::token::Try struct">Try</a></div><div class="item-right docblock-short"><p><code>try</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Type.html" title="syn::token::Type struct">Type</a></div><div class="item-right docblock-short"><p><code>type</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Typeof.html" title="syn::token::Typeof struct">Typeof</a></div><div class="item-right docblock-short"><p><code>typeof</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Underscore.html" title="syn::token::Underscore struct">Underscore</a></div><div class="item-right docblock-short"><p><code>_</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Union.html" title="syn::token::Union struct">Union</a></div><div class="item-right docblock-short"><p><code>union</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Unsafe.html" title="syn::token::Unsafe struct">Unsafe</a></div><div class="item-right docblock-short"><p><code>unsafe</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Unsized.html" title="syn::token::Unsized struct">Unsized</a></div><div class="item-right docblock-short"><p><code>unsized</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Use.html" title="syn::token::Use struct">Use</a></div><div class="item-right docblock-short"><p><code>use</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Virtual.html" title="syn::token::Virtual struct">Virtual</a></div><div class="item-right docblock-short"><p><code>virtual</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Where.html" title="syn::token::Where struct">Where</a></div><div class="item-right docblock-short"><p><code>where</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.While.html" title="syn::token::While struct">While</a></div><div class="item-right docblock-short"><p><code>while</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Yield.html" title="syn::token::Yield struct">Yield</a></div><div class="item-right docblock-short"><p><code>yield</code></p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Token.html" title="syn::token::Token trait">Token</a></div><div class="item-right docblock-short"><p>Marker trait for types that represent single tokens.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;lazy_static-1.4.0&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../lazy_static/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2016 lazy-static.rs Developers</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0, &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://apache.org/licenses/LICENSE-2.0&gt; or the MIT license &lt;LICENSE-MIT or</span>
+<span class="comment">// http://opensource.org/licenses/MIT&gt;, at your option. This file may not be</span>
+<span class="comment">// copied, modified, or distributed except according to those terms.</span>
+
+<span class="doccomment">/*!
+A macro for declaring lazily evaluated statics.
+
+Using this macro, it is possible to have `static`s that require code to be
+executed at runtime in order to be initialized.
+This includes anything requiring heap allocations, like vectors or hash maps,
+as well as anything that requires function calls to be computed.
+
+# Syntax
+
+```ignore
+lazy_static! {
+    [pub] static ref NAME_1: TYPE_1 = EXPR_1;
+    [pub] static ref NAME_2: TYPE_2 = EXPR_2;
+    ...
+    [pub] static ref NAME_N: TYPE_N = EXPR_N;
+}
+```
+
+Attributes (including doc comments) are supported as well:
+
+```rust
+# #[macro_use]
+# extern crate lazy_static;
+# fn main() {
+lazy_static! {
+    /// This is an example for using doc comment attributes
+    static ref EXAMPLE: u8 = 42;
+}
+# }
+```
+
+# Semantics
+
+For a given `static ref NAME: TYPE = EXPR;`, the macro generates a unique type that
+implements `Deref&lt;TYPE&gt;` and stores it in a static with name `NAME`. (Attributes end up
+attaching to this type.)
+
+On first deref, `EXPR` gets evaluated and stored internally, such that all further derefs
+can return a reference to the same object. Note that this can lead to deadlocks
+if you have multiple lazy statics that depend on each other in their initialization.
+
+Apart from the lazy initialization, the resulting &quot;static ref&quot; variables
+have generally the same properties as regular &quot;static&quot; variables:
+
+- Any type in them needs to fulfill the `Sync` trait.
+- If the type has a destructor, then it will not run when the process exits.
+
+# Example
+
+Using the macro:
+
+```rust
+#[macro_use]
+extern crate lazy_static;
+
+use std::collections::HashMap;
+
+lazy_static! {
+    static ref HASHMAP: HashMap&lt;u32, &amp;&#39;static str&gt; = {
+        let mut m = HashMap::new();
+        m.insert(0, &quot;foo&quot;);
+        m.insert(1, &quot;bar&quot;);
+        m.insert(2, &quot;baz&quot;);
+        m
+    };
+    static ref COUNT: usize = HASHMAP.len();
+    static ref NUMBER: u32 = times_two(21);
+}
+
+fn times_two(n: u32) -&gt; u32 { n * 2 }
+
+fn main() {
+    println!(&quot;The map has {} entries.&quot;, *COUNT);
+    println!(&quot;The entry for `0` is \&quot;{}\&quot;.&quot;, HASHMAP.get(&amp;0).unwrap());
+    println!(&quot;A expensive calculation on a static results in: {}.&quot;, *NUMBER);
+}
+```
+
+# Implementation details
+
+The `Deref` implementation uses a hidden static variable that is guarded by an atomic check on each access.
+
+# Cargo features
+
+This crate provides one cargo feature:
+
+- `spin_no_std`: This allows using this crate in a no-std environment, by depending on the standalone `spin` crate.
+
+*/</span>
+
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/lazy_static/1.4.0&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">no_std</span>]</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;spin_no_std&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">path</span><span class="op">=</span><span class="string">&quot;inline_lazy.rs&quot;</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lazy</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">doc_comment</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="macro">doctest!</span>(<span class="string">&quot;../README.md&quot;</span>);
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;spin_no_std&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">path</span><span class="op">=</span><span class="string">&quot;core_lazy.rs&quot;</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lazy</span>;
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core::ops::Deref</span> <span class="kw">as</span> <span class="ident">__Deref</span>;
+
+<span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="macro">macro_rules!</span> <span class="ident">__lazy_static_internal</span> {
+    <span class="comment">// optional visibility restrictions are wrapped in `()` to allow for</span>
+    <span class="comment">// explicitly passing otherwise implicit information about private items</span>
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">__lazy_static_internal!</span>(@<span class="ident">MAKE</span> <span class="ident">TY</span>, $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="kw-2">*</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>)<span class="kw-2">*</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>);
+        <span class="macro">__lazy_static_internal!</span>(@<span class="ident">TAIL</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>);
+        <span class="macro">lazy_static!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    };
+    (@<span class="ident">TAIL</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::__Deref</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {
+            <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>;
+            <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
+                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">__static_ref_initialize</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> }
+
+                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">__stability</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> {
+                    <span class="macro">__lazy_static_create!</span>(<span class="ident">LAZY</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>);
+                    <span class="ident">LAZY</span>.<span class="ident">get</span>(<span class="ident">__static_ref_initialize</span>)
+                }
+                <span class="ident">__stability</span>()
+            }
+        }
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::LazyStatic</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {
+            <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) {
+                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">lazy</span>;
+            }
+        }
+    };
+    <span class="comment">// `vis` is wrapped in `()` to prevent parsing ambiguity</span>
+    (@<span class="ident">MAKE</span> <span class="ident">TY</span>, $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="kw-2">*</span>, ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_copy_implementations</span>)]</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+        $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>)<span class="op">*</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {<span class="ident">__private_field</span>: ()}
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>)<span class="op">*</span> <span class="kw">static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> {<span class="ident">__private_field</span>: ()};
+    };
+    () <span class="op">=</span><span class="op">&gt;</span> ()
+}
+
+<span class="attribute">#[<span class="ident">macro_export</span>(<span class="ident">local_inner_macros</span>)]</span>
+<span class="macro">macro_rules!</span> <span class="ident">lazy_static</span> {
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="comment">// use `()` to explicitly forward the information about private items</span>
+        <span class="macro">__lazy_static_internal!</span>($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span> () <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    };
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">__lazy_static_internal!</span>($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span> (<span class="kw">pub</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    };
+    ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="kw">pub</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span>:<span class="ident">ty</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">__lazy_static_internal!</span>($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span> (<span class="kw">pub</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>)<span class="op">+</span>)) <span class="kw">static</span> <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">N</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">T</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)<span class="kw-2">*</span>);
+    };
+    () <span class="op">=</span><span class="op">&gt;</span> ()
+}
+
+<span class="doccomment">/// Support trait for enabling a few common operation on lazy static values.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is implemented by each defined lazy static, and</span>
+<span class="doccomment">/// used by the free functions in this crate.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LazyStatic</span> {
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>);
+}
+
+<span class="doccomment">/// Takes a shared reference to a lazy static and initializes</span>
+<span class="doccomment">/// it if it has not been already.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This can be used to control the initialization point of a lazy static.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Example:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// #[macro_use]</span>
+<span class="doccomment">/// extern crate lazy_static;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// lazy_static! {</span>
+<span class="doccomment">///     static ref BUFFER: Vec&lt;u8&gt; = (0..255).collect();</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn main() {</span>
+<span class="doccomment">///     lazy_static::initialize(&amp;BUFFER);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // ...</span>
+<span class="doccomment">///     work_with_initialized_data(&amp;BUFFER);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// # fn work_with_initialized_data(_: &amp;[u8]) {}</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">LazyStatic</span><span class="op">&gt;</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) {
+    <span class="ident">LazyStatic::initialize</span>(<span class="ident">lazy</span>);
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="lazy_static" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

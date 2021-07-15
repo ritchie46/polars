@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["kBrotliDictionaryOffsetsByLength",""],["kBrotliDictionarySizeBitsByLength",""],["kBrotliMaxDictionaryWordLength",""],["kBrotliMinDictionaryWordLength",""]],"static":[["kBrotliDictionary",""]]});

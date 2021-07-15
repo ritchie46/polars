@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;rand-0.8.4&#x2F;src&#x2F;rngs&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../rand/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2018 Developers of the Rand project.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or https://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
+
+<span class="doccomment">//! Random number generators and adapters</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Background: Random number generators (RNGs)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Computers cannot produce random numbers from nowhere. We classify</span>
+<span class="doccomment">//! random number generators as follows:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! -   &quot;True&quot; random number generators (TRNGs) use hard-to-predict data sources</span>
+<span class="doccomment">//!     (e.g. the high-resolution parts of event timings and sensor jitter) to</span>
+<span class="doccomment">//!     harvest random bit-sequences, apply algorithms to remove bias and</span>
+<span class="doccomment">//!     estimate available entropy, then combine these bits into a byte-sequence</span>
+<span class="doccomment">//!     or an entropy pool. This job is usually done by the operating system or</span>
+<span class="doccomment">//!     a hardware generator (HRNG).</span>
+<span class="doccomment">//! -   &quot;Pseudo&quot;-random number generators (PRNGs) use algorithms to transform a</span>
+<span class="doccomment">//!     seed into a sequence of pseudo-random numbers. These generators can be</span>
+<span class="doccomment">//!     fast and produce well-distributed unpredictable random numbers (or not).</span>
+<span class="doccomment">//!     They are usually deterministic: given algorithm and seed, the output</span>
+<span class="doccomment">//!     sequence can be reproduced. They have finite period and eventually loop;</span>
+<span class="doccomment">//!     with many algorithms this period is fixed and can be proven sufficiently</span>
+<span class="doccomment">//!     long, while others are chaotic and the period depends on the seed.</span>
+<span class="doccomment">//! -   &quot;Cryptographically secure&quot; pseudo-random number generators (CSPRNGs)</span>
+<span class="doccomment">//!     are the sub-set of PRNGs which are secure. Security of the generator</span>
+<span class="doccomment">//!     relies both on hiding the internal state and using a strong algorithm.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Traits and functionality</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! All RNGs implement the [`RngCore`] trait, as a consequence of which the</span>
+<span class="doccomment">//! [`Rng`] extension trait is automatically implemented. Secure RNGs may</span>
+<span class="doccomment">//! additionally implement the [`CryptoRng`] trait.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! All PRNGs require a seed to produce their random number sequence. The</span>
+<span class="doccomment">//! [`SeedableRng`] trait provides three ways of constructing PRNGs:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! -   `from_seed` accepts a type specific to the PRNG</span>
+<span class="doccomment">//! -   `from_rng` allows a PRNG to be seeded from any other RNG</span>
+<span class="doccomment">//! -   `seed_from_u64` allows any PRNG to be seeded from a `u64` insecurely</span>
+<span class="doccomment">//! -   `from_entropy` securely seeds a PRNG from fresh entropy</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Use the [`rand_core`] crate when implementing your own RNGs.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Our generators</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate provides several random number generators:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! -   [`OsRng`] is an interface to the operating system&#39;s random number</span>
+<span class="doccomment">//!     source. Typically the operating system uses a CSPRNG with entropy</span>
+<span class="doccomment">//!     provided by a TRNG and some type of on-going re-seeding.</span>
+<span class="doccomment">//! -   [`ThreadRng`], provided by the [`thread_rng`] function, is a handle to a</span>
+<span class="doccomment">//!     thread-local CSPRNG with periodic seeding from [`OsRng`]. Because this</span>
+<span class="doccomment">//!     is local, it is typically much faster than [`OsRng`]. It should be</span>
+<span class="doccomment">//!     secure, though the paranoid may prefer [`OsRng`].</span>
+<span class="doccomment">//! -   [`StdRng`] is a CSPRNG chosen for good performance and trust of security</span>
+<span class="doccomment">//!     (based on reviews, maturity and usage). The current algorithm is ChaCha12,</span>
+<span class="doccomment">//!     which is well established and rigorously analysed.</span>
+<span class="doccomment">//!     [`StdRng`] provides the algorithm used by [`ThreadRng`] but without</span>
+<span class="doccomment">//!     periodic reseeding.</span>
+<span class="doccomment">//! -   [`SmallRng`] is an **insecure** PRNG designed to be fast, simple, require</span>
+<span class="doccomment">//!     little memory, and have good output quality.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The algorithms selected for [`StdRng`] and [`SmallRng`] may change in any</span>
+<span class="doccomment">//! release and may be platform-dependent, therefore they should be considered</span>
+<span class="doccomment">//! **not reproducible**.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Additional generators</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **TRNGs**: The [`rdrand`] crate provides an interface to the RDRAND and</span>
+<span class="doccomment">//! RDSEED instructions available in modern Intel and AMD CPUs.</span>
+<span class="doccomment">//! The [`rand_jitter`] crate provides a user-space implementation of</span>
+<span class="doccomment">//! entropy harvesting from CPU timer jitter, but is very slow and has</span>
+<span class="doccomment">//! [security issues](https://github.com/rust-random/rand/issues/699).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! **PRNGs**: Several companion crates are available, providing individual or</span>
+<span class="doccomment">//! families of PRNG algorithms. These provide the implementations behind</span>
+<span class="doccomment">//! [`StdRng`] and [`SmallRng`] but can also be used directly, indeed *should*</span>
+<span class="doccomment">//! be used directly when **reproducibility** matters.</span>
+<span class="doccomment">//! Some suggestions are: [`rand_chacha`], [`rand_pcg`], [`rand_xoshiro`].</span>
+<span class="doccomment">//! A full list can be found by searching for crates with the [`rng` tag].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`Rng`]: crate::Rng</span>
+<span class="doccomment">//! [`RngCore`]: crate::RngCore</span>
+<span class="doccomment">//! [`CryptoRng`]: crate::CryptoRng</span>
+<span class="doccomment">//! [`SeedableRng`]: crate::SeedableRng</span>
+<span class="doccomment">//! [`thread_rng`]: crate::thread_rng</span>
+<span class="doccomment">//! [`rdrand`]: https://crates.io/crates/rdrand</span>
+<span class="doccomment">//! [`rand_jitter`]: https://crates.io/crates/rand_jitter</span>
+<span class="doccomment">//! [`rand_chacha`]: https://crates.io/crates/rand_chacha</span>
+<span class="doccomment">//! [`rand_pcg`]: https://crates.io/crates/rand_pcg</span>
+<span class="doccomment">//! [`rand_xoshiro`]: https://crates.io/crates/rand_xoshiro</span>
+<span class="doccomment">//! [`rng` tag]: https://crates.io/keywords/rng</span>
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">adapter</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mock</span>; <span class="comment">// Public so we don&#39;t export `StepRng` directly, making it a bit</span>
+              <span class="comment">// more clear it is intended for testing.</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;small_rng&quot;</span>, <span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">xoshiro256plusplus</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;small_rng&quot;</span>, <span class="ident">not</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>)))]</span>
+<span class="kw">mod</span> <span class="ident">xoshiro128plusplus</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;small_rng&quot;</span>)]</span> <span class="kw">mod</span> <span class="ident">small</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std_rng&quot;</span>)]</span> <span class="kw">mod</span> <span class="ident">std</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std_rng&quot;</span>))]</span> <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">thread</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;small_rng&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::small::SmallRng</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std_rng&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::std::StdRng</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std_rng&quot;</span>))]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::thread::ThreadRng</span>;
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;getrandom&quot;</span>)))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;getrandom&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rand_core::OsRng</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rand" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

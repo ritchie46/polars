@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SparseDFA","A sparse table-based deterministic finite automaton (DFA)."]],"struct":[["ByteClass","A sparse DFA that shrinks its alphabet."],["Standard","A standard sparse DFA that does not use premultiplication or byte classes."]]});

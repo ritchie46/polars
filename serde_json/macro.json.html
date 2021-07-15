@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Construct a `serde_json::Value` from a JSON literal."><meta name="keywords" content="rust, rustlang, rust-lang, json"><title>json in serde_json - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../serde_json/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">serde_json</a></p><div id="sidebar-vars" data-name="json" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">serde_json</a>::<wbr><a class="macro" href="#">json</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/serde_json/macros.rs.html#53-58" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">json</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">json</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Construct a <code>serde_json::Value</code> from a JSON literal.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">json!</span>({
+    <span class="string">&quot;code&quot;</span>: <span class="number">200</span>,
+    <span class="string">&quot;success&quot;</span>: <span class="bool-val">true</span>,
+    <span class="string">&quot;payload&quot;</span>: {
+        <span class="string">&quot;features&quot;</span>: [
+            <span class="string">&quot;serde&quot;</span>,
+            <span class="string">&quot;json&quot;</span>
+        ]
+    }
+});</pre></div>
+<p>Variables or expressions can be interpolated into the JSON literal. Any type
+interpolated into an array element or object value must implement Serde’s
+<code>Serialize</code> trait, while any type interpolated into a object key must
+implement <code>Into&lt;String&gt;</code>. If the <code>Serialize</code> implementation of the
+interpolated type decides to fail, or if the interpolated type contains a
+map with non-string keys, the <code>json!</code> macro will panic.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="number">200</span>;
+<span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;serde&quot;</span>, <span class="string">&quot;json&quot;</span>];
+
+<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">json!</span>({
+    <span class="string">&quot;code&quot;</span>: <span class="ident">code</span>,
+    <span class="string">&quot;success&quot;</span>: <span class="ident">code</span> <span class="op">=</span><span class="op">=</span> <span class="number">200</span>,
+    <span class="string">&quot;payload&quot;</span>: {
+        <span class="ident">features</span>[<span class="number">0</span>]: <span class="ident">features</span>[<span class="number">1</span>]
+    }
+});</pre></div>
+<p>Trailing commas are allowed inside both arrays and objects.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro">json!</span>([
+    <span class="string">&quot;notice&quot;</span>,
+    <span class="string">&quot;the&quot;</span>,
+    <span class="string">&quot;trailing&quot;</span>,
+    <span class="string">&quot;comma --&gt;&quot;</span>,
+]);</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde_json" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

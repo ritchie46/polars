@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A distribution uniformly sampling numbers within a given range."><meta name="keywords" content="rust, rustlang, rust-lang, uniform"><title>rand::distributions::uniform - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../rand/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a><p class="location">Module uniform</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="uniform" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">rand</a>::<wbr><a href="../index.html">distributions</a>::<wbr><a class="mod" href="#">uniform</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/rand/distributions/uniform.rs.html#10-1653" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A distribution uniformly sampling numbers within a given range.</p>
+<p><a href="../struct.Uniform.html" title="Uniform"><code>Uniform</code></a> is the standard distribution to sample uniformly from a range;
+e.g. <code>Uniform::new_inclusive(1, 6)</code> can sample integers from 1 to 6, like a
+standard die. <a href="../../trait.Rng.html#method.gen_range" title="Rng::gen_range"><code>Rng::gen_range</code></a> supports any type supported by
+<a href="../struct.Uniform.html" title="Uniform"><code>Uniform</code></a>.</p>
+<p>This distribution is provided with support for several primitive types
+(all integer and floating-point types) as well as <a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html" title="std::time::Duration"><code>std::time::Duration</code></a>,
+and supports extension to user-defined types via a type-specific <em>back-end</em>
+implementation.</p>
+<p>The types <a href="struct.UniformInt.html"><code>UniformInt</code></a>, <a href="struct.UniformFloat.html"><code>UniformFloat</code></a> and <a href="struct.UniformDuration.html"><code>UniformDuration</code></a> are the
+back-ends supporting sampling from primitive integer and floating-point
+ranges as well as from <a href="https://doc.rust-lang.org/nightly/core/time/struct.Duration.html" title="std::time::Duration"><code>std::time::Duration</code></a>; these types do not normally
+need to be used directly (unless implementing a derived back-end).</p>
+<h1 id="example-usage" class="section-header"><a href="#example-usage">Example usage</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">thread_rng</span>};
+<span class="kw">use</span> <span class="ident">rand::distributions::Uniform</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">thread_rng</span>();
+<span class="kw">let</span> <span class="ident">side</span> <span class="op">=</span> <span class="ident">Uniform::new</span>(<span class="op">-</span><span class="number">10.0</span>, <span class="number">10.0</span>);
+
+<span class="comment">// sample between 1 and 10 points</span>
+<span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">1</span>..<span class="op">=</span><span class="number">10</span>) {
+    <span class="comment">// sample a point from the square with sides -10 - 10 in two dimensions</span>
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> (<span class="ident">rng</span>.<span class="ident">sample</span>(<span class="ident">side</span>), <span class="ident">rng</span>.<span class="ident">sample</span>(<span class="ident">side</span>));
+    <span class="macro">println!</span>(<span class="string">&quot;Point: {}, {}&quot;</span>, <span class="ident">x</span>, <span class="ident">y</span>);
+}</pre></div>
+<h1 id="extending-uniform-to-support-a-custom-type" class="section-header"><a href="#extending-uniform-to-support-a-custom-type">Extending <code>Uniform</code> to support a custom type</a></h1>
+<p>To extend <a href="../struct.Uniform.html" title="Uniform"><code>Uniform</code></a> to support your own types, write a back-end which
+implements the <a href="trait.UniformSampler.html"><code>UniformSampler</code></a> trait, then implement the <a href="trait.SampleUniform.html"><code>SampleUniform</code></a>
+helper trait to “register” your back-end. See the <code>MyF32</code> example below.</p>
+<p>At a minimum, the back-end needs to store any parameters needed for sampling
+(e.g. the target range) and implement <code>new</code>, <code>new_inclusive</code> and <code>sample</code>.
+Those methods should include an assert to check the range is valid (i.e.
+<code>low &lt; high</code>). The example below merely wraps another back-end.</p>
+<p>The <code>new</code>, <code>new_inclusive</code> and <code>sample_single</code> functions use arguments of
+type SampleBorrow<X> in order to support passing in values by reference or
+by value. In the implementation of these functions, you can choose to
+simply use the reference returned by <a href="trait.SampleBorrow.html#tymethod.borrow"><code>SampleBorrow::borrow</code></a>, or you can choose
+to copy or clone the value, whatever is appropriate for your type.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rand::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">rand::distributions::uniform</span>::{<span class="ident">Uniform</span>, <span class="ident">SampleUniform</span>,
+        <span class="ident">UniformSampler</span>, <span class="ident">UniformFloat</span>, <span class="ident">SampleBorrow</span>};
+
+<span class="kw">struct</span> <span class="ident">MyF32</span>(<span class="ident">f32</span>);
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">UniformMyF32</span>(<span class="ident">UniformFloat</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span> <span class="ident">UniformSampler</span> <span class="kw">for</span> <span class="ident">UniformMyF32</span> {
+    <span class="kw">type</span> <span class="ident">X</span> <span class="op">=</span> <span class="ident">MyF32</span>;
+    <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">B1</span>, <span class="ident">B2</span><span class="op">&gt;</span>(<span class="ident">low</span>: <span class="ident">B1</span>, <span class="ident">high</span>: <span class="ident">B2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+        <span class="kw">where</span> <span class="ident">B1</span>: <span class="ident">SampleBorrow</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::X</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
+              <span class="ident">B2</span>: <span class="ident">SampleBorrow</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::X</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>
+    {
+        <span class="ident">UniformMyF32</span>(<span class="ident">UniformFloat</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">low</span>.<span class="ident">borrow</span>().<span class="number">0</span>, <span class="ident">high</span>.<span class="ident">borrow</span>().<span class="number">0</span>))
+    }
+    <span class="kw">fn</span> <span class="ident">new_inclusive</span><span class="op">&lt;</span><span class="ident">B1</span>, <span class="ident">B2</span><span class="op">&gt;</span>(<span class="ident">low</span>: <span class="ident">B1</span>, <span class="ident">high</span>: <span class="ident">B2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+        <span class="kw">where</span> <span class="ident">B1</span>: <span class="ident">SampleBorrow</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::X</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>,
+              <span class="ident">B2</span>: <span class="ident">SampleBorrow</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::X</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Sized</span>
+    {
+        <span class="ident">UniformSampler::new</span>(<span class="ident">low</span>, <span class="ident">high</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::X</span> {
+        <span class="ident">MyF32</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">sample</span>(<span class="ident">rng</span>))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SampleUniform</span> <span class="kw">for</span> <span class="ident">MyF32</span> {
+    <span class="kw">type</span> <span class="ident">Sampler</span> <span class="op">=</span> <span class="ident">UniformMyF32</span>;
+}
+
+<span class="kw">let</span> (<span class="ident">low</span>, <span class="ident">high</span>) <span class="op">=</span> (<span class="ident">MyF32</span>(<span class="number">17.0f32</span>), <span class="ident">MyF32</span>(<span class="number">22.0f32</span>));
+<span class="kw">let</span> <span class="ident">uniform</span> <span class="op">=</span> <span class="ident">Uniform::new</span>(<span class="ident">low</span>, <span class="ident">high</span>);
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">uniform</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">thread_rng</span>());</pre></div>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Uniform.html" title="rand::distributions::uniform::Uniform struct">Uniform</a></div><div class="item-right docblock-short"><p>Sample values uniformly between two bounds.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UniformChar.html" title="rand::distributions::uniform::UniformChar struct">UniformChar</a></div><div class="item-right docblock-short"><p>The back-end implementing <a href="trait.UniformSampler.html" title="UniformSampler"><code>UniformSampler</code></a> for <code>char</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UniformDuration.html" title="rand::distributions::uniform::UniformDuration struct">UniformDuration</a></div><div class="item-right docblock-short"><p>The back-end implementing <a href="trait.UniformSampler.html" title="UniformSampler"><code>UniformSampler</code></a> for <code>Duration</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UniformFloat.html" title="rand::distributions::uniform::UniformFloat struct">UniformFloat</a></div><div class="item-right docblock-short"><p>The back-end implementing <a href="trait.UniformSampler.html" title="UniformSampler"><code>UniformSampler</code></a> for floating-point types.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UniformInt.html" title="rand::distributions::uniform::UniformInt struct">UniformInt</a></div><div class="item-right docblock-short"><p>The back-end implementing <a href="trait.UniformSampler.html" title="UniformSampler"><code>UniformSampler</code></a> for integer types.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.SampleBorrow.html" title="rand::distributions::uniform::SampleBorrow trait">SampleBorrow</a></div><div class="item-right docblock-short"><p>Helper trait similar to <a href="https://doc.rust-lang.org/nightly/core/borrow/trait.Borrow.html"><code>Borrow</code></a> but implemented
+only for SampleUniform and references to SampleUniform in
+order to resolve ambiguity issues.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.SampleRange.html" title="rand::distributions::uniform::SampleRange trait">SampleRange</a></div><div class="item-right docblock-short"><p>Range that supports generating a single sample efficiently.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.SampleUniform.html" title="rand::distributions::uniform::SampleUniform trait">SampleUniform</a></div><div class="item-right docblock-short"><p>Helper trait for creating objects using the correct implementation of
+<a href="trait.UniformSampler.html" title="UniformSampler"><code>UniformSampler</code></a> for the sampling type.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.UniformSampler.html" title="rand::distributions::uniform::UniformSampler trait">UniformSampler</a></div><div class="item-right docblock-short"><p>Helper trait handling actual uniform sampling.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rand" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script>
+</body></html>

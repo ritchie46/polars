@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A vector with 8 `*const T` lanes"><meta name="keywords" content="rust, rustlang, rust-lang, cptrx8"><title>cptrx8 in packed_simd_2 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc type"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../packed_simd_2/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Type Definition cptrx8</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#implementations">Methods</a><div class="sidebar-links"><a href="#method.add">add</a><a href="#method.eq">eq</a><a href="#method.extract">extract</a><a href="#method.extract_unchecked">extract_unchecked</a><a href="#method.from_slice_aligned">from_slice_aligned</a><a href="#method.from_slice_aligned_unchecked">from_slice_aligned_unchecked</a><a href="#method.from_slice_unaligned">from_slice_unaligned</a><a href="#method.from_slice_unaligned_unchecked">from_slice_unaligned_unchecked</a><a href="#method.ge">ge</a><a href="#method.gt">gt</a><a href="#method.is_null">is_null</a><a href="#method.lanes">lanes</a><a href="#method.le">le</a><a href="#method.lt">lt</a><a href="#method.ne">ne</a><a href="#method.new">new</a><a href="#method.null">null</a><a href="#method.offset">offset</a><a href="#method.offset_from">offset_from</a><a href="#method.read">read</a><a href="#method.replace">replace</a><a href="#method.replace_unchecked">replace_unchecked</a><a href="#method.shuffle1_dyn">shuffle1_dyn</a><a href="#method.splat">splat</a><a href="#method.sub">sub</a><a href="#method.wrapping_add">wrapping_add</a><a href="#method.wrapping_offset">wrapping_offset</a><a href="#method.wrapping_offset_from">wrapping_offset_from</a><a href="#method.wrapping_sub">wrapping_sub</a><a href="#method.write_to_slice_aligned">write_to_slice_aligned</a><a href="#method.write_to_slice_aligned_unchecked">write_to_slice_aligned_unchecked</a><a href="#method.write_to_slice_unaligned">write_to_slice_unaligned</a><a href="#method.write_to_slice_unaligned_unchecked">write_to_slice_unaligned_unchecked</a></div><a class="sidebar-title" href="#trait-implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Default">Default</a><a href="#impl-Eq">Eq</a><a href="#impl-From%3C%5B*const%20T%3B%208%5D%3E">From&lt;[*const T; 8]&gt;</a><a href="#impl-Hash">Hash</a><a href="#impl-Into%3C%5B*const%20T%3B%208%5D%3E">Into&lt;[*const T; 8]&gt;</a><a href="#impl-PartialEq%3CSimd%3C%5B*const%20T%3B%208%5D%3E%3E">PartialEq&lt;Simd&lt;[*const T; 8]&gt;&gt;</a><a href="#impl-Simd">Simd</a></div></div><p class="location">Other items in<br><a href="index.html">packed_simd_2</a></p><div id="sidebar-vars" data-name="cptrx8" data-ty="type" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Type Definition <a href="index.html">packed_simd_2</a>::<wbr><a class="type" href="#">cptrx8</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></span></h1><pre class="rust typedef">type cptrx8&lt;T&gt; = <a class="struct" href="struct.Simd.html" title="struct packed_simd_2::Simd">Simd</a>&lt;[*const T; 8]&gt;;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A vector with 8 <code>*const T</code> lanes</p>
+</div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><code>pub const fn <a href="#method.new" class="fnname">new</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;x0: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x1: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x2: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x3: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x4: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x5: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x6: *const T, <br>&nbsp;&nbsp;&nbsp;&nbsp;x7: *const T<br>) -&gt; Self</code></div></summary><div class="docblock"><p>Creates a new instance with each vector elements initialized
+with the provided values.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.lanes" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.lanes" class="anchor"></a><code>pub const fn <a href="#method.lanes" class="fnname">lanes</a>() -&gt; usize</code></div></summary><div class="docblock"><p>Returns the number of vector lanes.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.splat" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.splat" class="anchor"></a><code>pub const fn <a href="#method.splat" class="fnname">splat</a>(value: *const T) -&gt; Self</code></div></summary><div class="docblock"><p>Constructs a new instance with each element initialized to
+<code>value</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.null" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.null" class="anchor"></a><code>pub const fn <a href="#method.null" class="fnname">null</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Constructs a new instance with each element initialized to
+<code>null</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_null" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.is_null" class="anchor"></a><code>pub fn <a href="#method.is_null" class="fnname">is_null</a>(self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Returns a mask that selects those lanes that contain <code>null</code>
+pointers.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.extract" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.extract" class="anchor"></a><code>pub fn <a href="#method.extract" class="fnname">extract</a>(self, index: usize) -&gt; *const T</code></div></summary><div class="docblock"><p>Extracts the value at <code>index</code>.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>If <code>index &gt;= Self::lanes()</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.extract_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.extract_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.extract_unchecked" class="fnname">extract_unchecked</a>(self, index: usize) -&gt; *const T</code></div></summary><div class="docblock"><p>Extracts the value at <code>index</code>.</p>
+<h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
+<p>If <code>index &gt;= Self::lanes()</code> the behavior is undefined.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.replace" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.replace" class="anchor"></a><code>pub fn <a href="#method.replace" class="fnname">replace</a>(self, index: usize, new_value: *const T) -&gt; Self</code></div></summary><div class="docblock"><p>Returns a new vector where the value at <code>index</code> is replaced by
+<code>new_value</code>.</p>
+<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
+<p>If <code>index &gt;= Self::lanes()</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.replace_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.replace_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.replace_unchecked" class="fnname">replace_unchecked</a>(self, index: usize, new_value: *const T) -&gt; Self</code></div></summary><div class="docblock"><p>Returns a new vector where the value at <code>index</code> is replaced by <code>new_value</code>.</p>
+<h1 id="safety-1" class="section-header"><a href="#safety-1">Safety</a></h1>
+<p>If <code>index &gt;= Self::lanes()</code> the behavior is undefined.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-1" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-1" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.eq" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.eq" class="anchor"></a><code>pub fn <a href="#method.eq" class="fnname">eq</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise equality comparison.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.ne" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.ne" class="anchor"></a><code>pub fn <a href="#method.ne" class="fnname">ne</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise inequality comparison.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.lt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.lt" class="anchor"></a><code>pub fn <a href="#method.lt" class="fnname">lt</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise less-than comparison.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.le" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.le" class="anchor"></a><code>pub fn <a href="#method.le" class="fnname">le</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise less-than-or-equals comparison.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.gt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.gt" class="anchor"></a><code>pub fn <a href="#method.gt" class="fnname">gt</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise greater-than comparison.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.ge" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.ge" class="anchor"></a><code>pub fn <a href="#method.ge" class="fnname">ge</a>(self, other: Self) -&gt; <a class="type" href="type.msizex8.html" title="type packed_simd_2::msizex8">msizex8</a></code></div></summary><div class="docblock"><p>Lane-wise greater-than-or-equals comparison.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-2" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-2" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_slice_aligned" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.from_slice_aligned" class="anchor"></a><code>pub fn <a href="#method.from_slice_aligned" class="fnname">from_slice_aligned</a>(slice: &amp;[*const T]) -&gt; Self</code></div></summary><div class="docblock"><p>Instantiates a new vector with the values of the <code>slice</code>.</p>
+<h1 id="panics-2" class="section-header"><a href="#panics-2">Panics</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> or <code>&amp;slice[0]</code> is not aligned
+to an <code>align_of::&lt;Self&gt;()</code> boundary.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_slice_unaligned" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.from_slice_unaligned" class="anchor"></a><code>pub fn <a href="#method.from_slice_unaligned" class="fnname">from_slice_unaligned</a>(slice: &amp;[*const T]) -&gt; Self</code></div></summary><div class="docblock"><p>Instantiates a new vector with the values of the <code>slice</code>.</p>
+<h1 id="panics-3" class="section-header"><a href="#panics-3">Panics</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_slice_aligned_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.from_slice_aligned_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.from_slice_aligned_unchecked" class="fnname">from_slice_aligned_unchecked</a>(slice: &amp;[*const T]) -&gt; Self</code></div></summary><div class="docblock"><p>Instantiates a new vector with the values of the <code>slice</code>.</p>
+<h1 id="safety-2" class="section-header"><a href="#safety-2">Safety</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> or <code>&amp;slice[0]</code> is not aligned
+to an <code>align_of::&lt;Self&gt;()</code> boundary, the behavior is undefined.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from_slice_unaligned_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.from_slice_unaligned_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.from_slice_unaligned_unchecked" class="fnname">from_slice_unaligned_unchecked</a>(slice: &amp;[*const T]) -&gt; Self</code></div></summary><div class="docblock"><p>Instantiates a new vector with the values of the <code>slice</code>.</p>
+<h1 id="safety-3" class="section-header"><a href="#safety-3">Safety</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> the behavior is undefined.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-3" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-3" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.write_to_slice_aligned" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.write_to_slice_aligned" class="anchor"></a><code>pub fn <a href="#method.write_to_slice_aligned" class="fnname">write_to_slice_aligned</a>(self, slice: &amp;mut [*const T])</code></div></summary><div class="docblock"><p>Writes the values of the vector to the <code>slice</code>.</p>
+<h1 id="panics-4" class="section-header"><a href="#panics-4">Panics</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> or <code>&amp;slice[0]</code> is not
+aligned to an <code>align_of::&lt;Self&gt;()</code> boundary.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.write_to_slice_unaligned" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.write_to_slice_unaligned" class="anchor"></a><code>pub fn <a href="#method.write_to_slice_unaligned" class="fnname">write_to_slice_unaligned</a>(self, slice: &amp;mut [*const T])</code></div></summary><div class="docblock"><p>Writes the values of the vector to the <code>slice</code>.</p>
+<h1 id="panics-5" class="section-header"><a href="#panics-5">Panics</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.write_to_slice_aligned_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.write_to_slice_aligned_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.write_to_slice_aligned_unchecked" class="fnname">write_to_slice_aligned_unchecked</a>(self, slice: &amp;mut [*const T])</code></div></summary><div class="docblock"><p>Writes the values of the vector to the <code>slice</code>.</p>
+<h1 id="safety-4" class="section-header"><a href="#safety-4">Safety</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> or <code>&amp;slice[0]</code> is not
+aligned to an <code>align_of::&lt;Self&gt;()</code> boundary, the behavior is
+undefined.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.write_to_slice_unaligned_unchecked" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.write_to_slice_unaligned_unchecked" class="anchor"></a><code>pub unsafe fn <a href="#method.write_to_slice_unaligned_unchecked" class="fnname">write_to_slice_unaligned_unchecked</a>(self, slice: &amp;mut [*const T])</code></div></summary><div class="docblock"><p>Writes the values of the vector to the <code>slice</code>.</p>
+<h1 id="safety-5" class="section-header"><a href="#safety-5">Safety</a></h1>
+<p>If <code>slice.len() &lt; Self::lanes()</code> the behavior is undefined.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-4" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-4" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.offset" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.offset" class="anchor"></a><code>pub unsafe fn <a href="#method.offset" class="fnname">offset</a>(self, count: <a class="type" href="type.isizex8.html" title="type packed_simd_2::isizex8">isizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer.</p>
+<p><code>count</code> is in units of <code>T</code>; e.g. a count of <code>3</code> represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-6" class="section-header"><a href="#safety-6">Safety</a></h1>
+<p>If any of the following conditions are violated, the result is
+Undefined Behavior:</p>
+<ul>
+<li>
+<p>Both the starting and resulting pointer must be either in
+bounds or one byte past the end of an allocated object.</p>
+</li>
+<li>
+<p>The computed offset, in bytes, cannot overflow an <code>isize</code>.</p>
+</li>
+<li>
+<p>The offset being in bounds cannot rely on “wrapping around”
+the address space. That is, the infinite-precision sum, in bytes
+must fit in a <code>usize</code>.</p>
+</li>
+</ul>
+<p>The compiler and standard library generally tries to ensure
+allocations never reach a size where an offset is a concern. For
+instance, <code>Vec</code> and <code>Box</code> ensure they never allocate more than
+<code>isize::MAX</code> bytes, so <code>vec.as_ptr().offset(vec.len() as isize)</code>
+is always safe.</p>
+<p>Most platforms fundamentally can’t even construct such an
+allocation. For instance, no known 64-bit platform can ever
+serve a request for 263 bytes due to page-table limitations or
+splitting the address space. However, some 32-bit and 16-bit
+platforms may successfully serve a request for more than
+<code>isize::MAX</code> bytes with things like Physical Address Extension.
+As such, memory acquired directly from allocators or memory
+mapped files may be too large to handle with this function.</p>
+<p>Consider using <code>wrapping_offset</code> instead if these constraints
+are difficult to satisfy. The only advantage of this method is
+that it enables more aggressive compiler optimizations.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.wrapping_offset" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.wrapping_offset" class="anchor"></a><code>pub fn <a href="#method.wrapping_offset" class="fnname">wrapping_offset</a>(self, count: <a class="type" href="type.isizex8.html" title="type packed_simd_2::isizex8">isizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer using wrapping arithmetic.</p>
+<p><code>count</code> is in units of <code>T</code>; e.g. a count of <code>3</code> represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-7" class="section-header"><a href="#safety-7">Safety</a></h1>
+<p>The resulting pointer does not need to be in bounds, but it is
+potentially hazardous to dereference (which requires unsafe).</p>
+<p>Always use <code>.offset(count)</code> instead when possible, because
+offset allows the compiler to optimize better.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.offset_from" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.offset_from" class="anchor"></a><code>pub unsafe fn <a href="#method.offset_from" class="fnname">offset_from</a>(self, origin: Self) -&gt; <a class="type" href="type.isizex8.html" title="type packed_simd_2::isizex8">isizex8</a></code></div></summary><div class="docblock"><p>Calculates the distance between two pointers.</p>
+<p>The returned value is in units of <code>T</code>: the distance in bytes is
+divided by <code>mem::size_of::&lt;T&gt;()</code>.</p>
+<p>This function is the inverse of offset.</p>
+<h1 id="safety-8" class="section-header"><a href="#safety-8">Safety</a></h1>
+<p>If any of the following conditions are violated, the result is
+Undefined Behavior:</p>
+<ul>
+<li>
+<p>Both the starting and other pointer must be either in bounds
+or one byte past the end of the same allocated object.</p>
+</li>
+<li>
+<p>The distance between the pointers, in bytes, cannot overflow
+an <code>isize</code>.</p>
+</li>
+<li>
+<p>The distance between the pointers, in bytes, must be an exact
+multiple of the size of <code>T</code>.</p>
+</li>
+<li>
+<p>The distance being in bounds cannot rely on “wrapping around”
+the address space.</p>
+</li>
+</ul>
+<p>The compiler and standard library generally try to ensure
+allocations never reach a size where an offset is a concern. For
+instance, <code>Vec</code> and <code>Box</code> ensure they never allocate more than
+<code>isize::MAX</code> bytes, so <code>ptr_into_vec.offset_from(vec.as_ptr())</code>
+is always safe.</p>
+<p>Most platforms fundamentally can’t even construct such an
+allocation. For instance, no known 64-bit platform can ever
+serve a request for 263 bytes due to page-table limitations or
+splitting the address space. However, some 32-bit and 16-bit
+platforms may successfully serve a request for more than
+<code>isize::MAX</code> bytes with things like Physical Address Extension.
+As such, memory acquired directly from allocators or memory
+mapped files may be too large to handle with this function.</p>
+<p>Consider using <code>wrapping_offset_from</code> instead if these constraints
+are difficult to satisfy. The only advantage of this method is
+that it enables more aggressive compiler optimizations.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.wrapping_offset_from" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.wrapping_offset_from" class="anchor"></a><code>pub fn <a href="#method.wrapping_offset_from" class="fnname">wrapping_offset_from</a>(self, origin: Self) -&gt; <a class="type" href="type.isizex8.html" title="type packed_simd_2::isizex8">isizex8</a></code></div></summary><div class="docblock"><p>Calculates the distance between two pointers.</p>
+<p>The returned value is in units of <code>T</code>: the distance in bytes is
+divided by <code>mem::size_of::&lt;T&gt;()</code>.</p>
+<p>If the address different between the two pointers is not a
+multiple of <code>mem::size_of::&lt;T&gt;()</code> then the result of the
+division is rounded towards zero.</p>
+<p>Though this method is safe for any two pointers, note that its
+result will be mostly useless if the two pointers aren’t into
+the same allocated object, for example if they point to two
+different local variables.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.add" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.add" class="anchor"></a><code>pub unsafe fn <a href="#method.add" class="fnname">add</a>(self, count: <a class="type" href="type.usizex8.html" title="type packed_simd_2::usizex8">usizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer (convenience for
+<code>.offset(count as isize)</code>).</p>
+<p><code>count</code> is in units of <code>T</code>; e.g. a count of 3 represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-9" class="section-header"><a href="#safety-9">Safety</a></h1>
+<p>If any of the following conditions are violated, the result is
+Undefined Behavior:</p>
+<ul>
+<li>
+<p>Both the starting and resulting pointer must be either in
+bounds or one byte past the end of an allocated object.</p>
+</li>
+<li>
+<p>The computed offset, in bytes, cannot overflow an <code>isize</code>.</p>
+</li>
+<li>
+<p>The offset being in bounds cannot rely on “wrapping around”
+the address space. That is, the infinite-precision sum must fit
+in a <code>usize</code>.</p>
+</li>
+</ul>
+<p>The compiler and standard library generally tries to ensure
+allocations never reach a size where an offset is a concern. For
+instance, <code>Vec</code> and <code>Box</code> ensure they never allocate more than
+<code>isize::MAX</code> bytes, so <code>vec.as_ptr().add(vec.len())</code> is always
+safe.</p>
+<p>Most platforms fundamentally can’t even construct such an
+allocation. For instance, no known 64-bit platform can ever
+serve a request for 263 bytes due to page-table limitations or
+splitting the address space. However, some 32-bit and 16-bit
+platforms may successfully serve a request for more than
+<code>isize::MAX</code> bytes with things like Physical Address Extension.
+As such, memory acquired directly from allocators or memory
+mapped files may be too large to handle with this function.</p>
+<p>Consider using <code>wrapping_offset</code> instead if these constraints
+are difficult to satisfy. The only advantage of this method is
+that it enables more aggressive compiler optimizations.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.sub" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.sub" class="anchor"></a><code>pub unsafe fn <a href="#method.sub" class="fnname">sub</a>(self, count: <a class="type" href="type.usizex8.html" title="type packed_simd_2::usizex8">usizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer (convenience for
+<code>.offset((count as isize).wrapping_neg())</code>).</p>
+<p><code>count</code> is in units of T; e.g. a <code>count</code> of 3 represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-10" class="section-header"><a href="#safety-10">Safety</a></h1>
+<p>If any of the following conditions are violated, the result is
+Undefined Behavior:</p>
+<ul>
+<li>
+<p>Both the starting and resulting pointer must be either in
+bounds or one byte past the end of an allocated object.</p>
+</li>
+<li>
+<p>The computed offset cannot exceed <code>isize::MAX</code> <strong>bytes</strong>.</p>
+</li>
+<li>
+<p>The offset being in bounds cannot rely on “wrapping around”
+the address space. That is, the infinite-precision sum must fit
+in a usize.</p>
+</li>
+</ul>
+<p>The compiler and standard library generally tries to ensure
+allocations never reach a size where an offset is a concern. For
+instance, <code>Vec</code> and <code>Box</code> ensure they never allocate more than
+<code>isize::MAX</code> bytes, so
+<code>vec.as_ptr().add(vec.len()).sub(vec.len())</code> is always safe.</p>
+<p>Most platforms fundamentally can’t even construct such an
+allocation. For instance, no known 64-bit platform can ever
+serve a request for 2<sup>63</sup> bytes due to page-table
+limitations or splitting the address space. However, some 32-bit
+and 16-bit platforms may successfully serve a request for more
+than <code>isize::MAX</code> bytes with things like Physical Address
+Extension. As such, memory acquired directly from allocators or
+memory mapped files <em>may</em> be too large to handle with this
+function.</p>
+<p>Consider using <code>wrapping_offset</code> instead if these constraints
+are difficult to satisfy. The only advantage of this method is
+that it enables more aggressive compiler optimizations.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.wrapping_add" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.wrapping_add" class="anchor"></a><code>pub fn <a href="#method.wrapping_add" class="fnname">wrapping_add</a>(self, count: <a class="type" href="type.usizex8.html" title="type packed_simd_2::usizex8">usizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer using wrapping arithmetic.
+(convenience for <code>.wrapping_offset(count as isize)</code>)</p>
+<p><code>count</code> is in units of T; e.g. a <code>count</code> of 3 represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-11" class="section-header"><a href="#safety-11">Safety</a></h1>
+<p>The resulting pointer does not need to be in bounds, but it is
+potentially hazardous to dereference (which requires <code>unsafe</code>).</p>
+<p>Always use <code>.add(count)</code> instead when possible, because <code>add</code>
+allows the compiler to optimize better.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.wrapping_sub" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.wrapping_sub" class="anchor"></a><code>pub fn <a href="#method.wrapping_sub" class="fnname">wrapping_sub</a>(self, count: <a class="type" href="type.usizex8.html" title="type packed_simd_2::usizex8">usizex8</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Calculates the offset from a pointer using wrapping arithmetic.
+(convenience for <code>.wrapping_offset((count as isize).wrapping_sub())</code>)</p>
+<p><code>count</code> is in units of T; e.g. a <code>count</code> of 3 represents a
+pointer offset of <code>3 * size_of::&lt;T&gt;()</code> bytes.</p>
+<h1 id="safety-12" class="section-header"><a href="#safety-12">Safety</a></h1>
+<p>The resulting pointer does not need to be in bounds, but it is
+potentially hazardous to dereference (which requires <code>unsafe</code>).</p>
+<p>Always use <code>.sub(count)</code> instead when possible, because <code>sub</code>
+allows the compiler to optimize better.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-5" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-5" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.shuffle1_dyn" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.shuffle1_dyn" class="anchor"></a><code>pub fn <a href="#method.shuffle1_dyn" class="fnname">shuffle1_dyn</a>&lt;I&gt;(self, indices: I) -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: Shuffle1Dyn&lt;Indices = I&gt;,&nbsp;</span></code></div></summary><div class="docblock"><p>Shuffle vector elements according to <code>indices</code>.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-6" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-6" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;[T; 8]: <a class="trait" href="trait.SimdArray.html" title="trait packed_simd_2::SimdArray">SimdArray</a>,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.read" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.read" class="anchor"></a><code>pub unsafe fn <a href="#method.read" class="fnname">read</a>&lt;M&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;mask: <a class="struct" href="struct.Simd.html" title="struct packed_simd_2::Simd">Simd</a>&lt;[M; 8]&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;value: <a class="struct" href="struct.Simd.html" title="struct packed_simd_2::Simd">Simd</a>&lt;[T; 8]&gt;<br>) -&gt; <a class="struct" href="struct.Simd.html" title="struct packed_simd_2::Simd">Simd</a>&lt;[T; 8]&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="trait.Mask.html" title="trait packed_simd_2::Mask">Mask</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;[M; 8]: <a class="trait" href="trait.SimdArray.html" title="trait packed_simd_2::SimdArray">SimdArray</a>,&nbsp;</span></code></div></summary><div class="docblock"><p>Reads selected vector elements from memory.</p>
+<p>Instantiates a new vector by reading the values from <code>self</code> for
+those lanes whose <code>mask</code> is <code>true</code>, and using the elements of
+<code>value</code> otherwise.</p>
+<p>No memory is accessed for those lanes of <code>self</code> whose <code>mask</code> is
+<code>false</code>.</p>
+<h1 id="safety-13" class="section-header"><a href="#safety-13">Safety</a></h1>
+<p>This method is unsafe because it dereferences raw pointers. The
+pointers must be aligned to <code>mem::align_of::&lt;T&gt;()</code>.</p>
+</div></details></div></details><h2 id="trait-implementations" class="small-section-header">Trait Implementations<a href="#trait-implementations" class="anchor"></a></h2><div id="trait-implementations-list"><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Debug" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Debug" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.fmt" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.fmt" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt" class="fnname">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></div></summary><div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Default" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Default" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.default" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.default" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default" class="fnname">default</a>() -&gt; Self</code></div></summary><div class='docblock'><p>Returns the “default value” for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-From%3C%5B*const%20T%3B%208%5D%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-From%3C%5B*const%20T%3B%208%5D%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;[*const T; 8]&gt; for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.from" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from" class="fnname">from</a>(array: [*const T; 8]) -&gt; Self</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Hash" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Hash" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.hash" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.hash" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash" class="fnname">hash</a>&lt;H:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>&gt;(&amp;self, state: &amp;mut H)</code></div></summary><div class='docblock'><p>Feeds this value into the given <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="Hasher"><code>Hasher</code></a>. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">Read more</a></p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.hash_slice" class="method trait-impl has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.3.0">1.3.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/hash/mod.rs.html#211-213" title="goto source code">[src]</a></div><a href="#method.hash_slice" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice" class="fnname">hash_slice</a>&lt;H&gt;(data: &amp;[Self], state: &amp;mut H) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;H: <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>,&nbsp;</span></code></div></summary><div class='docblock'><p>Feeds a slice of this type into the given <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="Hasher"><code>Hasher</code></a>. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Into%3C%5B*const%20T%3B%208%5D%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Into%3C%5B*const%20T%3B%208%5D%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;[*const T; 8]&gt; for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.into" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into" class="fnname">into</a>(self) -&gt; [*const T; 8]</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-PartialEq%3CSimd%3C%5B*const%20T%3B%208%5D%3E%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-PartialEq%3CSimd%3C%5B*const%20T%3B%208%5D%3E%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="struct.Simd.html" title="struct packed_simd_2::Simd">Simd</a>&lt;[*const T; 8]&gt;&gt; for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.eq-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.eq-1" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq" class="fnname">eq</a>(&amp;self, other: &amp;Self) -&gt; bool</code></div></summary><div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used
+by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.ne-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#method.ne-1" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne" class="fnname">ne</a>(&amp;self, other: &amp;Self) -&gt; bool</code></div></summary><div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Simd" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Simd" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="trait.SimdVector.html" title="trait packed_simd_2::SimdVector">Simd</a> for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle" open><summary><div id="associatedtype.Element" class="type trait-impl has-srclink"><a href="#associatedtype.Element" class="anchor"></a><code>type <a href="trait.SimdVector.html#associatedtype.Element" class="type">Element</a> = *const T</code></div></summary><div class='docblock'><p>Element type of the SIMD vector</p>
+</div></details><details class="rustdoc-toggle" open><summary><div id="associatedconstant.LANES" class="associatedconstant trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#associatedconstant.LANES" class="anchor"></a><code>const <a href="trait.SimdVector.html#associatedconstant.LANES" class="constant"><b>LANES</b></a>: usize</code></div></summary><div class='docblock'><p>The number of elements in the SIMD vector.</p>
+</div></details><details class="rustdoc-toggle" open><summary><div id="associatedtype.LanesType" class="type trait-impl has-srclink"><a href="#associatedtype.LanesType" class="anchor"></a><code>type <a href="trait.SimdVector.html#associatedtype.LanesType" class="type">LanesType</a> = [u32; 8]</code></div></summary><div class='docblock'><p>The type: <code>[u32; Self::N]</code>.</p>
+</div></details></div></details><div id="impl-Eq" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/packed_simd_2/vPtr.rs.html#26-29" title="goto source code">[src]</a></div><a href="#impl-Eq" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="type" href="type.cptrx8.html" title="type packed_simd_2::cptrx8">cptrx8</a>&lt;T&gt;</code></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="packed_simd_2" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

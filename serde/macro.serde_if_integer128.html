@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Conditional compilation depending on whether Serde is built with support for 128-bit integers."><meta name="keywords" content="rust, rustlang, rust-lang, serde_if_integer128"><title>serde_if_integer128 in serde - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../serde/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">serde</a></p><div id="sidebar-vars" data-name="serde_if_integer128" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">serde</a>::<wbr><a class="macro" href="#">serde_if_integer128</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/serde/integer128.rs.html#71-75" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">serde_if_integer128</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Conditional compilation depending on whether Serde is built with support for
+128-bit integers.</p>
+<p>Data formats that wish to support Rust compiler versions older than 1.26
+(or targets that lack 128-bit integers) may place the i128 / u128 methods
+of their Serializer and Deserializer behind this macro.</p>
+<p>Data formats that require a minimum Rust compiler version of at least 1.26,
+or do not target platforms that lack 128-bit integers, do not need to
+bother with this macro and may assume support for 128-bit integers.</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">serde_if_integer128</span>, <span class="ident">Serializer</span>};
+
+<span class="kw">impl</span> <span class="ident">Serializer</span> <span class="kw">for</span> <span class="ident">MySerializer</span> {
+    <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> ();
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+
+    <span class="kw">fn</span> <span class="ident">serialize_i64</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Ok</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+        <span class="comment">/* ... */</span>
+    }
+
+    <span class="comment">/* ... */</span>
+
+    <span class="macro">serde_if_integer128!</span> {
+        <span class="kw">fn</span> <span class="ident">serialize_i128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">i128</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Ok</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+            <span class="comment">/* ... */</span>
+        }
+
+        <span class="kw">fn</span> <span class="ident">serialize_u128</span>(<span class="self">self</span>, <span class="ident">v</span>: <span class="ident">u128</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Ok</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+            <span class="comment">/* ... */</span>
+        }
+    }
+}</pre></div>
+<p>When Serde is built with support for 128-bit integers, this macro expands
+transparently into just the input tokens.</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="macro">macro_rules!</span> <span class="ident">serde_if_integer128</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+    };
+}</pre></div>
+<p>When built without support for 128-bit integers, this macro expands to
+nothing.</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="macro">macro_rules!</span> <span class="ident">serde_if_integer128</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {};
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

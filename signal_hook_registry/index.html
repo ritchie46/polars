@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Backend of the signal-hook crate."><meta name="keywords" content="rust, rustlang, rust-lang, signal_hook_registry"><title>signal_hook_registry - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../signal_hook_registry/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate signal_hook_registry</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.4.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all signal_hook_registry's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="signal_hook_registry" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">signal_hook_registry</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/signal_hook_registry/lib.rs.html#1-782" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Backend of the <a href="https://docs.rs/signal-hook">signal-hook</a> crate.</p>
+<p>The <a href="https://docs.rs/signal-hook">signal-hook</a> crate tries to provide an API to the unix signals, which are a global
+resource. Therefore, it is desirable an application contains just one version of the crate
+which manages this global resource. But that makes it impossible to make breaking changes in
+the API.</p>
+<p>Therefore, this crate provides very minimal and low level API to the signals that is unlikely
+to have to change, while there may be multiple versions of the <a href="https://docs.rs/signal-hook">signal-hook</a> that all use this
+low-level API to provide different versions of the high level APIs.</p>
+<p>It is also possible some other crates might want to build a completely different API. This
+split allows these crates to still reuse the same low-level routines in this crate instead of
+going to the (much more dangerous) unix calls.</p>
+<h1 id="what-this-crate-provides" class="section-header"><a href="#what-this-crate-provides">What this crate provides</a></h1>
+<p>The only thing this crate does is multiplexing the signals. An application or library can add
+or remove callbacks and have multiple callbacks for the same signal.</p>
+<p>It handles dispatching the callbacks and managing them in a way that uses only the
+<a href="http://www.man7.org/linux/man-pages/man7/signal-safety.7.html">async-signal-safe</a> functions inside the signal handler. Note that the callbacks are still run
+inside the signal handler, so it is up to the caller to ensure they are also
+<a href="http://www.man7.org/linux/man-pages/man7/signal-safety.7.html">async-signal-safe</a>.</p>
+<h1 id="what-this-is-for" class="section-header"><a href="#what-this-is-for">What this is for</a></h1>
+<p>This is a building block for other libraries creating reasonable abstractions on top of
+signals. The <a href="https://docs.rs/signal-hook">signal-hook</a> is the generally preferred way if you need to handle signals in your
+application and provides several safe patterns of doing so.</p>
+<h1 id="rust-version-compatibility" class="section-header"><a href="#rust-version-compatibility">Rust version compatibility</a></h1>
+<p>Currently builds on 1.26.0 an newer and this is very unlikely to change. However, tests
+require dependencies that don’t build there, so tests need newer Rust version (they are run on
+stable).</p>
+<h1 id="portability" class="section-header"><a href="#portability">Portability</a></h1>
+<p>This crate includes a limited support for Windows, based on <code>signal</code>/<code>raise</code> in the CRT.
+There are differences in both API and behavior:</p>
+<ul>
+<li>Due to lack of <code>siginfo_t</code>, we don’t provide <code>register_sigaction</code> or <code>register_unchecked</code>.</li>
+<li>Due to lack of signal blocking, there’s a race condition.
+After the call to <code>signal</code>, there’s a moment where we miss a signal.
+That means when you register a handler, there may be a signal which invokes
+neither the default handler or the handler you register.</li>
+<li>Handlers registered by <code>signal</code> in Windows are cleared on first signal.
+To match behavior in other platforms, we re-register the handler each time the handler is
+called, but there’s a moment where we miss a handler.
+That means when you receive two signals in a row, there may be a signal which invokes
+the default handler, nevertheless you certainly have registered the handler.</li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.SigId.html" title="signal_hook_registry::SigId struct">SigId</a></div><div class="item-right docblock-short"><p>An ID of registered action.</p>
+</div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="constant" href="constant.FORBIDDEN.html" title="signal_hook_registry::FORBIDDEN constant">FORBIDDEN</a></div><div class="item-right docblock-short"><p>List of forbidden signals.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.register.html" title="signal_hook_registry::register fn">register</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Registers an arbitrary action for the given signal.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.register_sigaction.html" title="signal_hook_registry::register_sigaction fn">register_sigaction</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Register a signal action.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.register_signal_unchecked.html" title="signal_hook_registry::register_signal_unchecked fn">register_signal_unchecked</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Register a signal action without checking for forbidden signals.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.register_unchecked.html" title="signal_hook_registry::register_unchecked fn">register_unchecked</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Register a signal action without checking for forbidden signals.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.unregister.html" title="signal_hook_registry::unregister fn">unregister</a></div><div class="item-right docblock-short"><p>Removes a previously installed action.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="signal_hook_registry" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

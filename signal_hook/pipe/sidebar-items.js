@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["register","Registers a write to a self-pipe whenever there’s the signal."],["register_raw","Registers a write to a self-pipe whenever there’s the signal."]]});

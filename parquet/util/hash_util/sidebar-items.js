@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["hash","Computes hash value for `data`, with a seed value `seed`. The data type `T` must implement the `AsBytes` trait."]]});

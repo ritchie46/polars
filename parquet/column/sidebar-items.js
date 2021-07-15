@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["page","Contains Parquet Page definitions and page reader interface."],["reader","Contains column reader API."],["writer","Contains column writer API."]]});

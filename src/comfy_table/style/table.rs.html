@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;comfy-table-1.6.0&#x2F;src&#x2F;style&#x2F;table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>table.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../comfy_table/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+</pre><pre class="rust">
+<span class="kw">use</span> <span class="ident">strum_macros::EnumIter</span>;
+
+<span class="doccomment">/// Specify how comfy_table should arrange the content in your table.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use comfy_table::{Table, ContentArrangement};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let mut table = Table::new();</span>
+<span class="doccomment">/// table.set_content_arrangement(ContentArrangement::Dynamic);</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ContentArrangement</span> {
+    <span class="doccomment">/// Don&#39;t do any content arrangement.\</span>
+    <span class="doccomment">/// Tables with this mode might become wider than your output and look ugly.\</span>
+    <span class="doccomment">/// Constraints on columns are still respected.</span>
+    <span class="ident">Disabled</span>,
+    <span class="doccomment">/// Dynamically determine the width of columns in regard to terminal width and content length.\</span>
+    <span class="doccomment">/// With this mode, the content in cells will wrap dynamically to get the  the best column layout</span>
+    <span class="doccomment">/// for the given content.\</span>
+    <span class="doccomment">/// Constraints on columns are still respected.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// **Warning:** If terminal width cannot be determined and no table_width is set via [Table::set_table_width](crate::table::Table::set_table_width),</span>
+    <span class="doccomment">/// this option won&#39;t work and [Disabled](ContentArrangement::Disabled) will be used as a fallback.</span>
+    <span class="ident">Dynamic</span>,
+    <span class="comment">// /// Same as [ContentArrangement::Dynamic], but the full width of the terminal will always be used.</span>
+    <span class="comment">// /// Use this, if you want tables to use as much space as possible.</span>
+    <span class="comment">// /// Constraints on columns are still respected.</span>
+    <span class="comment">// Full,</span>
+}
+
+<span class="doccomment">/// All configurable table components.</span>
+<span class="doccomment">/// A character can be assigned to each component via [Table::set_style](crate::table::Table::set_style).</span>
+<span class="doccomment">/// This is then used to draw character of the respective component to the commandline.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// I hope that most component names are self-explanatory. Just in case:</span>
+<span class="doccomment">/// BorderIntersections are Intersections, where rows/columns lines meet outer borders.</span>
+<span class="doccomment">/// E.g.:</span>
+<span class="doccomment">/// ```text</span>
+<span class="doccomment">///        ---------</span>
+<span class="doccomment">///        v       |</span>
+<span class="doccomment">/// +---+---+---+  |</span>
+<span class="doccomment">/// | a | b | c |  |</span>
+<span class="doccomment">/// +===+===+===+&lt;-|</span>
+<span class="doccomment">/// |   |   |   |  |</span>
+<span class="doccomment">/// +---+---+---+&lt;-- These &quot;+&quot; chars are Borderintersections.</span>
+<span class="doccomment">/// |   |   |   |    The inner &quot;+&quot; chars are MiddleIntersections</span>
+<span class="doccomment">/// +---+---+---+</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">EnumIter</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TableComponent</span> {
+    <span class="ident">LeftBorder</span>,
+    <span class="ident">RightBorder</span>,
+    <span class="ident">TopBorder</span>,
+    <span class="ident">BottomBorder</span>,
+    <span class="ident">LeftHeaderIntersection</span>,
+    <span class="ident">HeaderLines</span>,
+    <span class="ident">MiddleHeaderIntersections</span>,
+    <span class="ident">RightHeaderIntersection</span>,
+    <span class="ident">VerticalLines</span>,
+    <span class="ident">HorizontalLines</span>,
+    <span class="ident">MiddleIntersections</span>,
+    <span class="ident">LeftBorderIntersections</span>,
+    <span class="ident">RightBorderIntersections</span>,
+    <span class="ident">TopBorderIntersections</span>,
+    <span class="ident">BottomBorderIntersections</span>,
+    <span class="ident">TopLeftCorner</span>,
+    <span class="ident">TopRightCorner</span>,
+    <span class="ident">BottomLeftCorner</span>,
+    <span class="ident">BottomRightCorner</span>,
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="comfy_table" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

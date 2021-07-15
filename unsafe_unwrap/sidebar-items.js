@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["UnsafeUnwrap","A type whose instances can be unsafely unwrapped without checking."]]});

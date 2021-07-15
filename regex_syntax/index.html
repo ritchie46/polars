@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides a robust regular expression parser."><meta name="keywords" content="rust, rustlang, rust-lang, regex_syntax"><title>regex_syntax - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../regex_syntax/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate regex_syntax</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.6.25</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all regex_syntax's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="regex_syntax" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">regex_syntax</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/regex_syntax/lib.rs.html#1-312" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides a robust regular expression parser.</p>
+<p>This crate defines two primary types:</p>
+<ul>
+<li><a href="ast/enum.Ast.html"><code>Ast</code></a> is the abstract syntax of a regular expression.
+An abstract syntax corresponds to a <em>structured representation</em> of the
+concrete syntax of a regular expression, where the concrete syntax is the
+pattern string itself (e.g., <code>foo(bar)+</code>). Given some abstract syntax, it
+can be converted back to the original concrete syntax (modulo some details,
+like whitespace). To a first approximation, the abstract syntax is complex
+and difficult to analyze.</li>
+<li><a href="hir/struct.Hir.html"><code>Hir</code></a> is the high-level intermediate representation
+(“HIR” or “high-level IR” for short) of regular expression. It corresponds to
+an intermediate state of a regular expression that sits between the abstract
+syntax and the low level compiled opcodes that are eventually responsible for
+executing a regular expression search. Given some high-level IR, it is not
+possible to produce the original concrete syntax (although it is possible to
+produce an equivalent concrete syntax, but it will likely scarcely resemble
+the original pattern). To a first approximation, the high-level IR is simple
+and easy to analyze.</li>
+</ul>
+<p>These two types come with conversion routines:</p>
+<ul>
+<li>An <a href="ast/parse/struct.Parser.html"><code>ast::parse::Parser</code></a> converts concrete
+syntax (a <code>&amp;str</code>) to an <a href="ast/enum.Ast.html"><code>Ast</code></a>.</li>
+<li>A <a href="hir/translate/struct.Translator.html"><code>hir::translate::Translator</code></a>
+converts an <a href="ast/enum.Ast.html"><code>Ast</code></a> to a <a href="hir/struct.Hir.html"><code>Hir</code></a>.</li>
+</ul>
+<p>As a convenience, the above two conversion routines are combined into one via
+the top-level <a href="struct.Parser.html"><code>Parser</code></a> type. This <code>Parser</code> will first
+convert your pattern to an <code>Ast</code> and then convert the <code>Ast</code> to an <code>Hir</code>.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>This example shows how to parse a pattern string into its HIR:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">regex_syntax::Parser</span>;
+<span class="kw">use</span> <span class="ident">regex_syntax::hir</span>::{<span class="self">self</span>, <span class="ident">Hir</span>};
+
+<span class="kw">let</span> <span class="ident">hir</span> <span class="op">=</span> <span class="ident">Parser::new</span>().<span class="ident">parse</span>(<span class="string">&quot;a|b&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">hir</span>, <span class="ident">Hir::alternation</span>(<span class="macro">vec!</span>[
+    <span class="ident">Hir::literal</span>(<span class="ident">hir::Literal::Unicode</span>(<span class="string">&#39;a&#39;</span>)),
+    <span class="ident">Hir::literal</span>(<span class="ident">hir::Literal::Unicode</span>(<span class="string">&#39;b&#39;</span>)),
+]));</pre></div>
+<h1 id="concrete-syntax-supported" class="section-header"><a href="#concrete-syntax-supported">Concrete syntax supported</a></h1>
+<p>The concrete syntax is documented as part of the public API of the
+<a href="https://docs.rs/regex/%2A/regex/#syntax"><code>regex</code> crate</a>.</p>
+<h1 id="input-safety" class="section-header"><a href="#input-safety">Input safety</a></h1>
+<p>A key feature of this library is that it is safe to use with end user facing
+input. This plays a significant role in the internal implementation. In
+particular:</p>
+<ol>
+<li>Parsers provide a <code>nest_limit</code> option that permits callers to control how
+deeply nested a regular expression is allowed to be. This makes it possible
+to do case analysis over an <code>Ast</code> or an <code>Hir</code> using recursion without
+worrying about stack overflow.</li>
+<li>Since relying on a particular stack size is brittle, this crate goes to
+great lengths to ensure that all interactions with both the <code>Ast</code> and the
+<code>Hir</code> do not use recursion. Namely, they use constant stack space and heap
+space proportional to the size of the original pattern string (in bytes).
+This includes the type’s corresponding destructors. (One exception to this
+is literal extraction, but this will eventually get fixed.)</li>
+</ol>
+<h1 id="error-reporting" class="section-header"><a href="#error-reporting">Error reporting</a></h1>
+<p>The <code>Display</code> implementations on all <code>Error</code> types exposed in this library
+provide nice human readable errors that are suitable for showing to end users
+in a monospace font.</p>
+<h1 id="literal-extraction" class="section-header"><a href="#literal-extraction">Literal extraction</a></h1>
+<p>This crate provides limited support for
+<a href="hir/literal/struct.Literals.html">literal extraction from <code>Hir</code> values</a>.
+Be warned that literal extraction currently uses recursion, and therefore,
+stack size proportional to the size of the <code>Hir</code>.</p>
+<p>The purpose of literal extraction is to speed up searches. That is, if you
+know a regular expression must match a prefix or suffix literal, then it is
+often quicker to search for instances of that literal, and then confirm or deny
+the match using the full regular expression engine. These optimizations are
+done automatically in the <code>regex</code> crate.</p>
+<h1 id="crate-features" class="section-header"><a href="#crate-features">Crate features</a></h1>
+<p>An important feature provided by this crate is its Unicode support. This
+includes things like case folding, boolean properties, general categories,
+scripts and Unicode-aware support for the Perl classes <code>\w</code>, <code>\s</code> and <code>\d</code>.
+However, a downside of this support is that it requires bundling several
+Unicode data tables that are substantial in size.</p>
+<p>A fair number of use cases do not require full Unicode support. For this
+reason, this crate exposes a number of features to control which Unicode
+data is available.</p>
+<p>If a regular expression attempts to use a Unicode feature that is not available
+because the corresponding crate feature was disabled, then translating that
+regular expression to an <code>Hir</code> will return an error. (It is still possible
+construct an <code>Ast</code> for such a regular expression, since Unicode data is not
+used until translation to an <code>Hir</code>.) Stated differently, enabling or disabling
+any of the features below can only add or subtract from the total set of valid
+regular expressions. Enabling or disabling a feature will never modify the
+match semantics of a regular expression.</p>
+<p>The following features are available:</p>
+<ul>
+<li><strong>unicode</strong> -
+Enables all Unicode features. This feature is enabled by default, and will
+always cover all Unicode features, even if more are added in the future.</li>
+<li><strong>unicode-age</strong> -
+Provide the data for the
+<a href="https://www.unicode.org/reports/tr44/tr44-24.html#Character_Age">Unicode <code>Age</code> property</a>.
+This makes it possible to use classes like <code>\p{Age:6.0}</code> to refer to all
+codepoints first introduced in Unicode 6.0</li>
+<li><strong>unicode-bool</strong> -
+Provide the data for numerous Unicode boolean properties. The full list
+is not included here, but contains properties like <code>Alphabetic</code>, <code>Emoji</code>,
+<code>Lowercase</code>, <code>Math</code>, <code>Uppercase</code> and <code>White_Space</code>.</li>
+<li><strong>unicode-case</strong> -
+Provide the data for case insensitive matching using
+<a href="https://www.unicode.org/reports/tr18/#Simple_Loose_Matches">Unicode’s “simple loose matches” specification</a>.</li>
+<li><strong>unicode-gencat</strong> -
+Provide the data for
+<a href="https://www.unicode.org/reports/tr44/tr44-24.html#General_Category_Values">Uncode general categories</a>.
+This includes, but is not limited to, <code>Decimal_Number</code>, <code>Letter</code>,
+<code>Math_Symbol</code>, <code>Number</code> and <code>Punctuation</code>.</li>
+<li><strong>unicode-perl</strong> -
+Provide the data for supporting the Unicode-aware Perl character classes,
+corresponding to <code>\w</code>, <code>\s</code> and <code>\d</code>. This is also necessary for using
+Unicode-aware word boundary assertions. Note that if this feature is
+disabled, the <code>\s</code> and <code>\d</code> character classes are still available if the
+<code>unicode-bool</code> and <code>unicode-gencat</code> features are enabled, respectively.</li>
+<li><strong>unicode-script</strong> -
+Provide the data for
+<a href="https://www.unicode.org/reports/tr24/">Unicode scripts and script extensions</a>.
+This includes, but is not limited to, <code>Arabic</code>, <code>Cyrillic</code>, <code>Hebrew</code>,
+<code>Latin</code> and <code>Thai</code>.</li>
+<li><strong>unicode-segment</strong> -
+Provide the data necessary to provide the properties used to implement the
+<a href="https://www.unicode.org/reports/tr29/">Unicode text segmentation algorithms</a>.
+This enables using classes like <code>\p{gcb=Extend}</code>, <code>\p{wb=Katakana}</code> and
+<code>\p{sb=ATerm}</code>.</li>
+</ul>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="ast/index.html" title="regex_syntax::ast mod">ast</a></div><div class="item-right docblock-short"><p>Defines an abstract syntax for regular expressions.</p>
+</div><div class="item-left module-item"><a class="mod" href="hir/index.html" title="regex_syntax::hir mod">hir</a></div><div class="item-right docblock-short"><p>Defines a high-level intermediate representation for regular expressions.</p>
+</div><div class="item-left module-item"><a class="mod" href="utf8/index.html" title="regex_syntax::utf8 mod">utf8</a></div><div class="item-right docblock-short"><p>Converts ranges of Unicode scalar values to equivalent ranges of UTF-8 bytes.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Parser.html" title="regex_syntax::Parser struct">Parser</a></div><div class="item-right docblock-short"><p>A convenience parser for regular expressions.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParserBuilder.html" title="regex_syntax::ParserBuilder struct">ParserBuilder</a></div><div class="item-right docblock-short"><p>A builder for a regular expression parser.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UnicodeWordError.html" title="regex_syntax::UnicodeWordError struct">UnicodeWordError</a></div><div class="item-right docblock-short"><p>An error that occurs when the Unicode-aware <code>\w</code> class is unavailable.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Error.html" title="regex_syntax::Error enum">Error</a></div><div class="item-right docblock-short"><p>This error type encompasses any error that can be returned by this crate.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.escape.html" title="regex_syntax::escape fn">escape</a></div><div class="item-right docblock-short"><p>Escapes all regular expression meta characters in <code>text</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.escape_into.html" title="regex_syntax::escape_into fn">escape_into</a></div><div class="item-right docblock-short"><p>Escapes all meta characters in <code>text</code> and writes the result into <code>buf</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.is_meta_character.html" title="regex_syntax::is_meta_character fn">is_meta_character</a></div><div class="item-right docblock-short"><p>Returns true if the give character has significance in a regex.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.is_word_byte.html" title="regex_syntax::is_word_byte fn">is_word_byte</a></div><div class="item-right docblock-short"><p>Returns true if and only if the given character is an ASCII word character.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.is_word_character.html" title="regex_syntax::is_word_character fn">is_word_character</a></div><div class="item-right docblock-short"><p>Returns true if and only if the given character is a Unicode word
+character.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.try_is_word_character.html" title="regex_syntax::try_is_word_character fn">try_is_word_character</a></div><div class="item-right docblock-short"><p>Returns true if and only if the given character is a Unicode word
+character.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.Result.html" title="regex_syntax::Result type">Result</a></div><div class="item-right docblock-short"><p>A type alias for dealing with errors returned by this crate.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="regex_syntax" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

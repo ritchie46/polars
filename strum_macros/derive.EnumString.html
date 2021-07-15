@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Converts strings to enum variants based on their name."><meta name="keywords" content="rust, rustlang, rust-lang, EnumString"><title>EnumString in strum_macros - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc derive"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../strum_macros/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">strum_macros</a></p><div id="sidebar-vars" data-name="EnumString" data-ty="derive" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Derive Macro <a href="index.html">strum_macros</a>::<wbr><a class="derive" href="#">EnumString</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/strum_macros/lib.rs.html#107-114" title="goto source code">[src]</a></span></h1><pre class="rust derive">#[derive(EnumString)]
+{
+    // Attributes available to this derive:
+    #[strum]
+}
+</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Converts strings to enum variants based on their name.</p>
+<p>auto-derives <code>std::str::FromStr</code> on the enum. Each variant of the enum will match on it’s own name.
+This can be overridden using <code>serialize=&quot;DifferentName&quot;</code> or <code>to_string=&quot;DifferentName&quot;</code>
+on the attribute as shown below.
+Multiple deserializations can be added to the same variant. If the variant contains additional data,
+they will be set to their default values upon deserialization.</p>
+<p>The <code>default</code> attribute can be applied to a tuple variant with a single data parameter. When a match isn’t
+found, the given variant will be returned and the input string will be captured in the parameter.</p>
+<p>Note that the implementation of <code>FromStr</code> by default only matches on the name of the
+variant. There is an option to match on different case conversions through the
+<code>#[strum(serialize_all = &quot;snake_case&quot;)]</code> type attribute.</p>
+<p>See the <a href="../strum/additional_attributes/index.html">Additional Attributes</a>
+Section for more information on using this feature.</p>
+<h1 id="example-howto-use-enumstring" class="section-header"><a href="#example-howto-use-enumstring">Example howto use EnumString</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+<span class="kw">use</span> <span class="ident">strum_macros::EnumString</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">EnumString</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Color</span> {
+    <span class="ident">Red</span>,
+    <span class="comment">// The Default value will be inserted into range if we match &quot;Green&quot;.</span>
+    <span class="ident">Green</span> {
+        <span class="ident">range</span>: <span class="ident">usize</span>,
+    },
+
+    <span class="comment">// We can match on multiple different patterns.</span>
+    <span class="attribute">#[<span class="ident">strum</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;blue&quot;</span>, <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;b&quot;</span>)]</span>
+    <span class="ident">Blue</span>(<span class="ident">usize</span>),
+
+    <span class="comment">// Notice that we can disable certain variants from being found</span>
+    <span class="attribute">#[<span class="ident">strum</span>(<span class="ident">disabled</span>)]</span>
+    <span class="ident">Yellow</span>,
+}
+
+<span class="comment">/*
+//The generated code will look like:
+impl std::str::FromStr for Color {
+    type Err = ::strum::ParseError;
+
+    fn from_str(s: &amp;str) -&gt; ::std::result::Result&lt;Color, Self::Err&gt; {
+        match s {
+            &quot;Red&quot; =&gt; ::std::result::Result::Ok(Color::Red),
+            &quot;Green&quot; =&gt; ::std::result::Result::Ok(Color::Green { range:Default::default() }),
+            &quot;blue&quot; | &quot;b&quot; =&gt; ::std::result::Result::Ok(Color::Blue(Default::default())),
+            _ =&gt; ::std::result::Result::Err(::strum::ParseError::VariantNotFound),
+        }
+    }
+}
+*/</span>
+
+<span class="comment">// simple from string</span>
+<span class="kw">let</span> <span class="ident">color_variant</span> <span class="op">=</span> <span class="ident">Color::from_str</span>(<span class="string">&quot;Red&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">Color::Red</span>, <span class="ident">color_variant</span>);
+<span class="comment">// short version works too</span>
+<span class="kw">let</span> <span class="ident">color_variant</span> <span class="op">=</span> <span class="ident">Color::from_str</span>(<span class="string">&quot;b&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">Color::Blue</span>(<span class="number">0</span>), <span class="ident">color_variant</span>);
+<span class="comment">// was disabled for parsing = returns parse-error</span>
+<span class="kw">let</span> <span class="ident">color_variant</span> <span class="op">=</span> <span class="ident">Color::from_str</span>(<span class="string">&quot;Yellow&quot;</span>);
+<span class="macro">assert!</span>(<span class="ident">color_variant</span>.<span class="ident">is_err</span>());
+<span class="comment">// however the variant is still normally usable</span>
+<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">Color::Yellow</span>);</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="strum_macros" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

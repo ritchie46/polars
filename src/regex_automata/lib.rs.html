@@ -1,0 +1,725 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;regex-automata-0.1.10&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../regex_automata/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+</pre><pre class="rust">
+<span class="doccomment">/*!
+A low level regular expression library that uses deterministic finite automata.
+It supports a rich syntax with Unicode support, has extensive options for
+configuring the best space vs time trade off for your use case and provides
+support for cheap deserialization of automata for use in `no_std` environments.
+
+# Overview
+
+This section gives a brief overview of the primary types in this crate:
+
+* A [`Regex`](struct.Regex.html) provides a way to search for matches of a
+  regular expression. This includes iterating over matches with both the start
+  and end positions of each match.
+* A [`RegexBuilder`](struct.RegexBuilder.html) provides a way configure many
+  compilation options for a regex.
+* A [`DenseDFA`](enum.DenseDFA.html) provides low level access to a DFA that
+  uses a dense representation (uses lots of space, but fast searching).
+* A [`SparseDFA`](enum.SparseDFA.html) provides the same API as a `DenseDFA`,
+  but uses a sparse representation (uses less space, but slower matching).
+* A [`DFA`](trait.DFA.html) trait that defines an interface that all DFAs must
+  implement.
+* Both dense DFAs and sparse DFAs support
+  [serialization to raw bytes](enum.DenseDFA.html#method.to_bytes_little_endian)
+  and
+  [cheap deserialization](enum.DenseDFA.html#method.from_bytes).
+
+# Example: basic regex searching
+
+This example shows how to compile a regex using the default configuration
+and then use it to find matches in a byte string:
+
+```
+use regex_automata::Regex;
+
+let re = Regex::new(r&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;).unwrap();
+let text = b&quot;2018-12-24 2016-10-08&quot;;
+let matches: Vec&lt;(usize, usize)&gt; = re.find_iter(text).collect();
+assert_eq!(matches, vec![(0, 10), (11, 21)]);
+```
+
+# Example: use sparse DFAs
+
+By default, compiling a regex will use dense DFAs internally. This uses more
+memory, but executes searches more quickly. If you can abide slower searches
+(somewhere around 3-5x), then sparse DFAs might make more sense since they can
+use significantly less space.
+
+Using sparse DFAs is as easy as using `Regex::new_sparse` instead of
+`Regex::new`:
+
+```
+use regex_automata::Regex;
+
+# fn example() -&gt; Result&lt;(), regex_automata::Error&gt; {
+let re = Regex::new_sparse(r&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;).unwrap();
+let text = b&quot;2018-12-24 2016-10-08&quot;;
+let matches: Vec&lt;(usize, usize)&gt; = re.find_iter(text).collect();
+assert_eq!(matches, vec![(0, 10), (11, 21)]);
+# Ok(()) }; example().unwrap()
+```
+
+If you already have dense DFAs for some reason, they can be converted to sparse
+DFAs and used to build a new `Regex`. For example:
+
+```
+use regex_automata::Regex;
+
+# fn example() -&gt; Result&lt;(), regex_automata::Error&gt; {
+let dense_re = Regex::new(r&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;).unwrap();
+let sparse_re = Regex::from_dfas(
+    dense_re.forward().to_sparse()?,
+    dense_re.reverse().to_sparse()?,
+);
+let text = b&quot;2018-12-24 2016-10-08&quot;;
+let matches: Vec&lt;(usize, usize)&gt; = sparse_re.find_iter(text).collect();
+assert_eq!(matches, vec![(0, 10), (11, 21)]);
+# Ok(()) }; example().unwrap()
+```
+
+# Example: deserialize a DFA
+
+This shows how to first serialize a DFA into raw bytes, and then deserialize
+those raw bytes back into a DFA. While this particular example is a bit
+contrived, this same technique can be used in your program to deserialize a
+DFA at start up time or by memory mapping a file. In particular,
+deserialization is guaranteed to be cheap because it will always be a constant
+time operation.
+
+```
+use regex_automata::{DenseDFA, Regex};
+
+# fn example() -&gt; Result&lt;(), regex_automata::Error&gt; {
+let re1 = Regex::new(r&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;).unwrap();
+// serialize both the forward and reverse DFAs, see note below
+let fwd_bytes = re1.forward().to_u16()?.to_bytes_native_endian()?;
+let rev_bytes = re1.reverse().to_u16()?.to_bytes_native_endian()?;
+// now deserialize both---we need to specify the correct type!
+let fwd: DenseDFA&lt;&amp;[u16], u16&gt; = unsafe { DenseDFA::from_bytes(&amp;fwd_bytes) };
+let rev: DenseDFA&lt;&amp;[u16], u16&gt; = unsafe { DenseDFA::from_bytes(&amp;rev_bytes) };
+// finally, reconstruct our regex
+let re2 = Regex::from_dfas(fwd, rev);
+
+// we can use it like normal
+let text = b&quot;2018-12-24 2016-10-08&quot;;
+let matches: Vec&lt;(usize, usize)&gt; = re2.find_iter(text).collect();
+assert_eq!(matches, vec![(0, 10), (11, 21)]);
+# Ok(()) }; example().unwrap()
+```
+
+There are a few points worth noting here:
+
+* We need to extract the raw DFAs used by the regex and serialize those. You
+  can build the DFAs manually yourself using
+  [`dense::Builder`](dense/struct.Builder.html), but using the DFAs from a
+  `Regex` guarantees that the DFAs are built correctly.
+* We specifically convert the dense DFA to a representation that uses `u16`
+  for its state identifiers using
+  [`DenseDFA::to_u16`](enum.DenseDFA.html#method.to_u16). While this isn&#39;t
+  strictly necessary, if we skipped this step, then the serialized bytes would
+  use `usize` for state identifiers, which does not have a fixed size. Using
+  `u16` ensures that we can deserialize this DFA even on platforms with a
+  smaller pointer size. If our DFA is too big for `u16` state identifiers, then
+  one can use `u32` or `u64`.
+* To convert the DFA to raw bytes, we use the `to_bytes_native_endian`
+  method. In practice, you&#39;ll want to use either
+  [`DenseDFA::to_bytes_little_endian`](enum.DenseDFA.html#method.to_bytes_little_endian)
+  or
+  [`DenseDFA::to_bytes_big_endian`](enum.DenseDFA.html#method.to_bytes_big_endian),
+  depending on which platform you&#39;re deserializing your DFA from. If you intend
+  to deserialize on either platform, then you&#39;ll need to serialize both and
+  deserialize the right one depending on your target&#39;s endianness.
+* Deserializing a DFA requires the use of `unsafe` because the raw bytes must
+  be *trusted*. In particular, while some degree of sanity checks are
+  performed, nothing guarantees the integrity of the DFA&#39;s transition table
+  since deserialization is a constant time operation. Since searching with a
+  DFA must be able to follow transitions blindly for performance reasons,
+  giving incorrect bytes to the deserialization API can result in memory
+  unsafety.
+
+The same process can be achieved with sparse DFAs as well:
+
+```
+use regex_automata::{SparseDFA, Regex};
+
+# fn example() -&gt; Result&lt;(), regex_automata::Error&gt; {
+let re1 = Regex::new(r&quot;[0-9]{4}-[0-9]{2}-[0-9]{2}&quot;).unwrap();
+// serialize both
+let fwd_bytes = re1.forward().to_u16()?.to_sparse()?.to_bytes_native_endian()?;
+let rev_bytes = re1.reverse().to_u16()?.to_sparse()?.to_bytes_native_endian()?;
+// now deserialize both---we need to specify the correct type!
+let fwd: SparseDFA&lt;&amp;[u8], u16&gt; = unsafe { SparseDFA::from_bytes(&amp;fwd_bytes) };
+let rev: SparseDFA&lt;&amp;[u8], u16&gt; = unsafe { SparseDFA::from_bytes(&amp;rev_bytes) };
+// finally, reconstruct our regex
+let re2 = Regex::from_dfas(fwd, rev);
+
+// we can use it like normal
+let text = b&quot;2018-12-24 2016-10-08&quot;;
+let matches: Vec&lt;(usize, usize)&gt; = re2.find_iter(text).collect();
+assert_eq!(matches, vec![(0, 10), (11, 21)]);
+# Ok(()) }; example().unwrap()
+```
+
+Note that unlike dense DFAs, sparse DFAs have no alignment requirements.
+Conversely, dense DFAs must be be aligned to the same alignment as their
+state identifier representation.
+
+# Support for `no_std`
+
+This crate comes with a `std` feature that is enabled by default. When the
+`std` feature is enabled, the API of this crate will include the facilities
+necessary for compiling, serializing, deserializing and searching with regular
+expressions. When the `std` feature is disabled, the API of this crate will
+shrink such that it only includes the facilities necessary for deserializing
+and searching with regular expressions.
+
+The intended workflow for `no_std` environments is thus as follows:
+
+* Write a program with the `std` feature that compiles and serializes a
+  regular expression. Serialization should only happen after first converting
+  the DFAs to use a fixed size state identifier instead of the default `usize`.
+  You may also need to serialize both little and big endian versions of each
+  DFA. (So that&#39;s 4 DFAs in total for each regex.)
+* In your `no_std` environment, follow the examples above for deserializing
+  your previously serialized DFAs into regexes. You can then search with them
+  as you would any regex.
+
+Deserialization can happen anywhere. For example, with bytes embedded into a
+binary or with a file memory mapped at runtime.
+
+Note that the
+[`ucd-generate`](https://github.com/BurntSushi/ucd-generate)
+tool will do the first step for you with its `dfa` or `regex` sub-commands.
+
+# Syntax
+
+This crate supports the same syntax as the `regex` crate, since they share the
+same parser. You can find an exhaustive list of supported syntax in the
+[documentation for the `regex` crate](https://docs.rs/regex/1.1/regex/#syntax).
+
+Currently, there are a couple limitations. In general, this crate does not
+support zero-width assertions, although they may be added in the future. This
+includes:
+
+* Anchors such as `^`, `$`, `\A` and `\z`.
+* Word boundary assertions such as `\b` and `\B`.
+
+It is possible to run a search that is anchored at the beginning of the input.
+To do that, set the
+[`RegexBuilder::anchored`](struct.RegexBuilder.html#method.anchored)
+option when building a regex. By default, all searches are unanchored.
+
+# Differences with the regex crate
+
+The main goal of the [`regex`](https://docs.rs/regex) crate is to serve as a
+general purpose regular expression engine. It aims to automatically balance low
+compile times, fast search times and low memory usage, while also providing
+a convenient API for users. In contrast, this crate provides a lower level
+regular expression interface that is a bit less convenient while providing more
+explicit control over memory usage and search times.
+
+Here are some specific negative differences:
+
+* **Compilation can take an exponential amount of time and space** in the size
+  of the regex pattern. While most patterns do not exhibit worst case
+  exponential time, such patterns do exist. For example, `[01]*1[01]{N}` will
+  build a DFA with `2^(N+1)` states. For this reason, untrusted patterns should
+  not be compiled with this library. (In the future, the API may expose an
+  option to return an error if the DFA gets too big.)
+* This crate does not support sub-match extraction, which can be achieved with
+  the regex crate&#39;s &quot;captures&quot; API. This may be added in the future, but is
+  unlikely.
+* While the regex crate doesn&#39;t necessarily sport fast compilation times, the
+  regexes in this crate are almost universally slow to compile, especially when
+  they contain large Unicode character classes. For example, on my system,
+  compiling `\w{3}` with byte classes enabled takes just over 1 second and
+  almost 5MB of memory! (Compiling a sparse regex takes about the same time
+  but only uses about 500KB of memory.) Conversly, compiling the same regex
+  without Unicode support, e.g., `(?-u)\w{3}`, takes under 1 millisecond and
+  less than 5KB of memory. For this reason, you should only use Unicode
+  character classes if you absolutely need them!
+* This crate does not support regex sets.
+* This crate does not support zero-width assertions such as `^`, `$`, `\b` or
+  `\B`.
+* As a lower level crate, this library does not do literal optimizations. In
+  exchange, you get predictable performance regardless of input. The
+  philosophy here is that literal optimizations should be applied at a higher
+  level, although there is no easy support for this in the ecosystem yet.
+* There is no `&amp;str` API like in the regex crate. In this crate, all APIs
+  operate on `&amp;[u8]`. By default, match indices are guaranteed to fall on
+  UTF-8 boundaries, unless
+  [`RegexBuilder::allow_invalid_utf8`](struct.RegexBuilder.html#method.allow_invalid_utf8)
+  is enabled.
+
+With some of the downsides out of the way, here are some positive differences:
+
+* Both dense and sparse DFAs can be serialized to raw bytes, and then cheaply
+  deserialized. Deserialization always takes constant time since searching can
+  be performed directly on the raw serialized bytes of a DFA.
+* This crate was specifically designed so that the searching phase of a DFA has
+  minimal runtime requirements, and can therefore be used in `no_std`
+  environments. While `no_std` environments cannot compile regexes, they can
+  deserialize pre-compiled regexes.
+* Since this crate builds DFAs ahead of time, it will generally out-perform
+  the `regex` crate on equivalent tasks. The performance difference is likely
+  not large. However, because of a complex set of optimizations in the regex
+  crate (like literal optimizations), an accurate performance comparison may be
+  difficult to do.
+* Sparse DFAs provide a way to build a DFA ahead of time that sacrifices search
+  performance a small amount, but uses much less storage space. Potentially
+  even less than what the regex crate uses.
+* This crate exposes DFAs directly, such as
+  [`DenseDFA`](enum.DenseDFA.html) and [`SparseDFA`](enum.SparseDFA.html),
+  which enables one to do less work in some cases. For example, if you only
+  need the end of a match and not the start of a match, then you can use a DFA
+  directly without building a `Regex`, which always requires a second DFA to
+  find the start of a match.
+* Aside from choosing between dense and sparse DFAs, there are several options
+  for configuring the space usage vs search time trade off. These include
+  things like choosing a smaller state identifier representation, to
+  premultiplying state identifiers and splitting a DFA&#39;s alphabet into
+  equivalence classes. Finally, DFA minimization is also provided, but can
+  increase compilation times dramatically.
+*/</span>
+
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;transducer&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bstr</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;transducer&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">fst</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">regex_syntax</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">dense::DenseDFA</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">dfa::DFA</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">regex::RegexBuilder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sparse::SparseDFA</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">state_id::StateID</span>;
+
+<span class="kw">mod</span> <span class="ident">byteorder</span>;
+<span class="kw">mod</span> <span class="ident">classes</span>;
+<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;dense.rs&quot;</span>]</span>
+<span class="kw">mod</span> <span class="ident">dense_imp</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">determinize</span>;
+<span class="kw">mod</span> <span class="ident">dfa</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">minimize</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">nfa</span>;
+<span class="kw">mod</span> <span class="ident">regex</span>;
+<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;sparse.rs&quot;</span>]</span>
+<span class="kw">mod</span> <span class="ident">sparse_imp</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">sparse_set</span>;
+<span class="kw">mod</span> <span class="ident">state_id</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;transducer&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">transducer</span>;
+
+<span class="doccomment">/// Types and routines specific to dense DFAs.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This module is the home of [`DenseDFA`](enum.DenseDFA.html) and each of its</span>
+<span class="doccomment">/// corresponding variant DFA types, such as [`Standard`](struct.Standard.html)</span>
+<span class="doccomment">/// and [`ByteClass`](struct.ByteClass.html).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This module also contains a [builder](struct.Builder.html) for</span>
+<span class="doccomment">/// configuring the construction of a dense DFA.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dense</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">dense_imp</span>::<span class="kw-2">*</span>;
+}
+
+<span class="doccomment">/// Types and routines specific to sparse DFAs.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This module is the home of [`SparseDFA`](enum.SparseDFA.html) and each of</span>
+<span class="doccomment">/// its corresponding variant DFA types, such as</span>
+<span class="doccomment">/// [`Standard`](struct.Standard.html) and</span>
+<span class="doccomment">/// [`ByteClass`](struct.ByteClass.html).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Unlike the [`dense`](../dense/index.html) module, this module does not</span>
+<span class="doccomment">/// contain a builder specific for sparse DFAs. Instead, the intended way to</span>
+<span class="doccomment">/// build a sparse DFA is either by using a default configuration with its</span>
+<span class="doccomment">/// [constructor](enum.SparseDFA.html#method.new),</span>
+<span class="doccomment">/// or by first</span>
+<span class="doccomment">/// [configuring the construction of a dense DFA](../dense/struct.Builder.html)</span>
+<span class="doccomment">/// and then calling</span>
+<span class="doccomment">/// [`DenseDFA::to_sparse`](../enum.DenseDFA.html#method.to_sparse).</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sparse</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sparse_imp</span>::<span class="kw-2">*</span>;
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="regex_automata" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

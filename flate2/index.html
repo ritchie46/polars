@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A DEFLATE-based stream compression&#x2F;decompression library"><meta name="keywords" content="rust, rustlang, rust-lang, flate2"><title>flate2 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../flate2/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate flate2</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.20</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all flate2's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="flate2" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">flate2</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/flate2/lib.rs.html#1-234" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A DEFLATE-based stream compression/decompression library</p>
+<p>This library provides support for compression and decompression of
+DEFLATE-based streams:</p>
+<ul>
+<li>the DEFLATE format itself</li>
+<li>the zlib format</li>
+<li>gzip</li>
+</ul>
+<p>These three formats are all closely related and largely only differ in their
+headers/footers. This crate has three types in each submodule for dealing
+with these three formats.</p>
+<h1 id="implementation" class="section-header"><a href="#implementation">Implementation</a></h1>
+<p>In addition to supporting three formats, this crate supports three different
+backends, controlled through this crate’s features:</p>
+<ul>
+<li>
+<p><code>default</code>, or <code>rust_backend</code> - this implementation uses the <code>miniz_oxide</code>
+crate which is a port of <code>miniz.c</code> (below) to Rust. This feature does not
+require a C compiler and only requires Rust code.</p>
+</li>
+<li>
+<p><code>miniz-sys</code> - when enabled this feature will enable this crate to instead
+use <code>miniz.c</code>, distributed with <code>miniz-sys</code>, to implement
+compression/decompression.</p>
+</li>
+<li>
+<p><code>zlib</code> - finally, this feature will enable linking against the <code>libz</code>
+library, typically found on most Linux systems by default. If the library
+isn’t found to already be on the system it will be compiled from source
+(this is a C library).</p>
+</li>
+</ul>
+<p>There’s various tradeoffs associated with each implementation, but in
+general you probably won’t have to tweak the defaults. The default choice is
+selected to avoid the need for a C compiler at build time. The <code>miniz-sys</code>
+feature is largely a historical artifact at this point and is unlikely to be
+needed, and <code>zlib</code> is often useful if you’re already using <code>zlib</code> for other
+C dependencies. The compression ratios and performance of each of these
+feature should be roughly comparable, but you’ll likely want to run your own
+tests if you’re curious about the performance.</p>
+<h1 id="organization" class="section-header"><a href="#organization">Organization</a></h1>
+<p>This crate consists mainly of three modules, <a href="read/index.html"><code>read</code></a>, <a href="write/index.html"><code>write</code></a>, and
+<a href="bufread/index.html"><code>bufread</code></a>. Each module contains a number of types used to encode and
+decode various streams of data.</p>
+<p>All types in the <a href="write/index.html"><code>write</code></a> module work on instances of <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a>,
+whereas all types in the <a href="read/index.html"><code>read</code></a> module work on instances of
+<a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> and <a href="bufread/index.html"><code>bufread</code></a> works with <a href="https://doc.rust-lang.org/std/io/trait.BufRead.html"><code>BufRead</code></a>. If you
+are decoding directly from a <code>&amp;[u8]</code>, use the <a href="bufread/index.html"><code>bufread</code></a> types.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">flate2::write::GzEncoder</span>;
+<span class="kw">use</span> <span class="ident">flate2::Compression</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::io::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">GzEncoder::new</span>(<span class="ident">Vec::new</span>(), <span class="ident">Compression::default</span>());
+<span class="ident">encoder</span>.<span class="ident">write_all</span>(<span class="string">b&quot;Example&quot;</span>)<span class="question-mark">?</span>;</pre></div>
+<p>Other various types are provided at the top-level of the crate for
+management and dealing with encoders/decoders. Also note that types which
+operate over a specific trait often implement the mirroring trait as well.
+For example a <code>flate2::read::DeflateDecoder&lt;T&gt;</code> <em>also</em> implements the
+<code>Write</code> trait if <code>T: Write</code>. That is, the “dual trait” is forwarded directly
+to the underlying object if available.</p>
+<h1 id="async-io" class="section-header"><a href="#async-io">Async I/O</a></h1>
+<p>This crate optionally can support async I/O streams with the <a href="https://tokio.rs/">Tokio stack</a> via
+the <code>tokio</code> feature of this crate:</p>
+<pre><code class="language-toml">flate2 = { version = &quot;0.2&quot;, features = [&quot;tokio&quot;] }
+</code></pre>
+<p>All methods are internally capable of working with streams that may return
+<a href="https://doc.rust-lang.org/std/io/enum.ErrorKind.html"><code>ErrorKind::WouldBlock</code></a> when they’re not ready to perform the particular
+operation.</p>
+<p>Note that care needs to be taken when using these objects, however. The
+Tokio runtime, in particular, requires that data is fully flushed before
+dropping streams. For compatibility with blocking streams all streams are
+flushed/written when they are dropped, and this is not always a suitable
+time to perform I/O. If I/O streams are flushed before drop, however, then
+these operations will be a noop.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="bufread/index.html" title="flate2::bufread mod">bufread</a></div><div class="item-right docblock-short"><p>Types which operate over <a href="https://doc.rust-lang.org/std/io/trait.BufRead.html"><code>BufRead</code></a> streams, both encoders and decoders for
+various formats.</p>
+</div><div class="item-left module-item"><a class="mod" href="read/index.html" title="flate2::read mod">read</a></div><div class="item-right docblock-short"><p>Types which operate over <a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> streams, both encoders and decoders for
+various formats.</p>
+</div><div class="item-left module-item"><a class="mod" href="write/index.html" title="flate2::write mod">write</a></div><div class="item-right docblock-short"><p>Types which operate over <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a> streams, both encoders and decoders for
+various formats.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Compress.html" title="flate2::Compress struct">Compress</a></div><div class="item-right docblock-short"><p>Raw in-memory compression stream for blocks of data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CompressError.html" title="flate2::CompressError struct">CompressError</a></div><div class="item-right docblock-short"><p>Error returned when a compression object is used incorrectly or otherwise
+generates an error.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Compression.html" title="flate2::Compression struct">Compression</a></div><div class="item-right docblock-short"><p>When compressing data, the compression level can be specified by a value in
+this enum.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Crc.html" title="flate2::Crc struct">Crc</a></div><div class="item-right docblock-short"><p>The CRC calculated by a <a href="struct.CrcReader.html"><code>CrcReader</code></a>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CrcReader.html" title="flate2::CrcReader struct">CrcReader</a></div><div class="item-right docblock-short"><p>A wrapper around a <a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> that calculates the CRC.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CrcWriter.html" title="flate2::CrcWriter struct">CrcWriter</a></div><div class="item-right docblock-short"><p>A wrapper around a <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a> that calculates the CRC.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Decompress.html" title="flate2::Decompress struct">Decompress</a></div><div class="item-right docblock-short"><p>Raw in-memory decompression stream for blocks of data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DecompressError.html" title="flate2::DecompressError struct">DecompressError</a></div><div class="item-right docblock-short"><p>Error returned when a decompression object finds that the input stream of
+bytes was not a valid input stream of bytes.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.GzBuilder.html" title="flate2::GzBuilder struct">GzBuilder</a></div><div class="item-right docblock-short"><p>A builder structure to create a new gzip Encoder.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.GzHeader.html" title="flate2::GzHeader struct">GzHeader</a></div><div class="item-right docblock-short"><p>A structure representing the header of a gzip stream.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.FlushCompress.html" title="flate2::FlushCompress enum">FlushCompress</a></div><div class="item-right docblock-short"><p>Values which indicate the form of flushing to be used when compressing
+in-memory data.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.FlushDecompress.html" title="flate2::FlushDecompress enum">FlushDecompress</a></div><div class="item-right docblock-short"><p>Values which indicate the form of flushing to be used when
+decompressing in-memory data.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Status.html" title="flate2::Status enum">Status</a></div><div class="item-right docblock-short"><p>Possible status results of compressing some data or successfully
+decompressing a block of data.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="flate2" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

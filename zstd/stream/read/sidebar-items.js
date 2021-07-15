@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Decoder","A decoder that decompress input data from another `Read`."],["Encoder","An encoder that compress input data from another `Read`."]]});

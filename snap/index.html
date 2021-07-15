@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides an implementation of the Snappy compression format, as well as the framing format. The goal of Snappy is to provide reasonable compression at high speed. On a modern CPU, Snappy can compress data at about 300 MB&#x2F;sec or more and can decompress data at about 800 MB&#x2F;sec or more."><meta name="keywords" content="rust, rustlang, rust-lang, snap"><title>snap - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../snap/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate snap</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.5</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all snap's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#enums">Enums</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="snap" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">snap</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/snap/lib.rs.html#1-109" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides an implementation of the
+<a href="https://github.com/google/snappy/blob/master/format_description.txt">Snappy compression format</a>,
+as well as the
+<a href="https://github.com/google/snappy/blob/master/framing_format.txt">framing format</a>.
+The goal of Snappy is to provide reasonable compression at high speed. On a
+modern CPU, Snappy can compress data at about 300 MB/sec or more and can
+decompress data at about 800 MB/sec or more.</p>
+<h1 id="install" class="section-header"><a href="#install">Install</a></h1>
+<p>To use this crate with
+<a href="https://doc.rust-lang.org/cargo/">Cargo</a>,
+simply add it as a dependency to your <code>Cargo.toml</code>:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+[<span class="ident">dependencies</span>]
+<span class="ident">snap</span> <span class="op">=</span> <span class="string">&quot;1&quot;</span></pre></div>
+<h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
+<p>This crate provides two ways to use Snappy. The first way is through the
+<a href="read/struct.FrameDecoder.html"><code>read::FrameDecoder</code></a>
+and
+<a href="write/struct.FrameEncoder.html"><code>write::FrameEncoder</code></a>
+types, which implement the <code>std::io::Read</code> and <code>std::io::Write</code> traits with the
+Snappy frame format. Unless you have a specific reason to the contrary, you
+should only use the Snappy frame format. Specifically, the Snappy frame format
+permits streaming compression or decompression.</p>
+<p>The second way is through the
+<a href="raw/struct.Decoder.html"><code>raw::Decoder</code></a>
+and
+<a href="raw/struct.Encoder.html"><code>raw::Encoder</code></a>
+types. These types provide lower level control to the raw Snappy format, and
+don’t support a streaming interface directly. You should only use these types
+if you know you specifically need the Snappy raw format.</p>
+<p>Finally, the <code>Error</code> type in this crate provides an exhaustive list of error
+conditions that are probably useless in most circumstances. Therefore,
+<code>From&lt;snap::Error&gt; for io::Error</code> is implemented in this crate, which will let
+you automatically convert a Snappy error to an <code>std::io::Error</code> (when using
+<code>?</code>) with an appropriate error message to display to an end user.</p>
+<h1 id="example-compress-data-on-stdin" class="section-header"><a href="#example-compress-data-on-stdin">Example: compress data on <code>stdin</code></a></h1>
+<p>This program reads data from <code>stdin</code>, compresses it and emits it to <code>stdout</code>.
+This example can be found in <code>examples/compress.rs</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::io</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">stdin</span> <span class="op">=</span> <span class="ident">io::stdin</span>();
+    <span class="kw">let</span> <span class="ident">stdout</span> <span class="op">=</span> <span class="ident">io::stdout</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">stdin</span>.<span class="ident">lock</span>();
+    <span class="comment">// Wrap the stdout writer in a Snappy writer.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="ident">snap::write::FrameEncoder::new</span>(<span class="ident">stdout</span>.<span class="ident">lock</span>());
+    <span class="ident">io::copy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wtr</span>).<span class="ident">expect</span>(<span class="string">&quot;I/O operation failed&quot;</span>);
+}</pre></div>
+<h1 id="example-decompress-data-on-stdin" class="section-header"><a href="#example-decompress-data-on-stdin">Example: decompress data on <code>stdin</code></a></h1>
+<p>This program reads data from <code>stdin</code>, decompresses it and emits it to <code>stdout</code>.
+This example can be found in <code>examples/decompress.rs</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::io</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">stdin</span> <span class="op">=</span> <span class="ident">io::stdin</span>();
+    <span class="kw">let</span> <span class="ident">stdout</span> <span class="op">=</span> <span class="ident">io::stdout</span>();
+
+    <span class="comment">// Wrap the stdin reader in a Snappy reader.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">snap::read::FrameDecoder::new</span>(<span class="ident">stdin</span>.<span class="ident">lock</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="ident">stdout</span>.<span class="ident">lock</span>();
+    <span class="ident">io::copy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rdr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">wtr</span>).<span class="ident">expect</span>(<span class="string">&quot;I/O operation failed&quot;</span>);
+}</pre></div>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="raw/index.html" title="snap::raw mod">raw</a></div><div class="item-right docblock-short"><p>This module provides a raw Snappy encoder and decoder.</p>
+</div><div class="item-left module-item"><a class="mod" href="read/index.html" title="snap::read mod">read</a></div><div class="item-right docblock-short"><p>This module provides two <code>std::io::Read</code> implementations:</p>
+</div><div class="item-left module-item"><a class="mod" href="write/index.html" title="snap::write mod">write</a></div><div class="item-right docblock-short"><p>This module provides a <code>std::io::Write</code> implementation:</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Error.html" title="snap::Error enum">Error</a></div><div class="item-right docblock-short"><p>Error describes all the possible errors that may occur during Snappy
+compression or decompression.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.Result.html" title="snap::Result type">Result</a></div><div class="item-right docblock-short"><p>A convenient type alias for <code>Result&lt;T, snap::Error&gt;</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="snap" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

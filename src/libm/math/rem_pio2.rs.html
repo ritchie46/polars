@@ -1,0 +1,445 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;rem_pio2.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rem_pio2.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+</pre><pre class="rust">
+<span class="comment">// origin: FreeBSD /usr/src/lib/msun/src/e_rem_pio2.c</span>
+<span class="comment">//</span>
+<span class="comment">// ====================================================</span>
+<span class="comment">// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.</span>
+<span class="comment">//</span>
+<span class="comment">// Developed at SunPro, a Sun Microsystems, Inc. business.</span>
+<span class="comment">// Permission to use, copy, modify, and distribute this</span>
+<span class="comment">// software is freely granted, provided that this notice</span>
+<span class="comment">// is preserved.</span>
+<span class="comment">// ====================================================</span>
+<span class="comment">//</span>
+<span class="comment">// Optimized by Bruce D. Evans. */</span>
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::rem_pio2_large</span>;
+
+<span class="comment">// #if FLT_EVAL_METHOD==0 || FLT_EVAL_METHOD==1</span>
+<span class="comment">// #define EPS DBL_EPSILON</span>
+<span class="kw">const</span> <span class="ident">EPS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.2204460492503131e-16</span>;
+<span class="comment">// #elif FLT_EVAL_METHOD==2</span>
+<span class="comment">// #define EPS LDBL_EPSILON</span>
+<span class="comment">// #endif</span>
+
+<span class="comment">// TODO: Support FLT_EVAL_METHOD?</span>
+
+<span class="kw">const</span> <span class="ident">TO_INT</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.5</span> <span class="op">/</span> <span class="ident">EPS</span>;
+<span class="doccomment">/// 53 bits of 2/pi</span>
+<span class="kw">const</span> <span class="ident">INV_PIO2</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">6.36619772367581382433e-01</span>; <span class="comment">/* 0x3FE45F30, 0x6DC9C883 */</span>
+<span class="doccomment">/// first 33 bits of pi/2</span>
+<span class="kw">const</span> <span class="ident">PIO2_1</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.57079632673412561417e+00</span>; <span class="comment">/* 0x3FF921FB, 0x54400000 */</span>
+<span class="doccomment">/// pi/2 - PIO2_1</span>
+<span class="kw">const</span> <span class="ident">PIO2_1T</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">6.07710050650619224932e-11</span>; <span class="comment">/* 0x3DD0B461, 0x1A626331 */</span>
+<span class="doccomment">/// second 33 bits of pi/2</span>
+<span class="kw">const</span> <span class="ident">PIO2_2</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">6.07710050630396597660e-11</span>; <span class="comment">/* 0x3DD0B461, 0x1A600000 */</span>
+<span class="doccomment">/// pi/2 - (PIO2_1+PIO2_2)</span>
+<span class="kw">const</span> <span class="ident">PIO2_2T</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.02226624879595063154e-21</span>; <span class="comment">/* 0x3BA3198A, 0x2E037073 */</span>
+<span class="doccomment">/// third 33 bits of pi/2</span>
+<span class="kw">const</span> <span class="ident">PIO2_3</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.02226624871116645580e-21</span>; <span class="comment">/* 0x3BA3198A, 0x2E000000 */</span>
+<span class="doccomment">/// pi/2 - (PIO2_1+PIO2_2+PIO2_3)</span>
+<span class="kw">const</span> <span class="ident">PIO2_3T</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">8.47842766036889956997e-32</span>; <span class="comment">/* 0x397B839A, 0x252049C1 */</span>
+
+<span class="comment">// return the remainder of x rem pi/2 in y[0]+y[1]</span>
+<span class="comment">// use rem_pio2_large() for large x</span>
+<span class="comment">//</span>
+<span class="comment">// caller must handle the case when reduction is not needed: |x| ~&lt;= pi/4 */</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rem_pio2</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">i32</span>, <span class="ident">f64</span>, <span class="ident">f64</span>) {
+    <span class="kw">let</span> <span class="ident">x1p24</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x4170000000000000</span>);
+
+    <span class="kw">let</span> <span class="ident">sign</span> <span class="op">=</span> (<span class="ident">f64::to_bits</span>(<span class="ident">x</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">63</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+    <span class="kw">let</span> <span class="ident">ix</span> <span class="op">=</span> (<span class="ident">f64::to_bits</span>(<span class="ident">x</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">32</span>) <span class="kw">as</span> <span class="ident">u32</span> <span class="op">&amp;</span> <span class="number">0x7fffffff</span>;
+
+    <span class="kw">fn</span> <span class="ident">medium</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">ix</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">i32</span>, <span class="ident">f64</span>, <span class="ident">f64</span>) {
+        <span class="comment">/* rint(x/(pi/2)), Assume round-to-nearest. */</span>
+        <span class="kw">let</span> <span class="ident">f_n</span> <span class="op">=</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">*</span> <span class="ident">INV_PIO2</span> <span class="op">+</span> <span class="ident">TO_INT</span> <span class="op">-</span> <span class="ident">TO_INT</span>;
+        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>; <span class="comment">/* 1st round, good to 85 bits */</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">-</span> <span class="ident">w</span>;
+        <span class="kw">let</span> <span class="ident">ui</span> <span class="op">=</span> <span class="ident">f64::to_bits</span>(<span class="ident">y0</span>);
+        <span class="kw">let</span> <span class="ident">ey</span> <span class="op">=</span> (<span class="ident">ui</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">52</span>) <span class="kw">as</span> <span class="ident">i32</span> <span class="op">&amp;</span> <span class="number">0x7ff</span>;
+        <span class="kw">let</span> <span class="ident">ex</span> <span class="op">=</span> (<span class="ident">ix</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">20</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="kw">if</span> <span class="ident">ex</span> <span class="op">-</span> <span class="ident">ey</span> <span class="op">&gt;</span> <span class="number">16</span> {
+            <span class="comment">/* 2nd round, good to 118 bits */</span>
+            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">r</span>;
+            <span class="ident">w</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_2</span>;
+            <span class="ident">r</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">-</span> <span class="ident">w</span>;
+            <span class="ident">w</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_2T</span> <span class="op">-</span> ((<span class="ident">t</span> <span class="op">-</span> <span class="ident">r</span>) <span class="op">-</span> <span class="ident">w</span>);
+            <span class="ident">y0</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">-</span> <span class="ident">w</span>;
+            <span class="kw">let</span> <span class="ident">ey</span> <span class="op">=</span> (<span class="ident">f64::to_bits</span>(<span class="ident">y0</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">52</span>) <span class="kw">as</span> <span class="ident">i32</span> <span class="op">&amp;</span> <span class="number">0x7ff</span>;
+            <span class="kw">if</span> <span class="ident">ex</span> <span class="op">-</span> <span class="ident">ey</span> <span class="op">&gt;</span> <span class="number">49</span> {
+                <span class="comment">/* 3rd round, good to 151 bits, covers all cases */</span>
+                <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">r</span>;
+                <span class="ident">w</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_3</span>;
+                <span class="ident">r</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">-</span> <span class="ident">w</span>;
+                <span class="ident">w</span> <span class="op">=</span> <span class="ident">f_n</span> <span class="op">*</span> <span class="ident">PIO2_3T</span> <span class="op">-</span> ((<span class="ident">t</span> <span class="op">-</span> <span class="ident">r</span>) <span class="op">-</span> <span class="ident">w</span>);
+                <span class="ident">y0</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">-</span> <span class="ident">w</span>;
+            }
+        }
+        <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">r</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">-</span> <span class="ident">w</span>;
+        (<span class="ident">n</span>, <span class="ident">y0</span>, <span class="ident">y1</span>)
+    }
+
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x400f6a7a</span> {
+        <span class="comment">/* |x| ~&lt;= 5pi/4 */</span>
+        <span class="kw">if</span> (<span class="ident">ix</span> <span class="op">&amp;</span> <span class="number">0xfffff</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0x921fb</span> {
+            <span class="comment">/* |x| ~= pi/2 or 2pi/2 */</span>
+            <span class="kw">return</span> <span class="ident">medium</span>(<span class="ident">x</span>, <span class="ident">ix</span>); <span class="comment">/* cancellation -- use medium case */</span>
+        }
+        <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x4002d97c</span> {
+            <span class="comment">/* |x| ~&lt;= 3pi/4 */</span>
+            <span class="kw">if</span> <span class="ident">sign</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="ident">PIO2_1</span>; <span class="comment">/* one round good to 85 bits */</span>
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">-</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">-</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="number">1</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">+</span> <span class="ident">PIO2_1</span>;
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">+</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">+</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="op">-</span><span class="number">1</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">sign</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+            <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+            <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+            <span class="kw">return</span> (<span class="number">2</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+            <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+            <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+            <span class="kw">return</span> (<span class="op">-</span><span class="number">2</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+        }
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x401c463b</span> {
+        <span class="comment">/* |x| ~&lt;= 9pi/4 */</span>
+        <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0x4015fdbc</span> {
+            <span class="comment">/* |x| ~&lt;= 7pi/4 */</span>
+            <span class="kw">if</span> <span class="ident">ix</span> <span class="op">=</span><span class="op">=</span> <span class="number">0x4012d97c</span> {
+                <span class="comment">/* |x| ~= 3pi/2 */</span>
+                <span class="kw">return</span> <span class="ident">medium</span>(<span class="ident">x</span>, <span class="ident">ix</span>);
+            }
+            <span class="kw">if</span> <span class="ident">sign</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">-</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">-</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="number">3</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="op">-</span><span class="number">3</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            }
+        } <span class="kw">else</span> {
+            <span class="kw">if</span> <span class="ident">ix</span> <span class="op">=</span><span class="op">=</span> <span class="number">0x401921fb</span> {
+                <span class="comment">/* |x| ~= 4pi/2 */</span>
+                <span class="kw">return</span> <span class="ident">medium</span>(<span class="ident">x</span>, <span class="ident">ix</span>);
+            }
+            <span class="kw">if</span> <span class="ident">sign</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">-</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">-</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="number">4</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">+</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1</span>;
+                <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">+</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">y0</span>) <span class="op">+</span> <span class="number">4.0</span> <span class="op">*</span> <span class="ident">PIO2_1T</span>;
+                <span class="kw">return</span> (<span class="op">-</span><span class="number">4</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+            }
+        }
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span> <span class="number">0x413921fb</span> {
+        <span class="comment">/* |x| ~&lt; 2^20*(pi/2), medium size */</span>
+        <span class="kw">return</span> <span class="ident">medium</span>(<span class="ident">x</span>, <span class="ident">ix</span>);
+    }
+    <span class="comment">/*
+     * all other (large) arguments
+     */</span>
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x7ff00000</span> {
+        <span class="comment">/* x is inf or NaN */</span>
+        <span class="kw">let</span> <span class="ident">y0</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="ident">x</span>;
+        <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">y0</span>;
+        <span class="kw">return</span> (<span class="number">0</span>, <span class="ident">y0</span>, <span class="ident">y1</span>);
+    }
+    <span class="comment">/* set z = scalbn(|x|,-ilogb(x)+23) */</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ui</span> <span class="op">=</span> <span class="ident">f64::to_bits</span>(<span class="ident">x</span>);
+    <span class="ident">ui</span> <span class="op">&amp;=</span> (<span class="op">!</span><span class="number">1</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">12</span>;
+    <span class="ident">ui</span> <span class="op">|</span><span class="op">=</span> (<span class="number">0x3ff</span> <span class="op">+</span> <span class="number">23</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">52</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="ident">ui</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> [<span class="number">0.0</span>; <span class="number">3</span>];
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">2</span> {
+        <span class="ident">tx</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">z</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="ident">z</span> <span class="op">=</span> (<span class="ident">z</span> <span class="op">-</span> <span class="ident">tx</span>[<span class="ident">i</span>]) <span class="op">*</span> <span class="ident">x1p24</span>;
+    }
+    <span class="ident">tx</span>[<span class="number">2</span>] <span class="op">=</span> <span class="ident">z</span>;
+    <span class="comment">/* skip zero terms, first term is non-zero */</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">while</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">tx</span>[<span class="ident">i</span>] <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span> {
+        <span class="ident">i</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+    }
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ty</span> <span class="op">=</span> [<span class="number">0.0</span>; <span class="number">3</span>];
+    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">rem_pio2_large</span>(<span class="kw-2">&amp;</span><span class="ident">tx</span>[..<span class="op">=</span><span class="ident">i</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ty</span>, ((<span class="ident">ix</span> <span class="kw">as</span> <span class="ident">i32</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">20</span>) <span class="op">-</span> (<span class="number">0x3ff</span> <span class="op">+</span> <span class="number">23</span>), <span class="number">1</span>);
+    <span class="kw">if</span> <span class="ident">sign</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> (<span class="op">-</span><span class="ident">n</span>, <span class="op">-</span><span class="ident">ty</span>[<span class="number">0</span>], <span class="op">-</span><span class="ident">ty</span>[<span class="number">1</span>]);
+    }
+    (<span class="ident">n</span>, <span class="ident">ty</span>[<span class="number">0</span>], <span class="ident">ty</span>[<span class="number">1</span>])
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::rem_pio2</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_near_pi</span>() {
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rem_pio2</span>(<span class="number">3.141592025756836</span>),
+            (<span class="number">2</span>, <span class="op">-</span><span class="number">6.278329573009626e-7</span>, <span class="op">-</span><span class="number">2.1125998133974653e-23</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rem_pio2</span>(<span class="number">3.141592033207416</span>),
+            (<span class="number">2</span>, <span class="op">-</span><span class="number">6.20382377148128e-7</span>, <span class="op">-</span><span class="number">2.1125998133974653e-23</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rem_pio2</span>(<span class="number">3.141592144966125</span>),
+            (<span class="number">2</span>, <span class="op">-</span><span class="number">5.086236681942706e-7</span>, <span class="op">-</span><span class="number">2.1125998133974653e-23</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rem_pio2</span>(<span class="number">3.141592979431152</span>),
+            (<span class="number">2</span>, <span class="number">3.2584135866119817e-7</span>, <span class="op">-</span><span class="number">2.1125998133974653e-23</span>)
+        );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_overflow_b9b847</span>() {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">rem_pio2</span>(<span class="op">-</span><span class="number">3054214.5490637687</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_overflow_4747b9</span>() {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">rem_pio2</span>(<span class="number">917340800458.2274</span>);
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ArrowWriter","Arrow writer"]]});

@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Creates a receiver that delivers a message at a certain instant in time."><meta name="keywords" content="rust, rustlang, rust-lang, at"><title>at in crossbeam_channel - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../crossbeam_channel/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">crossbeam_channel</a></p><div id="sidebar-vars" data-name="at" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">crossbeam_channel</a>::<wbr><a class="fn" href="#">at</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/crossbeam_channel/channel.rs.html#221-225" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn at(when: <a class="struct" href="https://doc.rust-lang.org/nightly/std/time/struct.Instant.html" title="struct std::time::Instant">Instant</a>) -&gt; <a class="struct" href="struct.Receiver.html" title="struct crossbeam_channel::Receiver">Receiver</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/time/struct.Instant.html" title="struct std::time::Instant">Instant</a>&gt;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a receiver that delivers a message at a certain instant in time.</p>
+<p>The channel is bounded with capacity of 1 and never gets disconnected. Exactly one message will
+be sent into the channel at the moment in time <code>when</code>. The message is the instant at which it
+is sent, which is the same as <code>when</code>. If <code>when</code> is in the past, the message will be delivered
+instantly to the receiver.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Using an <code>at</code> channel for timeouts:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Instant</span>, <span class="ident">Duration</span>};
+<span class="kw">use</span> <span class="ident">crossbeam_channel</span>::{<span class="ident">at</span>, <span class="ident">select</span>, <span class="ident">unbounded</span>};
+
+<span class="kw">let</span> (<span class="ident">s</span>, <span class="ident">r</span>) <span class="op">=</span> <span class="ident">unbounded</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>();
+<span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">Duration::from_millis</span>(<span class="number">500</span>);
+
+<span class="macro">select!</span> {
+    <span class="ident">recv</span>(<span class="ident">r</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">msg</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">println!</span>(<span class="string">&quot;received {:?}&quot;</span>, <span class="ident">msg</span>),
+    <span class="ident">recv</span>(<span class="ident">at</span>(<span class="ident">deadline</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">println!</span>(<span class="string">&quot;timed out&quot;</span>),
+}</pre></div>
+<p>When the message gets sent:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
+<span class="kw">use</span> <span class="ident">crossbeam_channel::at</span>;
+
+<span class="comment">// Converts a number of milliseconds into a `Duration`.</span>
+<span class="kw">let</span> <span class="ident">ms</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ms</span><span class="op">|</span> <span class="ident">Duration::from_millis</span>(<span class="ident">ms</span>);
+
+<span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+<span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">ms</span>(<span class="number">100</span>);
+
+<span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">at</span>(<span class="ident">end</span>);
+
+<span class="comment">// This message was sent 100 ms from the start</span>
+<span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">recv</span>().<span class="ident">unwrap</span>(), <span class="ident">end</span>);
+<span class="macro">assert!</span>(<span class="ident">Instant::now</span>() <span class="op">&gt;</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">ms</span>(<span class="number">100</span>));</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="crossbeam_channel" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Inv","Unary operator for retrieving the multiplicative inverse, or reciprocal, of a value."]]});

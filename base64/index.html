@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Configs"><meta name="keywords" content="rust, rustlang, rust-lang, base64"><title>base64 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../base64/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate base64</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.13.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all base64's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="base64" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">base64</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/base64/lib.rs.html#1-245" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="configs" class="section-header"><a href="#configs">Configs</a></h1>
+<p>There isn’t just one type of Base64; that would be too simple. You need to choose a character
+set (standard, URL-safe, etc) and padding suffix (yes/no).
+The <code>Config</code> struct encapsulates this info. There are some common configs included: <code>STANDARD</code>,
+<code>URL_SAFE</code>, etc. You can also make your own <code>Config</code> if needed.</p>
+<p>The functions that don’t have <code>config</code> in the name (e.g. <code>encode()</code> and <code>decode()</code>) use the
+<code>STANDARD</code> config .</p>
+<p>The functions that write to a slice (the ones that end in <code>_slice</code>) are generally the fastest
+because they don’t need to resize anything. If it fits in your workflow and you care about
+performance, keep using the same buffer (growing as need be) and use the <code>_slice</code> methods for
+the best performance.</p>
+<h1 id="encoding" class="section-header"><a href="#encoding">Encoding</a></h1>
+<p>Several different encoding functions are available to you depending on your desire for
+convenience vs performance.</p>
+<table><thead><tr><th>Function</th><th>Output</th><th>Allocates</th></tr></thead><tbody>
+<tr><td><code>encode</code></td><td>Returns a new <code>String</code></td><td>Always</td></tr>
+<tr><td><code>encode_config</code></td><td>Returns a new <code>String</code></td><td>Always</td></tr>
+<tr><td><code>encode_config_buf</code></td><td>Appends to provided <code>String</code></td><td>Only if <code>String</code> needs to grow</td></tr>
+<tr><td><code>encode_config_slice</code></td><td>Writes to provided <code>&amp;[u8]</code></td><td>Never</td></tr>
+</tbody></table>
+<p>All of the encoding functions that take a <code>Config</code> will pad as per the config.</p>
+<h1 id="decoding" class="section-header"><a href="#decoding">Decoding</a></h1>
+<p>Just as for encoding, there are different decoding functions available.</p>
+<table><thead><tr><th>Function</th><th>Output</th><th>Allocates</th></tr></thead><tbody>
+<tr><td><code>decode</code></td><td>Returns a new <code>Vec&lt;u8&gt;</code></td><td>Always</td></tr>
+<tr><td><code>decode_config</code></td><td>Returns a new <code>Vec&lt;u8&gt;</code></td><td>Always</td></tr>
+<tr><td><code>decode_config_buf</code></td><td>Appends to provided <code>Vec&lt;u8&gt;</code></td><td>Only if <code>Vec</code> needs to grow</td></tr>
+<tr><td><code>decode_config_slice</code></td><td>Writes to provided <code>&amp;[u8]</code></td><td>Never</td></tr>
+</tbody></table>
+<p>Unlike encoding, where all possible input is valid, decoding can fail (see <code>DecodeError</code>).</p>
+<p>Input can be invalid because it has invalid characters or invalid padding. (No padding at all is
+valid, but excess padding is not.) Whitespace in the input is invalid.</p>
+<h1 id="read-and-write" class="section-header"><a href="#read-and-write"><code>Read</code> and <code>Write</code></a></h1>
+<p>To map a <code>Read</code> of b64 bytes to the decoded bytes, wrap a reader (file, network socket, etc)
+with <code>base64::read::DecoderReader</code>. To write raw bytes and have them b64 encoded on the fly,
+wrap a writer with <code>base64::write::EncoderWriter</code>. There is some performance overhead (15% or
+so) because of the necessary buffer shuffling – still fast enough that almost nobody cares.
+Also, these implementations do not heap allocate.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>If length calculations result in overflowing <code>usize</code>, a panic will result.</p>
+<p>The <code>_slice</code> flavors of encode or decode will panic if the provided output slice is too small,</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="display/index.html" title="base64::display mod">display</a></div><div class="item-right docblock-short"><p>Enables base64’d output anywhere you might use a <code>Display</code> implementation, like a format string.</p>
+</div><div class="item-left module-item"><a class="mod" href="read/index.html" title="base64::read mod">read</a></div><div class="item-right docblock-short"><p>Implementations of <code>io::Read</code> to transparently decode base64.</p>
+</div><div class="item-left module-item"><a class="mod" href="write/index.html" title="base64::write mod">write</a></div><div class="item-right docblock-short"><p>Implementations of <code>io::Write</code> to transparently handle base64.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Config.html" title="base64::Config struct">Config</a></div><div class="item-right docblock-short"><p>Contains configuration parameters for base64 encoding</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.CharacterSet.html" title="base64::CharacterSet enum">CharacterSet</a></div><div class="item-right docblock-short"><p>Available encoding character sets</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.DecodeError.html" title="base64::DecodeError enum">DecodeError</a></div><div class="item-right docblock-short"><p>Errors that can occur while decoding.</p>
+</div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="constant" href="constant.BCRYPT.html" title="base64::BCRYPT constant">BCRYPT</a></div><div class="item-right docblock-short"><p>Bcrypt character set</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.BINHEX.html" title="base64::BINHEX constant">BINHEX</a></div><div class="item-right docblock-short"><p>BinHex character set</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.CRYPT.html" title="base64::CRYPT constant">CRYPT</a></div><div class="item-right docblock-short"><p>As per <code>crypt(3)</code> requirements</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.IMAP_MUTF7.html" title="base64::IMAP_MUTF7 constant">IMAP_MUTF7</a></div><div class="item-right docblock-short"><p>IMAP modified UTF-7 requirements</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.STANDARD.html" title="base64::STANDARD constant">STANDARD</a></div><div class="item-right docblock-short"><p>Standard character set with padding.</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.STANDARD_NO_PAD.html" title="base64::STANDARD_NO_PAD constant">STANDARD_NO_PAD</a></div><div class="item-right docblock-short"><p>Standard character set without padding.</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.URL_SAFE.html" title="base64::URL_SAFE constant">URL_SAFE</a></div><div class="item-right docblock-short"><p>URL-safe character set with padding</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.URL_SAFE_NO_PAD.html" title="base64::URL_SAFE_NO_PAD constant">URL_SAFE_NO_PAD</a></div><div class="item-right docblock-short"><p>URL-safe character set without padding</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.decode.html" title="base64::decode fn">decode</a></div><div class="item-right docblock-short"><p>Decode from string reference as octets.
+Returns a Result containing a Vec<u8>.
+Convenience <code>decode_config(input, base64::STANDARD);</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.decode_config.html" title="base64::decode_config fn">decode_config</a></div><div class="item-right docblock-short"><p>Decode from string reference as octets.
+Returns a Result containing a Vec<u8>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.decode_config_buf.html" title="base64::decode_config_buf fn">decode_config_buf</a></div><div class="item-right docblock-short"><p>Decode from string reference as octets.
+Writes into the supplied buffer to avoid allocation.
+Returns a Result containing an empty tuple, aka ().</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.decode_config_slice.html" title="base64::decode_config_slice fn">decode_config_slice</a></div><div class="item-right docblock-short"><p>Decode the input into the provided output slice.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.encode.html" title="base64::encode fn">encode</a></div><div class="item-right docblock-short"><p>Encode arbitrary octets as base64.
+Returns a String.
+Convenience for <code>encode_config(input, base64::STANDARD);</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.encode_config.html" title="base64::encode_config fn">encode_config</a></div><div class="item-right docblock-short"><p>Encode arbitrary octets as base64.
+Returns a String.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.encode_config_buf.html" title="base64::encode_config_buf fn">encode_config_buf</a></div><div class="item-right docblock-short"><p>Encode arbitrary octets as base64.
+Writes into the supplied output buffer, which will grow the buffer if needed.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.encode_config_slice.html" title="base64::encode_config_slice fn">encode_config_slice</a></div><div class="item-right docblock-short"><p>Encode arbitrary octets as base64.
+Writes into the supplied output buffer.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="base64" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

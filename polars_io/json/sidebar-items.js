@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["JsonReader",""],["JsonWriter",""],["ReaderBuilder","JSON file reader builder"]],"type":[["LineDelimitedWriter","A JSON writer which serializes [`RecordBatch`]es to newline delimited JSON objects"]]});

@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Quasi-quotation macro that accepts input like the `quote!` macro but uses type inference to figure out a return type for those tokens."><meta name="keywords" content="rust, rustlang, rust-lang, parse_quote"><title>parse_quote in syn - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../syn/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">syn</a></p><div id="sidebar-vars" data-name="parse_quote" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">syn</a>::<wbr><a class="macro" href="#">parse_quote</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/syn/parse_quote.rs.html#74-82" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">parse_quote</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Quasi-quotation macro that accepts input like the <a href="https://docs.rs/quote/1.0/quote/index.html"><code>quote!</code></a> macro but uses
+type inference to figure out a return type for those tokens.</p>
+<p>The return type can be any syntax tree node that implements the <a href="parse/trait.Parse.html"><code>Parse</code></a>
+trait.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">quote::quote</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_quote</span>, <span class="ident">Stmt</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="ident">v</span>);
+    <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="macro">quote!</span>(<span class="ident">u8</span>);
+
+    <span class="kw">let</span> <span class="ident">stmt</span>: <span class="ident">Stmt</span> <span class="op">=</span> <span class="macro">parse_quote!</span> {
+        <span class="kw">let</span> #<span class="ident">name</span>: #<span class="ident">ty</span> <span class="op">=</span> <span class="ident">Default::default</span>();
+    };
+
+    <span class="macro">println!</span>(<span class="string">&quot;{:#?}&quot;</span>, <span class="ident">stmt</span>);
+}</pre></div>
+<p><em>This macro is available only if Syn is built with the <code>&quot;parsing&quot;</code> feature,
+although interpolation of syntax tree nodes into the quoted tokens is only
+supported if Syn is built with the <code>&quot;printing&quot;</code> feature as well.</em></p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>The following helper function adds a bound <code>T: HeapSize</code> to every type
+parameter <code>T</code> in the input generics.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_quote</span>, <span class="ident">Generics</span>, <span class="ident">GenericParam</span>};
+
+<span class="comment">// Add a bound `T: HeapSize` to every type parameter T.</span>
+<span class="kw">fn</span> <span class="ident">add_trait_bounds</span>(<span class="kw-2">mut</span> <span class="ident">generics</span>: <span class="ident">Generics</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Generics</span> {
+    <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">generics</span>.<span class="ident">params</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GenericParam::Type</span>(<span class="ident">type_param</span>) <span class="op">=</span> <span class="ident">param</span> {
+            <span class="ident">type_param</span>.<span class="ident">bounds</span>.<span class="ident">push</span>(<span class="macro">parse_quote!</span>(<span class="ident">HeapSize</span>));
+        }
+    }
+    <span class="ident">generics</span>
+}</pre></div>
+<h1 id="special-cases" class="section-header"><a href="#special-cases">Special cases</a></h1>
+<p>This macro can parse the following additional types as a special case even
+though they do not implement the <code>Parse</code> trait.</p>
+<ul>
+<li><a href="struct.Attribute.html" title="Attribute"><code>Attribute</code></a> — parses one attribute, allowing either outer like <code>#[...]</code>
+or inner like <code>#![...]</code></li>
+<li><a href="punctuated/struct.Punctuated.html"><code>Punctuated&lt;T, P&gt;</code></a> — parses zero or more <code>T</code> separated by punctuation
+<code>P</code> with optional trailing punctuation</li>
+<li><a href="struct.Block.html#method.parse_within"><code>Vec&lt;Stmt&gt;</code></a> — parses the same as <code>Block::parse_within</code></li>
+</ul>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>Panics if the tokens fail to parse as the expected syntax tree type. The
+caller is responsible for ensuring that the input tokens are syntactically
+valid.</p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="syn" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

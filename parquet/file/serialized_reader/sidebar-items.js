@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["SerializedFileReader","A serialized implementation for Parquet [`FileReader`]."],["SerializedPageReader","A serialized implementation for Parquet [`PageReader`]."],["SerializedRowGroupReader","A serialized implementation for Parquet [`RowGroupReader`]."]]});

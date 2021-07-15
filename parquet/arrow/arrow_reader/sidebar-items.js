@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ParquetFileArrowReader",""],["ParquetRecordBatchReader",""]],"trait":[["ArrowReader","Arrow reader api. With this api, user can get arrow schema from parquet file, and read parquet data into arrow arrays."]]});

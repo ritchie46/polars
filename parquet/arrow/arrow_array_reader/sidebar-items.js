@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ArrowArrayReader",""],["PrimitiveArrayConverter",""],["StringArrayConverter",""]],"trait":[["ArrayConverter",""],["ValueDecoder",""]]});

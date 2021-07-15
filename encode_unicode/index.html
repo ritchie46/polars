@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Miscellaneous UTF-8 and UTF-16 types and methods."><meta name="keywords" content="rust, rustlang, rust-lang, encode_unicode"><title>encode_unicode - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../encode_unicode/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate encode_unicode</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.3.6</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all encode_unicode's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="encode_unicode" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">encode_unicode</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/encode_unicode/lib.rs.html#10-78" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Miscellaneous UTF-8 and UTF-16 types and methods.</p>
+<h1 id="optional-features" class="section-header"><a href="#optional-features">Optional features:</a></h1>
+<ul>
+<li>
+<p><code>#![no_std]</code>-mode: There are a few differences:</p>
+<ul>
+<li><code>Error</code> doesn’t exist, but <code>description()</code> is made available as an inherent impl.</li>
+<li><code>Extend</code>/<code>FromIterator</code>-implementations for <code>String</code>/<code>Vec&lt;u8&gt;</code>/<code>Vec&lt;u16&gt;</code> are missing.</li>
+<li>There is no <code>io</code>, so <code>Utf8Iterator</code> and <code>Utf8CharSplitter</code> doesn’t implement <code>Read</code>.</li>
+</ul>
+<p>This feature is enabled by setting <code>default-features=false</code> in <code>Cargo.toml</code>:
+<code>encode_unicode = {version=&quot;0.3.4&quot;, default-features=false}</code></p>
+</li>
+<li>
+<p>Integration with the <a href="https://tomprogrammer.github.io/rust-ascii/ascii/index.html">ascii</a> crate:<br />
+Convert <code>Utf8Char</code> and <code>Utf16Char</code> to and from
+<a href="https://tomprogrammer.github.io/rust-ascii/ascii/enum.AsciiChar.html">ascii::<code>AsciiChar</code></a>.</p>
+</li>
+</ul>
+<p>The minimum supported version of Rust is 1.15,
+older versions might work now but can break with a minor update.</p>
+<p><a href="https://crates.io/crates/encode_unicode">crates.io page</a><br />
+<a href="https://github.com/tormol/encode_unicode">github repository</a></p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="error/index.html" title="encode_unicode::error mod">error</a></div><div class="item-right docblock-short"><p>Errors returned by various conversion methods in this crate.</p>
+</div><div class="item-left module-item"><a class="mod" href="iterator/index.html" title="encode_unicode::iterator mod">iterator</a></div><div class="item-right docblock-short"><p>Iterator types that you should rarely need to name</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Utf8Char.html" title="encode_unicode::Utf8Char struct">Utf8Char</a></div><div class="item-right docblock-short"><p>An unicode codepoint stored as UTF-8.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Utf8Iterator.html" title="encode_unicode::Utf8Iterator struct">Utf8Iterator</a></div><div class="item-right docblock-short"><p>Read or iterate over the bytes of the UTF-8 representation of a codepoint.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Utf16Char.html" title="encode_unicode::Utf16Char struct">Utf16Char</a></div><div class="item-right docblock-short"><p>An unicode codepoint stored as UTF-16.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Utf16Iterator.html" title="encode_unicode::Utf16Iterator struct">Utf16Iterator</a></div><div class="item-right docblock-short"><p>Iterate over the units of the UTF-16 representation of a codepoint.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.CharExt.html" title="encode_unicode::CharExt trait">CharExt</a></div><div class="item-right docblock-short"><p>Extension trait for <code>char</code> that adds methods for converting to and from UTF-8 or UTF-16.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.IterExt.html" title="encode_unicode::IterExt trait">IterExt</a></div><div class="item-right docblock-short"><p>Iterator methods that convert between <code>u8</code>s and <code>Utf8Char</code> or <code>u16</code>s and <code>Utf16Char</code></p>
+</div><div class="item-left module-item"><a class="trait" href="trait.SliceExt.html" title="encode_unicode::SliceExt trait">SliceExt</a></div><div class="item-right docblock-short"><p>Methods for iterating over <code>u8</code> and <code>u16</code> slices as UTF-8 or UTF-16 characters.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.StrExt.html" title="encode_unicode::StrExt trait">StrExt</a></div><div class="item-right docblock-short"><p>Adds <code>.utf8chars()</code> and <code>.utf16chars()</code> iterator constructors to <code>&amp;str</code>.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.U8UtfExt.html" title="encode_unicode::U8UtfExt trait">U8UtfExt</a></div><div class="item-right docblock-short"><p>Methods for working with <code>u8</code>s as UTF-8 bytes.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.U16UtfExt.html" title="encode_unicode::U16UtfExt trait">U16UtfExt</a></div><div class="item-right docblock-short"><p>Methods for working with <code>u16</code>s as UTF-16 units.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.iter_bytes.html" title="encode_unicode::iter_bytes fn">iter_bytes</a></div><div class="item-right docblock-short"><p>Converts an iterator of <code>Utf8Char</code> (or <code>&amp;Utf8Char</code>)
+to an iterator of <code>u8</code>s.<br />
+Is equivalent to calling <code>.flat_map()</code> on the original iterator,
+but the returned iterator is ~40% faster.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.iter_units.html" title="encode_unicode::iter_units fn">iter_units</a></div><div class="item-right docblock-short"><p>Converts an iterator of <code>Utf16Char</code> (or <code>&amp;Utf16Char</code>)
+to an iterator of <code>u16</code>s.<br />
+Is equivalent to calling <code>.flat_map()</code> on the original iterator,
+but the returned iterator is about twice as fast.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="encode_unicode" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

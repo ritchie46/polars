@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["parser","Parquet schema parser. Provides methods to parse and validate string message type into Parquet `Type`."],["printer","Parquet schema printer. Provides methods to print Parquet file schema and list file metadata."],["types","Contains structs and methods to build Parquet schema and schema descriptors."],["visitor",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["regexp_match","Extract all groups matched by a regular expression for a given String array."]]});

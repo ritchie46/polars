@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["heap_alloc",""],["std_alloc",""]],"struct":[["AllocatedStackMemory",""],["StackAllocator",""]],"trait":[["Allocator",""],["SliceWrapper",""],["SliceWrapperMut",""]]});

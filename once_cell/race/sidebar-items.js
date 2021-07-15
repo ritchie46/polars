@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["OnceBool","A thread-safe cell which can be written to only once."],["OnceBox","A thread-safe cell which can be written to only once."],["OnceNonZeroUsize","A thread-safe cell which can be written to only once."]]});

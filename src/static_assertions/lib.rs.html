@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;static_assertions-1.1.0&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../static_assertions/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;nvzqz&#x2F;static-assertions-rs&#x2F;assets&#x2F;Icon.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+</pre><pre class="rust">
+<span class="doccomment">//! [![Banner](https://raw.githubusercontent.com/nvzqz/static-assertions-rs/assets/Banner.png)](https://github.com/nvzqz/static-assertions-rs)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;div align=&quot;center&quot;&gt;</span>
+<span class="doccomment">//!     &lt;a href=&quot;https://crates.io/crates/static_assertions&quot;&gt;</span>
+<span class="doccomment">//!         &lt;img src=&quot;https://img.shields.io/crates/d/static_assertions.svg&quot; alt=&quot;Downloads&quot;&gt;</span>
+<span class="doccomment">//!     &lt;/a&gt;</span>
+<span class="doccomment">//!     &lt;a href=&quot;https://travis-ci.org/nvzqz/static-assertions-rs&quot;&gt;</span>
+<span class="doccomment">//!         &lt;img src=&quot;https://travis-ci.org/nvzqz/static-assertions-rs.svg?branch=master&quot; alt=&quot;Build Status&quot;&gt;</span>
+<span class="doccomment">//!     &lt;/a&gt;</span>
+<span class="doccomment">//!     &lt;img src=&quot;https://img.shields.io/badge/rustc-^1.37.0-blue.svg&quot; alt=&quot;rustc ^1.37.0&quot;&gt;</span>
+<span class="doccomment">//!     &lt;br&gt;&lt;br&gt;</span>
+<span class="doccomment">//! &lt;/div&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Assertions to ensure correct assumptions about constants, types, and more.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! _All_ checks provided by this crate are performed at [compile-time]. This</span>
+<span class="doccomment">//! allows for finding errors quickly and early when it comes to ensuring</span>
+<span class="doccomment">//! certain features or aspects of a codebase. These macros are especially</span>
+<span class="doccomment">//! important when exposing a public API that requires types to be the same size</span>
+<span class="doccomment">//! or implement certain traits.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Usage</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate is available [on crates.io][crate] and can be used by adding the</span>
+<span class="doccomment">//! following to your project&#39;s [`Cargo.toml`]:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! [dependencies]</span>
+<span class="doccomment">//! static_assertions = &quot;1.1.0&quot;</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! and this to your crate root (`main.rs` or `lib.rs`):</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! #[macro_use]</span>
+<span class="doccomment">//! extern crate static_assertions;</span>
+<span class="doccomment">//! # fn main() {}</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When using [Rust 2018 edition][2018], the following shorthand can help if</span>
+<span class="doccomment">//! having `#[macro_use]` is undesirable.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```edition2018</span>
+<span class="doccomment">//! extern crate static_assertions as sa;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! sa::const_assert!(true);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Very thorough examples are provided in the docs for</span>
+<span class="doccomment">//! [each individual macro](#macros). Failure case examples are also documented.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Changes</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! See [`CHANGELOG.md`](https://github.com/nvzqz/static-assertions-rs/blob/master/CHANGELOG.md)</span>
+<span class="doccomment">//! for an exhaustive list of what has changed from one version to another.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Donate</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This project is made freely available (as in free beer), but unfortunately</span>
+<span class="doccomment">//! not all beer is free! So, if you would like to buy me a beer (or coffee or</span>
+<span class="doccomment">//! *more*), then consider supporting my work that&#39;s benefited your project</span>
+<span class="doccomment">//! and thousands of others.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;a href=&quot;https://www.patreon.com/nvzqz&quot;&gt;</span>
+<span class="doccomment">//!     &lt;img src=&quot;https://c5.patreon.com/external/logo/become_a_patron_button.png&quot; alt=&quot;Become a Patron!&quot; height=&quot;35&quot;&gt;</span>
+<span class="doccomment">//! &lt;/a&gt;</span>
+<span class="doccomment">//! &lt;a href=&quot;https://www.paypal.me/nvzqz&quot;&gt;</span>
+<span class="doccomment">//!     &lt;img src=&quot;https://buymecoffee.intm.org/img/button-paypal-white.png&quot; alt=&quot;Buy me a coffee&quot; height=&quot;35&quot;&gt;</span>
+<span class="doccomment">//! &lt;/a&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [Rust 1.37]: https://blog.rust-lang.org/2019/08/15/Rust-1.37.0.html</span>
+<span class="doccomment">//! [2018]: https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#rust-2018</span>
+<span class="doccomment">//! [crate]: https://crates.io/crates/static_assertions</span>
+<span class="doccomment">//! [compile-time]: https://en.wikipedia.org/wiki/Compile_time</span>
+<span class="doccomment">//! [`Cargo.toml`]: https://doc.rust-lang.org/cargo/reference/manifest.html</span>
+
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/static_assertions/1.1.0&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/nvzqz/static-assertions-rs/assets/Icon.png&quot;</span>)]</span>
+
+<span class="attribute">#![<span class="ident">no_std</span>]</span>
+
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">unused_macros</span>)]</span>
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">core</span> <span class="kw">as</span> <span class="ident">_core</span>;
+
+<span class="kw">mod</span> <span class="ident">assert_cfg</span>;
+<span class="kw">mod</span> <span class="ident">assert_eq_align</span>;
+<span class="kw">mod</span> <span class="ident">assert_eq_size</span>;
+<span class="kw">mod</span> <span class="ident">assert_fields</span>;
+<span class="kw">mod</span> <span class="ident">assert_impl</span>;
+<span class="kw">mod</span> <span class="ident">assert_obj_safe</span>;
+<span class="kw">mod</span> <span class="ident">assert_trait</span>;
+<span class="kw">mod</span> <span class="ident">assert_type</span>;
+<span class="kw">mod</span> <span class="ident">const_assert</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="static_assertions" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

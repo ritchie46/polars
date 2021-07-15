@@ -1,0 +1,515 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;serde_json-1.0.64&#x2F;src&#x2F;value&#x2F;index.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>index.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../serde_json/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+</pre><pre class="rust">
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::Value</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lib</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::map::Map</span>;
+
+<span class="doccomment">/// A type that can be used to index into a `serde_json::Value`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The [`get`] and [`get_mut`] methods of `Value` accept any type that</span>
+<span class="doccomment">/// implements `Index`, as does the [square-bracket indexing operator]. This</span>
+<span class="doccomment">/// trait is implemented for strings which are used as the index into a JSON</span>
+<span class="doccomment">/// map, and for `usize` which is used as the index into a JSON array.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [`get`]: ../enum.Value.html#method.get</span>
+<span class="doccomment">/// [`get_mut`]: ../enum.Value.html#method.get_mut</span>
+<span class="doccomment">/// [square-bracket indexing operator]: ../enum.Value.html#impl-Index%3CI%3E</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This trait is sealed and cannot be implemented for types outside of</span>
+<span class="doccomment">/// `serde_json`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use serde_json::json;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// let data = json!({ &quot;inner&quot;: [1, 2, 3] });</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // Data is a JSON map so it can be indexed with a string.</span>
+<span class="doccomment">/// let inner = &amp;data[&quot;inner&quot;];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // Inner is a JSON array so it can be indexed with an integer.</span>
+<span class="doccomment">/// let first = &amp;inner[0];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(first, 1);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Index</span>: <span class="ident">private::Sealed</span> {
+    <span class="doccomment">/// Return None if the key is not already in the array or object.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Return None if the key is not already in the array or object.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">index_into_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Panic if array index out of bounds. If key is not already in the object,</span>
+    <span class="doccomment">/// insert it with a value of null. Panic if Value is a type that cannot be</span>
+    <span class="doccomment">/// indexed into, except if Value is null then it can be treated as an empty</span>
+    <span class="doccomment">/// object.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">index_or_insert</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Array</span>(<span class="kw-2">ref</span> <span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vec</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="self">self</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+    <span class="kw">fn</span> <span class="ident">index_into_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Array</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vec</span>.<span class="ident">get_mut</span>(<span class="kw-2">*</span><span class="self">self</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+    <span class="kw">fn</span> <span class="ident">index_or_insert</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Array</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">len</span>();
+                <span class="ident">vec</span>.<span class="ident">get_mut</span>(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                    <span class="macro">panic!</span>(
+                        <span class="string">&quot;cannot access index {} of JSON array of length {}&quot;</span>,
+                        <span class="self">self</span>, <span class="ident">len</span>
+                    )
+                })
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;cannot access index {} of JSON {}&quot;</span>, <span class="self">self</span>, <span class="ident">Type</span>(<span class="ident">v</span>)),
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Object</span>(<span class="kw-2">ref</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get</span>(<span class="self">self</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+    <span class="kw">fn</span> <span class="ident">index_into_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Object</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="self">self</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+    <span class="kw">fn</span> <span class="ident">index_or_insert</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Null</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="kw-2">*</span><span class="ident">v</span> <span class="op">=</span> <span class="ident">Value::Object</span>(<span class="ident">Map::new</span>());
+        }
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">v</span> {
+            <span class="ident">Value::Object</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">entry</span>(<span class="self">self</span>.<span class="ident">to_owned</span>()).<span class="ident">or_insert</span>(<span class="ident">Value::Null</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;cannot access key {:?} in JSON {}&quot;</span>, <span class="self">self</span>, <span class="ident">Type</span>(<span class="ident">v</span>)),
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="self">self</span>[..].<span class="ident">index_into</span>(<span class="ident">v</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">index_into_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        <span class="self">self</span>[..].<span class="ident">index_into_mut</span>(<span class="ident">v</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">index_or_insert</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span> {
+        <span class="self">self</span>[..].<span class="ident">index_or_insert</span>(<span class="ident">v</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Index</span>,
+{
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">index_into</span>(<span class="ident">v</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">index_into_mut</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span><span class="op">&gt;</span> {
+        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">index_into_mut</span>(<span class="ident">v</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">index_or_insert</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="kw-2">mut</span> <span class="ident">Value</span> {
+        (<span class="kw-2">*</span><span class="kw-2">*</span><span class="self">self</span>).<span class="ident">index_or_insert</span>(<span class="ident">v</span>)
+    }
+}
+
+<span class="comment">// Prevent users from implementing the Index trait.</span>
+<span class="kw">mod</span> <span class="ident">private</span> {
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">usize</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">str</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw">super</span><span class="ident">::String</span> {}
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Sealed</span> {}
+}
+
+<span class="doccomment">/// Used in panic messages.</span>
+<span class="kw">struct</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Value</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span> {
+            <span class="ident">Value::Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;null&quot;</span>),
+            <span class="ident">Value::Bool</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;boolean&quot;</span>),
+            <span class="ident">Value::Number</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;number&quot;</span>),
+            <span class="ident">Value::String</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;string&quot;</span>),
+            <span class="ident">Value::Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;array&quot;</span>),
+            <span class="ident">Value::Object</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;object&quot;</span>),
+        }
+    }
+}
+
+<span class="comment">// The usual semantics of Index is to panic on invalid indexing.</span>
+<span class="comment">//</span>
+<span class="comment">// That said, the usual semantics are for things like Vec and BTreeMap which</span>
+<span class="comment">// have different use cases than Value. If you are working with a Vec, you know</span>
+<span class="comment">// that you are working with a Vec and you can get the len of the Vec and make</span>
+<span class="comment">// sure your indices are within bounds. The Value use cases are more</span>
+<span class="comment">// loosey-goosey. You got some JSON from an endpoint and you want to pull values</span>
+<span class="comment">// out of it. Outside of this Index impl, you already have the option of using</span>
+<span class="comment">// value.as_array() and working with the Vec directly, or matching on</span>
+<span class="comment">// Value::Array and getting the Vec directly. The Index impl means you can skip</span>
+<span class="comment">// that and index directly into the thing using a concise syntax. You don&#39;t have</span>
+<span class="comment">// to check the type, you don&#39;t have to check the len, it is all about what you</span>
+<span class="comment">// expect the Value to look like.</span>
+<span class="comment">//</span>
+<span class="comment">// Basically the use cases that would be well served by panicking here are</span>
+<span class="comment">// better served by using one of the other approaches: get and get_mut,</span>
+<span class="comment">// as_array, or match. The value of this impl is that it adds a way of working</span>
+<span class="comment">// with Value that is not well served by the existing approaches: concise and</span>
+<span class="comment">// careless and sometimes that is exactly what you want.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="ident">ops::Index</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span>
+<span class="kw">where</span>
+    <span class="ident">I</span>: <span class="ident">Index</span>,
+{
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Value</span>;
+
+    <span class="doccomment">/// Index into a `serde_json::Value` using the syntax `value[0]` or</span>
+    <span class="doccomment">/// `value[&quot;k&quot;]`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `Value::Null` if the type of `self` does not match the type of</span>
+    <span class="doccomment">/// the index, for example if the index is a string and `self` is an array</span>
+    <span class="doccomment">/// or a number. Also returns `Value::Null` if the given key does not exist</span>
+    <span class="doccomment">/// in the map or the given index is not within the bounds of the array.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For retrieving deeply nested values, you should have a look at the</span>
+    <span class="doccomment">/// `Value::pointer` method.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use serde_json::json;</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// let data = json!({</span>
+    <span class="doccomment">///     &quot;x&quot;: {</span>
+    <span class="doccomment">///         &quot;y&quot;: [&quot;z&quot;, &quot;zz&quot;]</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(data[&quot;x&quot;][&quot;y&quot;], json!([&quot;z&quot;, &quot;zz&quot;]));</span>
+    <span class="doccomment">/// assert_eq!(data[&quot;x&quot;][&quot;y&quot;][0], json!(&quot;z&quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(data[&quot;a&quot;], json!(null)); // returns null for undefined values</span>
+    <span class="doccomment">/// assert_eq!(data[&quot;a&quot;][&quot;b&quot;], json!(null)); // does not panic</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Value</span> {
+        <span class="kw">static</span> <span class="ident">NULL</span>: <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Value::Null</span>;
+        <span class="ident">index</span>.<span class="ident">index_into</span>(<span class="self">self</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">NULL</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="ident">ops::IndexMut</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span>
+<span class="kw">where</span>
+    <span class="ident">I</span>: <span class="ident">Index</span>,
+{
+    <span class="doccomment">/// Write into a `serde_json::Value` using the syntax `value[0] = ...` or</span>
+    <span class="doccomment">/// `value[&quot;k&quot;] = ...`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the index is a number, the value must be an array of length bigger</span>
+    <span class="doccomment">/// than the index. Indexing into a value that is not an array or an array</span>
+    <span class="doccomment">/// that is too small will panic.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the index is a string, the value must be an object or null which is</span>
+    <span class="doccomment">/// treated like an empty object. If the key is not already present in the</span>
+    <span class="doccomment">/// object, it will be inserted with a value of null. Indexing into a value</span>
+    <span class="doccomment">/// that is neither an object nor null will panic.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use serde_json::json;</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// let mut data = json!({ &quot;x&quot;: 0 });</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // replace an existing key</span>
+    <span class="doccomment">/// data[&quot;x&quot;] = json!(1);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // insert a new key</span>
+    <span class="doccomment">/// data[&quot;y&quot;] = json!([false, false, false]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // replace an array value</span>
+    <span class="doccomment">/// data[&quot;y&quot;][0] = json!(true);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // inserted a deeply nested key</span>
+    <span class="doccomment">/// data[&quot;a&quot;][&quot;b&quot;][&quot;c&quot;][&quot;d&quot;] = json!(true);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// println!(&quot;{}&quot;, data);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Value</span> {
+        <span class="ident">index</span>.<span class="ident">index_or_insert</span>(<span class="self">self</span>)
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="serde_json" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

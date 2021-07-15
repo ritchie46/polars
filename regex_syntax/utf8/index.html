@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Converts ranges of Unicode scalar values to equivalent ranges of UTF-8 bytes."><meta name="keywords" content="rust, rustlang, rust-lang, utf8"><title>regex_syntax::utf8 - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../regex_syntax/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module utf8</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="utf8" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">regex_syntax</a>::<wbr><a class="mod" href="#">utf8</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/regex_syntax/utf8.rs.html#1-587" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Converts ranges of Unicode scalar values to equivalent ranges of UTF-8 bytes.</p>
+<p>This is sub-module is useful for constructing byte based automatons that need
+to embed UTF-8 decoding. The most common use of this module is in conjunction
+with the <a href="../hir/struct.ClassUnicodeRange.html"><code>hir::ClassUnicodeRange</code></a> type.</p>
+<p>See the documentation on the <code>Utf8Sequences</code> iterator for more details and
+an example.</p>
+<h1 id="wait-what-is-this" class="section-header"><a href="#wait-what-is-this">Wait, what is this?</a></h1>
+<p>This is simplest to explain with an example. Let’s say you wanted to test
+whether a particular byte sequence was a Cyrillic character. One possible
+scalar value range is <code>[0400-04FF]</code>. The set of allowed bytes for this
+range can be expressed as a sequence of byte ranges:</p>
+<pre><code class="language-text">[D0-D3][80-BF]
+</code></pre>
+<p>This is simple enough: simply encode the boundaries, <code>0400</code> encodes to
+<code>D0 80</code> and <code>04FF</code> encodes to <code>D3 BF</code>, and create ranges from each
+corresponding pair of bytes: <code>D0</code> to <code>D3</code> and <code>80</code> to <code>BF</code>.</p>
+<p>However, what if you wanted to add the Cyrillic Supplementary characters to
+your range? Your range might then become <code>[0400-052F]</code>. The same procedure
+as above doesn’t quite work because <code>052F</code> encodes to <code>D4 AF</code>. The byte ranges
+you’d get from the previous transformation would be <code>[D0-D4][80-AF]</code>. However,
+this isn’t quite correct because this range doesn’t capture many characters,
+for example, <code>04FF</code> (because its last byte, <code>BF</code> isn’t in the range <code>80-AF</code>).</p>
+<p>Instead, you need multiple sequences of byte ranges:</p>
+<pre><code class="language-text">[D0-D3][80-BF]  # matches codepoints 0400-04FF
+[D4][80-AF]     # matches codepoints 0500-052F
+</code></pre>
+<p>This gets even more complicated if you want bigger ranges, particularly if
+they naively contain surrogate codepoints. For example, the sequence of byte
+ranges for the basic multilingual plane (<code>[0000-FFFF]</code>) look like this:</p>
+<pre><code class="language-text">[0-7F]
+[C2-DF][80-BF]
+[E0][A0-BF][80-BF]
+[E1-EC][80-BF][80-BF]
+[ED][80-9F][80-BF]
+[EE-EF][80-BF][80-BF]
+</code></pre>
+<p>Note that the byte ranges above will <em>not</em> match any erroneous encoding of
+UTF-8, including encodings of surrogate codepoints.</p>
+<p>And, of course, for all of Unicode (<code>[000000-10FFFF]</code>):</p>
+<pre><code class="language-text">[0-7F]
+[C2-DF][80-BF]
+[E0][A0-BF][80-BF]
+[E1-EC][80-BF][80-BF]
+[ED][80-9F][80-BF]
+[EE-EF][80-BF][80-BF]
+[F0][90-BF][80-BF][80-BF]
+[F1-F3][80-BF][80-BF][80-BF]
+[F4][80-8F][80-BF][80-BF]
+</code></pre>
+<p>This module automates the process of creating these byte ranges from ranges of
+Unicode scalar values.</p>
+<h1 id="lineage" class="section-header"><a href="#lineage">Lineage</a></h1>
+<p>I got the idea and general implementation strategy from Russ Cox in his
+<a href="https://web.archive.org/web/20160404141123/https://swtch.com/%7Ersc/regexp/regexp3.html">article on regexps</a> and RE2.
+Russ Cox got it from Ken Thompson’s <code>grep</code> (no source, folk lore?).
+I also got the idea from
+<a href="https://github.com/apache/lucene-solr/blob/ae93f4e7ac6a3908046391de35d4f50a0d3c59ca/lucene/core/src/java/org/apache/lucene/util/automaton/UTF32ToUTF8.java">Lucene</a>,
+which uses it for executing automata on their term index.</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Utf8Range.html" title="regex_syntax::utf8::Utf8Range struct">Utf8Range</a></div><div class="item-right docblock-short"><p>A single inclusive range of UTF-8 bytes.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Utf8Sequences.html" title="regex_syntax::utf8::Utf8Sequences struct">Utf8Sequences</a></div><div class="item-right docblock-short"><p>An iterator over ranges of matching UTF-8 byte sequences.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Utf8Sequence.html" title="regex_syntax::utf8::Utf8Sequence enum">Utf8Sequence</a></div><div class="item-right docblock-short"><p>Utf8Sequence represents a sequence of byte ranges.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="regex_syntax" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

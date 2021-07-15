@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["set_at_idx_no_null","Efficiently sets value at the indices from the iterator to `set_value`. The new array is initialized with a `memcpy` from the old values."],["set_with_mask","Set values in a primitive array based on a mask array. This is fast when large chunks of bits are set or unset."]]});

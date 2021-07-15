@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;packed_simd_2-0.3.5&#x2F;src&#x2F;v256.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v256.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../packed_simd_2/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+</pre><pre class="rust">
+<span class="doccomment">//! 256-bit wide vector types</span>
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="kw-2">*</span>;
+
+<span class="macro">impl_i!</span>([<span class="ident">i8</span>; <span class="number">32</span>]: <span class="ident">i8x32</span>, <span class="ident">m8x32</span> <span class="op">|</span> <span class="ident">i8</span>, <span class="ident">u32</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span>,
+        <span class="ident">x16</span>, <span class="ident">x17</span>, <span class="ident">x18</span>, <span class="ident">x19</span>, <span class="ident">x20</span>, <span class="ident">x21</span>, <span class="ident">x22</span>, <span class="ident">x23</span>, <span class="ident">x24</span>, <span class="ident">x25</span>, <span class="ident">x26</span>, <span class="ident">x27</span>, <span class="ident">x28</span>, <span class="ident">x29</span>, <span class="ident">x30</span>, <span class="ident">x31</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 32 `i8` lanes.</span>
+);
+<span class="macro">impl_u!</span>([<span class="ident">u8</span>; <span class="number">32</span>]: <span class="ident">u8x32</span>, <span class="ident">m8x32</span> <span class="op">|</span> <span class="ident">u8</span>, <span class="ident">u32</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span>,
+        <span class="ident">x16</span>, <span class="ident">x17</span>, <span class="ident">x18</span>, <span class="ident">x19</span>, <span class="ident">x20</span>, <span class="ident">x21</span>, <span class="ident">x22</span>, <span class="ident">x23</span>, <span class="ident">x24</span>, <span class="ident">x25</span>, <span class="ident">x26</span>, <span class="ident">x27</span>, <span class="ident">x28</span>, <span class="ident">x29</span>, <span class="ident">x30</span>, <span class="ident">x31</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 32 `u8` lanes.</span>
+);
+<span class="macro">impl_m!</span>([<span class="ident">m8</span>; <span class="number">32</span>]: <span class="ident">m8x32</span> <span class="op">|</span> <span class="ident">i8</span>, <span class="ident">u32</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span>,
+        <span class="ident">x16</span>, <span class="ident">x17</span>, <span class="ident">x18</span>, <span class="ident">x19</span>, <span class="ident">x20</span>, <span class="ident">x21</span>, <span class="ident">x22</span>, <span class="ident">x23</span>, <span class="ident">x24</span>, <span class="ident">x25</span>, <span class="ident">x26</span>, <span class="ident">x27</span>, <span class="ident">x28</span>, <span class="ident">x29</span>, <span class="ident">x30</span>, <span class="ident">x31</span> <span class="op">|</span>
+        <span class="ident">From</span>:  <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector mask with 32 `m8` lanes.</span>
+);
+
+<span class="macro">impl_i!</span>([<span class="ident">i16</span>; <span class="number">16</span>]: <span class="ident">i16x16</span>, <span class="ident">m16x16</span> <span class="op">|</span> <span class="ident">i16</span>, <span class="ident">u16</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x16</span>, <span class="ident">u8x16</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 16 `i16` lanes.</span>
+);
+<span class="macro">impl_u!</span>([<span class="ident">u16</span>; <span class="number">16</span>]: <span class="ident">u16x16</span>, <span class="ident">m16x16</span> <span class="op">|</span> <span class="ident">u16</span>, <span class="ident">u16</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">u8x16</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 16 `u16` lanes.</span>
+);
+<span class="macro">impl_m!</span>([<span class="ident">m16</span>; <span class="number">16</span>]: <span class="ident">m16x16</span> <span class="op">|</span> <span class="ident">i16</span>, <span class="ident">u16</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span>
+        <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>, <span class="ident">x8</span>, <span class="ident">x9</span>, <span class="ident">x10</span>, <span class="ident">x11</span>, <span class="ident">x12</span>, <span class="ident">x13</span>, <span class="ident">x14</span>, <span class="ident">x15</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">m8x16</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector mask with 16 `m16` lanes.</span>
+);
+
+<span class="macro">impl_i!</span>([<span class="ident">i32</span>; <span class="number">8</span>]: <span class="ident">i32x8</span>, <span class="ident">m32x8</span> <span class="op">|</span> <span class="ident">i32</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span>  <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x8</span>, <span class="ident">u8x8</span>, <span class="ident">i16x8</span>, <span class="ident">u16x8</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 8 `i32` lanes.</span>
+);
+<span class="macro">impl_u!</span>([<span class="ident">u32</span>; <span class="number">8</span>]: <span class="ident">u32x8</span>, <span class="ident">m32x8</span> <span class="op">|</span> <span class="ident">u32</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">u8x8</span>, <span class="ident">u16x8</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 8 `u32` lanes.</span>
+);
+<span class="macro">impl_f!</span>([<span class="ident">f32</span>; <span class="number">8</span>]: <span class="ident">f32x8</span>, <span class="ident">m32x8</span> <span class="op">|</span> <span class="ident">f32</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x8</span>, <span class="ident">u8x8</span>, <span class="ident">i16x8</span>, <span class="ident">u16x8</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 8 `f32` lanes.</span>
+);
+<span class="macro">impl_m!</span>([<span class="ident">m32</span>; <span class="number">8</span>]: <span class="ident">m32x8</span> <span class="op">|</span> <span class="ident">i32</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span>, <span class="ident">x4</span>, <span class="ident">x5</span>, <span class="ident">x6</span>, <span class="ident">x7</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">m8x8</span>, <span class="ident">m16x8</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector mask with 8 `m32` lanes.</span>
+);
+
+<span class="macro">impl_i!</span>([<span class="ident">i64</span>; <span class="number">4</span>]: <span class="ident">i64x4</span>, <span class="ident">m64x4</span> <span class="op">|</span> <span class="ident">i64</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x4</span>, <span class="ident">u8x4</span>, <span class="ident">i16x4</span>, <span class="ident">u16x4</span>, <span class="ident">i32x4</span>, <span class="ident">u32x4</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 4 `i64` lanes.</span>
+);
+<span class="macro">impl_u!</span>([<span class="ident">u64</span>; <span class="number">4</span>]: <span class="ident">u64x4</span>, <span class="ident">m64x4</span> <span class="op">|</span> <span class="ident">u64</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">u8x4</span>, <span class="ident">u16x4</span>, <span class="ident">u32x4</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 4 `u64` lanes.</span>
+);
+<span class="macro">impl_f!</span>([<span class="ident">f64</span>; <span class="number">4</span>]: <span class="ident">f64x4</span>, <span class="ident">m64x4</span> <span class="op">|</span> <span class="ident">f64</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x4</span>, <span class="ident">u8x4</span>, <span class="ident">i16x4</span>, <span class="ident">u16x4</span>, <span class="ident">i32x4</span>, <span class="ident">u32x4</span>, <span class="ident">f32x4</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 4 `f64` lanes.</span>
+);
+<span class="macro">impl_m!</span>([<span class="ident">m64</span>; <span class="number">4</span>]: <span class="ident">m64x4</span> <span class="op">|</span> <span class="ident">i64</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span>, <span class="ident">x2</span>, <span class="ident">x3</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">m8x4</span>, <span class="ident">m16x4</span>, <span class="ident">m32x4</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector mask with 4 `m64` lanes.</span>
+);
+
+<span class="macro">impl_i!</span>([<span class="ident">i128</span>; <span class="number">2</span>]: <span class="ident">i128x2</span>, <span class="ident">m128x2</span> <span class="op">|</span> <span class="ident">i128</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">i8x2</span>, <span class="ident">u8x2</span>, <span class="ident">i16x2</span>, <span class="ident">u16x2</span>, <span class="ident">i32x2</span>, <span class="ident">u32x2</span>, <span class="ident">i64x2</span>, <span class="ident">u64x2</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 2 `i128` lanes.</span>
+);
+<span class="macro">impl_u!</span>([<span class="ident">u128</span>; <span class="number">2</span>]: <span class="ident">u128x2</span>, <span class="ident">m128x2</span> <span class="op">|</span> <span class="ident">u128</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">u8x2</span>, <span class="ident">u16x2</span>, <span class="ident">u32x2</span>, <span class="ident">u64x2</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector with 2 `u128` lanes.</span>
+);
+<span class="macro">impl_m!</span>([<span class="ident">m128</span>; <span class="number">2</span>]: <span class="ident">m128x2</span> <span class="op">|</span> <span class="ident">i128</span>, <span class="ident">u8</span> <span class="op">|</span> <span class="ident">test_v256</span> <span class="op">|</span> <span class="ident">x0</span>, <span class="ident">x1</span> <span class="op">|</span>
+        <span class="ident">From</span>: <span class="ident">m8x2</span>, <span class="ident">m16x2</span>, <span class="ident">m32x2</span>, <span class="ident">m64x2</span> <span class="op">|</span>
+        <span class="doccomment">/// A 256-bit vector mask with 2 `m128` lanes.</span>
+);
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="packed_simd_2" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

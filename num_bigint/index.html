@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Big integer (signed version: `BigInt`, unsigned version: `BigUint`)."><meta name="keywords" content="rust, rustlang, rust-lang, num_bigint"><title>num_bigint - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../num_bigint/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate num_bigint</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.4.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all num_bigint's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="num_bigint" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">num_bigint</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/num_bigint/lib.rs.html#11-294" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Big integer (signed version: <code>BigInt</code>, unsigned version: <code>BigUint</code>).</p>
+<p>A <code>BigUint</code> is represented as a vector of <code>BigDigit</code>s.
+A <code>BigInt</code> is a combination of <code>BigUint</code> and <code>Sign</code>.</p>
+<p>Common numerical operations are overloaded, so we can treat them
+the same way we treat other numbers.</p>
+<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_bigint::BigUint</span>;
+<span class="kw">use</span> <span class="ident">num_traits</span>::{<span class="ident">Zero</span>, <span class="ident">One</span>};
+<span class="kw">use</span> <span class="ident">std::mem::replace</span>;
+
+<span class="comment">// Calculate large fibonacci numbers.</span>
+<span class="kw">fn</span> <span class="ident">fib</span>(<span class="ident">n</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BigUint</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f0</span>: <span class="ident">BigUint</span> <span class="op">=</span> <span class="ident">Zero::zero</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f1</span>: <span class="ident">BigUint</span> <span class="op">=</span> <span class="ident">One::one</span>();
+    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
+        <span class="kw">let</span> <span class="ident">f2</span> <span class="op">=</span> <span class="ident">f0</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">f1</span>;
+        <span class="comment">// This is a low cost way of swapping f0 with f1 and f1 with f2.</span>
+        <span class="ident">f0</span> <span class="op">=</span> <span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">f1</span>, <span class="ident">f2</span>);
+    }
+    <span class="ident">f0</span>
+}
+
+<span class="comment">// This is a very large number.</span>
+<span class="macro">println!</span>(<span class="string">&quot;fib(1000) = {}&quot;</span>, <span class="ident">fib</span>(<span class="number">1000</span>));</pre></div>
+<p>It’s easy to generate large random numbers:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="kw">use</span> <span class="ident">num_bigint</span>::{<span class="ident">ToBigInt</span>, <span class="ident">RandBigInt</span>};
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
+<span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_bigint</span>(<span class="number">1000</span>);
+
+<span class="kw">let</span> <span class="ident">low</span> <span class="op">=</span> <span class="op">-</span><span class="number">10000</span>.<span class="ident">to_bigint</span>().<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">high</span> <span class="op">=</span> <span class="number">10000</span>.<span class="ident">to_bigint</span>().<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_bigint_range</span>(<span class="kw-2">&amp;</span><span class="ident">low</span>, <span class="kw-2">&amp;</span><span class="ident">high</span>);
+
+<span class="comment">// Probably an even larger number.</span>
+<span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">a</span> <span class="op">*</span> <span class="ident">b</span>);</pre></div>
+<p>See the “Features” section for instructions for enabling random number generation.</p>
+<h2 id="features" class="section-header"><a href="#features">Features</a></h2>
+<p>The <code>std</code> crate feature is enabled by default, and is mandatory before Rust
+1.36 and the stabilized <code>alloc</code> crate.  If you depend on <code>num-bigint</code> with
+<code>default-features = false</code>, you must manually enable the <code>std</code> feature yourself
+if your compiler is not new enough.</p>
+<h3 id="random-generation" class="section-header"><a href="#random-generation">Random Generation</a></h3>
+<p><code>num-bigint</code> supports the generation of random big integers when the <code>rand</code>
+feature is enabled. To enable it include rand as</p>
+<pre><code class="language-toml">rand = &quot;0.8&quot;
+num-bigint = { version = &quot;0.4&quot;, features = [&quot;rand&quot;] }
+</code></pre>
+<p>Note that you must use the version of <code>rand</code> that <code>num-bigint</code> is compatible
+with: <code>0.8</code>.</p>
+<h2 id="compatibility" class="section-header"><a href="#compatibility">Compatibility</a></h2>
+<p>The <code>num-bigint</code> crate is tested for rustc 1.31 and greater.</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.BigInt.html" title="num_bigint::BigInt struct">BigInt</a></div><div class="item-right docblock-short"><p>A big signed integer type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.BigUint.html" title="num_bigint::BigUint struct">BigUint</a></div><div class="item-right docblock-short"><p>A big unsigned integer type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParseBigIntError.html" title="num_bigint::ParseBigIntError struct">ParseBigIntError</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="struct" href="struct.TryFromBigIntError.html" title="num_bigint::TryFromBigIntError struct">TryFromBigIntError</a></div><div class="item-right docblock-short"><p>The error type returned when a checked conversion regarding big integer fails.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.U32Digits.html" title="num_bigint::U32Digits struct">U32Digits</a></div><div class="item-right docblock-short"><p>An iterator of <code>u32</code> digits representation of a <code>BigUint</code> or <code>BigInt</code>,
+ordered least significant digit first.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.U64Digits.html" title="num_bigint::U64Digits struct">U64Digits</a></div><div class="item-right docblock-short"><p>An iterator of <code>u64</code> digits representation of a <code>BigUint</code> or <code>BigInt</code>,
+ordered least significant digit first.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Sign.html" title="num_bigint::Sign enum">Sign</a></div><div class="item-right docblock-short"><p>A Sign is a <code>BigInt</code>’s composing element.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.ToBigInt.html" title="num_bigint::ToBigInt trait">ToBigInt</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigInt</code>. This may return
+<code>None</code> when converting from <code>f32</code> or <code>f64</code>, and will always succeed
+when converting from any integer or unsigned primitive, or <code>BigUint</code>.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.ToBigUint.html" title="num_bigint::ToBigUint trait">ToBigUint</a></div><div class="item-right docblock-short"><p>A generic trait for converting a value to a <code>BigUint</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="num_bigint" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

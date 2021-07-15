@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;unicode-width-0.1.8&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;unicode-rs.github.io&#x2F;unicode-rs_sm.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../unicode_width/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;unicode-rs.github.io&#x2F;unicode-rs_sm.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2012-2015 The Rust Project Developers. See the COPYRIGHT</span>
+<span class="comment">// file at the top-level directory of this distribution and at</span>
+<span class="comment">// http://rust-lang.org/COPYRIGHT.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
+
+<span class="doccomment">//! Determine displayed width of `char` and `str` types according to</span>
+<span class="doccomment">//! [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)</span>
+<span class="doccomment">//! rules.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! extern crate unicode_width;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! use unicode_width::UnicodeWidthStr;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     let teststr = &quot;Ｈｅｌｌｏ, ｗｏｒｌｄ!&quot;;</span>
+<span class="doccomment">//!     let width = UnicodeWidthStr::width(teststr);</span>
+<span class="doccomment">//!     println!(&quot;{}&quot;, teststr);</span>
+<span class="doccomment">//!     println!(&quot;The above string is {} columns wide.&quot;, width);</span>
+<span class="doccomment">//!     let width = teststr.width_cjk();</span>
+<span class="doccomment">//!     println!(&quot;The above string is {} columns wide (CJK).&quot;, width);</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # features</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! unicode-width supports a `no_std` feature. This eliminates dependence</span>
+<span class="doccomment">//! on std, and instead uses equivalent functions from core.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # crates.io</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! You can use this package in your project by adding the following</span>
+<span class="doccomment">//! to your `Cargo.toml`:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! [dependencies]</span>
+<span class="doccomment">//! unicode-width = &quot;0.1.5&quot;</span>
+<span class="doccomment">//! ```</span>
+
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>, <span class="ident">unsafe_code</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://unicode-rs.github.io/unicode-rs_sm.png&quot;</span>,
+       <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://unicode-rs.github.io/unicode-rs_sm.png&quot;</span>)]</span>
+
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bench&quot;</span>, <span class="ident">feature</span>(<span class="ident">test</span>))]</span>
+<span class="attribute">#![<span class="ident">no_std</span>]</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">std</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bench&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">test</span>;
+
+<span class="kw">use</span> <span class="ident">tables::charwidth</span> <span class="kw">as</span> <span class="ident">cw</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tables::UNICODE_VERSION</span>;
+
+<span class="kw">use</span> <span class="ident">core::ops::Add</span>;
+
+<span class="kw">mod</span> <span class="ident">tables</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
+
+<span class="doccomment">/// Methods for determining displayed width of Unicode characters.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UnicodeWidthChar</span> {
+    <span class="doccomment">/// Returns the character&#39;s displayed width in columns, or `None` if the</span>
+    <span class="doccomment">/// character is a control character other than `&#39;\x00&#39;`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function treats characters in the Ambiguous category according</span>
+    <span class="doccomment">/// to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)</span>
+    <span class="doccomment">/// as 1 column wide. This is consistent with the recommendations for non-CJK</span>
+    <span class="doccomment">/// contexts, or when the context cannot be reliably determined.</span>
+    <span class="kw">fn</span> <span class="ident">width</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Returns the character&#39;s displayed width in columns, or `None` if the</span>
+    <span class="doccomment">/// character is a control character other than `&#39;\x00&#39;`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function treats characters in the Ambiguous category according</span>
+    <span class="doccomment">/// to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)</span>
+    <span class="doccomment">/// as 2 columns wide. This is consistent with the recommendations for</span>
+    <span class="doccomment">/// CJK contexts.</span>
+    <span class="kw">fn</span> <span class="ident">width_cjk</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">UnicodeWidthChar</span> <span class="kw">for</span> <span class="ident">char</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">width</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> { <span class="ident">cw::width</span>(<span class="self">self</span>, <span class="bool-val">false</span>) }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">width_cjk</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> { <span class="ident">cw::width</span>(<span class="self">self</span>, <span class="bool-val">true</span>) }
+}
+
+<span class="doccomment">/// Methods for determining displayed width of Unicode strings.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UnicodeWidthStr</span> {
+    <span class="doccomment">/// Returns the string&#39;s displayed width in columns.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Control characters are treated as having zero width.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function treats characters in the Ambiguous category according</span>
+    <span class="doccomment">/// to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)</span>
+    <span class="doccomment">/// as 1 column wide. This is consistent with the recommendations for</span>
+    <span class="doccomment">/// non-CJK contexts, or when the context cannot be reliably determined.</span>
+    <span class="kw">fn</span> <span class="ident">width</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+
+    <span class="doccomment">/// Returns the string&#39;s displayed width in columns.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Control characters are treated as having zero width.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function treats characters in the Ambiguous category according</span>
+    <span class="doccomment">/// to [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)</span>
+    <span class="doccomment">/// as 2 column wide. This is consistent with the recommendations for</span>
+    <span class="doccomment">/// CJK contexts.</span>
+    <span class="kw">fn</span> <span class="ident">width_cjk</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">UnicodeWidthStr</span> <span class="kw">for</span> <span class="ident">str</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">cw::width</span>(<span class="ident">c</span>, <span class="bool-val">false</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)).<span class="ident">fold</span>(<span class="number">0</span>, <span class="ident">Add::add</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">width_cjk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">cw::width</span>(<span class="ident">c</span>, <span class="bool-val">true</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)).<span class="ident">fold</span>(<span class="number">0</span>, <span class="ident">Add::add</span>)
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="unicode_width" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

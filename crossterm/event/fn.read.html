@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Reads a single `Event`."><meta name="keywords" content="rust, rustlang, rust-lang, read"><title>read in crossterm::event - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../crossterm/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="../index.html">crossterm</a>::<wbr><a href="index.html">event</a></p><div id="sidebar-vars" data-name="read" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../index.html">crossterm</a>::<wbr><a href="index.html">event</a>::<wbr><a class="fn" href="#">read</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/crossterm/event.rs.html#190-196" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn read() -&gt; <a class="type" href="../type.Result.html" title="type crossterm::Result">Result</a>&lt;<a class="enum" href="enum.Event.html" title="enum crossterm::event::Event">Event</a>&gt;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Reads a single <a href="enum.Event.html"><code>Event</code></a>.</p>
+<p>This function blocks until an <a href="enum.Event.html"><code>Event</code></a> is available. Combine it with the
+<a href="fn.poll.html"><code>poll</code></a> function to get non-blocking reads.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Blocking read:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">crossterm</span>::{<span class="ident">event::read</span>, <span class="prelude-ty">Result</span>};
+
+<span class="kw">fn</span> <span class="ident">print_events</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">loop</span> {
+        <span class="comment">// Blocks until an `Event` is available</span>
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">read</span>()<span class="question-mark">?</span>);
+    }
+}</pre></div>
+<p>Non-blocking read:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+
+<span class="kw">use</span> <span class="ident">crossterm</span>::{<span class="ident">event</span>::{<span class="ident">read</span>, <span class="ident">poll</span>}, <span class="prelude-ty">Result</span>};
+
+<span class="kw">fn</span> <span class="ident">print_events</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">loop</span> {
+        <span class="kw">if</span> <span class="ident">poll</span>(<span class="ident">Duration::from_millis</span>(<span class="number">100</span>))<span class="question-mark">?</span> {
+            <span class="comment">// It&#39;s guaranteed that `read` wont block, because `poll` returned</span>
+            <span class="comment">// `Ok(true)`.</span>
+            <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">read</span>()<span class="question-mark">?</span>);
+        } <span class="kw">else</span> {
+            <span class="comment">// Timeout expired, no `Event` is available</span>
+        }
+    }
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="crossterm" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

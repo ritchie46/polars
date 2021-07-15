@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Formatting macro for constructing `Ident`s."><meta name="keywords" content="rust, rustlang, rust-lang, format_ident"><title>format_ident in quote - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../quote/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">quote</a></p><div id="sidebar-vars" data-name="format_ident" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">quote</a>::<wbr><a class="macro" href="#">format_ident</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/quote/format.rs.html#110-124" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">format_ident</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Formatting macro for constructing <code>Ident</code>s.</p>
+<br>
+<h1 id="syntax" class="section-header"><a href="#syntax">Syntax</a></h1>
+<p>Syntax is copied from the <a href="https://doc.rust-lang.org/nightly/alloc/macro.format.html" title="format!"><code>format!</code></a> macro, supporting both positional and
+named arguments.</p>
+<p>Only a limited set of formatting traits are supported. The current mapping
+of format types to traits is:</p>
+<ul>
+<li><code>{}</code> ⇒ [<code>IdentFragment</code>]</li>
+<li><code>{:o}</code> ⇒ <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Octal.html"><code>Octal</code></a></li>
+<li><code>{:x}</code> ⇒ <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.LowerHex.html"><code>LowerHex</code></a></li>
+<li><code>{:X}</code> ⇒ <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.UpperHex.html"><code>UpperHex</code></a></li>
+<li><code>{:b}</code> ⇒ <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Binary.html"><code>Binary</code></a></li>
+</ul>
+<p>See <a href="https://doc.rust-lang.org/nightly/alloc/fmt/index.html" title="std::fmt"><code>std::fmt</code></a> for more information.</p>
+<br>
+<h1 id="identfragment" class="section-header"><a href="#identfragment">IdentFragment</a></h1>
+<p>Unlike <code>format!</code>, this macro uses the [<code>IdentFragment</code>] formatting trait by
+default. This trait is like <code>Display</code>, with a few differences:</p>
+<ul>
+<li><code>IdentFragment</code> is only implemented for a limited set of types, such as
+unsigned integers and strings.</li>
+<li><a href="../proc_macro2/struct.Ident.html"><code>Ident</code></a> arguments will have their <code>r#</code> prefixes stripped, if present.</li>
+</ul>
+<br>
+<h1 id="hygiene" class="section-header"><a href="#hygiene">Hygiene</a></h1>
+<p>The <a href="../proc_macro2/struct.Span.html"><code>Span</code></a> of the first <code>Ident</code> argument is used as the span of the final
+identifier, falling back to <a href="../proc_macro2/struct.Span.html#method.call_site"><code>Span::call_site</code></a> when no identifiers are
+provided.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// If `ident` is an Ident, the span of `my_ident` will be inherited from it.</span>
+<span class="kw">let</span> <span class="ident">my_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;My{}{}&quot;</span>, <span class="ident">ident</span>, <span class="string">&quot;IsCool&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">my_ident</span>, <span class="string">&quot;MyIdentIsCool&quot;</span>);</pre></div>
+<p>Alternatively, the span can be overridden by passing the <code>span</code> named
+argument.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">my_span</span> <span class="op">=</span> <span class="comment">/* ... */</span>;
+<span class="macro">format_ident!</span>(<span class="string">&quot;MyIdent&quot;</span>, <span class="ident">span</span> <span class="op">=</span> <span class="ident">my_span</span>);</pre></div>
+<p><br></p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>This method will panic if the resulting formatted string is not a valid
+identifier.</p>
+<br>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Composing raw and non-raw identifiers:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">my_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;My{}&quot;</span>, <span class="string">&quot;Ident&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">my_ident</span>, <span class="string">&quot;MyIdent&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;r#Raw&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">raw</span>, <span class="string">&quot;r#Raw&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">my_ident_raw</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Is{}&quot;</span>, <span class="ident">my_ident</span>, <span class="ident">raw</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">my_ident_raw</span>, <span class="string">&quot;MyIdentIsRaw&quot;</span>);</pre></div>
+<p>Integer formatting options:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">num</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">10</span>;
+
+<span class="kw">let</span> <span class="ident">decimal</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;Id_{}&quot;</span>, <span class="ident">num</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">decimal</span>, <span class="string">&quot;Id_10&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">octal</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;Id_{:o}&quot;</span>, <span class="ident">num</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">octal</span>, <span class="string">&quot;Id_12&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">binary</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;Id_{:b}&quot;</span>, <span class="ident">num</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">binary</span>, <span class="string">&quot;Id_1010&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">lower_hex</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;Id_{:x}&quot;</span>, <span class="ident">num</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">lower_hex</span>, <span class="string">&quot;Id_a&quot;</span>);
+
+<span class="kw">let</span> <span class="ident">upper_hex</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;Id_{:X}&quot;</span>, <span class="ident">num</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">upper_hex</span>, <span class="string">&quot;Id_A&quot;</span>);</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="quote" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generic trait for floating point numbers"><meta name="keywords" content="rust, rustlang, rust-lang, Float"><title>Float in num_traits::float - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../num_traits/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Trait Float</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.abs">abs</a><a href="#tymethod.abs_sub">abs_sub</a><a href="#tymethod.acos">acos</a><a href="#tymethod.acosh">acosh</a><a href="#tymethod.asin">asin</a><a href="#tymethod.asinh">asinh</a><a href="#tymethod.atan">atan</a><a href="#tymethod.atan2">atan2</a><a href="#tymethod.atanh">atanh</a><a href="#tymethod.cbrt">cbrt</a><a href="#tymethod.ceil">ceil</a><a href="#tymethod.classify">classify</a><a href="#tymethod.cos">cos</a><a href="#tymethod.cosh">cosh</a><a href="#tymethod.exp">exp</a><a href="#tymethod.exp2">exp2</a><a href="#tymethod.exp_m1">exp_m1</a><a href="#tymethod.floor">floor</a><a href="#tymethod.fract">fract</a><a href="#tymethod.hypot">hypot</a><a href="#tymethod.infinity">infinity</a><a href="#tymethod.integer_decode">integer_decode</a><a href="#tymethod.is_finite">is_finite</a><a href="#tymethod.is_infinite">is_infinite</a><a href="#tymethod.is_nan">is_nan</a><a href="#tymethod.is_normal">is_normal</a><a href="#tymethod.is_sign_negative">is_sign_negative</a><a href="#tymethod.is_sign_positive">is_sign_positive</a><a href="#tymethod.ln">ln</a><a href="#tymethod.ln_1p">ln_1p</a><a href="#tymethod.log">log</a><a href="#tymethod.log10">log10</a><a href="#tymethod.log2">log2</a><a href="#tymethod.max">max</a><a href="#tymethod.max_value">max_value</a><a href="#tymethod.min">min</a><a href="#tymethod.min_positive_value">min_positive_value</a><a href="#tymethod.min_value">min_value</a><a href="#tymethod.mul_add">mul_add</a><a href="#tymethod.nan">nan</a><a href="#tymethod.neg_infinity">neg_infinity</a><a href="#tymethod.neg_zero">neg_zero</a><a href="#tymethod.powf">powf</a><a href="#tymethod.powi">powi</a><a href="#tymethod.recip">recip</a><a href="#tymethod.round">round</a><a href="#tymethod.signum">signum</a><a href="#tymethod.sin">sin</a><a href="#tymethod.sin_cos">sin_cos</a><a href="#tymethod.sinh">sinh</a><a href="#tymethod.sqrt">sqrt</a><a href="#tymethod.tan">tan</a><a href="#tymethod.tanh">tanh</a><a href="#tymethod.trunc">trunc</a></div><a class="sidebar-title" href="#provided-methods">Provided Methods</a><div class="sidebar-links"><a href="#method.epsilon">epsilon</a><a href="#method.to_degrees">to_degrees</a><a href="#method.to_radians">to_radians</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-Float-for-f32">f32</a><a href="#impl-Float-for-f64">f64</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class="location">Other items in<br><a href="../index.html">num_traits</a>::<wbr><a href="index.html">float</a></p><div id="sidebar-vars" data-name="Float" data-ty="trait" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Trait <a href="../index.html">num_traits</a>::<wbr><a href="index.html">float</a>::<wbr><a class="trait" href="#">Float</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/num_traits/float.rs.html#905-1809" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><pre class="rust trait">pub trait Float: <a class="trait" href="../trait.Num.html" title="trait num_traits::Num">Num</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="../cast/trait.NumCast.html" title="trait num_traits::cast::NumCast">NumCast</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html" title="trait core::cmp::PartialOrd">PartialOrd</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Neg.html" title="trait core::ops::arith::Neg">Neg</a>&lt;Output = Self&gt; {
+<details class="rustdoc-toggle type-contents-toggle"><summary class="hideme"><span>Show methods</span></summary>    fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.floor" class="fnname">floor</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.ceil" class="fnname">ceil</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.round" class="fnname">round</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.trunc" class="fnname">trunc</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.fract" class="fnname">fract</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.abs" class="fnname">abs</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.signum" class="fnname">signum</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.mul_add" class="fnname">mul_add</a>(self, a: Self, b: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.recip" class="fnname">recip</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.powf" class="fnname">powf</a>(self, n: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.sqrt" class="fnname">sqrt</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.exp" class="fnname">exp</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.exp2" class="fnname">exp2</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.ln" class="fnname">ln</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.log" class="fnname">log</a>(self, base: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.log2" class="fnname">log2</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.log10" class="fnname">log10</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.max" class="fnname">max</a>(self, other: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.min" class="fnname">min</a>(self, other: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.abs_sub" class="fnname">abs_sub</a>(self, other: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.cbrt" class="fnname">cbrt</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.hypot" class="fnname">hypot</a>(self, other: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.sin" class="fnname">sin</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.cos" class="fnname">cos</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.tan" class="fnname">tan</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.asin" class="fnname">asin</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.acos" class="fnname">acos</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.atan" class="fnname">atan</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.atan2" class="fnname">atan2</a>(self, other: Self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.sin_cos" class="fnname">sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.exp_m1" class="fnname">exp_m1</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.ln_1p" class="fnname">ln_1p</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.sinh" class="fnname">sinh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.cosh" class="fnname">cosh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.tanh" class="fnname">tanh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.asinh" class="fnname">asinh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.acosh" class="fnname">acosh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.atanh" class="fnname">atanh</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>;
+
+    fn <a href="#method.epsilon" class="fnname">epsilon</a>() -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.to_radians" class="fnname">to_radians</a>(self) -&gt; Self { ... }
+</details>}</pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generic trait for floating point numbers</p>
+<p>This trait is only available with the <code>std</code> feature, or with the <code>libm</code> feature otherwise.</p>
+</div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="tymethod.nan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#915" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the <code>NaN</code> value.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">nan</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::nan</span>();
+
+<span class="macro">assert!</span>(<span class="ident">nan</span>.<span class="ident">is_nan</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.infinity" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#928" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the infinite value.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">infinity</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::infinity</span>();
+
+<span class="macro">assert!</span>(<span class="ident">infinity</span>.<span class="ident">is_infinite</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">infinity</span>.<span class="ident">is_finite</span>());
+<span class="macro">assert!</span>(<span class="ident">infinity</span> <span class="op">&gt;</span> <span class="ident">f32::MAX</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.neg_infinity" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#941" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the negative infinite value.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">neg_infinity</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::neg_infinity</span>();
+
+<span class="macro">assert!</span>(<span class="ident">neg_infinity</span>.<span class="ident">is_infinite</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">neg_infinity</span>.<span class="ident">is_finite</span>());
+<span class="macro">assert!</span>(<span class="ident">neg_infinity</span> <span class="op">&lt;</span> <span class="ident">f32::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.neg_zero" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#955" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>-0.0</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits</span>::{<span class="ident">Zero</span>, <span class="ident">Float</span>};
+
+<span class="kw">let</span> <span class="ident">inf</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::infinity</span>();
+<span class="kw">let</span> <span class="ident">zero</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Zero::zero</span>();
+<span class="kw">let</span> <span class="ident">neg_zero</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::neg_zero</span>();
+
+<span class="macro">assert_eq!</span>(<span class="ident">zero</span>, <span class="ident">neg_zero</span>);
+<span class="macro">assert_eq!</span>(<span class="number">7.0f32</span><span class="op">/</span><span class="ident">inf</span>, <span class="ident">zero</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">zero</span> <span class="op">*</span> <span class="number">10.0</span>, <span class="ident">zero</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.min_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#967" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest finite value that this type can represent.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">Float::min_value</span>();
+
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.min_positive_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#979" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest positive, normalized value that this type can represent.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">Float::min_positive_value</span>();
+
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">f64::MIN_POSITIVE</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.max_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1009" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the largest finite value that this type can represent.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">Float::max_value</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">f64::MAX</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_nan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1023" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if this value is <code>NaN</code> and false otherwise.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">nan</span> <span class="op">=</span> <span class="ident">f64::NAN</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">7.0</span>;
+
+<span class="macro">assert!</span>(<span class="ident">nan</span>.<span class="ident">is_nan</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f</span>.<span class="ident">is_nan</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_infinite" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1043" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if this value is positive infinity or negative infinity and
+false otherwise.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">7.0f32</span>;
+<span class="kw">let</span> <span class="ident">inf</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::infinity</span>();
+<span class="kw">let</span> <span class="ident">neg_inf</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::neg_infinity</span>();
+<span class="kw">let</span> <span class="ident">nan</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">f32::NAN</span>;
+
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f</span>.<span class="ident">is_infinite</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">nan</span>.<span class="ident">is_infinite</span>());
+
+<span class="macro">assert!</span>(<span class="ident">inf</span>.<span class="ident">is_infinite</span>());
+<span class="macro">assert!</span>(<span class="ident">neg_inf</span>.<span class="ident">is_infinite</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_finite" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1062" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if this number is neither infinite nor <code>NaN</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">7.0f32</span>;
+<span class="kw">let</span> <span class="ident">inf</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::infinity</span>();
+<span class="kw">let</span> <span class="ident">neg_inf</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">Float::neg_infinity</span>();
+<span class="kw">let</span> <span class="ident">nan</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">f32::NAN</span>;
+
+<span class="macro">assert!</span>(<span class="ident">f</span>.<span class="ident">is_finite</span>());
+
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">nan</span>.<span class="ident">is_finite</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">inf</span>.<span class="ident">is_finite</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">neg_inf</span>.<span class="ident">is_finite</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_normal" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1086" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if the number is neither zero, infinite,
+<a href="http://en.wikipedia.org/wiki/Denormal_number">subnormal</a>, or <code>NaN</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">min</span> <span class="op">=</span> <span class="ident">f32::MIN_POSITIVE</span>; <span class="comment">// 1.17549435e-38f32</span>
+<span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="ident">f32::MAX</span>;
+<span class="kw">let</span> <span class="ident">lower_than_min</span> <span class="op">=</span> <span class="number">1.0e-40_f32</span>;
+<span class="kw">let</span> <span class="ident">zero</span> <span class="op">=</span> <span class="number">0.0f32</span>;
+
+<span class="macro">assert!</span>(<span class="ident">min</span>.<span class="ident">is_normal</span>());
+<span class="macro">assert!</span>(<span class="ident">max</span>.<span class="ident">is_normal</span>());
+
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">zero</span>.<span class="ident">is_normal</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32::NAN</span>.<span class="ident">is_normal</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32::INFINITY</span>.<span class="ident">is_normal</span>());
+<span class="comment">// Values between `0` and `min` are Subnormal.</span>
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">lower_than_min</span>.<span class="ident">is_normal</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.classify" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1103" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div></summary><div class="docblock"><p>Returns the floating point category of the number. If only one property
+is going to be tested, it is generally faster to use the specific
+predicate instead.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::num::FpCategory</span>;
+<span class="kw">use</span> <span class="ident">std::f32</span>;
+
+<span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="number">12.4f32</span>;
+<span class="kw">let</span> <span class="ident">inf</span> <span class="op">=</span> <span class="ident">f32::INFINITY</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">num</span>.<span class="ident">classify</span>(), <span class="ident">FpCategory::Normal</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">inf</span>.<span class="ident">classify</span>(), <span class="ident">FpCategory::Infinite</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.floor" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1116" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.floor" class="fnname">floor</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the largest integer less than or equal to a number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">3.99</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="number">3.0</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">floor</span>(), <span class="number">3.0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">g</span>.<span class="ident">floor</span>(), <span class="number">3.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.ceil" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1129" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest integer greater than or equal to a number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">3.01</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="number">4.0</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">ceil</span>(), <span class="number">4.0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">g</span>.<span class="ident">ceil</span>(), <span class="number">4.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.round" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1143" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.round" class="fnname">round</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the nearest integer to a number. Round half-way cases away from
+<code>0.0</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">3.3</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.3</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">round</span>(), <span class="number">3.0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">g</span>.<span class="ident">round</span>(), <span class="op">-</span><span class="number">3.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.trunc" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1156" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Return the integer part of a number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">3.3</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.7</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">trunc</span>(), <span class="number">3.0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">g</span>.<span class="ident">trunc</span>(), <span class="op">-</span><span class="number">3.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.fract" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1171" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.fract" class="fnname">fract</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the fractional part of a number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">3.5</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.5</span>;
+<span class="kw">let</span> <span class="ident">abs_difference_x</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">fract</span>() <span class="op">-</span> <span class="number">0.5</span>).<span class="ident">abs</span>();
+<span class="kw">let</span> <span class="ident">abs_difference_y</span> <span class="op">=</span> (<span class="ident">y</span>.<span class="ident">fract</span>() <span class="op">-</span> (<span class="op">-</span><span class="number">0.5</span>)).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_x</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_y</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.abs" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1191" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.abs" class="fnname">abs</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the absolute value of <code>self</code>. Returns <code>Float::nan()</code> if the
+number is <code>Float::nan()</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">3.5</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.5</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference_x</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="ident">x</span>).<span class="ident">abs</span>();
+<span class="kw">let</span> <span class="ident">abs_difference_y</span> <span class="op">=</span> (<span class="ident">y</span>.<span class="ident">abs</span>() <span class="op">-</span> (<span class="op">-</span><span class="ident">y</span>)).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_x</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_y</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+
+<span class="macro">assert!</span>(<span class="ident">f64::NAN</span>.<span class="ident">abs</span>().<span class="ident">is_nan</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.signum" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1210" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.signum" class="fnname">signum</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns a number that represents the sign of <code>self</code>.</p>
+<ul>
+<li><code>1.0</code> if the number is positive, <code>+0.0</code> or <code>Float::infinity()</code></li>
+<li><code>-1.0</code> if the number is negative, <code>-0.0</code> or <code>Float::neg_infinity()</code></li>
+<li><code>Float::nan()</code> if the number is <code>Float::nan()</code></li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">3.5</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">f</span>.<span class="ident">signum</span>(), <span class="number">1.0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">f64::NEG_INFINITY</span>.<span class="ident">signum</span>(), <span class="op">-</span><span class="number">1.0</span>);
+
+<span class="macro">assert!</span>(<span class="ident">f64::NAN</span>.<span class="ident">signum</span>().<span class="ident">is_nan</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_sign_positive" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1228" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if <code>self</code> is positive, including <code>+0.0</code>,
+<code>Float::infinity()</code>, and since Rust 1.20 also <code>Float::nan()</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">neg_nan</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="ident">f64::NAN</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">7.0</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="op">-</span><span class="number">7.0</span>;
+
+<span class="macro">assert!</span>(<span class="ident">f</span>.<span class="ident">is_sign_positive</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">g</span>.<span class="ident">is_sign_positive</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">neg_nan</span>.<span class="ident">is_sign_positive</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.is_sign_negative" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1246" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if <code>self</code> is negative, including <code>-0.0</code>,
+<code>Float::neg_infinity()</code>, and since Rust 1.20 also <code>-Float::nan()</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">nan</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">f64::NAN</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">7.0</span>;
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="op">-</span><span class="number">7.0</span>;
+
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f</span>.<span class="ident">is_sign_negative</span>());
+<span class="macro">assert!</span>(<span class="ident">g</span>.<span class="ident">is_sign_negative</span>());
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">nan</span>.<span class="ident">is_sign_negative</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.mul_add" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1266" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.mul_add" class="fnname">mul_add</a>(self, a: Self, b: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Fused multiply-add. Computes <code>(self * a) + b</code> with only one rounding
+error, yielding a more accurate result than an unfused multiply-add.</p>
+<p>Using <code>mul_add</code> can be more performant than an unfused multiply-add if
+the target architecture has a dedicated <code>fma</code> CPU instruction.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="number">10.0</span>;
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">4.0</span>;
+<span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="number">60.0</span>;
+
+<span class="comment">// 100.0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">m</span>.<span class="ident">mul_add</span>(<span class="ident">x</span>, <span class="ident">b</span>) <span class="op">-</span> (<span class="ident">m</span><span class="kw-2">*</span><span class="ident">x</span> <span class="op">+</span> <span class="ident">b</span>)).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.recip" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1277" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.recip" class="fnname">recip</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Take the reciprocal (inverse) of a number, <code>1/x</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">recip</span>() <span class="op">-</span> (<span class="number">1.0</span><span class="op">/</span><span class="ident">x</span>)).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.powi" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1291" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Raise a number to an integer power.</p>
+<p>Using this function is generally faster than using <code>powf</code></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">-</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.powf" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1303" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.powf" class="fnname">powf</a>(self, n: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Raise a number to a floating point power.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">powf</span>(<span class="number">2.0</span>) <span class="op">-</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.sqrt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1320" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.sqrt" class="fnname">sqrt</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Take the square root of a number.</p>
+<p>Returns NaN if <code>self</code> is a negative number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">positive</span> <span class="op">=</span> <span class="number">4.0</span>;
+<span class="kw">let</span> <span class="ident">negative</span> <span class="op">=</span> <span class="op">-</span><span class="number">4.0</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">positive</span>.<span class="ident">sqrt</span>() <span class="op">-</span> <span class="number">2.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">negative</span>.<span class="ident">sqrt</span>().<span class="ident">is_nan</span>());</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.exp" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1336" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.exp" class="fnname">exp</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>e^(self)</code>, (the exponential function).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">one</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="comment">// e^1</span>
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">one</span>.<span class="ident">exp</span>();
+
+<span class="comment">// ln(e) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">e</span>.<span class="ident">ln</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.exp2" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1350" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.exp2" class="fnname">exp2</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>2^(self)</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="comment">// 2^2 - 4 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="ident">exp2</span>() <span class="op">-</span> <span class="number">4.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.ln" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1366" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.ln" class="fnname">ln</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the natural logarithm of the number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">one</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="comment">// e^1</span>
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">one</span>.<span class="ident">exp</span>();
+
+<span class="comment">// ln(e) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">e</span>.<span class="ident">ln</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.log" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1385" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.log" class="fnname">log</a>(self, base: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the logarithm of the number with respect to an arbitrary base.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">ten</span> <span class="op">=</span> <span class="number">10.0</span>;
+<span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="comment">// log10(10) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference_10</span> <span class="op">=</span> (<span class="ident">ten</span>.<span class="ident">log</span>(<span class="number">10.0</span>) <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="comment">// log2(2) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference_2</span> <span class="op">=</span> (<span class="ident">two</span>.<span class="ident">log</span>(<span class="number">2.0</span>) <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_10</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_2</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.log2" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1399" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.log2" class="fnname">log2</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the base 2 logarithm of the number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="comment">// log2(2) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">two</span>.<span class="ident">log2</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.log10" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1413" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.log10" class="fnname">log10</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the base 10 logarithm of the number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">ten</span> <span class="op">=</span> <span class="number">10.0</span>;
+
+<span class="comment">// log10(10) - 1 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">ten</span>.<span class="ident">log10</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.max" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1461" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the maximum of the two numbers.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">max</span>(<span class="ident">y</span>), <span class="ident">y</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.min" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1473" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the minimum of the two numbers.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>.<span class="ident">min</span>(<span class="ident">y</span>), <span class="ident">x</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.abs_sub" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1492" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.abs_sub" class="fnname">abs_sub</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>The positive difference of two numbers.</p>
+<ul>
+<li>If <code>self &lt;= other</code>: <code>0:0</code></li>
+<li>Else: <code>self - other</code></li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">3.0</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.0</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference_x</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">abs_sub</span>(<span class="number">1.0</span>) <span class="op">-</span> <span class="number">2.0</span>).<span class="ident">abs</span>();
+<span class="kw">let</span> <span class="ident">abs_difference_y</span> <span class="op">=</span> (<span class="ident">y</span>.<span class="ident">abs_sub</span>(<span class="number">1.0</span>) <span class="op">-</span> <span class="number">0.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_x</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_y</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.cbrt" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1506" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.cbrt" class="fnname">cbrt</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Take the cubic root of a number.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">8.0</span>;
+
+<span class="comment">// x^(1/3) - 2 == 0</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">cbrt</span>() <span class="op">-</span> <span class="number">2.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.hypot" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1522" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.hypot" class="fnname">hypot</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Calculate the length of the hypotenuse of a right-angle triangle given
+legs of length <code>x</code> and <code>y</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">3.0</span>;
+
+<span class="comment">// sqrt(x^2 + y^2)</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">hypot</span>(<span class="ident">y</span>) <span class="op">-</span> (<span class="ident">x</span>.<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> <span class="ident">y</span>.<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">sqrt</span>()).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.sin" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1536" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.sin" class="fnname">sin</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the sine of a number (in radians).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span><span class="op">/</span><span class="number">2.0</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">sin</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.cos" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1550" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.cos" class="fnname">cos</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the cosine of a number (in radians).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">2.0</span><span class="kw-2">*</span><span class="ident">f64::consts::PI</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">cos</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.tan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1563" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.tan" class="fnname">tan</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the tangent of a number (in radians).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span><span class="op">/</span><span class="number">4.0</span>;
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">tan</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-14</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.asin" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1580" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.asin" class="fnname">asin</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the arcsine of a number. Return value is in radians in
+the range [-pi/2, pi/2] or NaN if the number is outside the range
+[-1, 1].</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span> <span class="op">/</span> <span class="number">2.0</span>;
+
+<span class="comment">// asin(sin(pi/2))</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="ident">sin</span>().<span class="ident">asin</span>() <span class="op">-</span> <span class="ident">f64::consts::PI</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.acos" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1597" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.acos" class="fnname">acos</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the arccosine of a number. Return value is in radians in
+the range [0, pi] or NaN if the number is outside the range
+[-1, 1].</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span> <span class="op">/</span> <span class="number">4.0</span>;
+
+<span class="comment">// acos(cos(pi/4))</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="ident">cos</span>().<span class="ident">acos</span>() <span class="op">-</span> <span class="ident">f64::consts::PI</span> <span class="op">/</span> <span class="number">4.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.atan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1612" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.atan" class="fnname">atan</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the arctangent of a number. Return value is in radians in the
+range [-pi/2, pi/2];</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="number">1.0</span>;
+
+<span class="comment">// atan(tan(1))</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="ident">tan</span>().<span class="ident">atan</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.atan2" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1641" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.atan2" class="fnname">atan2</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the four quadrant arctangent of <code>self</code> (<code>y</code>) and <code>other</code> (<code>x</code>).</p>
+<ul>
+<li><code>x = 0</code>, <code>y = 0</code>: <code>0</code></li>
+<li><code>x &gt;= 0</code>: <code>arctan(y/x)</code> -&gt; <code>[-pi/2, pi/2]</code></li>
+<li><code>y &gt;= 0</code>: <code>arctan(y/x) + pi</code> -&gt; <code>(pi/2, pi]</code></li>
+<li><code>y &lt; 0</code>: <code>arctan(y/x) - pi</code> -&gt; <code>(-pi, -pi/2)</code></li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">pi</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span>;
+<span class="comment">// All angles from horizontal right (+x)</span>
+<span class="comment">// 45 deg counter-clockwise</span>
+<span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">3.0</span>;
+<span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.0</span>;
+
+<span class="comment">// 135 deg clockwise</span>
+<span class="kw">let</span> <span class="ident">x2</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.0</span>;
+<span class="kw">let</span> <span class="ident">y2</span> <span class="op">=</span> <span class="number">3.0</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference_1</span> <span class="op">=</span> (<span class="ident">y1</span>.<span class="ident">atan2</span>(<span class="ident">x1</span>) <span class="op">-</span> (<span class="op">-</span><span class="ident">pi</span><span class="op">/</span><span class="number">4.0</span>)).<span class="ident">abs</span>();
+<span class="kw">let</span> <span class="ident">abs_difference_2</span> <span class="op">=</span> (<span class="ident">y2</span>.<span class="ident">atan2</span>(<span class="ident">x2</span>) <span class="op">-</span> <span class="number">3.0</span><span class="kw-2">*</span><span class="ident">pi</span><span class="op">/</span><span class="number">4.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_1</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_2</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.sin_cos" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1659" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.sin_cos" class="fnname">sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div></summary><div class="docblock"><p>Simultaneously computes the sine and cosine of the number, <code>x</code>. Returns
+<code>(sin(x), cos(x))</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">f64::consts::PI</span><span class="op">/</span><span class="number">4.0</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">sin_cos</span>();
+
+<span class="kw">let</span> <span class="ident">abs_difference_0</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">x</span>.<span class="ident">sin</span>()).<span class="ident">abs</span>();
+<span class="kw">let</span> <span class="ident">abs_difference_1</span> <span class="op">=</span> (<span class="ident">f</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">x</span>.<span class="ident">cos</span>()).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference_0</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);
+<span class="macro">assert!</span>(<span class="ident">abs_difference_0</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.exp_m1" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1674" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.exp_m1" class="fnname">exp_m1</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>e^(self) - 1</code> in a way that is accurate even if the
+number is close to zero.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">7.0</span>;
+
+<span class="comment">// e^(ln(7)) - 1</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">ln</span>().<span class="ident">exp_m1</span>() <span class="op">-</span> <span class="number">6.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.ln_1p" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1690" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.ln_1p" class="fnname">ln_1p</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>ln(1+n)</code> (natural logarithm) more accurately than if
+the operations were performed separately.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">f64::consts::E</span> <span class="op">-</span> <span class="number">1.0</span>;
+
+<span class="comment">// ln(1 + (e - 1)) == ln(e) == 1</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">x</span>.<span class="ident">ln_1p</span>() <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.sinh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1708" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.sinh" class="fnname">sinh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Hyperbolic sine function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">f64::consts::E</span>;
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">sinh</span>();
+<span class="comment">// Solving sinh() at 1 gives `(e^2-1)/(2e)`</span>
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> (<span class="ident">e</span><span class="kw-2">*</span><span class="ident">e</span> <span class="op">-</span> <span class="number">1.0</span>)<span class="op">/</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">e</span>);
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">g</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.cosh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1726" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.cosh" class="fnname">cosh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Hyperbolic cosine function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">f64::consts::E</span>;
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">cosh</span>();
+<span class="comment">// Solving cosh() at 1 gives this result</span>
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> (<span class="ident">e</span><span class="kw-2">*</span><span class="ident">e</span> <span class="op">+</span> <span class="number">1.0</span>)<span class="op">/</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">e</span>);
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">g</span>).<span class="ident">abs</span>();
+
+<span class="comment">// Same result</span>
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1.0e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.tanh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1744" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.tanh" class="fnname">tanh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Hyperbolic tangent function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">f64::consts::E</span>;
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">tanh</span>();
+<span class="comment">// Solving tanh() at 1 gives `(1 - e^(-2))/(1 + e^(-2))`</span>
+<span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">e</span>.<span class="ident">powi</span>(<span class="op">-</span><span class="number">2</span>))<span class="op">/</span>(<span class="number">1.0</span> <span class="op">+</span> <span class="ident">e</span>.<span class="ident">powi</span>(<span class="op">-</span><span class="number">2</span>));
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">g</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1.0e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.asinh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1758" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.asinh" class="fnname">asinh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Inverse hyperbolic sine function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">sinh</span>().<span class="ident">asinh</span>();
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">x</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1.0e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.acosh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1772" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.acosh" class="fnname">acosh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Inverse hyperbolic cosine function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">1.0</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">cosh</span>().<span class="ident">acosh</span>();
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">x</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1.0e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.atanh" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1787" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.atanh" class="fnname">atanh</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Inverse hyperbolic tangent function.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">f64::consts::E</span>;
+<span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">tanh</span>().<span class="ident">atanh</span>();
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">f</span> <span class="op">-</span> <span class="ident">e</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1.0e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.integer_decode" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1808" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div></summary><div class="docblock"><p>Returns the mantissa, base 2 exponent, and sign as integers, respectively.
+The original number can be recovered by <code>sign * mantissa * 2 ^ exponent</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+
+<span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="number">2.0f32</span>;
+
+<span class="comment">// (8388608, -22, 1)</span>
+<span class="kw">let</span> (<span class="ident">mantissa</span>, <span class="ident">exponent</span>, <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">Float::integer_decode</span>(<span class="ident">num</span>);
+<span class="kw">let</span> <span class="ident">sign_f</span> <span class="op">=</span> <span class="ident">sign</span> <span class="kw">as</span> <span class="ident">f32</span>;
+<span class="kw">let</span> <span class="ident">mantissa_f</span> <span class="op">=</span> <span class="ident">mantissa</span> <span class="kw">as</span> <span class="ident">f32</span>;
+<span class="kw">let</span> <span class="ident">exponent_f</span> <span class="op">=</span> <span class="ident">num</span>.<span class="ident">powf</span>(<span class="ident">exponent</span> <span class="kw">as</span> <span class="ident">f32</span>);
+
+<span class="comment">// 1 * 8388608 * 2^(-22) == 2</span>
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">sign_f</span> <span class="op">*</span> <span class="ident">mantissa_f</span> <span class="op">*</span> <span class="ident">exponent_f</span> <span class="op">-</span> <span class="ident">num</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details></div><h2 id="provided-methods" class="small-section-header">Provided methods<a href="#provided-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="method.epsilon" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#996-998" title="goto source code">[src]</a></div><code>fn <a href="#method.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns epsilon, a small positive value.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::Float</span>;
+<span class="kw">use</span> <span class="ident">std::f64</span>;
+
+<span class="kw">let</span> <span class="ident">x</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">Float::epsilon</span>();
+
+<span class="macro">assert_eq!</span>(<span class="ident">x</span>, <span class="ident">f64::EPSILON</span>);</pre></div>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>The default implementation will panic if <code>f32::EPSILON</code> cannot
+be cast to <code>Self</code>.</p>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.to_degrees" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1427-1431" title="goto source code">[src]</a></div><code>fn <a href="#method.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Converts radians to degrees.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::f64::consts</span>;
+
+<span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">consts::PI</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">angle</span>.<span class="ident">to_degrees</span>() <span class="op">-</span> <span class="number">180.0</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.to_radians" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1445-1449" title="goto source code">[src]</a></div><code>fn <a href="#method.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Converts degrees to radians.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::f64::consts</span>;
+
+<span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="number">180.0_f64</span>;
+
+<span class="kw">let</span> <span class="ident">abs_difference</span> <span class="op">=</span> (<span class="ident">angle</span>.<span class="ident">to_radians</span>() <span class="op">-</span> <span class="ident">consts::PI</span>).<span class="ident">abs</span>();
+
+<span class="macro">assert!</span>(<span class="ident">abs_difference</span> <span class="op">&lt;</span> <span class="number">1e-10</span>);</pre></div>
+</div></details></div><h2 id="foreign-impls" class="small-section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Float-for-f32" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#impl-Float-for-f32" class="anchor"></a><code class="in-band">impl <a class="trait" href="trait.Float.html" title="trait num_traits::float::Float">Float</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></code></div></summary><div class="impl-items"><div id="method.nan" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.nan" class="anchor"></a><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div><div id="method.infinity" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.infinity" class="anchor"></a><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div><div id="method.neg_infinity" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.neg_infinity" class="anchor"></a><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div><div id="method.neg_zero" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.neg_zero" class="anchor"></a><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div><div id="method.min_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.min_value" class="anchor"></a><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div><div id="method.min_positive_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.min_positive_value" class="anchor"></a><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div><div id="method.epsilon-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.epsilon-1" class="anchor"></a><code>fn <a href="#method.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div><div id="method.max_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.max_value" class="anchor"></a><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div><div id="method.abs_sub" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.abs_sub" class="anchor"></a><code>fn <a href="#tymethod.abs_sub" class="fnname">abs_sub</a>(self, other: Self) -&gt; Self</code></div><div id="method.integer_decode" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.integer_decode" class="anchor"></a><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.is_nan" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_nan" class="anchor"></a><code>fn <a href="#tymethod.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_infinite" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_infinite" class="anchor"></a><code>fn <a href="#tymethod.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_finite" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_finite" class="anchor"></a><code>fn <a href="#tymethod.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_normal" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_normal" class="anchor"></a><code>fn <a href="#tymethod.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.classify" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.classify" class="anchor"></a><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div><div id="method.floor" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.floor" class="anchor"></a><code>fn <a href="#tymethod.floor" class="fnname">floor</a>(self) -&gt; Self</code></div><div id="method.ceil" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.ceil" class="anchor"></a><code>fn <a href="#tymethod.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div><div id="method.round" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.round" class="anchor"></a><code>fn <a href="#tymethod.round" class="fnname">round</a>(self) -&gt; Self</code></div><div id="method.trunc" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.trunc" class="anchor"></a><code>fn <a href="#tymethod.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div><div id="method.fract" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.fract" class="anchor"></a><code>fn <a href="#tymethod.fract" class="fnname">fract</a>(self) -&gt; Self</code></div><div id="method.abs" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.abs" class="anchor"></a><code>fn <a href="#tymethod.abs" class="fnname">abs</a>(self) -&gt; Self</code></div><div id="method.signum" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.signum" class="anchor"></a><code>fn <a href="#tymethod.signum" class="fnname">signum</a>(self) -&gt; Self</code></div><div id="method.is_sign_positive" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_sign_positive" class="anchor"></a><code>fn <a href="#tymethod.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_sign_negative" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.is_sign_negative" class="anchor"></a><code>fn <a href="#tymethod.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.mul_add" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.mul_add" class="anchor"></a><code>fn <a href="#tymethod.mul_add" class="fnname">mul_add</a>(self, a: Self, b: Self) -&gt; Self</code></div><div id="method.recip" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.recip" class="anchor"></a><code>fn <a href="#tymethod.recip" class="fnname">recip</a>(self) -&gt; Self</code></div><div id="method.powi" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.powi" class="anchor"></a><code>fn <a href="#tymethod.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div><div id="method.powf" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.powf" class="anchor"></a><code>fn <a href="#tymethod.powf" class="fnname">powf</a>(self, n: Self) -&gt; Self</code></div><div id="method.sqrt" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.sqrt" class="anchor"></a><code>fn <a href="#tymethod.sqrt" class="fnname">sqrt</a>(self) -&gt; Self</code></div><div id="method.exp" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.exp" class="anchor"></a><code>fn <a href="#tymethod.exp" class="fnname">exp</a>(self) -&gt; Self</code></div><div id="method.exp2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.exp2" class="anchor"></a><code>fn <a href="#tymethod.exp2" class="fnname">exp2</a>(self) -&gt; Self</code></div><div id="method.ln" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.ln" class="anchor"></a><code>fn <a href="#tymethod.ln" class="fnname">ln</a>(self) -&gt; Self</code></div><div id="method.log" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.log" class="anchor"></a><code>fn <a href="#tymethod.log" class="fnname">log</a>(self, base: Self) -&gt; Self</code></div><div id="method.log2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.log2" class="anchor"></a><code>fn <a href="#tymethod.log2" class="fnname">log2</a>(self) -&gt; Self</code></div><div id="method.log10" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.log10" class="anchor"></a><code>fn <a href="#tymethod.log10" class="fnname">log10</a>(self) -&gt; Self</code></div><div id="method.to_degrees-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.to_degrees-1" class="anchor"></a><code>fn <a href="#method.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div><div id="method.to_radians-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.to_radians-1" class="anchor"></a><code>fn <a href="#method.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div><div id="method.max" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.max" class="anchor"></a><code>fn <a href="#tymethod.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div><div id="method.min" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.min" class="anchor"></a><code>fn <a href="#tymethod.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div><div id="method.cbrt" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.cbrt" class="anchor"></a><code>fn <a href="#tymethod.cbrt" class="fnname">cbrt</a>(self) -&gt; Self</code></div><div id="method.hypot" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.hypot" class="anchor"></a><code>fn <a href="#tymethod.hypot" class="fnname">hypot</a>(self, other: Self) -&gt; Self</code></div><div id="method.sin" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.sin" class="anchor"></a><code>fn <a href="#tymethod.sin" class="fnname">sin</a>(self) -&gt; Self</code></div><div id="method.cos" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.cos" class="anchor"></a><code>fn <a href="#tymethod.cos" class="fnname">cos</a>(self) -&gt; Self</code></div><div id="method.tan" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.tan" class="anchor"></a><code>fn <a href="#tymethod.tan" class="fnname">tan</a>(self) -&gt; Self</code></div><div id="method.asin" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.asin" class="anchor"></a><code>fn <a href="#tymethod.asin" class="fnname">asin</a>(self) -&gt; Self</code></div><div id="method.acos" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.acos" class="anchor"></a><code>fn <a href="#tymethod.acos" class="fnname">acos</a>(self) -&gt; Self</code></div><div id="method.atan" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.atan" class="anchor"></a><code>fn <a href="#tymethod.atan" class="fnname">atan</a>(self) -&gt; Self</code></div><div id="method.atan2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.atan2" class="anchor"></a><code>fn <a href="#tymethod.atan2" class="fnname">atan2</a>(self, other: Self) -&gt; Self</code></div><div id="method.sin_cos" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.sin_cos" class="anchor"></a><code>fn <a href="#tymethod.sin_cos" class="fnname">sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.exp_m1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.exp_m1" class="anchor"></a><code>fn <a href="#tymethod.exp_m1" class="fnname">exp_m1</a>(self) -&gt; Self</code></div><div id="method.ln_1p" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.ln_1p" class="anchor"></a><code>fn <a href="#tymethod.ln_1p" class="fnname">ln_1p</a>(self) -&gt; Self</code></div><div id="method.sinh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.sinh" class="anchor"></a><code>fn <a href="#tymethod.sinh" class="fnname">sinh</a>(self) -&gt; Self</code></div><div id="method.cosh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.cosh" class="anchor"></a><code>fn <a href="#tymethod.cosh" class="fnname">cosh</a>(self) -&gt; Self</code></div><div id="method.tanh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.tanh" class="anchor"></a><code>fn <a href="#tymethod.tanh" class="fnname">tanh</a>(self) -&gt; Self</code></div><div id="method.asinh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.asinh" class="anchor"></a><code>fn <a href="#tymethod.asinh" class="fnname">asinh</a>(self) -&gt; Self</code></div><div id="method.acosh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.acosh" class="anchor"></a><code>fn <a href="#tymethod.acosh" class="fnname">acosh</a>(self) -&gt; Self</code></div><div id="method.atanh" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1971" title="goto source code">[src]</a></div><a href="#method.atanh" class="anchor"></a><code>fn <a href="#tymethod.atanh" class="fnname">atanh</a>(self) -&gt; Self</code></div></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Float-for-f64" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#impl-Float-for-f64" class="anchor"></a><code class="in-band">impl <a class="trait" href="trait.Float.html" title="trait num_traits::float::Float">Float</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></code></div></summary><div class="impl-items"><div id="method.nan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.nan-1" class="anchor"></a><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div><div id="method.infinity-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.infinity-1" class="anchor"></a><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div><div id="method.neg_infinity-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.neg_infinity-1" class="anchor"></a><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div><div id="method.neg_zero-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.neg_zero-1" class="anchor"></a><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div><div id="method.min_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.min_value-1" class="anchor"></a><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div><div id="method.min_positive_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.min_positive_value-1" class="anchor"></a><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div><div id="method.epsilon-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.epsilon-2" class="anchor"></a><code>fn <a href="#method.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div><div id="method.max_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.max_value-1" class="anchor"></a><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div><div id="method.abs_sub-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.abs_sub-1" class="anchor"></a><code>fn <a href="#tymethod.abs_sub" class="fnname">abs_sub</a>(self, other: Self) -&gt; Self</code></div><div id="method.integer_decode-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.integer_decode-1" class="anchor"></a><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.is_nan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_nan-1" class="anchor"></a><code>fn <a href="#tymethod.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_infinite-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_infinite-1" class="anchor"></a><code>fn <a href="#tymethod.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_finite-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_finite-1" class="anchor"></a><code>fn <a href="#tymethod.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_normal-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_normal-1" class="anchor"></a><code>fn <a href="#tymethod.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.classify-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.classify-1" class="anchor"></a><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div><div id="method.floor-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.floor-1" class="anchor"></a><code>fn <a href="#tymethod.floor" class="fnname">floor</a>(self) -&gt; Self</code></div><div id="method.ceil-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.ceil-1" class="anchor"></a><code>fn <a href="#tymethod.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div><div id="method.round-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.round-1" class="anchor"></a><code>fn <a href="#tymethod.round" class="fnname">round</a>(self) -&gt; Self</code></div><div id="method.trunc-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.trunc-1" class="anchor"></a><code>fn <a href="#tymethod.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div><div id="method.fract-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.fract-1" class="anchor"></a><code>fn <a href="#tymethod.fract" class="fnname">fract</a>(self) -&gt; Self</code></div><div id="method.abs-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.abs-1" class="anchor"></a><code>fn <a href="#tymethod.abs" class="fnname">abs</a>(self) -&gt; Self</code></div><div id="method.signum-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.signum-1" class="anchor"></a><code>fn <a href="#tymethod.signum" class="fnname">signum</a>(self) -&gt; Self</code></div><div id="method.is_sign_positive-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_sign_positive-1" class="anchor"></a><code>fn <a href="#tymethod.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_sign_negative-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.is_sign_negative-1" class="anchor"></a><code>fn <a href="#tymethod.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.mul_add-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.mul_add-1" class="anchor"></a><code>fn <a href="#tymethod.mul_add" class="fnname">mul_add</a>(self, a: Self, b: Self) -&gt; Self</code></div><div id="method.recip-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.recip-1" class="anchor"></a><code>fn <a href="#tymethod.recip" class="fnname">recip</a>(self) -&gt; Self</code></div><div id="method.powi-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.powi-1" class="anchor"></a><code>fn <a href="#tymethod.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div><div id="method.powf-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.powf-1" class="anchor"></a><code>fn <a href="#tymethod.powf" class="fnname">powf</a>(self, n: Self) -&gt; Self</code></div><div id="method.sqrt-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.sqrt-1" class="anchor"></a><code>fn <a href="#tymethod.sqrt" class="fnname">sqrt</a>(self) -&gt; Self</code></div><div id="method.exp-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.exp-1" class="anchor"></a><code>fn <a href="#tymethod.exp" class="fnname">exp</a>(self) -&gt; Self</code></div><div id="method.exp2-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.exp2-1" class="anchor"></a><code>fn <a href="#tymethod.exp2" class="fnname">exp2</a>(self) -&gt; Self</code></div><div id="method.ln-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.ln-1" class="anchor"></a><code>fn <a href="#tymethod.ln" class="fnname">ln</a>(self) -&gt; Self</code></div><div id="method.log-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.log-1" class="anchor"></a><code>fn <a href="#tymethod.log" class="fnname">log</a>(self, base: Self) -&gt; Self</code></div><div id="method.log2-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.log2-1" class="anchor"></a><code>fn <a href="#tymethod.log2" class="fnname">log2</a>(self) -&gt; Self</code></div><div id="method.log10-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.log10-1" class="anchor"></a><code>fn <a href="#tymethod.log10" class="fnname">log10</a>(self) -&gt; Self</code></div><div id="method.to_degrees-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.to_degrees-2" class="anchor"></a><code>fn <a href="#method.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div><div id="method.to_radians-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.to_radians-2" class="anchor"></a><code>fn <a href="#method.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div><div id="method.max-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.max-1" class="anchor"></a><code>fn <a href="#tymethod.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div><div id="method.min-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.min-1" class="anchor"></a><code>fn <a href="#tymethod.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div><div id="method.cbrt-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.cbrt-1" class="anchor"></a><code>fn <a href="#tymethod.cbrt" class="fnname">cbrt</a>(self) -&gt; Self</code></div><div id="method.hypot-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.hypot-1" class="anchor"></a><code>fn <a href="#tymethod.hypot" class="fnname">hypot</a>(self, other: Self) -&gt; Self</code></div><div id="method.sin-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.sin-1" class="anchor"></a><code>fn <a href="#tymethod.sin" class="fnname">sin</a>(self) -&gt; Self</code></div><div id="method.cos-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.cos-1" class="anchor"></a><code>fn <a href="#tymethod.cos" class="fnname">cos</a>(self) -&gt; Self</code></div><div id="method.tan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.tan-1" class="anchor"></a><code>fn <a href="#tymethod.tan" class="fnname">tan</a>(self) -&gt; Self</code></div><div id="method.asin-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.asin-1" class="anchor"></a><code>fn <a href="#tymethod.asin" class="fnname">asin</a>(self) -&gt; Self</code></div><div id="method.acos-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.acos-1" class="anchor"></a><code>fn <a href="#tymethod.acos" class="fnname">acos</a>(self) -&gt; Self</code></div><div id="method.atan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.atan-1" class="anchor"></a><code>fn <a href="#tymethod.atan" class="fnname">atan</a>(self) -&gt; Self</code></div><div id="method.atan2-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.atan2-1" class="anchor"></a><code>fn <a href="#tymethod.atan2" class="fnname">atan2</a>(self, other: Self) -&gt; Self</code></div><div id="method.sin_cos-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.sin_cos-1" class="anchor"></a><code>fn <a href="#tymethod.sin_cos" class="fnname">sin_cos</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>Self, Self<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.exp_m1-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.exp_m1-1" class="anchor"></a><code>fn <a href="#tymethod.exp_m1" class="fnname">exp_m1</a>(self) -&gt; Self</code></div><div id="method.ln_1p-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.ln_1p-1" class="anchor"></a><code>fn <a href="#tymethod.ln_1p" class="fnname">ln_1p</a>(self) -&gt; Self</code></div><div id="method.sinh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.sinh-1" class="anchor"></a><code>fn <a href="#tymethod.sinh" class="fnname">sinh</a>(self) -&gt; Self</code></div><div id="method.cosh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.cosh-1" class="anchor"></a><code>fn <a href="#tymethod.cosh" class="fnname">cosh</a>(self) -&gt; Self</code></div><div id="method.tanh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.tanh-1" class="anchor"></a><code>fn <a href="#tymethod.tanh" class="fnname">tanh</a>(self) -&gt; Self</code></div><div id="method.asinh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.asinh-1" class="anchor"></a><code>fn <a href="#tymethod.asinh" class="fnname">asinh</a>(self) -&gt; Self</code></div><div id="method.acosh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.acosh-1" class="anchor"></a><code>fn <a href="#tymethod.acosh" class="fnname">acosh</a>(self) -&gt; Self</code></div><div id="method.atanh-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#1973" title="goto source code">[src]</a></div><a href="#method.atanh-1" class="anchor"></a><code>fn <a href="#tymethod.atanh" class="fnname">atanh</a>(self) -&gt; Self</code></div></div></details><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><script type="text/javascript" src="../../implementors/num_traits/float/trait.Float.js" async></script></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="num_traits" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

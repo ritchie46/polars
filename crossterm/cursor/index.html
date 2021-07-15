@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A module to work with the terminal cursor"><meta name="keywords" content="rust, rustlang, rust-lang, cursor"><title>crossterm::cursor - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../crossterm/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module cursor</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="cursor" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">crossterm</a>::<wbr><a class="mod" href="#">cursor</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/crossterm/cursor.rs.html#1-424" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A module to work with the terminal cursor</p>
+<h1 id="cursor" class="section-header"><a href="#cursor">Cursor</a></h1>
+<p>The <code>cursor</code> module provides functionality to work with the terminal cursor.</p>
+<p>This documentation does not contain a lot of examples. The reason is that it’s fairly
+obvious how to use this crate. Although, we do provide
+<a href="https://github.com/crossterm-rs/crossterm/tree/master/examples">examples</a> repository
+to demonstrate the capabilities.</p>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<p>Cursor actions can be performed with commands.
+Please have a look at <a href="../index.html#command-api">command documentation</a> for a more detailed documentation.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">stdout</span>, <span class="ident">Write</span>};
+
+<span class="kw">use</span> <span class="ident">crossterm</span>::{
+    <span class="ident">ExecutableCommand</span>, <span class="ident">execute</span>, <span class="prelude-ty">Result</span>,
+    <span class="ident">cursor</span>::{<span class="ident">DisableBlinking</span>, <span class="ident">EnableBlinking</span>, <span class="ident">MoveTo</span>, <span class="ident">RestorePosition</span>, <span class="ident">SavePosition</span>}
+};
+
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// with macro</span>
+    <span class="macro">execute!</span>(
+        <span class="ident">stdout</span>(),
+        <span class="ident">SavePosition</span>,
+        <span class="ident">MoveTo</span>(<span class="number">10</span>, <span class="number">10</span>),
+        <span class="ident">EnableBlinking</span>,
+        <span class="ident">DisableBlinking</span>,
+        <span class="ident">RestorePosition</span>
+    );
+
+  <span class="comment">// with function</span>
+  <span class="ident">stdout</span>()
+    .<span class="ident">execute</span>(<span class="ident">MoveTo</span>(<span class="number">11</span>,<span class="number">11</span>))<span class="question-mark">?</span>
+    .<span class="ident">execute</span>(<span class="ident">RestorePosition</span>);
+
+ <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<p>For manual execution control check out <a href="../macro.queue.html">crossterm::queue</a>.</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.DisableBlinking.html" title="crossterm::cursor::DisableBlinking struct">DisableBlinking</a></div><div class="item-right docblock-short"><p>A command that disables blinking of the terminal cursor.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.EnableBlinking.html" title="crossterm::cursor::EnableBlinking struct">EnableBlinking</a></div><div class="item-right docblock-short"><p>A command that enables blinking of the terminal cursor.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Hide.html" title="crossterm::cursor::Hide struct">Hide</a></div><div class="item-right docblock-short"><p>A command that hides the terminal cursor.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveDown.html" title="crossterm::cursor::MoveDown struct">MoveDown</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor a given number of rows down.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveLeft.html" title="crossterm::cursor::MoveLeft struct">MoveLeft</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor a given number of columns to the left.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveRight.html" title="crossterm::cursor::MoveRight struct">MoveRight</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor a given number of columns to the right.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveTo.html" title="crossterm::cursor::MoveTo struct">MoveTo</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor to the given position (column, row).</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveToColumn.html" title="crossterm::cursor::MoveToColumn struct">MoveToColumn</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor to the given column on the current row.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveToNextLine.html" title="crossterm::cursor::MoveToNextLine struct">MoveToNextLine</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor up the given number of lines,
+and moves it to the first column.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveToPreviousLine.html" title="crossterm::cursor::MoveToPreviousLine struct">MoveToPreviousLine</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor down the given number of lines,
+and moves it to the first column.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MoveUp.html" title="crossterm::cursor::MoveUp struct">MoveUp</a></div><div class="item-right docblock-short"><p>A command that moves the terminal cursor a given number of rows up.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RestorePosition.html" title="crossterm::cursor::RestorePosition struct">RestorePosition</a></div><div class="item-right docblock-short"><p>A command that restores the saved terminal cursor position.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SavePosition.html" title="crossterm::cursor::SavePosition struct">SavePosition</a></div><div class="item-right docblock-short"><p>A command that saves the current terminal cursor position.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Show.html" title="crossterm::cursor::Show struct">Show</a></div><div class="item-right docblock-short"><p>A command that shows the terminal cursor.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.position.html" title="crossterm::cursor::position fn">position</a></div><div class="item-right docblock-short"><p>Returns the cursor position (column, row).</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="crossterm" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

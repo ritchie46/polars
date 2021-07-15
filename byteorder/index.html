@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides convenience methods for encoding and decoding numbers in either big-endian or little-endian order."><meta name="keywords" content="rust, rustlang, rust-lang, byteorder"><title>byteorder - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../byteorder/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate byteorder</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.4.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all byteorder's items</p></a><div class="block items"><ul><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="byteorder" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">byteorder</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/byteorder/lib.rs.html#1-4052" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides convenience methods for encoding and decoding numbers in
+either <a href="https://en.wikipedia.org/wiki/Endianness">big-endian or little-endian order</a>.</p>
+<p>The organization of the crate is pretty simple. A trait, <a href="trait.ByteOrder.html"><code>ByteOrder</code></a>, specifies
+byte conversion methods for each type of number in Rust (sans numbers that have
+a platform dependent size like <code>usize</code> and <code>isize</code>). Two types, <a href="enum.BigEndian.html"><code>BigEndian</code></a>
+and <a href="enum.LittleEndian.html"><code>LittleEndian</code></a> implement these methods. Finally, <a href="trait.ReadBytesExt.html"><code>ReadBytesExt</code></a> and
+<a href="trait.WriteBytesExt.html"><code>WriteBytesExt</code></a> provide convenience methods available to all types that
+implement <a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> and <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a>.</p>
+<p>An alias, <a href="type.NetworkEndian.html"><code>NetworkEndian</code></a>, for <a href="enum.BigEndian.html"><code>BigEndian</code></a> is provided to help improve
+code clarity.</p>
+<p>An additional alias, <a href="type.NativeEndian.html"><code>NativeEndian</code></a>, is provided for the endianness of the
+local platform. This is convenient when serializing data for use and
+conversions are not desired.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Read unsigned 16 bit big-endian integers from a <a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
+<span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">BigEndian</span>, <span class="ident">ReadBytesExt</span>};
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="macro">vec!</span>[<span class="number">2</span>, <span class="number">5</span>, <span class="number">3</span>, <span class="number">0</span>]);
+<span class="comment">// Note that we use type parameters to indicate which kind of byte order</span>
+<span class="comment">// we want!</span>
+<span class="macro">assert_eq!</span>(<span class="number">517</span>, <span class="ident">rdr</span>.<span class="ident">read_u16</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+<span class="macro">assert_eq!</span>(<span class="number">768</span>, <span class="ident">rdr</span>.<span class="ident">read_u16</span>::<span class="op">&lt;</span><span class="ident">BigEndian</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());</pre></div>
+<p>Write unsigned 16 bit little-endian integers to a <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a> type:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">LittleEndian</span>, <span class="ident">WriteBytesExt</span>};
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="ident">wtr</span>.<span class="ident">write_u16</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="number">517</span>).<span class="ident">unwrap</span>();
+<span class="ident">wtr</span>.<span class="ident">write_u16</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="number">768</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">wtr</span>, <span class="macro">vec!</span>[<span class="number">5</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">3</span>]);</pre></div>
+<h1 id="optional-features" class="section-header"><a href="#optional-features">Optional Features</a></h1>
+<p>This crate optionally provides support for 128 bit values (<code>i128</code> and <code>u128</code>)
+when built with the <code>i128</code> feature enabled.</p>
+<p>This crate can also be used without the standard library.</p>
+<h1 id="alternatives" class="section-header"><a href="#alternatives">Alternatives</a></h1>
+<p>Note that as of Rust 1.32, the standard numeric types provide built-in methods
+like <code>to_le_bytes</code> and <code>from_le_bytes</code>, which support some of the same use
+cases.</p>
+</div></details><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.BigEndian.html" title="byteorder::BigEndian enum">BigEndian</a></div><div class="item-right docblock-short"><p>Defines big-endian serialization.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.LittleEndian.html" title="byteorder::LittleEndian enum">LittleEndian</a></div><div class="item-right docblock-short"><p>Defines little-endian serialization.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.ByteOrder.html" title="byteorder::ByteOrder trait">ByteOrder</a></div><div class="item-right docblock-short"><p><code>ByteOrder</code> describes types that can serialize integers as bytes.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.ReadBytesExt.html" title="byteorder::ReadBytesExt trait">ReadBytesExt</a></div><div class="item-right docblock-short"><p>Extends <a href="https://doc.rust-lang.org/std/io/trait.Read.html"><code>Read</code></a> with methods for reading numbers. (For <code>std::io</code>.)</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.WriteBytesExt.html" title="byteorder::WriteBytesExt trait">WriteBytesExt</a></div><div class="item-right docblock-short"><p>Extends <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>Write</code></a> with methods for writing numbers. (For <code>std::io</code>.)</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.BE.html" title="byteorder::BE type">BE</a></div><div class="item-right docblock-short"><p>A type alias for <a href="enum.BigEndian.html"><code>BigEndian</code></a>.</p>
+</div><div class="item-left module-item"><a class="type" href="type.LE.html" title="byteorder::LE type">LE</a></div><div class="item-right docblock-short"><p>A type alias for <a href="enum.LittleEndian.html"><code>LittleEndian</code></a>.</p>
+</div><div class="item-left module-item"><a class="type" href="type.NativeEndian.html" title="byteorder::NativeEndian type">NativeEndian</a></div><div class="item-right docblock-short"><p>Defines system native-endian serialization.</p>
+</div><div class="item-left module-item"><a class="type" href="type.NetworkEndian.html" title="byteorder::NetworkEndian type">NetworkEndian</a></div><div class="item-right docblock-short"><p>Defines network byte order serialization.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="byteorder" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

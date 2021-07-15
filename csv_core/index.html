@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`csv-core` provides a fast CSV reader and writer for use in a `no_std` context."><meta name="keywords" content="rust, rustlang, rust-lang, csv_core"><title>csv_core - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../csv_core/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate csv_core</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.1.10</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all csv_core's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="csv_core" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">csv_core</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/csv_core/lib.rs.html#1-189" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>csv-core</code> provides a fast CSV reader and writer for use in a <code>no_std</code> context.</p>
+<p>This crate will never use the standard library. <code>no_std</code> support is therefore
+enabled by default.</p>
+<p>If you’re looking for more ergonomic CSV parsing routines, please use the
+<a href="https://docs.rs/csv"><code>csv</code></a> crate.</p>
+<h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
+<p>This crate has two primary APIs. The <code>Reader</code> API provides a CSV parser, and
+the <code>Writer</code> API provides a CSV writer.</p>
+<h1 id="example-reading-csv" class="section-header"><a href="#example-reading-csv">Example: reading CSV</a></h1>
+<p>This example shows how to count the number of fields and records in CSV data.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">csv_core</span>::{<span class="ident">Reader</span>, <span class="ident">ReadFieldResult</span>};
+
+<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="string">&quot;
+foo,bar,baz
+a,b,c
+xxx,yyy,zzz
+&quot;</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">Reader::new</span>();
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_bytes</span>();
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_fields</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_records</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">loop</span> {
+    <span class="comment">// We skip handling the output since we don&#39;t need it for counting.</span>
+    <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">nin</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">rdr</span>.<span class="ident">read_field</span>(<span class="ident">bytes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="number">0</span>; <span class="number">1024</span>]);
+    <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">nin</span>..];
+    <span class="kw">match</span> <span class="ident">result</span> {
+        <span class="ident">ReadFieldResult::InputEmpty</span> <span class="op">=</span><span class="op">&gt;</span> {},
+        <span class="ident">ReadFieldResult::OutputFull</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;field too large&quot;</span>),
+        <span class="ident">ReadFieldResult::Field</span> { <span class="ident">record_end</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">count_fields</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">if</span> <span class="ident">record_end</span> {
+                <span class="ident">count_records</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+        }
+        <span class="ident">ReadFieldResult::End</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">break</span>,
+    }
+}
+<span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">count_records</span>);
+<span class="macro">assert_eq!</span>(<span class="number">9</span>, <span class="ident">count_fields</span>);</pre></div>
+<h1 id="example-writing-csv" class="section-header"><a href="#example-writing-csv">Example: writing CSV</a></h1>
+<p>This example shows how to use the <code>Writer</code> API to write valid CSV data. Proper
+quoting is handled automatically.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">csv_core::Writer</span>;
+
+<span class="comment">// This is where we&#39;ll write out CSV data.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="number">0</span>; <span class="number">1024</span>];
+<span class="comment">// The number of bytes we&#39;ve written to `out`.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nout</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="comment">// Create a CSV writer with a default configuration.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="ident">Writer::new</span>();
+
+<span class="comment">// Write a single field. Note that we ignore the `WriteResult` and the number</span>
+<span class="comment">// of input bytes consumed since we&#39;re doing this by hand.</span>
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;foo&quot;</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+
+<span class="comment">// Write a delimiter and then another field that requires quotes.</span>
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">delimiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;bar,baz&quot;</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">terminator</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+
+<span class="comment">// Now write another record.</span>
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;a \&quot;b\&quot; c&quot;</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">delimiter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">field</span>(<span class="kw-2">&amp;</span><span class="string">b&quot;quux&quot;</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+
+<span class="comment">// We must always call finish once done writing.</span>
+<span class="comment">// This ensures that any closing quotes are written.</span>
+<span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">n</span>) <span class="op">=</span> <span class="ident">wtr</span>.<span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">out</span>[<span class="ident">nout</span>..]);
+<span class="ident">nout</span> <span class="op">+</span><span class="op">=</span> <span class="ident">n</span>;
+
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">out</span>[..<span class="ident">nout</span>], <span class="kw-2">&amp;</span><span class="string">b&quot;\
+foo,\&quot;bar,baz\&quot;
+\&quot;a \&quot;\&quot;b\&quot;\&quot; c\&quot;,quux&quot;</span>[..]);</pre></div>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Reader.html" title="csv_core::Reader struct">Reader</a></div><div class="item-right docblock-short"><p>A pull based CSV reader.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ReaderBuilder.html" title="csv_core::ReaderBuilder struct">ReaderBuilder</a></div><div class="item-right docblock-short"><p>Builds a CSV reader with various configuration knobs.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Writer.html" title="csv_core::Writer struct">Writer</a></div><div class="item-right docblock-short"><p>A writer for CSV data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.WriterBuilder.html" title="csv_core::WriterBuilder struct">WriterBuilder</a></div><div class="item-right docblock-short"><p>A builder for configuring a CSV writer.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.QuoteStyle.html" title="csv_core::QuoteStyle enum">QuoteStyle</a></div><div class="item-right docblock-short"><p>The quoting style to use when writing CSV data.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ReadFieldNoCopyResult.html" title="csv_core::ReadFieldNoCopyResult enum">ReadFieldNoCopyResult</a></div><div class="item-right docblock-short"><p>The result of parsing at most one field from CSV data while ignoring the
+output.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ReadFieldResult.html" title="csv_core::ReadFieldResult enum">ReadFieldResult</a></div><div class="item-right docblock-short"><p>The result of parsing at most one field from CSV data.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ReadRecordNoCopyResult.html" title="csv_core::ReadRecordNoCopyResult enum">ReadRecordNoCopyResult</a></div><div class="item-right docblock-short"><p>The result of parsing at most one record from CSV data while ignoring
+output.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ReadRecordResult.html" title="csv_core::ReadRecordResult enum">ReadRecordResult</a></div><div class="item-right docblock-short"><p>The result of parsing at most one record from CSV data.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Terminator.html" title="csv_core::Terminator enum">Terminator</a></div><div class="item-right docblock-short"><p>A record terminator.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.WriteResult.html" title="csv_core::WriteResult enum">WriteResult</a></div><div class="item-right docblock-short"><p>The result of writing CSV data.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.is_non_numeric.html" title="csv_core::is_non_numeric fn">is_non_numeric</a></div><div class="item-right docblock-short"><p>Returns true if and only if the given input is non-numeric.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.quote.html" title="csv_core::quote fn">quote</a></div><div class="item-right docblock-short"><p>Escape quotes <code>input</code> and writes the result to <code>output</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="csv_core" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

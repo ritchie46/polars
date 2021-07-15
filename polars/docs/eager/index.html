@@ -1,0 +1,624 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Polars Eager cookbook"><meta name="keywords" content="rust, rustlang, rust-lang, eager"><title>polars::docs::eager - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../polars/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module eager</p><div class="sidebar-elems"><div id="sidebar-vars" data-name="eager" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">polars</a>::<wbr><a href="../index.html">docs</a>::<wbr><a class="mod" href="#">eager</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/polars/docs/eager.rs.html#1-739" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="polars-eager-cookbook" class="section-header"><a href="#polars-eager-cookbook">Polars Eager cookbook</a></h1>
+<p>This page should serve a cookbook to quickly get you started with most fundamental operations
+executed on a <code>ChunkedArray</code>, <code>Series</code> or <code>DataFrame</code>.</p>
+<h2 id="tree-of-contents" class="section-header"><a href="#tree-of-contents">Tree Of Contents</a></h2>
+<ul>
+<li><a href="#creation-of-data-structures">Creation of data structures</a>
+<ul>
+<li><a href="#chunkedarray">ChunkedArray</a></li>
+<li><a href="#series">Series</a></li>
+<li><a href="#dataframe">DataFrame</a></li>
+</ul>
+</li>
+<li><a href="#arithmetic">Arithmetic</a></li>
+<li><a href="#comparisons">Comparisons</a></li>
+<li><a href="#apply-functions-closures">Apply functions/ closures</a>
+<ul>
+<li><a href="#dataframe-1">Series / ChunkedArrays</a></li>
+<li><a href="#dataframe-1">DataFrame</a></li>
+</ul>
+</li>
+<li><a href="#filter">Filter</a></li>
+<li><a href="#sort">Sort</a></li>
+<li><a href="#joins">Joins</a></li>
+<li><a href="#groupby">GroupBy</a>
+<ul>
+<li><a href="#pivot">pivot</a></li>
+<li><a href="#downsample">downsample</a></li>
+</ul>
+</li>
+<li><a href="#melt">Melt</a></li>
+<li><a href="#explode">Explode</a></li>
+<li><a href="#IO">IO</a>
+<ul>
+<li><a href="#read-csv">Read CSV</a></li>
+<li><a href="#write-csv">Write CSV</a></li>
+<li><a href="#read-ipc">Read IPC</a></li>
+<li><a href="#write-ipc">Write IPC</a></li>
+<li><a href="#read-parquet">Read Parquet</a></li>
+<li><a href="#write-parquet">Write Parquet</a></li>
+</ul>
+</li>
+<li><a href="#various">Various</a>
+<ul>
+<li><a href="#replace-nan">Replace NaN</a></li>
+</ul>
+<ul>
+<li><a href="#extracting-data">Extracting data</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="creation-of-data-structures" class="section-header"><a href="#creation-of-data-structures">Creation of Data structures</a></h2><h3 id="chunkedarray" class="section-header"><a href="#chunkedarray">ChunkedArray</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// use iterators</span>
+<span class="kw">let</span> <span class="ident">ca</span>: <span class="ident">UInt32Chunked</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">10</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>();
+
+<span class="comment">// from slices</span>
+<span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">UInt32Chunked::new_from_slice</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+
+<span class="comment">// use builders</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">PrimitiveChunkedBuilder</span>::<span class="op">&lt;</span><span class="ident">UInt32Type</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">10</span>);
+<span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
+    <span class="ident">builder</span>.<span class="ident">append_value</span>(<span class="ident">value</span>);
+}
+<span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">finish</span>();</pre></div>
+<h3 id="series" class="section-header"><a href="#series">Series</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// use iterators</span>
+<span class="kw">let</span> <span class="ident">s</span>: <span class="ident">Series</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">10</span>).<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>();
+
+<span class="comment">// from slices</span>
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+
+<span class="comment">// from a chunked-array</span>
+<span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">UInt32Chunked::new_from_opt_slice</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)]);
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">into_series</span>();</pre></div>
+<h3 id="dataframe" class="section-header"><a href="#dataframe">DataFrame</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="comment">// use macro</span>
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span> [
+    <span class="string">&quot;names&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>],
+    <span class="string">&quot;values&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    <span class="string">&quot;values_nulls&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)]
+]<span class="question-mark">?</span>;
+
+<span class="comment">// from a Vec&lt;Series&gt;</span>
+<span class="kw">let</span> <span class="ident">s1</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;names&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]);
+<span class="kw">let</span> <span class="ident">s2</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;values&quot;</span>, <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)]);
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">DataFrame::new</span>(<span class="macro">vec!</span>[<span class="ident">s1</span>, <span class="ident">s2</span>])<span class="question-mark">?</span>;</pre></div>
+<h2 id="arithmetic" class="section-header"><a href="#arithmetic">Arithmetic</a></h2>
+<p>Arithmetic can be done on both <code>Series</code> and <code>ChunkedArray</code>s. The most notable difference is that
+a <code>Series</code> coerces the data to match the underlying data types.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">let</span> <span class="ident">s_int</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+<span class="kw">let</span> <span class="ident">s_flt</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;b&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>]);
+
+<span class="kw">let</span> <span class="ident">added</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">s_flt</span>;
+<span class="kw">let</span> <span class="ident">subtracted</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">-</span> <span class="kw-2">&amp;</span><span class="ident">s_flt</span>;
+<span class="kw">let</span> <span class="ident">multiplied</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">s_flt</span>;
+<span class="kw">let</span> <span class="ident">divided</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">/</span> <span class="kw-2">&amp;</span><span class="ident">s_flt</span>;
+<span class="kw">let</span> <span class="ident">moduloed</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">%</span> <span class="kw-2">&amp;</span><span class="ident">s_flt</span>;
+
+
+<span class="comment">// on chunked-arrays we first need to cast to same types</span>
+<span class="kw">let</span> <span class="ident">ca_int</span> <span class="op">=</span> <span class="ident">s_int</span>.<span class="ident">i32</span>()<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">ca_flt</span> <span class="op">=</span> <span class="ident">s_flt</span>.<span class="ident">f32</span>()<span class="question-mark">?</span>;
+
+<span class="kw-2">&amp;</span><span class="ident">ca_int</span>.<span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">Float32Type</span><span class="op">&gt;</span>()<span class="question-mark">?</span> <span class="op">*</span> <span class="ident">ca_flt</span>;
+<span class="kw-2">&amp;</span><span class="ident">ca_flt</span>.<span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">Int32Type</span><span class="op">&gt;</span>()<span class="question-mark">?</span> <span class="op">*</span> <span class="ident">ca_int</span>;
+
+<span class="comment">// we can also do arithmetic with numeric values</span>
+<span class="kw">let</span> <span class="ident">multiplied</span> <span class="op">=</span> <span class="ident">ca_int</span> <span class="op">*</span> <span class="number">2.0</span>;
+<span class="kw">let</span> <span class="ident">multiplied</span> <span class="op">=</span> <span class="ident">s_flt</span> <span class="op">*</span> <span class="number">2.0</span>;
+
+<span class="comment">// or broadcast Series to match the operands type</span>
+<span class="kw">let</span> <span class="ident">added</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s_int</span> <span class="op">*</span> <span class="kw-2">&amp;</span><span class="ident">Series::new</span>(<span class="string">&quot;broadcast_me&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">10</span>]);
+</pre></div>
+<p>Because Rusts Orphan Rule doesn’t allow use to implement left side operations, we need to call
+such operation directly.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">series</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;foo&quot;</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+
+<span class="comment">// 1 / s</span>
+<span class="kw">let</span> <span class="ident">divide_one_by_s</span> <span class="op">=</span> <span class="number">1</span>.<span class="ident">div</span>(<span class="kw-2">&amp;</span><span class="ident">series</span>);
+
+<span class="comment">// 1 - s</span>
+<span class="kw">let</span> <span class="ident">subtract_one_by_s</span> <span class="op">=</span> <span class="number">1</span>.<span class="ident">sub</span>(<span class="kw-2">&amp;</span><span class="ident">series</span>);</pre></div>
+<p>For <code>ChunkedArray</code>s this left hand side operations can be done with the <code>apply</code> method.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">UInt32Chunked::new_from_slice</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+
+<span class="comment">// 1 / ca</span>
+<span class="kw">let</span> <span class="ident">divide_one_by_ca</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">apply</span>(<span class="op">|</span><span class="ident">rhs</span><span class="op">|</span> <span class="number">1</span> <span class="op">/</span> <span class="ident">rhs</span>);</pre></div>
+<h2 id="comparisons" class="section-header"><a href="#comparisons">Comparisons</a></h2>
+<p><code>Series</code> and <code>ChunkedArray</code>s can be used in comparison operations to create <code>boolean</code> masks/predicates.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+<span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">UInt32Chunked::new_from_opt_slice</span>(<span class="string">&quot;b&quot;</span>, <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(<span class="number">3</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)]);
+
+<span class="comment">// compare Series with numeric values</span>
+<span class="comment">// ==</span>
+<span class="ident">s</span>.<span class="ident">eq</span>(<span class="number">2</span>);
+<span class="comment">// !=</span>
+<span class="ident">s</span>.<span class="ident">neq</span>(<span class="number">2</span>);
+<span class="comment">// &gt;</span>
+<span class="ident">s</span>.<span class="ident">gt</span>(<span class="number">2</span>);
+<span class="comment">// &gt;=</span>
+<span class="ident">s</span>.<span class="ident">gt_eq</span>(<span class="number">2</span>);
+<span class="comment">// &lt;</span>
+<span class="ident">s</span>.<span class="ident">lt</span>(<span class="number">2</span>);
+<span class="comment">// &lt;=</span>
+<span class="ident">s</span>.<span class="ident">lt_eq</span>(<span class="number">2</span>);
+
+
+<span class="comment">// compare Series with Series</span>
+<span class="comment">// ==</span>
+<span class="ident">s</span>.<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+<span class="comment">// !=</span>
+<span class="ident">s</span>.<span class="ident">neq</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+<span class="comment">// &gt;</span>
+<span class="ident">s</span>.<span class="ident">gt</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+<span class="comment">// &gt;=</span>
+<span class="ident">s</span>.<span class="ident">gt_eq</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+<span class="comment">// &lt;</span>
+<span class="ident">s</span>.<span class="ident">lt</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+<span class="comment">// &lt;=</span>
+<span class="ident">s</span>.<span class="ident">lt_eq</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>);
+
+
+<span class="comment">// compare chunked-array with numeric values</span>
+<span class="comment">// ==</span>
+<span class="ident">ca</span>.<span class="ident">eq</span>(<span class="number">2</span>);
+<span class="comment">// !=</span>
+<span class="ident">ca</span>.<span class="ident">neq</span>(<span class="number">2</span>);
+<span class="comment">// &gt;</span>
+<span class="ident">ca</span>.<span class="ident">gt</span>(<span class="number">2</span>);
+<span class="comment">// &gt;=</span>
+<span class="ident">ca</span>.<span class="ident">gt_eq</span>(<span class="number">2</span>);
+<span class="comment">// &lt;</span>
+<span class="ident">ca</span>.<span class="ident">lt</span>(<span class="number">2</span>);
+<span class="comment">// &lt;=</span>
+<span class="ident">ca</span>.<span class="ident">lt_eq</span>(<span class="number">2</span>);
+
+<span class="comment">// compare chunked-array with chunked-array</span>
+<span class="comment">// ==</span>
+<span class="ident">ca</span>.<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+<span class="comment">// !=</span>
+<span class="ident">ca</span>.<span class="ident">neq</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+<span class="comment">// &gt;</span>
+<span class="ident">ca</span>.<span class="ident">gt</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+<span class="comment">// &gt;=</span>
+<span class="ident">ca</span>.<span class="ident">gt_eq</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+<span class="comment">// &lt;</span>
+<span class="ident">ca</span>.<span class="ident">lt</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+<span class="comment">// &lt;=</span>
+<span class="ident">ca</span>.<span class="ident">lt_eq</span>(<span class="kw-2">&amp;</span><span class="ident">ca</span>);
+
+<span class="comment">// use iterators</span>
+<span class="kw">let</span> <span class="ident">a</span>: <span class="ident">BooleanChunked</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">into_iter</span>()
+    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">opt_value</span><span class="op">|</span> {
+         <span class="kw">match</span> <span class="ident">opt_value</span> {
+         <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">value</span> <span class="op">&lt;</span> <span class="number">10</span>,
+         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>
+}}).<span class="ident">collect</span>();
+</pre></div>
+<h2 id="apply-functions-closures" class="section-header"><a href="#apply-functions-closures">Apply functions/ closures</a></h2>
+<p>See all possible <a href="../../chunked_array/object/trait.ChunkApply.html">apply methods here</a>.</p>
+<h3 id="series--chunkedarrays" class="section-header"><a href="#series--chunkedarrays">Series / ChunkedArrays</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// apply a closure over all values</span>
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>), <span class="prelude-val">None</span>]);
+<span class="ident">s</span>.<span class="ident">i32</span>()<span class="question-mark">?</span>.<span class="ident">apply</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span> <span class="op">*</span> <span class="number">20</span>);
+
+<span class="comment">// count string lengths</span>
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;foobar&quot;</span>]);
+<span class="ident">s</span>.<span class="ident">utf8</span>()<span class="question-mark">?</span>.<span class="ident">apply_cast_numeric</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">UInt64Type</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">str_val</span><span class="op">|</span> <span class="ident">str_val</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>);
+</pre></div>
+<h3 id="dataframe-1" class="section-header"><a href="#dataframe-1">DataFrame</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;letters&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>],
+    <span class="string">&quot;numbers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]
+]<span class="question-mark">?</span>;
+
+
+<span class="comment">// coerce numbers to floats</span>
+<span class="ident">df</span>.<span class="ident">may_apply</span>(<span class="string">&quot;number&quot;</span>, <span class="op">|</span><span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">Series</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">Float64Type</span><span class="op">&gt;</span>())<span class="question-mark">?</span>;
+
+<span class="comment">// transform letters to uppercase letters</span>
+<span class="ident">df</span>.<span class="ident">may_apply</span>(<span class="string">&quot;letters&quot;</span>, <span class="op">|</span><span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">Series</span><span class="op">|</span> {
+    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">utf8</span>()<span class="question-mark">?</span>.<span class="ident">to_uppercase</span>())
+});
+</pre></div>
+<h2 id="filter" class="section-header"><a href="#filter">Filter</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// create a mask to filter out null values</span>
+<span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">column</span>(<span class="string">&quot;sepal.width&quot;</span>)<span class="question-mark">?</span>.<span class="ident">is_not_null</span>();
+
+<span class="comment">// select column</span>
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">column</span>(<span class="string">&quot;sepal.length&quot;</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// apply filter on a Series</span>
+<span class="kw">let</span> <span class="ident">filtered_series</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">filter</span>(<span class="kw-2">&amp;</span><span class="ident">mask</span>);
+
+<span class="comment">// apply the filter on a DataFrame</span>
+<span class="kw">let</span> <span class="ident">filtered_df</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">filter</span>(<span class="kw-2">&amp;</span><span class="ident">mask</span>)<span class="question-mark">?</span>;
+</pre></div>
+<h2 id="sort" class="section-header"><a href="#sort">Sort</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>]
+]<span class="question-mark">?</span>;
+<span class="comment">// sort this DataFrame by multiple columns</span>
+
+<span class="comment">// ordering of the columns</span>
+<span class="kw">let</span> <span class="ident">reverse</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="bool-val">true</span>, <span class="bool-val">false</span>];
+<span class="comment">// columns to sort by</span>
+<span class="kw">let</span> <span class="ident">by</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>];
+<span class="comment">// do the sort operation</span>
+<span class="kw">let</span> <span class="ident">sorted</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">sort</span>(<span class="ident">by</span>, <span class="ident">reverse</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// sorted:</span>
+
+<span class="comment">// ╭─────┬─────╮</span>
+<span class="comment">// │ a   ┆ b   │</span>
+<span class="comment">// │ --- ┆ --- │</span>
+<span class="comment">// │ i64 ┆ str │</span>
+<span class="comment">// ╞═════╪═════╡</span>
+<span class="comment">// │ 1   ┆ &quot;a&quot; │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2   ┆ &quot;a&quot; │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 3   ┆ &quot;b&quot; │</span>
+<span class="comment">// ╰─────┴─────╯</span>
+</pre></div>
+<h2 id="joins" class="section-header"><a href="#joins">Joins</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="comment">// Create first df.</span>
+<span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="macro">df!</span>(<span class="string">&quot;days&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>],
+               <span class="string">&quot;temp&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">22.1</span>, <span class="number">19.9</span>, <span class="number">7.</span>, <span class="number">2.</span>, <span class="number">3.</span>],
+               <span class="string">&quot;other&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+)<span class="question-mark">?</span>;
+
+<span class="comment">// Create second df.</span>
+<span class="kw">let</span> <span class="ident">rain</span> <span class="op">=</span> <span class="macro">df!</span>(<span class="string">&quot;days&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>],
+               <span class="string">&quot;rain&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">0.1</span>, <span class="number">0.2</span>],
+               <span class="string">&quot;other&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+)<span class="question-mark">?</span>;
+
+<span class="comment">// join on a single column</span>
+<span class="ident">temp</span>.<span class="ident">left_join</span>(<span class="kw-2">&amp;</span><span class="ident">rain</span>, <span class="string">&quot;days&quot;</span>, <span class="string">&quot;days&quot;</span>);
+<span class="ident">temp</span>.<span class="ident">inner_join</span>(<span class="kw-2">&amp;</span><span class="ident">rain</span>, <span class="string">&quot;days&quot;</span>, <span class="string">&quot;days&quot;</span>);
+<span class="ident">temp</span>.<span class="ident">outer_join</span>(<span class="kw-2">&amp;</span><span class="ident">rain</span>, <span class="string">&quot;days&quot;</span>, <span class="string">&quot;days&quot;</span>);
+
+<span class="comment">// join on multiple columns</span>
+<span class="ident">temp</span>.<span class="ident">join</span>(<span class="kw-2">&amp;</span><span class="ident">rain</span>, <span class="macro">vec!</span>[<span class="string">&quot;days&quot;</span>, <span class="string">&quot;other&quot;</span>], <span class="macro">vec!</span>[<span class="string">&quot;days&quot;</span>, <span class="string">&quot;other&quot;</span>], <span class="ident">JoinType::Left</span>);
+</pre></div>
+<h2 id="groupby" class="section-header"><a href="#groupby">Groupby</a></h2>
+<p>Note that Polars lazy is a lot more powerful in and more performant in groupby operations.
+In lazy a meriad of aggregations can be combined from expressions.</p>
+<p>See more in:</p>
+<ul>
+<li><a href="../../frame/groupby/struct.GroupBy.html">Groupby</a></li>
+</ul>
+<h3 id="groupby-1" class="section-header"><a href="#groupby-1">GroupBy</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+ <span class="comment">// groupby &quot;groups&quot; | sum &quot;foo&quot;</span>
+ <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">groupby</span>(<span class="string">&quot;groups&quot;</span>)<span class="question-mark">?</span>
+ .<span class="ident">select</span>(<span class="string">&quot;foo&quot;</span>)
+ .<span class="ident">sum</span>();
+
+</pre></div>
+<h3 id="pivot" class="section-header"><a href="#pivot">Pivot</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+ <span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>(<span class="string">&quot;foo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;A&quot;</span>, <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>],
+     <span class="string">&quot;N&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">2</span>],
+     <span class="string">&quot;bar&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;k&quot;</span>, <span class="string">&quot;l&quot;</span>, <span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>, <span class="string">&quot;0&quot;</span>]
+     )<span class="question-mark">?</span>;
+
+<span class="comment">// groupby &quot;foo&quot; | pivot &quot;bar&quot; column | aggregate &quot;N&quot;</span>
+ <span class="kw">let</span> <span class="ident">pivoted</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">groupby</span>(<span class="string">&quot;groups&quot;</span>)<span class="question-mark">?</span>
+    .<span class="ident">pivot</span>(<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;N&quot;</span>)
+    .<span class="ident">first</span>();
+
+<span class="comment">// pivoted:</span>
+<span class="comment">// +-----+------+------+------+------+------+</span>
+<span class="comment">// | foo | o    | n    | m    | l    | k    |</span>
+<span class="comment">// | --- | ---  | ---  | ---  | ---  | ---  |</span>
+<span class="comment">// | str | i32  | i32  | i32  | i32  | i32  |</span>
+<span class="comment">// +=====+======+======+======+======+======+</span>
+<span class="comment">// | &quot;A&quot; | null | null | null | 2    | 1    |</span>
+<span class="comment">// +-----+------+------+------+------+------+</span>
+<span class="comment">// | &quot;B&quot; | null | 4    | 2    | null | null |</span>
+<span class="comment">// +-----+------+------+------+------+------+</span>
+<span class="comment">// | &quot;C&quot; | 2    | null | null | null | null |</span>
+<span class="comment">// +-----+------+------+------+------+------+!</span>
+</pre></div>
+<h3 id="downsample" class="section-header"><a href="#downsample">Downsample</a></h3>
+<p>Downsample the DataFrame given some frequency/ downsample rule</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+<span class="kw">use</span> <span class="ident">polars::frame::groupby::resample::SampleRule</span>;
+
+<span class="comment">// given an input dataframe</span>
+
+<span class="comment">// ╭─────────────────────┬─────╮</span>
+<span class="comment">// │ ms                  ┆ i   │</span>
+<span class="comment">// │ ---                 ┆ --- │</span>
+<span class="comment">// │ date64(ms)          ┆ u8  │</span>
+<span class="comment">// ╞═════════════════════╪═════╡</span>
+<span class="comment">// │ 2000-01-01 00:00:00 ┆ 0   │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:01:00 ┆ 1   │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:02:00 ┆ 2   │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:03:00 ┆ 3   │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ ...                 ┆ ... │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:15:00 ┆ 15  │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:16:00 ┆ 16  │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:17:00 ┆ 17  │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:18:00 ┆ 18  │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:19:00 ┆ 19  │</span>
+<span class="comment">// ╰─────────────────────┴─────╯</span>
+
+
+<span class="kw">let</span> <span class="ident">downsampled</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">downsample</span>(<span class="string">&quot;datetime&quot;</span>, <span class="ident">SampleRule::Minute</span>(<span class="number">5</span>))<span class="question-mark">?</span>
+    .<span class="ident">first</span>()<span class="question-mark">?</span>
+    .<span class="ident">sort</span>(<span class="string">&quot;datetime&quot;</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// downsampled:</span>
+
+<span class="comment">// ╭─────────────────────┬─────────╮</span>
+<span class="comment">// │ ms                  ┆ i_first │</span>
+<span class="comment">// │ ---                 ┆ ---     │</span>
+<span class="comment">// │ date64(ms)          ┆ u8      │</span>
+<span class="comment">// ╞═════════════════════╪═════════╡</span>
+<span class="comment">// │ 2000-01-01 00:00:00 ┆ 0       │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:05:00 ┆ 5       │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:10:00 ┆ 10      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 2000-01-01 00:15:00 ┆ 15      │</span>
+<span class="comment">// ╰─────────────────────┴─────────╯</span>
+</pre></div>
+<h2 id="melt" class="section-header"><a href="#melt">Melt</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[<span class="string">&quot;A&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;a&quot;</span>],
+             <span class="string">&quot;B&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>],
+             <span class="string">&quot;C&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>],
+             <span class="string">&quot;D&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]
+    ]<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">melted</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">melt</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>], <span class="kw-2">&amp;</span>[<span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>]).<span class="ident">unwrap</span>();
+<span class="comment">// melted:</span>
+
+<span class="comment">// +-----+-----+----------+-------+</span>
+<span class="comment">//  | A   | B   | variable | value |</span>
+<span class="comment">//  | --- | --- | ---      | ---   |</span>
+<span class="comment">//  | str | i32 | str      | i32   |</span>
+<span class="comment">//  +=====+=====+==========+=======+</span>
+<span class="comment">//  | &quot;a&quot; | 1   | &quot;C&quot;      | 10    |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+<span class="comment">//  | &quot;b&quot; | 3   | &quot;C&quot;      | 11    |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+<span class="comment">//  | &quot;a&quot; | 5   | &quot;C&quot;      | 12    |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+<span class="comment">//  | &quot;a&quot; | 1   | &quot;D&quot;      | 2     |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+<span class="comment">//  | &quot;b&quot; | 3   | &quot;D&quot;      | 4     |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+<span class="comment">//  | &quot;a&quot; | 5   | &quot;D&quot;      | 6     |</span>
+<span class="comment">//  +-----+-----+----------+-------+</span>
+</pre></div>
+<h2 id="explode" class="section-header"><a href="#explode">Explode</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">s0</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;a&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1i64</span>, <span class="number">2</span>, <span class="number">3</span>]);
+<span class="kw">let</span> <span class="ident">s1</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;b&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">1i64</span>, <span class="number">1</span>, <span class="number">1</span>]);
+<span class="kw">let</span> <span class="ident">s2</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;c&quot;</span>, <span class="kw-2">&amp;</span>[<span class="number">2i64</span>, <span class="number">2</span>, <span class="number">2</span>]);
+<span class="comment">// construct a new ListChunked for a slice of Series.</span>
+<span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="kw-2">&amp;</span>[<span class="ident">s0</span>, <span class="ident">s1</span>, <span class="ident">s2</span>]);
+
+<span class="comment">// construct a few more Series.</span>
+<span class="kw">let</span> <span class="ident">s0</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;B&quot;</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+<span class="kw">let</span> <span class="ident">s1</span> <span class="op">=</span> <span class="ident">Series::new</span>(<span class="string">&quot;C&quot;</span>, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>]);
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">DataFrame::new</span>(<span class="macro">vec!</span>[<span class="ident">list</span>, <span class="ident">s0</span>, <span class="ident">s1</span>])<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">exploded</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">explode</span>(<span class="string">&quot;foo&quot;</span>)<span class="question-mark">?</span>;
+<span class="comment">// exploded:</span>
+
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | foo | B   | C   |</span>
+<span class="comment">// | --- | --- | --- |</span>
+<span class="comment">// | i64 | i32 | i32 |</span>
+<span class="comment">// +=====+=====+=====+</span>
+<span class="comment">// | 1   | 1   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 2   | 1   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 3   | 1   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 1   | 2   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 1   | 2   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 1   | 2   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 2   | 3   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 2   | 3   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+<span class="comment">// | 2   | 3   | 1   |</span>
+<span class="comment">// +-----+-----+-----+</span>
+</pre></div>
+<h2 id="io" class="section-header"><a href="#io">IO</a></h2><h3 id="read-csv" class="section-header"><a href="#read-csv">Read CSV</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// read from path</span>
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">CsvReader::from_path</span>(<span class="string">&quot;iris_csv&quot;</span>)<span class="question-mark">?</span>
+            .<span class="ident">infer_schema</span>(<span class="prelude-val">None</span>)
+            .<span class="ident">has_header</span>(<span class="bool-val">true</span>)
+            .<span class="ident">finish</span>()<span class="question-mark">?</span>;</pre></div>
+<h3 id="write-csv" class="section-header"><a href="#write-csv">Write CSV</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="comment">// create a file</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="string">&quot;example.csv&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;could not create file&quot;</span>);
+
+<span class="comment">// write DataFrame to file</span>
+<span class="ident">CsvWriter::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file</span>)
+    .<span class="ident">has_headers</span>(<span class="bool-val">true</span>)
+    .<span class="ident">with_delimiter</span>(<span class="string">b&#39;,&#39;</span>)
+    .<span class="ident">finish</span>(<span class="ident">df</span>);</pre></div>
+<h3 id="read-ipc" class="section-header"><a href="#read-ipc">Read IPC</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="comment">// open file</span>
+<span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="string">&quot;file.ipc&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;file not found&quot;</span>);
+
+<span class="comment">// read to DataFrame</span>
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">IpcReader::new</span>(<span class="ident">file</span>)
+   .<span class="ident">finish</span>()<span class="question-mark">?</span>;</pre></div>
+<h3 id="write-ipc" class="section-header"><a href="#write-ipc">Write IPC</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="comment">// create a file</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="string">&quot;file.ipc&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;could not create file&quot;</span>);
+
+<span class="comment">// write DataFrame to file</span>
+<span class="ident">IpcWriter::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file</span>)
+    .<span class="ident">finish</span>(<span class="ident">df</span>)</pre></div>
+<h3 id="read-parquet" class="section-header"><a href="#read-parquet">Read Parquet</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="comment">// open file</span>
+<span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="string">&quot;some_file.parquet&quot;</span>).<span class="ident">unwrap</span>();
+
+<span class="comment">// read to DataFrame</span>
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">ParquetReader::new</span>(<span class="ident">file</span>).<span class="ident">finish</span>()<span class="question-mark">?</span>;</pre></div>
+<h3 id="write-parquet" class="section-header"><a href="#write-parquet">Write Parquet</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="comment">// create a file</span>
+<span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="string">&quot;example.parquet&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;could not create file&quot;</span>);
+
+<span class="ident">ParquetWriter::new</span>(<span class="ident">file</span>)
+    .<span class="ident">finish</span>(<span class="ident">df</span>)</pre></div>
+<h1 id="various" class="section-header"><a href="#various">Various</a></h1><h2 id="replace-nan-with-missing" class="section-header"><a href="#replace-nan-with-missing">Replace NaN with Missing.</a></h2>
+<p>The floating point <a href="https://en.wikipedia.org/wiki/NaN">Not a Number: NaN</a> is conceptually different
+than missing data in Polars. In the snippet below we show how we can replace <code>NaN</code> values with
+missing values, by setting them to <code>None</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="doccomment">/// Replaces NaN with missing values.</span>
+<span class="kw">fn</span> <span class="ident">fill_nan_with_nulls</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DataFrame</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">nan</span> <span class="op">=</span> <span class="ident">f64::NAN</span>;
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span> {
+       <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">nan</span>, <span class="number">1.0</span>, <span class="number">2.0</span>],
+       <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">nan</span>, <span class="number">1.0</span>, <span class="number">2.0</span>]
+    }
+    .<span class="ident">unwrap</span>();
+
+    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">df</span>.<span class="ident">width</span>() {
+        <span class="ident">df</span>.<span class="ident">may_apply_at_idx</span>(<span class="ident">idx</span>, <span class="op">|</span><span class="ident">series</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">series</span>.<span class="ident">is_nan</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">series</span>.<span class="ident">f64</span>()<span class="question-mark">?</span>;
+            <span class="ident">ca</span>.<span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="ident">mask</span>, <span class="prelude-val">None</span>)
+        })<span class="question-mark">?</span>;
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">df</span>)
+}</pre></div>
+<h2 id="extracting-data" class="section-header"><a href="#extracting-data">Extracting data</a></h2>
+<p>To be able to extract data out of <code>Series</code>, either by iterating over them or converting them
+to other datatypes like a <code>Vec&lt;T&gt;</code>, we first need to downcast them to a <code>ChunkedArray&lt;T&gt;</code>. This
+is needed because we don’t know the data type that is hold by the <code>Series</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">fn</span> <span class="ident">extract_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span> [
+       <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">1.0f32</span>), <span class="prelude-val">Some</span>(<span class="number">2.0</span>)],
+       <span class="string">&quot;str&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;ham&quot;</span>]
+    ]<span class="question-mark">?</span>;
+
+    <span class="comment">// first extract ChunkedArray to get the inner type.</span>
+    <span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">column</span>(<span class="string">&quot;a&quot;</span>).<span class="ident">f32</span>();
+
+    <span class="comment">// Then convert to vec</span>
+    <span class="kw">let</span> <span class="ident">to_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::from</span>(<span class="ident">ca</span>);
+
+    <span class="comment">// We can also do this with iterators</span>
+    <span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">column</span>(<span class="string">&quot;str&quot;</span>).<span class="ident">utf8</span>();
+    <span class="kw">let</span> <span class="ident">to_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">to_vec_no_options</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">into_no_null_iter</span>().<span class="ident">collect</span>();
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polars" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script>
+</body></html>

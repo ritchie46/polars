@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["WriterVersion","Parquet writer version."]],"struct":[["WriterProperties","Writer properties."],["WriterPropertiesBuilder","Writer properties builder."]],"type":[["WriterPropertiesPtr","Reference counted writer properties."]]});

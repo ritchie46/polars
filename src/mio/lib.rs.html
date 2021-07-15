@@ -1,0 +1,535 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;mio-0.7.13&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../mio/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+</pre><pre class="rust">
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/mio/0.7.13&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(
+    <span class="ident">missing_docs</span>,
+    <span class="ident">missing_debug_implementations</span>,
+    <span class="ident">rust_2018_idioms</span>,
+    <span class="ident">unused_imports</span>,
+    <span class="ident">dead_code</span>
+)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="comment">// Disallow warnings when running tests.</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">deny</span>(<span class="ident">warnings</span>))]</span>
+<span class="comment">// Disallow warnings in examples.</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">deny</span>(<span class="ident">warnings</span>))))]</span>
+
+<span class="doccomment">//! Mio is a fast, low-level I/O library for Rust focusing on non-blocking APIs</span>
+<span class="doccomment">//! and event notification for building high performance I/O apps with as little</span>
+<span class="doccomment">//! overhead as possible over the OS abstractions.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Usage</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Using Mio starts by creating a [`Poll`], which reads events from the OS and</span>
+<span class="doccomment">//! puts them into [`Events`]. You can handle I/O events from the OS with it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For more detail, see [`Poll`].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`Poll`]: ../mio/struct.Poll.html</span>
+<span class="doccomment">//! [`Events`]: ../mio/event/struct.Events.html</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Examples can found in the `examples` directory of the source code, or [on</span>
+<span class="doccomment">//! GitHub].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [on GitHub]: https://github.com/tokio-rs/mio/tree/master/examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Guide</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A getting started guide is available in the [`guide`] module.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Available features</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The available features are described in the [`features`] module.</span>
+
+<span class="comment">// macros used internally</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">mod</span> <span class="ident">macros</span>;
+
+<span class="kw">mod</span> <span class="ident">interest</span>;
+<span class="kw">mod</span> <span class="ident">poll</span>;
+<span class="kw">mod</span> <span class="ident">sys</span>;
+<span class="kw">mod</span> <span class="ident">token</span>;
+<span class="kw">mod</span> <span class="ident">waker</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">event</span>;
+
+<span class="macro">cfg_io_source!</span> {
+    <span class="kw">mod</span> <span class="ident">io_source</span>;
+}
+
+<span class="macro">cfg_net!</span> {
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">net</span>;
+}
+
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">no_inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">event::Events</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">interest::Interest</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">poll</span>::{<span class="ident">Poll</span>, <span class="ident">Registry</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">token::Token</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">waker::Waker</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>))))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unix</span> {
+    <span class="doccomment">//! Unix only extensions.</span>
+
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pipe</span> {
+        <span class="doccomment">//! Unix pipe.</span>
+        <span class="doccomment">//!</span>
+        <span class="doccomment">//! See the [`new`] function for documentation.</span>
+
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sys::pipe</span>::{<span class="ident">new</span>, <span class="ident">Receiver</span>, <span class="ident">Sender</span>};
+    }
+
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sys::SourceFd</span>;
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">windows</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>))))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">windows</span> {
+    <span class="doccomment">//! Windows only extensions.</span>
+
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sys::named_pipe::NamedPipe</span>;
+}
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">features</span> {
+    <span class="doccomment">//! # Mio&#39;s optional features.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! This document describes the available features in Mio.</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## `os-poll` (enabled)&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## `os-poll` (disabled)&quot;</span>)]</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Mio by default provides only a shell implementation, that `panic!`s the</span>
+    <span class="doccomment">//! moment it is actually run. To run it requires OS support, this is</span>
+    <span class="doccomment">//! enabled by activating the `os-poll` feature.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! This makes `Poll`, `Registry` and `Waker` functional.</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## `os-ext` (enabled)&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-ext&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## `os-ext` (disabled)&quot;</span>)]</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! `os-ext` enables additional OS specific facilities. These facilities can</span>
+    <span class="doccomment">//! be found in the `unix` and `windows` module.</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## Network types (enabled)&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;## Network types (disabled)&quot;</span>)]</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! The `net` feature enables networking primitives in the `net` module.</span>
+}
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">guide</span> {
+    <span class="doccomment">//! # Getting started guide.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! In this guide we&#39;ll do the following:</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! 1. Create a [`Poll`] instance (and learn what it is).</span>
+    <span class="doccomment">//! 2. Register an [event source].</span>
+    <span class="doccomment">//! 3. Create an event loop.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! At the end you&#39;ll have a very small (but quick) TCP server that accepts</span>
+    <span class="doccomment">//! connections and then drops (disconnects) them.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! ## 1. Creating a `Poll` instance</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Using Mio starts by creating a [`Poll`] instance, which monitors events</span>
+    <span class="doccomment">//! from the OS and puts them into [`Events`]. This allows us to execute I/O</span>
+    <span class="doccomment">//! operations based on what operations are ready.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! [`Poll`]: ../struct.Poll.html</span>
+    <span class="doccomment">//! [`Events`]: ../event/struct.Events.html</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```ignore&quot;</span>)]</span>
+    <span class="doccomment">//! # use mio::{Poll, Events};</span>
+    <span class="doccomment">//! # fn main() -&gt; std::io::Result&lt;()&gt; {</span>
+    <span class="doccomment">//! // `Poll` allows for polling of readiness events.</span>
+    <span class="doccomment">//! let poll = Poll::new()?;</span>
+    <span class="doccomment">//! // `Events` is collection of readiness `Event`s and can be filled by</span>
+    <span class="doccomment">//! // calling `Poll::poll`.</span>
+    <span class="doccomment">//! let events = Events::with_capacity(128);</span>
+    <span class="doccomment">//! # drop((poll, events));</span>
+    <span class="doccomment">//! # Ok(())</span>
+    <span class="doccomment">//! # }</span>
+    <span class="doccomment">//! ```</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! For example if we&#39;re using a [`TcpListener`],  we&#39;ll only want to</span>
+    <span class="doccomment">//! attempt to accept an incoming connection *iff* any connections are</span>
+    <span class="doccomment">//! queued and ready to be accepted. We don&#39;t want to waste our time if no</span>
+    <span class="doccomment">//! connections are ready.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! [`TcpListener`]: ../net/struct.TcpListener.html</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! ## 2. Registering event source</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! After we&#39;ve created a [`Poll`] instance that monitors events from the OS</span>
+    <span class="doccomment">//! for us, we need to provide it with a source of events. This is done by</span>
+    <span class="doccomment">//! registering an [event source]. As the name “event source” suggests it is</span>
+    <span class="doccomment">//! a source of events which can be polled using a `Poll` instance. On Unix</span>
+    <span class="doccomment">//! systems this is usually a file descriptor, or a socket/handle on</span>
+    <span class="doccomment">//! Windows.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! In the example below we&#39;ll use a [`TcpListener`] for which we&#39;ll receive</span>
+    <span class="doccomment">//! an event (from [`Poll`]) once a connection is ready to be accepted.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! [event source]: ../event/trait.Source.html</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">features</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">features</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>)), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```ignore&quot;</span>)]</span>
+    <span class="doccomment">//! # use mio::net::TcpListener;</span>
+    <span class="doccomment">//! # use mio::{Poll, Token, Interest};</span>
+    <span class="doccomment">//! # fn main() -&gt; std::io::Result&lt;()&gt; {</span>
+    <span class="doccomment">//! # let poll = Poll::new()?;</span>
+    <span class="doccomment">//! # let address = &quot;127.0.0.1:0&quot;.parse().unwrap();</span>
+    <span class="doccomment">//! // Create a `TcpListener`, binding it to `address`.</span>
+    <span class="doccomment">//! let mut listener = TcpListener::bind(address)?;</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! // Next we register it with `Poll` to receive events for it. The `SERVER`</span>
+    <span class="doccomment">//! // `Token` is used to determine that we received an event for the listener</span>
+    <span class="doccomment">//! // later on.</span>
+    <span class="doccomment">//! const SERVER: Token = Token(0);</span>
+    <span class="doccomment">//! poll.registry().register(&amp;mut listener, SERVER, Interest::READABLE)?;</span>
+    <span class="doccomment">//! # Ok(())</span>
+    <span class="doccomment">//! # }</span>
+    <span class="doccomment">//! ```</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Multiple event sources can be [registered] (concurrently), so we can</span>
+    <span class="doccomment">//! monitor multiple sources at a time.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! [registered]: ../struct.Registry.html#method.register</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! ## 3. Creating the event loop</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! After we&#39;ve created a [`Poll`] instance and registered one or more</span>
+    <span class="doccomment">//! [event sources] with it, we can [poll] it for events. Polling for events</span>
+    <span class="doccomment">//! is simple, we need a container to store the events: [`Events`] and need</span>
+    <span class="doccomment">//! to do something based on the polled events (this part is up to you, we</span>
+    <span class="doccomment">//! can&#39;t do it all!). If we do this in a loop we&#39;ve got ourselves an event</span>
+    <span class="doccomment">//! loop.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! The example below shows the event loop in action, completing our small</span>
+    <span class="doccomment">//! TCP server.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! [poll]: ../struct.Poll.html#method.poll</span>
+    <span class="doccomment">//! [event sources]: ../event/trait.Source.html</span>
+    <span class="doccomment">//!</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">features</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```&quot;</span>)]</span>
+    <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;os-poll&quot;</span>, <span class="ident">features</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>)), <span class="ident">doc</span> <span class="op">=</span> <span class="string">&quot;```ignore&quot;</span>)]</span>
+    <span class="doccomment">//! # use std::io;</span>
+    <span class="doccomment">//! # use std::time::Duration;</span>
+    <span class="doccomment">//! # use mio::net::TcpListener;</span>
+    <span class="doccomment">//! # use mio::{Poll, Token, Interest, Events};</span>
+    <span class="doccomment">//! # fn main() -&gt; io::Result&lt;()&gt; {</span>
+    <span class="doccomment">//! # let mut poll = Poll::new()?;</span>
+    <span class="doccomment">//! # let mut events = Events::with_capacity(128);</span>
+    <span class="doccomment">//! # let address = &quot;127.0.0.1:0&quot;.parse().unwrap();</span>
+    <span class="doccomment">//! # let mut listener = TcpListener::bind(address)?;</span>
+    <span class="doccomment">//! # const SERVER: Token = Token(0);</span>
+    <span class="doccomment">//! # poll.registry().register(&amp;mut listener, SERVER, Interest::READABLE)?;</span>
+    <span class="doccomment">//! // Start our event loop.</span>
+    <span class="doccomment">//! loop {</span>
+    <span class="doccomment">//!     // Poll the OS for events, waiting at most 100 milliseconds.</span>
+    <span class="doccomment">//!     poll.poll(&amp;mut events, Some(Duration::from_millis(100)))?;</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//!     // Process each event.</span>
+    <span class="doccomment">//!     for event in events.iter() {</span>
+    <span class="doccomment">//!         // We can use the token we previously provided to `register` to</span>
+    <span class="doccomment">//!         // determine for which type the event is.</span>
+    <span class="doccomment">//!         match event.token() {</span>
+    <span class="doccomment">//!             SERVER =&gt; loop {</span>
+    <span class="doccomment">//!                 // One or more connections are ready, so we&#39;ll attempt to</span>
+    <span class="doccomment">//!                 // accept them (in a loop).</span>
+    <span class="doccomment">//!                 match listener.accept() {</span>
+    <span class="doccomment">//!                     Ok((connection, address)) =&gt; {</span>
+    <span class="doccomment">//!                         println!(&quot;Got a connection from: {}&quot;, address);</span>
+    <span class="doccomment">//! #                       drop(connection);</span>
+    <span class="doccomment">//!                     },</span>
+    <span class="doccomment">//!                     // A &quot;would block error&quot; is returned if the operation</span>
+    <span class="doccomment">//!                     // is not ready, so we&#39;ll stop trying to accept</span>
+    <span class="doccomment">//!                     // connections.</span>
+    <span class="doccomment">//!                     Err(ref err) if would_block(err) =&gt; break,</span>
+    <span class="doccomment">//!                     Err(err) =&gt; return Err(err),</span>
+    <span class="doccomment">//!                 }</span>
+    <span class="doccomment">//!             }</span>
+    <span class="doccomment">//! #           _ =&gt; unreachable!(),</span>
+    <span class="doccomment">//!         }</span>
+    <span class="doccomment">//!     }</span>
+    <span class="doccomment">//! #   return Ok(());</span>
+    <span class="doccomment">//! }</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! fn would_block(err: &amp;io::Error) -&gt; bool {</span>
+    <span class="doccomment">//!     err.kind() == io::ErrorKind::WouldBlock</span>
+    <span class="doccomment">//! }</span>
+    <span class="doccomment">//! # }</span>
+    <span class="doccomment">//! ```</span>
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="mio" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

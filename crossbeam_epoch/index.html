@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Epoch-based memory reclamation."><meta name="keywords" content="rust, rustlang, rust-lang, crossbeam_epoch"><title>crossbeam_epoch - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../crossbeam_epoch/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate crossbeam_epoch</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.9.5</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all crossbeam_epoch's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="crossbeam_epoch" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">crossbeam_epoch</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/crossbeam_epoch/lib.rs.html#1-186" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Epoch-based memory reclamation.</p>
+<p>An interesting problem concurrent collections deal with comes from the remove operation.
+Suppose that a thread removes an element from a lock-free map, while another thread is reading
+that same element at the same time. The first thread must wait until the second thread stops
+reading the element. Only then it is safe to destruct it.</p>
+<p>Programming languages that come with garbage collectors solve this problem trivially. The
+garbage collector will destruct the removed element when no thread can hold a reference to it
+anymore.</p>
+<p>This crate implements a basic memory reclamation mechanism, which is based on epochs. When an
+element gets removed from a concurrent collection, it is inserted into a pile of garbage and
+marked with the current epoch. Every time a thread accesses a collection, it checks the current
+epoch, attempts to increment it, and destructs some garbage that became so old that no thread
+can be referencing it anymore.</p>
+<p>That is the general mechanism behind epoch-based memory reclamation, but the details are a bit
+more complicated. Anyhow, memory reclamation is designed to be fully automatic and something
+users of concurrent collections don’t have to worry much about.</p>
+<h1 id="pointers" class="section-header"><a href="#pointers">Pointers</a></h1>
+<p>Concurrent collections are built using atomic pointers. This module provides <a href="struct.Atomic.html" title="Atomic"><code>Atomic</code></a>, which
+is just a shared atomic pointer to a heap-allocated object. Loading an <a href="struct.Atomic.html" title="Atomic"><code>Atomic</code></a> yields a
+<a href="struct.Shared.html" title="Shared"><code>Shared</code></a>, which is an epoch-protected pointer through which the loaded object can be safely
+read.</p>
+<h1 id="pinning" class="section-header"><a href="#pinning">Pinning</a></h1>
+<p>Before an <a href="struct.Atomic.html" title="Atomic"><code>Atomic</code></a> can be loaded, a participant must be <a href="fn.pin.html" title="pin"><code>pin</code></a>ned. By pinning a participant
+we declare that any object that gets removed from now on must not be destructed just
+yet. Garbage collection of newly removed objects is suspended until the participant gets
+unpinned.</p>
+<h1 id="garbage" class="section-header"><a href="#garbage">Garbage</a></h1>
+<p>Objects that get removed from concurrent collections must be stashed away until all currently
+pinned participants get unpinned. Such objects can be stored into a thread-local or global
+storage, where they are kept until the right time for their destruction comes.</p>
+<p>There is a global shared instance of garbage queue. You can <a href="struct.Guard.html#method.defer"><code>defer</code></a> the execution of an
+arbitrary function until the global epoch is advanced enough. Most notably, concurrent data
+structures may defer the deallocation of an object.</p>
+<h1 id="apis" class="section-header"><a href="#apis">APIs</a></h1>
+<p>For majority of use cases, just use the default garbage collector by invoking <a href="fn.pin.html" title="pin"><code>pin</code></a>. If you
+want to create your own garbage collector, use the <a href="struct.Collector.html" title="Collector"><code>Collector</code></a> API.</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Atomic.html" title="crossbeam_epoch::Atomic struct">Atomic</a></div><div class="item-right docblock-short"><p>An atomic pointer that can be safely shared between threads.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Collector.html" title="crossbeam_epoch::Collector struct">Collector</a></div><div class="item-right docblock-short"><p>An epoch-based garbage collector.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CompareExchangeError.html" title="crossbeam_epoch::CompareExchangeError struct">CompareExchangeError</a></div><div class="item-right docblock-short"><p>The error returned on failed compare-and-swap operation.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Guard.html" title="crossbeam_epoch::Guard struct">Guard</a></div><div class="item-right docblock-short"><p>A guard that keeps the current thread pinned.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LocalHandle.html" title="crossbeam_epoch::LocalHandle struct">LocalHandle</a></div><div class="item-right docblock-short"><p>A handle to a garbage collector.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Owned.html" title="crossbeam_epoch::Owned struct">Owned</a></div><div class="item-right docblock-short"><p>An owned heap-allocated object.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Shared.html" title="crossbeam_epoch::Shared struct">Shared</a></div><div class="item-right docblock-short"><p>A pointer to an object protected by the epoch GC.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.CompareAndSetOrdering.html" title="crossbeam_epoch::CompareAndSetOrdering trait">CompareAndSetOrdering</a><span class="stab deprecated" title="">Deprecated</span></div><div class="item-right docblock-short"><p>Memory orderings for compare-and-set operations.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Pointable.html" title="crossbeam_epoch::Pointable trait">Pointable</a></div><div class="item-right docblock-short"><p>Types that are pointed to by a single word.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Pointer.html" title="crossbeam_epoch::Pointer trait">Pointer</a></div><div class="item-right docblock-short"><p>A trait for either <code>Owned</code> or <code>Shared</code> pointers.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.default_collector.html" title="crossbeam_epoch::default_collector fn">default_collector</a></div><div class="item-right docblock-short"><p>Returns the default global collector.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.is_pinned.html" title="crossbeam_epoch::is_pinned fn">is_pinned</a></div><div class="item-right docblock-short"><p>Returns <code>true</code> if the current thread is pinned.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.pin.html" title="crossbeam_epoch::pin fn">pin</a></div><div class="item-right docblock-short"><p>Pins the current thread.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.unprotected.html" title="crossbeam_epoch::unprotected fn">unprotected</a><a title="unsafe function" href="#"><sup>⚠</sup></a></div><div class="item-right docblock-short"><p>Returns a reference to a dummy guard that allows unprotected access to <a href="struct.Atomic.html"><code>Atomic</code></a>s.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.CompareAndSetError.html" title="crossbeam_epoch::CompareAndSetError type">CompareAndSetError</a><span class="stab deprecated" title="">Deprecated</span></div><div class="item-right docblock-short"><p>The error returned on failed compare-and-set operation.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="crossbeam_epoch" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

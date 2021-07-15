@@ -1,0 +1,949 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;serde_json-1.0.64&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_json/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+</pre><pre class="rust">
+<span class="doccomment">//! # Serde JSON</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! JSON is a ubiquitous open-standard format that uses human-readable text to</span>
+<span class="doccomment">//! transmit data objects consisting of key-value pairs.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```json</span>
+<span class="doccomment">//! {</span>
+<span class="doccomment">//!     &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="doccomment">//!     &quot;age&quot;: 43,</span>
+<span class="doccomment">//!     &quot;address&quot;: {</span>
+<span class="doccomment">//!         &quot;street&quot;: &quot;10 Downing Street&quot;,</span>
+<span class="doccomment">//!         &quot;city&quot;: &quot;London&quot;</span>
+<span class="doccomment">//!     },</span>
+<span class="doccomment">//!     &quot;phones&quot;: [</span>
+<span class="doccomment">//!         &quot;+44 1234567&quot;,</span>
+<span class="doccomment">//!         &quot;+44 2345678&quot;</span>
+<span class="doccomment">//!     ]</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! There are three common ways that you might find yourself needing to work</span>
+<span class="doccomment">//! with JSON data in Rust.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!  - **As text data.** An unprocessed string of JSON data that you receive on</span>
+<span class="doccomment">//!    an HTTP endpoint, read from a file, or prepare to send to a remote</span>
+<span class="doccomment">//!    server.</span>
+<span class="doccomment">//!  - **As an untyped or loosely typed representation.** Maybe you want to</span>
+<span class="doccomment">//!    check that some JSON data is valid before passing it on, but without</span>
+<span class="doccomment">//!    knowing the structure of what it contains. Or you want to do very basic</span>
+<span class="doccomment">//!    manipulations like insert a key in a particular spot.</span>
+<span class="doccomment">//!  - **As a strongly typed Rust data structure.** When you expect all or most</span>
+<span class="doccomment">//!    of your data to conform to a particular structure and want to get real</span>
+<span class="doccomment">//!    work done without JSON&#39;s loosey-goosey nature tripping you up.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Serde JSON provides efficient, flexible, safe ways of converting data</span>
+<span class="doccomment">//! between each of these representations.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Operating on untyped JSON values</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Any valid JSON data can be manipulated in the following recursive enum</span>
+<span class="doccomment">//! representation. This data structure is [`serde_json::Value`][value].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use serde_json::{Number, Map};</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # #[allow(dead_code)]</span>
+<span class="doccomment">//! enum Value {</span>
+<span class="doccomment">//!     Null,</span>
+<span class="doccomment">//!     Bool(bool),</span>
+<span class="doccomment">//!     Number(Number),</span>
+<span class="doccomment">//!     String(String),</span>
+<span class="doccomment">//!     Array(Vec&lt;Value&gt;),</span>
+<span class="doccomment">//!     Object(Map&lt;String, Value&gt;),</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A string of JSON data can be parsed into a `serde_json::Value` by the</span>
+<span class="doccomment">//! [`serde_json::from_str`][from_str] function. There is also</span>
+<span class="doccomment">//! [`from_slice`][from_slice] for parsing from a byte slice &amp;[u8] and</span>
+<span class="doccomment">//! [`from_reader`][from_reader] for parsing from any `io::Read` like a File or</span>
+<span class="doccomment">//! a TCP stream.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use serde_json::{Result, Value};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn untyped_example() -&gt; Result&lt;()&gt; {</span>
+<span class="doccomment">//!     // Some JSON input data as a &amp;str. Maybe this comes from the user.</span>
+<span class="doccomment">//!     let data = r#&quot;</span>
+<span class="doccomment">//!         {</span>
+<span class="doccomment">//!             &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="doccomment">//!             &quot;age&quot;: 43,</span>
+<span class="doccomment">//!             &quot;phones&quot;: [</span>
+<span class="doccomment">//!                 &quot;+44 1234567&quot;,</span>
+<span class="doccomment">//!                 &quot;+44 2345678&quot;</span>
+<span class="doccomment">//!             ]</span>
+<span class="doccomment">//!         }&quot;#;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Parse the string of data into serde_json::Value.</span>
+<span class="doccomment">//!     let v: Value = serde_json::from_str(data)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Access parts of the data by indexing with square brackets.</span>
+<span class="doccomment">//!     println!(&quot;Please call {} at the number {}&quot;, v[&quot;name&quot;], v[&quot;phones&quot;][0]);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # fn main() {</span>
+<span class="doccomment">//! #     untyped_example().unwrap();</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The result of square bracket indexing like `v[&quot;name&quot;]` is a borrow of the</span>
+<span class="doccomment">//! data at that index, so the type is `&amp;Value`. A JSON map can be indexed with</span>
+<span class="doccomment">//! string keys, while a JSON array can be indexed with integer keys. If the</span>
+<span class="doccomment">//! type of the data is not right for the type with which it is being indexed,</span>
+<span class="doccomment">//! or if a map does not contain the key being indexed, or if the index into a</span>
+<span class="doccomment">//! vector is out of bounds, the returned element is `Value::Null`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When a `Value` is printed, it is printed as a JSON string. So in the code</span>
+<span class="doccomment">//! above, the output looks like `Please call &quot;John Doe&quot; at the number &quot;+44</span>
+<span class="doccomment">//! 1234567&quot;`. The quotation marks appear because `v[&quot;name&quot;]` is a `&amp;Value`</span>
+<span class="doccomment">//! containing a JSON string and its JSON representation is `&quot;John Doe&quot;`.</span>
+<span class="doccomment">//! Printing as a plain string without quotation marks involves converting from</span>
+<span class="doccomment">//! a JSON string to a Rust string with [`as_str()`] or avoiding the use of</span>
+<span class="doccomment">//! `Value` as described in the following section.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`as_str()`]: https://docs.serde.rs/serde_json/enum.Value.html#method.as_str</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The `Value` representation is sufficient for very basic tasks but can be</span>
+<span class="doccomment">//! tedious to work with for anything more significant. Error handling is</span>
+<span class="doccomment">//! verbose to implement correctly, for example imagine trying to detect the</span>
+<span class="doccomment">//! presence of unrecognized fields in the input data. The compiler is powerless</span>
+<span class="doccomment">//! to help you when you make a mistake, for example imagine typoing `v[&quot;name&quot;]`</span>
+<span class="doccomment">//! as `v[&quot;nmae&quot;]` in one of the dozens of places it is used in your code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Parsing JSON as strongly typed data structures</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Serde provides a powerful way of mapping JSON data into Rust data structures</span>
+<span class="doccomment">//! largely automatically.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use serde::{Deserialize, Serialize};</span>
+<span class="doccomment">//! use serde_json::Result;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[derive(Serialize, Deserialize)]</span>
+<span class="doccomment">//! struct Person {</span>
+<span class="doccomment">//!     name: String,</span>
+<span class="doccomment">//!     age: u8,</span>
+<span class="doccomment">//!     phones: Vec&lt;String&gt;,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn typed_example() -&gt; Result&lt;()&gt; {</span>
+<span class="doccomment">//!     // Some JSON input data as a &amp;str. Maybe this comes from the user.</span>
+<span class="doccomment">//!     let data = r#&quot;</span>
+<span class="doccomment">//!         {</span>
+<span class="doccomment">//!             &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="doccomment">//!             &quot;age&quot;: 43,</span>
+<span class="doccomment">//!             &quot;phones&quot;: [</span>
+<span class="doccomment">//!                 &quot;+44 1234567&quot;,</span>
+<span class="doccomment">//!                 &quot;+44 2345678&quot;</span>
+<span class="doccomment">//!             ]</span>
+<span class="doccomment">//!         }&quot;#;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Parse the string of data into a Person object. This is exactly the</span>
+<span class="doccomment">//!     // same function as the one that produced serde_json::Value above, but</span>
+<span class="doccomment">//!     // now we are asking it for a Person as output.</span>
+<span class="doccomment">//!     let p: Person = serde_json::from_str(data)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Do things just like with any other Rust data structure.</span>
+<span class="doccomment">//!     println!(&quot;Please call {} at the number {}&quot;, p.name, p.phones[0]);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # fn main() {</span>
+<span class="doccomment">//! #     typed_example().unwrap();</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is the same `serde_json::from_str` function as before, but this time we</span>
+<span class="doccomment">//! assign the return value to a variable of type `Person` so Serde will</span>
+<span class="doccomment">//! automatically interpret the input data as a `Person` and produce informative</span>
+<span class="doccomment">//! error messages if the layout does not conform to what a `Person` is expected</span>
+<span class="doccomment">//! to look like.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Any type that implements Serde&#39;s `Deserialize` trait can be deserialized</span>
+<span class="doccomment">//! this way. This includes built-in Rust standard library types like `Vec&lt;T&gt;`</span>
+<span class="doccomment">//! and `HashMap&lt;K, V&gt;`, as well as any structs or enums annotated with</span>
+<span class="doccomment">//! `#[derive(Deserialize)]`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Once we have `p` of type `Person`, our IDE and the Rust compiler can help us</span>
+<span class="doccomment">//! use it correctly like they do for any other Rust code. The IDE can</span>
+<span class="doccomment">//! autocomplete field names to prevent typos, which was impossible in the</span>
+<span class="doccomment">//! `serde_json::Value` representation. And the Rust compiler can check that</span>
+<span class="doccomment">//! when we write `p.phones[0]`, then `p.phones` is guaranteed to be a</span>
+<span class="doccomment">//! `Vec&lt;String&gt;` so indexing into it makes sense and produces a `String`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Constructing JSON values</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Serde JSON provides a [`json!` macro][macro] to build `serde_json::Value`</span>
+<span class="doccomment">//! objects with very natural JSON syntax.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use serde_json::json;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn main() {</span>
+<span class="doccomment">//!     // The type of `john` is `serde_json::Value`</span>
+<span class="doccomment">//!     let john = json!({</span>
+<span class="doccomment">//!         &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="doccomment">//!         &quot;age&quot;: 43,</span>
+<span class="doccomment">//!         &quot;phones&quot;: [</span>
+<span class="doccomment">//!             &quot;+44 1234567&quot;,</span>
+<span class="doccomment">//!             &quot;+44 2345678&quot;</span>
+<span class="doccomment">//!         ]</span>
+<span class="doccomment">//!     });</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     println!(&quot;first phone number: {}&quot;, john[&quot;phones&quot;][0]);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Convert to a string of JSON and print it out</span>
+<span class="doccomment">//!     println!(&quot;{}&quot;, john.to_string());</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The `Value::to_string()` function converts a `serde_json::Value` into a</span>
+<span class="doccomment">//! `String` of JSON text.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! One neat thing about the `json!` macro is that variables and expressions can</span>
+<span class="doccomment">//! be interpolated directly into the JSON value as you are building it. Serde</span>
+<span class="doccomment">//! will check at compile time that the value you are interpolating is able to</span>
+<span class="doccomment">//! be represented as JSON.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # use serde_json::json;</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # fn random_phone() -&gt; u16 { 0 }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! let full_name = &quot;John Doe&quot;;</span>
+<span class="doccomment">//! let age_last_year = 42;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // The type of `john` is `serde_json::Value`</span>
+<span class="doccomment">//! let john = json!({</span>
+<span class="doccomment">//!     &quot;name&quot;: full_name,</span>
+<span class="doccomment">//!     &quot;age&quot;: age_last_year + 1,</span>
+<span class="doccomment">//!     &quot;phones&quot;: [</span>
+<span class="doccomment">//!         format!(&quot;+44 {}&quot;, random_phone())</span>
+<span class="doccomment">//!     ]</span>
+<span class="doccomment">//! });</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is amazingly convenient but we have the problem we had before with</span>
+<span class="doccomment">//! `Value` which is that the IDE and Rust compiler cannot help us if we get it</span>
+<span class="doccomment">//! wrong. Serde JSON provides a better way of serializing strongly-typed data</span>
+<span class="doccomment">//! structures into JSON text.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Creating JSON by serializing data structures</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A data structure can be converted to a JSON string by</span>
+<span class="doccomment">//! [`serde_json::to_string`][to_string]. There is also</span>
+<span class="doccomment">//! [`serde_json::to_vec`][to_vec] which serializes to a `Vec&lt;u8&gt;` and</span>
+<span class="doccomment">//! [`serde_json::to_writer`][to_writer] which serializes to any `io::Write`</span>
+<span class="doccomment">//! such as a File or a TCP stream.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use serde::{Deserialize, Serialize};</span>
+<span class="doccomment">//! use serde_json::Result;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[derive(Serialize, Deserialize)]</span>
+<span class="doccomment">//! struct Address {</span>
+<span class="doccomment">//!     street: String,</span>
+<span class="doccomment">//!     city: String,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn print_an_address() -&gt; Result&lt;()&gt; {</span>
+<span class="doccomment">//!     // Some data structure.</span>
+<span class="doccomment">//!     let address = Address {</span>
+<span class="doccomment">//!         street: &quot;10 Downing Street&quot;.to_owned(),</span>
+<span class="doccomment">//!         city: &quot;London&quot;.to_owned(),</span>
+<span class="doccomment">//!     };</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Serialize it to a JSON string.</span>
+<span class="doccomment">//!     let j = serde_json::to_string(&amp;address)?;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Print, write to a file, or send to an HTTP server.</span>
+<span class="doccomment">//!     println!(&quot;{}&quot;, j);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! # fn main() {</span>
+<span class="doccomment">//! #     print_an_address().unwrap();</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Any type that implements Serde&#39;s `Serialize` trait can be serialized this</span>
+<span class="doccomment">//! way. This includes built-in Rust standard library types like `Vec&lt;T&gt;` and</span>
+<span class="doccomment">//! `HashMap&lt;K, V&gt;`, as well as any structs or enums annotated with</span>
+<span class="doccomment">//! `#[derive(Serialize)]`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # No-std support</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! As long as there is a memory allocator, it is possible to use serde_json</span>
+<span class="doccomment">//! without the rest of the Rust standard library. This is supported on Rust</span>
+<span class="doccomment">//! 1.36+. Disable the default &quot;std&quot; feature and enable the &quot;alloc&quot; feature:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! [dependencies]</span>
+<span class="doccomment">//! serde_json = { version = &quot;1.0&quot;, default-features = false, features = [&quot;alloc&quot;] }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For JSON support in Serde without a memory allocator, please see the</span>
+<span class="doccomment">//! [`serde-json-core`] crate.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [value]: https://docs.serde.rs/serde_json/value/enum.Value.html</span>
+<span class="doccomment">//! [from_str]: https://docs.serde.rs/serde_json/de/fn.from_str.html</span>
+<span class="doccomment">//! [from_slice]: https://docs.serde.rs/serde_json/de/fn.from_slice.html</span>
+<span class="doccomment">//! [from_reader]: https://docs.serde.rs/serde_json/de/fn.from_reader.html</span>
+<span class="doccomment">//! [to_string]: https://docs.serde.rs/serde_json/ser/fn.to_string.html</span>
+<span class="doccomment">//! [to_vec]: https://docs.serde.rs/serde_json/ser/fn.to_vec.html</span>
+<span class="doccomment">//! [to_writer]: https://docs.serde.rs/serde_json/ser/fn.to_writer.html</span>
+<span class="doccomment">//! [macro]: https://docs.serde.rs/serde_json/macro.json.html</span>
+<span class="doccomment">//! [`serde-json-core`]: https://japaric.github.io/serde-json-core/serde_json_core/</span>
+
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/serde_json/1.0.64&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">clippy::all</span>, <span class="ident">clippy::pedantic</span>)]</span>
+<span class="comment">// Ignored clippy lints</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">clippy::comparison_chain</span>,
+    <span class="ident">clippy::deprecated_cfg_attr</span>,
+    <span class="ident">clippy::doc_markdown</span>,
+    <span class="ident">clippy::excessive_precision</span>,
+    <span class="ident">clippy::float_cmp</span>,
+    <span class="ident">clippy::manual_range_contains</span>,
+    <span class="ident">clippy::match_like_matches_macro</span>,
+    <span class="ident">clippy::match_single_binding</span>,
+    <span class="ident">clippy::needless_doctest_main</span>,
+    <span class="ident">clippy::transmute_ptr_to_ptr</span>,
+    <span class="ident">clippy::unnecessary_wraps</span>,
+    <span class="comment">// clippy bug: https://github.com/rust-lang/rust-clippy/issues/5704</span>
+    <span class="ident">clippy::unnested_or_patterns</span>,
+)]</span>
+<span class="comment">// Ignored clippy_pedantic lints</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="comment">// Deserializer::from_str, into_iter</span>
+    <span class="ident">clippy::should_implement_trait</span>,
+    <span class="comment">// integer and float ser/de requires these sorts of casts</span>
+    <span class="ident">clippy::cast_possible_truncation</span>,
+    <span class="ident">clippy::cast_possible_wrap</span>,
+    <span class="ident">clippy::cast_precision_loss</span>,
+    <span class="ident">clippy::cast_sign_loss</span>,
+    <span class="comment">// correctly used</span>
+    <span class="ident">clippy::enum_glob_use</span>,
+    <span class="ident">clippy::if_not_else</span>,
+    <span class="ident">clippy::integer_division</span>,
+    <span class="ident">clippy::map_err_ignore</span>,
+    <span class="ident">clippy::match_same_arms</span>,
+    <span class="ident">clippy::similar_names</span>,
+    <span class="ident">clippy::unused_self</span>,
+    <span class="ident">clippy::wildcard_imports</span>,
+    <span class="comment">// things are often more readable this way</span>
+    <span class="ident">clippy::cast_lossless</span>,
+    <span class="ident">clippy::module_name_repetitions</span>,
+    <span class="ident">clippy::redundant_else</span>,
+    <span class="ident">clippy::shadow_unrelated</span>,
+    <span class="ident">clippy::single_match_else</span>,
+    <span class="ident">clippy::too_many_lines</span>,
+    <span class="ident">clippy::unreadable_literal</span>,
+    <span class="ident">clippy::unseparated_literal_suffix</span>,
+    <span class="ident">clippy::use_self</span>,
+    <span class="ident">clippy::zero_prefixed_literal</span>,
+    <span class="comment">// we support older compilers</span>
+    <span class="ident">clippy::checked_conversions</span>,
+    <span class="ident">clippy::mem_replace_with_default</span>,
+    <span class="comment">// noisy</span>
+    <span class="ident">clippy::missing_errors_doc</span>,
+    <span class="ident">clippy::must_use_candidate</span>,
+)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+
+<span class="comment">////////////////////////////////////////////////////////////////////////////////</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+
+<span class="doccomment">/// A facade around all the types we need from the `std`, `core`, and `alloc`</span>
+<span class="doccomment">/// crates. This avoids elaborate import wrangling having to happen in every</span>
+<span class="doccomment">/// module.</span>
+<span class="kw">mod</span> <span class="ident">lib</span> {
+    <span class="kw">mod</span> <span class="ident">core</span> {
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="kw-2">*</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="kw-2">*</span>;
+    }
+
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::cell</span>::{<span class="ident">Cell</span>, <span class="ident">RefCell</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::clone</span>::{<span class="self">self</span>, <span class="ident">Clone</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::convert</span>::{<span class="self">self</span>, <span class="ident">From</span>, <span class="ident">Into</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::default</span>::{<span class="self">self</span>, <span class="ident">Default</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Display</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::hash</span>::{<span class="self">self</span>, <span class="ident">Hash</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::iter::FusedIterator</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::marker</span>::{<span class="self">self</span>, <span class="ident">PhantomData</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::ops</span>::{<span class="ident">Bound</span>, <span class="ident">RangeBounds</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core::result</span>::{<span class="self">self</span>, <span class="prelude-ty">Result</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::core</span>::{<span class="ident">borrow</span>, <span class="ident">char</span>, <span class="ident">cmp</span>, <span class="ident">iter</span>, <span class="ident">mem</span>, <span class="ident">num</span>, <span class="ident">ops</span>, <span class="ident">slice</span>, <span class="ident">str</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::borrow</span>::{<span class="ident">Cow</span>, <span class="ident">ToOwned</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::borrow</span>::{<span class="ident">Cow</span>, <span class="ident">ToOwned</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::string</span>::{<span class="ident">String</span>, <span class="ident">ToString</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::string</span>::{<span class="ident">String</span>, <span class="ident">ToString</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::vec</span>::{<span class="self">self</span>, <span class="ident">Vec</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::vec</span>::{<span class="self">self</span>, <span class="ident">Vec</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::boxed::Box</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::boxed::Box</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::collections</span>::{<span class="ident">btree_map</span>, <span class="ident">BTreeMap</span>};
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">btree_map</span>, <span class="ident">BTreeMap</span>};
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::error</span>;
+}
+
+<span class="comment">////////////////////////////////////////////////////////////////////////////////</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::de::from_reader</span>;
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::de</span>::{<span class="ident">from_slice</span>, <span class="ident">from_str</span>, <span class="ident">Deserializer</span>, <span class="ident">StreamDeserializer</span>};
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ser</span>::{<span class="ident">to_string</span>, <span class="ident">to_string_pretty</span>, <span class="ident">to_vec</span>, <span class="ident">to_vec_pretty</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ser</span>::{<span class="ident">to_writer</span>, <span class="ident">to_writer_pretty</span>, <span class="ident">Serializer</span>};
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::value</span>::{<span class="ident">from_value</span>, <span class="ident">to_value</span>, <span class="ident">Map</span>, <span class="ident">Number</span>, <span class="ident">Value</span>};
+
+<span class="comment">// We only use our own error type; no need for From conversions provided by the</span>
+<span class="comment">// standard library&#39;s try! macro. This reduces lines of LLVM IR by 4%.</span>
+<span class="macro">macro_rules!</span> <span class="ident">tri</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span> {
+            <span class="kw">crate</span><span class="ident">::lib::Result::Ok</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>,
+            <span class="kw">crate</span><span class="ident">::lib::Result::Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="kw">crate</span><span class="ident">::lib::Result::Err</span>(<span class="ident">err</span>),
+        }
+    };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>:<span class="ident">expr</span>,) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="macro">tri!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e</span>)
+    };
+}
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">mod</span> <span class="ident">macros</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">de</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">map</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ser</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">ser</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">value</span>;
+
+<span class="kw">mod</span> <span class="ident">features_check</span>;
+
+<span class="kw">mod</span> <span class="ident">io</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">iter</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float_roundtrip&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">lexical</span>;
+<span class="kw">mod</span> <span class="ident">number</span>;
+<span class="kw">mod</span> <span class="ident">read</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;raw_value&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">raw</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_json" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

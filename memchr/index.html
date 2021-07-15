@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This library provides heavily optimized routines for string search primitives."><meta name="keywords" content="rust, rustlang, rust-lang, memchr"><title>memchr - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../memchr/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate memchr</p><div class="block version"><div class="narrow-helper"></div><p>Version 2.4.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all memchr's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="memchr" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">memchr</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/memchr/lib.rs.html#1-181" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This library provides heavily optimized routines for string search primitives.</p>
+<h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
+<p>This section gives a brief high level overview of what this crate offers.</p>
+<ul>
+<li>The top-level module provides routines for searching for 1, 2 or 3 bytes
+in the forward or reverse direction. When searching for more than one byte,
+positions are considered a match if the byte at that position matches any
+of the bytes.</li>
+<li>The <a href="memmem/index.html" title="memmem"><code>memmem</code></a> sub-module provides forward and reverse substring search
+routines.</li>
+</ul>
+<p>In all such cases, routines operate on <code>&amp;[u8]</code> without regard to encoding. This
+is exactly what you want when searching either UTF-8 or arbitrary bytes.</p>
+<h1 id="example-using-memchr" class="section-header"><a href="#example-using-memchr">Example: using <code>memchr</code></a></h1>
+<p>This example shows how to use <code>memchr</code> to find the first occurrence of <code>z</code> in
+a haystack:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">memchr::memchr</span>;
+
+<span class="kw">let</span> <span class="ident">haystack</span> <span class="op">=</span> <span class="string">b&quot;foo bar baz quuz&quot;</span>;
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">10</span>), <span class="ident">memchr</span>(<span class="string">b&#39;z&#39;</span>, <span class="ident">haystack</span>));</pre></div>
+<h1 id="example-matching-one-of-three-possible-bytes" class="section-header"><a href="#example-matching-one-of-three-possible-bytes">Example: matching one of three possible bytes</a></h1>
+<p>This examples shows how to use <code>memrchr3</code> to find occurrences of <code>a</code>, <code>b</code> or
+<code>c</code>, starting at the end of the haystack.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">memchr::memchr3_iter</span>;
+
+<span class="kw">let</span> <span class="ident">haystack</span> <span class="op">=</span> <span class="string">b&quot;xyzaxyzbxyzc&quot;</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">memchr3_iter</span>(<span class="string">b&#39;a&#39;</span>, <span class="string">b&#39;b&#39;</span>, <span class="string">b&#39;c&#39;</span>, <span class="ident">haystack</span>).<span class="ident">rev</span>();
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">11</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">7</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">3</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">it</span>.<span class="ident">next</span>());</pre></div>
+<h1 id="example-iterating-over-substring-matches" class="section-header"><a href="#example-iterating-over-substring-matches">Example: iterating over substring matches</a></h1>
+<p>This example shows how to use the <a href="memmem/index.html" title="memmem"><code>memmem</code></a> sub-module to find occurrences of
+a substring in a haystack.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">memchr::memmem</span>;
+
+<span class="kw">let</span> <span class="ident">haystack</span> <span class="op">=</span> <span class="string">b&quot;foo bar foo baz foo&quot;</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="ident">memmem::find_iter</span>(<span class="ident">haystack</span>, <span class="string">&quot;foo&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">8</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">16</span>), <span class="ident">it</span>.<span class="ident">next</span>());
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">it</span>.<span class="ident">next</span>());</pre></div>
+<h1 id="example-repeating-a-search-for-the-same-needle" class="section-header"><a href="#example-repeating-a-search-for-the-same-needle">Example: repeating a search for the same needle</a></h1>
+<p>It may be possible for the overhead of constructing a substring searcher to be
+measurable in some workloads. In cases where the same needle is used to search
+many haystacks, it is possible to do construction once and thus to avoid it for
+subsequent searches. This can be done with a <a href="memmem/struct.Finder.html" title="memmem::Finder"><code>memmem::Finder</code></a>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">memchr::memmem</span>;
+
+<span class="kw">let</span> <span class="ident">finder</span> <span class="op">=</span> <span class="ident">memmem::Finder::new</span>(<span class="string">&quot;foo&quot;</span>);
+
+<span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="number">4</span>), <span class="ident">finder</span>.<span class="ident">find</span>(<span class="string">b&quot;baz foo quux&quot;</span>));
+<span class="macro">assert_eq!</span>(<span class="prelude-val">None</span>, <span class="ident">finder</span>.<span class="ident">find</span>(<span class="string">b&quot;quux baz bar&quot;</span>));</pre></div>
+<h1 id="why-use-this-crate" class="section-header"><a href="#why-use-this-crate">Why use this crate?</a></h1>
+<p>At first glance, the APIs provided by this crate might seem weird. Why provide
+a dedicated routine like <code>memchr</code> for something that could be implemented
+clearly and trivially in one line:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">memchr</span>(<span class="ident">needle</span>: <span class="ident">u8</span>, <span class="ident">haystack</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="ident">haystack</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="ident">needle</span>)
+}</pre></div>
+<p>Or similarly, why does this crate provide substring search routines when Rust’s
+core library already provides them?</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">search</span>(<span class="ident">haystack</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">needle</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="ident">haystack</span>.<span class="ident">find</span>(<span class="ident">needle</span>)
+}</pre></div>
+<p>The primary reason for both of them to exist is performance. When it comes to
+performance, at a high level at least, there are two primary ways to look at
+it:</p>
+<ul>
+<li><strong>Throughput</strong>: For this, think about it as, “given some very large haystack
+and a byte that never occurs in that haystack, how long does it take to
+search through it and determine that it, in fact, does not occur?”</li>
+<li><strong>Latency</strong>: For this, think about it as, “given a tiny haystack—just a
+few bytes—how long does it take to determine if a byte is in it?”</li>
+</ul>
+<p>The <code>memchr</code> routine in this crate has <em>slightly</em> worse latency than the
+solution presented above, however, its throughput can easily be over an
+order of magnitude faster. This is a good general purpose trade off to make.
+You rarely lose, but often gain big.</p>
+<p><strong>NOTE:</strong> The name <code>memchr</code> comes from the corresponding routine in libc. A key
+advantage of using this library is that its performance is not tied to its
+quality of implementation in the libc you happen to be using, which can vary
+greatly from platform to platform.</p>
+<p>But what about substring search? This one is a bit more complicated. The
+primary reason for its existence is still indeed performance, but it’s also
+useful because Rust’s core library doesn’t actually expose any substring
+search routine on arbitrary bytes. The only substring search routine that
+exists works exclusively on valid UTF-8.</p>
+<p>So if you have valid UTF-8, is there a reason to use this over the standard
+library substring search routine? Yes. This routine is faster on almost every
+metric, including latency. The natural question then, is why isn’t this
+implementation in the standard library, even if only for searching on UTF-8?
+The reason is that the implementation details for using SIMD in the standard
+library haven’t quite been worked out yet.</p>
+<p><strong>NOTE:</strong> Currently, only <code>x86_64</code> targets have highly accelerated
+implementations of substring search. For <code>memchr</code>, all targets have
+somewhat-accelerated implementations, while only <code>x86_64</code> targets have highly
+accelerated implementations. This limitation is expected to be lifted once the
+standard library exposes a platform independent SIMD API.</p>
+<h1 id="crate-features" class="section-header"><a href="#crate-features">Crate features</a></h1>
+<ul>
+<li><strong>std</strong> - When enabled (the default), this will permit this crate to use
+features specific to the standard library. Currently, the only thing used
+from the standard library is runtime SIMD CPU feature detection. This means
+that this feature must be enabled to get AVX accelerated routines. When
+<code>std</code> is not enabled, this crate will still attempt to use SSE2 accelerated
+routines on <code>x86_64</code>.</li>
+<li><strong>libc</strong> - When enabled (<strong>not</strong> the default), this library will use your
+platform’s libc implementation of <code>memchr</code> (and <code>memrchr</code> on Linux). This
+can be useful on non-<code>x86_64</code> targets where the fallback implementation in
+this crate is not as good as the one found in your libc. All other routines
+(e.g., <code>memchr[23]</code> and substring search) unconditionally use the
+implementation in this crate.</li>
+</ul>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="memmem/index.html" title="memchr::memmem mod">memmem</a></div><div class="item-right docblock-short"><p>This module provides forward and reverse substring search routines.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Memchr.html" title="memchr::Memchr struct">Memchr</a></div><div class="item-right docblock-short"><p>An iterator for <code>memchr</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Memchr2.html" title="memchr::Memchr2 struct">Memchr2</a></div><div class="item-right docblock-short"><p>An iterator for <code>memchr2</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Memchr3.html" title="memchr::Memchr3 struct">Memchr3</a></div><div class="item-right docblock-short"><p>An iterator for <code>memchr3</code>.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.memchr.html" title="memchr::memchr fn">memchr</a></div><div class="item-right docblock-short"><p>Search for the first occurrence of a byte in a slice.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memchr2.html" title="memchr::memchr2 fn">memchr2</a></div><div class="item-right docblock-short"><p>Like <code>memchr</code>, but searches for either of two bytes instead of just one.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memchr2_iter.html" title="memchr::memchr2_iter fn">memchr2_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needles in a haystack.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memchr3.html" title="memchr::memchr3 fn">memchr3</a></div><div class="item-right docblock-short"><p>Like <code>memchr</code>, but searches for any of three bytes instead of just one.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memchr3_iter.html" title="memchr::memchr3_iter fn">memchr3_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needles in a haystack.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memchr_iter.html" title="memchr::memchr_iter fn">memchr_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needle in a haystack.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr.html" title="memchr::memrchr fn">memrchr</a></div><div class="item-right docblock-short"><p>Search for the last occurrence of a byte in a slice.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr2.html" title="memchr::memrchr2 fn">memrchr2</a></div><div class="item-right docblock-short"><p>Like <code>memrchr</code>, but searches for either of two bytes instead of just one.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr2_iter.html" title="memchr::memrchr2_iter fn">memrchr2_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needles in a haystack, in reverse.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr3.html" title="memchr::memrchr3 fn">memrchr3</a></div><div class="item-right docblock-short"><p>Like <code>memrchr</code>, but searches for any of three bytes instead of just one.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr3_iter.html" title="memchr::memrchr3_iter fn">memrchr3_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needles in a haystack, in reverse.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.memrchr_iter.html" title="memchr::memrchr_iter fn">memrchr_iter</a></div><div class="item-right docblock-short"><p>An iterator over all occurrences of the needle in a haystack, in reverse.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="memchr" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

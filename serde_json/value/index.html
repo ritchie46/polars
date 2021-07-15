@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The Value enum, a loosely typed way of representing any valid JSON value."><meta name="keywords" content="rust, rustlang, rust-lang, value"><title>serde_json::value - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde_json/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module value</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="value" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">serde_json</a>::<wbr><a class="mod" href="#">value</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/serde_json/value/mod.rs.html#1-1010" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The Value enum, a loosely typed way of representing any valid JSON value.</p>
+<h1 id="constructing-json" class="section-header"><a href="#constructing-json">Constructing JSON</a></h1>
+<p>Serde JSON provides a <a href="https://docs.serde.rs/serde_json/macro.json.html"><code>json!</code> macro</a> to build <code>serde_json::Value</code>
+objects with very natural JSON syntax.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="comment">// The type of `john` is `serde_json::Value`</span>
+    <span class="kw">let</span> <span class="ident">john</span> <span class="op">=</span> <span class="macro">json!</span>({
+        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;John Doe&quot;</span>,
+        <span class="string">&quot;age&quot;</span>: <span class="number">43</span>,
+        <span class="string">&quot;phones&quot;</span>: [
+            <span class="string">&quot;+44 1234567&quot;</span>,
+            <span class="string">&quot;+44 2345678&quot;</span>
+        ]
+    });
+
+    <span class="macro">println!</span>(<span class="string">&quot;first phone number: {}&quot;</span>, <span class="ident">john</span>[<span class="string">&quot;phones&quot;</span>][<span class="number">0</span>]);
+
+    <span class="comment">// Convert to a string of JSON and print it out</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">john</span>.<span class="ident">to_string</span>());
+}</pre></div>
+<p>The <code>Value::to_string()</code> function converts a <code>serde_json::Value</code> into a
+<code>String</code> of JSON text.</p>
+<p>One neat thing about the <code>json!</code> macro is that variables and expressions can
+be interpolated directly into the JSON value as you are building it. Serde
+will check at compile time that the value you are interpolating is able to
+be represented as JSON.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">full_name</span> <span class="op">=</span> <span class="string">&quot;John Doe&quot;</span>;
+<span class="kw">let</span> <span class="ident">age_last_year</span> <span class="op">=</span> <span class="number">42</span>;
+
+<span class="comment">// The type of `john` is `serde_json::Value`</span>
+<span class="kw">let</span> <span class="ident">john</span> <span class="op">=</span> <span class="macro">json!</span>({
+    <span class="string">&quot;name&quot;</span>: <span class="ident">full_name</span>,
+    <span class="string">&quot;age&quot;</span>: <span class="ident">age_last_year</span> <span class="op">+</span> <span class="number">1</span>,
+    <span class="string">&quot;phones&quot;</span>: [
+        <span class="macro">format!</span>(<span class="string">&quot;+44 {}&quot;</span>, <span class="ident">random_phone</span>())
+    ]
+});</pre></div>
+<p>A string of JSON data can be parsed into a <code>serde_json::Value</code> by the
+<a href="https://docs.serde.rs/serde_json/de/fn.from_str.html"><code>serde_json::from_str</code></a> function. There is also
+<a href="https://docs.serde.rs/serde_json/de/fn.from_slice.html"><code>from_slice</code></a> for parsing from a byte slice <code>&amp;[u8]</code> and
+<a href="https://docs.serde.rs/serde_json/de/fn.from_reader.html"><code>from_reader</code></a> for parsing from any <code>io::Read</code> like a File or
+a TCP stream.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">json</span>, <span class="ident">Value</span>, <span class="ident">Error</span>};
+
+<span class="kw">fn</span> <span class="ident">untyped_example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="comment">// Some JSON input data as a &amp;str. Maybe this comes from the user.</span>
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="string">r#&quot;
+        {
+            &quot;name&quot;: &quot;John Doe&quot;,
+            &quot;age&quot;: 43,
+            &quot;phones&quot;: [
+                &quot;+44 1234567&quot;,
+                &quot;+44 2345678&quot;
+            ]
+        }&quot;#</span>;
+
+    <span class="comment">// Parse the string of data into serde_json::Value.</span>
+    <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">Value</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Access parts of the data by indexing with square brackets.</span>
+    <span class="macro">println!</span>(<span class="string">&quot;Please call {} at the number {}&quot;</span>, <span class="ident">v</span>[<span class="string">&quot;name&quot;</span>], <span class="ident">v</span>[<span class="string">&quot;phones&quot;</span>][<span class="number">0</span>]);
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-left import-item"><code>pub use crate::map::<a class="struct" href="../struct.Map.html" title="struct serde_json::Map">Map</a>;</code></div><div class="item-right docblock-short"></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Number.html" title="serde_json::value::Number struct">Number</a></div><div class="item-right docblock-short"><p>Represents a JSON number, whether integer or floating point.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Serializer.html" title="serde_json::value::Serializer struct">Serializer</a></div><div class="item-right docblock-short"><p>Serializer whose output is a <code>Value</code>.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Value.html" title="serde_json::value::Value enum">Value</a></div><div class="item-right docblock-short"><p>Represents any valid JSON value.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Index.html" title="serde_json::value::Index trait">Index</a></div><div class="item-right docblock-short"><p>A type that can be used to index into a <code>serde_json::Value</code>.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.from_value.html" title="serde_json::value::from_value fn">from_value</a></div><div class="item-right docblock-short"><p>Interpret a <code>serde_json::Value</code> as an instance of type <code>T</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_value.html" title="serde_json::value::to_value fn">to_value</a></div><div class="item-right docblock-short"><p>Convert a <code>T</code> into <code>serde_json::Value</code> which is an enum that can represent
+any valid JSON data.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde_json" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

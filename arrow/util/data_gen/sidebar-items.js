@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["create_random_array","Create a random [ArrayRef] from a [DataType] with a length, null density and true density (for [BooleanArray])."],["create_random_batch","Create a random [RecordBatch] from a schema"]]});

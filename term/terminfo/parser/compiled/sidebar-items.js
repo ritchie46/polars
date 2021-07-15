@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["parse","Parse a compiled terminfo entry, using long capability names if `longnames` is true"]],"static":[["boolfnames",""],["boolnames",""],["numfnames",""],["numnames",""],["stringfnames",""],["stringnames",""]]});

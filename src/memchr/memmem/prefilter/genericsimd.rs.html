@@ -1,0 +1,419 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;memchr-2.4.0&#x2F;src&#x2F;memmem&#x2F;prefilter&#x2F;genericsimd.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>genericsimd.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../memchr/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+</pre><pre class="rust">
+<span class="kw">use</span> <span class="ident">core::mem::size_of</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::memmem</span>::{
+    <span class="ident">prefilter</span>::{<span class="ident">PrefilterFnTy</span>, <span class="ident">PrefilterState</span>},
+    <span class="ident">vector::Vector</span>,
+    <span class="ident">NeedleInfo</span>,
+};
+
+<span class="doccomment">/// The implementation of the forward vector accelerated candidate finder.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is inspired by the &quot;generic SIMD&quot; algorithm described here:</span>
+<span class="doccomment">/// http://0x80.pl/articles/simd-strfind.html#algorithm-1-generic-simd</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The main difference is that this is just a prefilter. That is, it reports</span>
+<span class="doccomment">/// candidates once they are seen and doesn&#39;t attempt to confirm them. Also,</span>
+<span class="doccomment">/// the bytes this routine uses to check for candidates are selected based on</span>
+<span class="doccomment">/// an a priori background frequency distribution. This means that on most</span>
+<span class="doccomment">/// haystacks, this will on average spend more time in vectorized code than you</span>
+<span class="doccomment">/// would if you just selected the first and last bytes of the needle.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that a non-prefilter variant of this algorithm can be found in the</span>
+<span class="doccomment">/// parent module, but it only works on smaller needles.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `prestate`, `ninfo`, `haystack` and `needle` are the four prefilter</span>
+<span class="doccomment">/// function parameters. `fallback` is a prefilter that is used if the haystack</span>
+<span class="doccomment">/// is too small to be handled with the given vector size.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This routine is not safe because it is intended for callers to specialize</span>
+<span class="doccomment">/// this with a particular vector (e.g., __m256i) and then call it with the</span>
+<span class="doccomment">/// relevant target feature (e.g., avx2) enabled.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Panics</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If `needle.len() &lt;= 1`, then this panics.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Since this is meant to be used with vector functions, callers need to</span>
+<span class="doccomment">/// specialize this inside of a function with a `target_feature` attribute.</span>
+<span class="doccomment">/// Therefore, callers must ensure that whatever target feature is being used</span>
+<span class="doccomment">/// supports the vector functions that this function is specialized for. (For</span>
+<span class="doccomment">/// the specific vector functions used, see the Vector trait implementations.)</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">find</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Vector</span><span class="op">&gt;</span>(
+    <span class="ident">prestate</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PrefilterState</span>,
+    <span class="ident">ninfo</span>: <span class="kw-2">&amp;</span><span class="ident">NeedleInfo</span>,
+    <span class="ident">haystack</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+    <span class="ident">needle</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+    <span class="ident">fallback</span>: <span class="ident">PrefilterFnTy</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="macro">assert!</span>(<span class="ident">needle</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>, <span class="string">&quot;needle must be at least 2 bytes&quot;</span>);
+    <span class="kw">let</span> (<span class="ident">rare1i</span>, <span class="ident">rare2i</span>) <span class="op">=</span> <span class="ident">ninfo</span>.<span class="ident">rarebytes</span>.<span class="ident">as_rare_ordered_usize</span>();
+    <span class="kw">let</span> <span class="ident">min_haystack_len</span> <span class="op">=</span> <span class="ident">rare2i</span> <span class="op">+</span> <span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>();
+    <span class="kw">if</span> <span class="ident">haystack</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">min_haystack_len</span> {
+        <span class="kw">return</span> <span class="ident">fallback</span>(<span class="ident">prestate</span>, <span class="ident">ninfo</span>, <span class="ident">haystack</span>, <span class="ident">needle</span>);
+    }
+
+    <span class="kw">let</span> <span class="ident">start_ptr</span> <span class="op">=</span> <span class="ident">haystack</span>.<span class="ident">as_ptr</span>();
+    <span class="kw">let</span> <span class="ident">end_ptr</span> <span class="op">=</span> <span class="ident">start_ptr</span>.<span class="ident">add</span>(<span class="ident">haystack</span>.<span class="ident">len</span>());
+    <span class="kw">let</span> <span class="ident">max_ptr</span> <span class="op">=</span> <span class="ident">end_ptr</span>.<span class="ident">sub</span>(<span class="ident">min_haystack_len</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">start_ptr</span>;
+
+    <span class="kw">let</span> <span class="ident">rare1chunk</span> <span class="op">=</span> <span class="ident">V::splat</span>(<span class="ident">needle</span>[<span class="ident">rare1i</span>]);
+    <span class="kw">let</span> <span class="ident">rare2chunk</span> <span class="op">=</span> <span class="ident">V::splat</span>(<span class="ident">needle</span>[<span class="ident">rare2i</span>]);
+
+    <span class="comment">// N.B. I did experiment with unrolling the loop to deal with size(V)</span>
+    <span class="comment">// bytes at a time and 2*size(V) bytes at a time. The double unroll</span>
+    <span class="comment">// was marginally faster while the quadruple unroll was unambiguously</span>
+    <span class="comment">// slower. In the end, I decided the complexity from unrolling wasn&#39;t</span>
+    <span class="comment">// worth it. I used the memmem/krate/prebuilt/huge-en/ benchmarks to</span>
+    <span class="comment">// compare.</span>
+    <span class="kw">while</span> <span class="ident">ptr</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_ptr</span> {
+        <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">find_in_chunk2</span>(<span class="ident">ptr</span>, <span class="ident">rare1i</span>, <span class="ident">rare2i</span>, <span class="ident">rare1chunk</span>, <span class="ident">rare2chunk</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chunki</span>) <span class="op">=</span> <span class="ident">m</span> {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">matched</span>(<span class="ident">prestate</span>, <span class="ident">start_ptr</span>, <span class="ident">ptr</span>, <span class="ident">chunki</span>));
+        }
+        <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>());
+    }
+    <span class="kw">if</span> <span class="ident">ptr</span> <span class="op">&lt;</span> <span class="ident">end_ptr</span> {
+        <span class="comment">// This routine immediately quits if a candidate match is found.</span>
+        <span class="comment">// That means that if we&#39;re here, no candidate matches have been</span>
+        <span class="comment">// found at or before &#39;ptr&#39;. Thus, we don&#39;t need to mask anything</span>
+        <span class="comment">// out even though we might technically search part of the haystack</span>
+        <span class="comment">// that we&#39;ve already searched (because we know it can&#39;t match).</span>
+        <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">max_ptr</span>;
+        <span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">find_in_chunk2</span>(<span class="ident">ptr</span>, <span class="ident">rare1i</span>, <span class="ident">rare2i</span>, <span class="ident">rare1chunk</span>, <span class="ident">rare2chunk</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chunki</span>) <span class="op">=</span> <span class="ident">m</span> {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">matched</span>(<span class="ident">prestate</span>, <span class="ident">start_ptr</span>, <span class="ident">ptr</span>, <span class="ident">chunki</span>));
+        }
+    }
+    <span class="ident">prestate</span>.<span class="ident">update</span>(<span class="ident">haystack</span>.<span class="ident">len</span>());
+    <span class="prelude-val">None</span>
+}
+
+<span class="comment">// Below are two different techniques for checking whether a candidate</span>
+<span class="comment">// match exists in a given chunk or not. find_in_chunk2 checks two bytes</span>
+<span class="comment">// where as find_in_chunk3 checks three bytes. The idea behind checking</span>
+<span class="comment">// three bytes is that while we do a bit more work per iteration, we</span>
+<span class="comment">// decrease the chances of a false positive match being reported and thus</span>
+<span class="comment">// make the search faster overall. This actually works out for the</span>
+<span class="comment">// memmem/krate/prebuilt/huge-en/never-all-common-bytes benchmark, where</span>
+<span class="comment">// using find_in_chunk3 is about 25% faster than find_in_chunk2. However,</span>
+<span class="comment">// it turns out that find_in_chunk2 is faster for all other benchmarks, so</span>
+<span class="comment">// perhaps the extra check isn&#39;t worth it in practice.</span>
+<span class="comment">//</span>
+<span class="comment">// For now, we go with find_in_chunk2, but we leave find_in_chunk3 around</span>
+<span class="comment">// to make it easy to switch to and benchmark when possible.</span>
+
+<span class="doccomment">/// Search for an occurrence of two rare bytes from the needle in the current</span>
+<span class="doccomment">/// chunk pointed to by ptr.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// rare1chunk and rare2chunk correspond to vectors with the rare1 and rare2</span>
+<span class="doccomment">/// bytes repeated in each 8-bit lane, respectively.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It must be safe to do an unaligned read of size(V) bytes starting at both</span>
+<span class="doccomment">/// (ptr + rare1i) and (ptr + rare2i).</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">find_in_chunk2</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Vector</span><span class="op">&gt;</span>(
+    <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
+    <span class="ident">rare1i</span>: <span class="ident">usize</span>,
+    <span class="ident">rare2i</span>: <span class="ident">usize</span>,
+    <span class="ident">rare1chunk</span>: <span class="ident">V</span>,
+    <span class="ident">rare2chunk</span>: <span class="ident">V</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">chunk0</span> <span class="op">=</span> <span class="ident">V::load_unaligned</span>(<span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">rare1i</span>));
+    <span class="kw">let</span> <span class="ident">chunk1</span> <span class="op">=</span> <span class="ident">V::load_unaligned</span>(<span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">rare2i</span>));
+
+    <span class="kw">let</span> <span class="ident">eq0</span> <span class="op">=</span> <span class="ident">chunk0</span>.<span class="ident">cmpeq</span>(<span class="ident">rare1chunk</span>);
+    <span class="kw">let</span> <span class="ident">eq1</span> <span class="op">=</span> <span class="ident">chunk1</span>.<span class="ident">cmpeq</span>(<span class="ident">rare2chunk</span>);
+
+    <span class="kw">let</span> <span class="ident">match_offsets</span> <span class="op">=</span> <span class="ident">eq0</span>.<span class="ident">and</span>(<span class="ident">eq1</span>).<span class="ident">movemask</span>();
+    <span class="kw">if</span> <span class="ident">match_offsets</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    }
+    <span class="prelude-val">Some</span>(<span class="ident">match_offsets</span>.<span class="ident">trailing_zeros</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+}
+
+<span class="doccomment">/// Search for an occurrence of two rare bytes and the first byte (even if one</span>
+<span class="doccomment">/// of the rare bytes is equivalent to the first byte) from the needle in the</span>
+<span class="doccomment">/// current chunk pointed to by ptr.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// firstchunk, rare1chunk and rare2chunk correspond to vectors with the first,</span>
+<span class="doccomment">/// rare1 and rare2 bytes repeated in each 8-bit lane, respectively.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Safety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It must be safe to do an unaligned read of size(V) bytes starting at ptr,</span>
+<span class="doccomment">/// (ptr + rare1i) and (ptr + rare2i).</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">find_in_chunk3</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Vector</span><span class="op">&gt;</span>(
+    <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
+    <span class="ident">rare1i</span>: <span class="ident">usize</span>,
+    <span class="ident">rare2i</span>: <span class="ident">usize</span>,
+    <span class="ident">firstchunk</span>: <span class="ident">V</span>,
+    <span class="ident">rare1chunk</span>: <span class="ident">V</span>,
+    <span class="ident">rare2chunk</span>: <span class="ident">V</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">chunk0</span> <span class="op">=</span> <span class="ident">V::load_unaligned</span>(<span class="ident">ptr</span>);
+    <span class="kw">let</span> <span class="ident">chunk1</span> <span class="op">=</span> <span class="ident">V::load_unaligned</span>(<span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">rare1i</span>));
+    <span class="kw">let</span> <span class="ident">chunk2</span> <span class="op">=</span> <span class="ident">V::load_unaligned</span>(<span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">rare2i</span>));
+
+    <span class="kw">let</span> <span class="ident">eq0</span> <span class="op">=</span> <span class="ident">chunk0</span>.<span class="ident">cmpeq</span>(<span class="ident">firstchunk</span>);
+    <span class="kw">let</span> <span class="ident">eq1</span> <span class="op">=</span> <span class="ident">chunk1</span>.<span class="ident">cmpeq</span>(<span class="ident">rare1chunk</span>);
+    <span class="kw">let</span> <span class="ident">eq2</span> <span class="op">=</span> <span class="ident">chunk2</span>.<span class="ident">cmpeq</span>(<span class="ident">rare2chunk</span>);
+
+    <span class="kw">let</span> <span class="ident">match_offsets</span> <span class="op">=</span> <span class="ident">eq0</span>.<span class="ident">and</span>(<span class="ident">eq1</span>).<span class="ident">and</span>(<span class="ident">eq2</span>).<span class="ident">movemask</span>();
+    <span class="kw">if</span> <span class="ident">match_offsets</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    }
+    <span class="prelude-val">Some</span>(<span class="ident">match_offsets</span>.<span class="ident">trailing_zeros</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+}
+
+<span class="doccomment">/// Accepts a chunk-relative offset and returns a haystack relative offset</span>
+<span class="doccomment">/// after updating the prefilter state.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Why do we use this unlineable function when a search completes? Well,</span>
+<span class="doccomment">/// I don&#39;t know. Really. Obviously this function was not here initially.</span>
+<span class="doccomment">/// When doing profiling, the codegen for the inner loop here looked bad and</span>
+<span class="doccomment">/// I didn&#39;t know why. There were a couple extra &#39;add&#39; instructions and an</span>
+<span class="doccomment">/// extra &#39;lea&#39; instruction that I couldn&#39;t explain. I hypothesized that the</span>
+<span class="doccomment">/// optimizer was having trouble untangling the hot code in the loop from the</span>
+<span class="doccomment">/// code that deals with a candidate match. By putting the latter into an</span>
+<span class="doccomment">/// unlineable function, it kind of forces the issue and it had the intended</span>
+<span class="doccomment">/// effect: codegen improved measurably. It&#39;s good for a ~10% improvement</span>
+<span class="doccomment">/// across the board on the memmem/krate/prebuilt/huge-en/ benchmarks.</span>
+<span class="attribute">#[<span class="ident">cold</span>]</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">never</span>)]</span>
+<span class="kw">fn</span> <span class="ident">matched</span>(
+    <span class="ident">prestate</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">PrefilterState</span>,
+    <span class="ident">start_ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
+    <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>,
+    <span class="ident">chunki</span>: <span class="ident">usize</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">diff</span>(<span class="ident">ptr</span>, <span class="ident">start_ptr</span>) <span class="op">+</span> <span class="ident">chunki</span>;
+    <span class="ident">prestate</span>.<span class="ident">update</span>(<span class="ident">found</span>);
+    <span class="ident">found</span>
+}
+
+<span class="doccomment">/// Subtract `b` from `a` and return the difference. `a` must be greater than</span>
+<span class="doccomment">/// or equal to `b`.</span>
+<span class="kw">fn</span> <span class="ident">diff</span>(<span class="ident">a</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>, <span class="ident">b</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="macro">debug_assert!</span>(<span class="ident">a</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">b</span>);
+    (<span class="ident">a</span> <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">-</span> (<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>)
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="memchr" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
+    <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
+</body></html>

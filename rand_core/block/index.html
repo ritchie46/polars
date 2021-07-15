@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The `BlockRngCore` trait and implementation helpers"><meta name="keywords" content="rust, rustlang, rust-lang, block"><title>rand_core::block - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rand_core/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a><p class="location">Module block</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="block" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">rand_core</a>::<wbr><a class="mod" href="#">block</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/rand_core/block.rs.html#9-437" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The <code>BlockRngCore</code> trait and implementation helpers</p>
+<p>The <a href="trait.BlockRngCore.html"><code>BlockRngCore</code></a> trait exists to assist in the implementation of RNGs
+which generate a block of data in a cache instead of returning generated
+values directly.</p>
+<p>Usage of this trait is optional, but provides two advantages:
+implementations only need to concern themselves with generation of the
+block, not the various <a href="../trait.RngCore.html" title="RngCore"><code>RngCore</code></a> methods (especially <a href="../trait.RngCore.html#tymethod.fill_bytes"><code>fill_bytes</code></a>, where
+the optimal implementations are not trivial), and this allows
+<code>ReseedingRng</code> (see <a href="https://docs.rs/rand"><code>rand</code></a> crate) perform periodic
+reseeding with very low overhead.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rand_core</span>::{<span class="ident">RngCore</span>, <span class="ident">SeedableRng</span>};
+<span class="kw">use</span> <span class="ident">rand_core::block</span>::{<span class="ident">BlockRngCore</span>, <span class="ident">BlockRng</span>};
+
+<span class="kw">struct</span> <span class="ident">MyRngCore</span>;
+
+<span class="kw">impl</span> <span class="ident">BlockRngCore</span> <span class="kw">for</span> <span class="ident">MyRngCore</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">u32</span>;
+    <span class="kw">type</span> <span class="ident">Results</span> <span class="op">=</span> [<span class="ident">u32</span>; <span class="number">16</span>];
+
+    <span class="kw">fn</span> <span class="ident">generate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">results</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="ident">::Results</span>) {
+        <span class="macro">unimplemented!</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SeedableRng</span> <span class="kw">for</span> <span class="ident">MyRngCore</span> {
+    <span class="kw">type</span> <span class="ident">Seed</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
+    <span class="kw">fn</span> <span class="ident">from_seed</span>(<span class="ident">seed</span>: <span class="self">Self</span><span class="ident">::Seed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="macro">unimplemented!</span>()
+    }
+}
+
+<span class="comment">// optionally, also implement CryptoRng for MyRngCore</span>
+
+<span class="comment">// Final RNG.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">BlockRng</span>::<span class="op">&lt;</span><span class="ident">MyRngCore</span><span class="op">&gt;</span><span class="ident">::seed_from_u64</span>(<span class="number">0</span>);
+<span class="macro">println!</span>(<span class="string">&quot;First value: {}&quot;</span>, <span class="ident">rng</span>.<span class="ident">next_u32</span>());</pre></div>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.BlockRng.html" title="rand_core::block::BlockRng struct">BlockRng</a></div><div class="item-right docblock-short"><p>A wrapper type implementing <a href="../trait.RngCore.html" title="RngCore"><code>RngCore</code></a> for some type implementing
+<a href="trait.BlockRngCore.html" title="BlockRngCore"><code>BlockRngCore</code></a> with <code>u32</code> array buffer; i.e. this can be used to implement
+a full RNG from just a <code>generate</code> function.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.BlockRng64.html" title="rand_core::block::BlockRng64 struct">BlockRng64</a></div><div class="item-right docblock-short"><p>A wrapper type implementing <a href="../trait.RngCore.html" title="RngCore"><code>RngCore</code></a> for some type implementing
+<a href="trait.BlockRngCore.html" title="BlockRngCore"><code>BlockRngCore</code></a> with <code>u64</code> array buffer; i.e. this can be used to implement
+a full RNG from just a <code>generate</code> function.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.BlockRngCore.html" title="rand_core::block::BlockRngCore trait">BlockRngCore</a></div><div class="item-right docblock-short"><p>A trait for RNGs which do not generate random numbers individually, but in
+blocks (typically <code>[u32; N]</code>). This technique is commonly used by
+cryptographic RNGs to improve performance.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rand_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

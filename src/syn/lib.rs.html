@@ -1,0 +1,2005 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;syn-1.0.73&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<span id="2">   2</span>
+<span id="3">   3</span>
+<span id="4">   4</span>
+<span id="5">   5</span>
+<span id="6">   6</span>
+<span id="7">   7</span>
+<span id="8">   8</span>
+<span id="9">   9</span>
+<span id="10">  10</span>
+<span id="11">  11</span>
+<span id="12">  12</span>
+<span id="13">  13</span>
+<span id="14">  14</span>
+<span id="15">  15</span>
+<span id="16">  16</span>
+<span id="17">  17</span>
+<span id="18">  18</span>
+<span id="19">  19</span>
+<span id="20">  20</span>
+<span id="21">  21</span>
+<span id="22">  22</span>
+<span id="23">  23</span>
+<span id="24">  24</span>
+<span id="25">  25</span>
+<span id="26">  26</span>
+<span id="27">  27</span>
+<span id="28">  28</span>
+<span id="29">  29</span>
+<span id="30">  30</span>
+<span id="31">  31</span>
+<span id="32">  32</span>
+<span id="33">  33</span>
+<span id="34">  34</span>
+<span id="35">  35</span>
+<span id="36">  36</span>
+<span id="37">  37</span>
+<span id="38">  38</span>
+<span id="39">  39</span>
+<span id="40">  40</span>
+<span id="41">  41</span>
+<span id="42">  42</span>
+<span id="43">  43</span>
+<span id="44">  44</span>
+<span id="45">  45</span>
+<span id="46">  46</span>
+<span id="47">  47</span>
+<span id="48">  48</span>
+<span id="49">  49</span>
+<span id="50">  50</span>
+<span id="51">  51</span>
+<span id="52">  52</span>
+<span id="53">  53</span>
+<span id="54">  54</span>
+<span id="55">  55</span>
+<span id="56">  56</span>
+<span id="57">  57</span>
+<span id="58">  58</span>
+<span id="59">  59</span>
+<span id="60">  60</span>
+<span id="61">  61</span>
+<span id="62">  62</span>
+<span id="63">  63</span>
+<span id="64">  64</span>
+<span id="65">  65</span>
+<span id="66">  66</span>
+<span id="67">  67</span>
+<span id="68">  68</span>
+<span id="69">  69</span>
+<span id="70">  70</span>
+<span id="71">  71</span>
+<span id="72">  72</span>
+<span id="73">  73</span>
+<span id="74">  74</span>
+<span id="75">  75</span>
+<span id="76">  76</span>
+<span id="77">  77</span>
+<span id="78">  78</span>
+<span id="79">  79</span>
+<span id="80">  80</span>
+<span id="81">  81</span>
+<span id="82">  82</span>
+<span id="83">  83</span>
+<span id="84">  84</span>
+<span id="85">  85</span>
+<span id="86">  86</span>
+<span id="87">  87</span>
+<span id="88">  88</span>
+<span id="89">  89</span>
+<span id="90">  90</span>
+<span id="91">  91</span>
+<span id="92">  92</span>
+<span id="93">  93</span>
+<span id="94">  94</span>
+<span id="95">  95</span>
+<span id="96">  96</span>
+<span id="97">  97</span>
+<span id="98">  98</span>
+<span id="99">  99</span>
+<span id="100"> 100</span>
+<span id="101"> 101</span>
+<span id="102"> 102</span>
+<span id="103"> 103</span>
+<span id="104"> 104</span>
+<span id="105"> 105</span>
+<span id="106"> 106</span>
+<span id="107"> 107</span>
+<span id="108"> 108</span>
+<span id="109"> 109</span>
+<span id="110"> 110</span>
+<span id="111"> 111</span>
+<span id="112"> 112</span>
+<span id="113"> 113</span>
+<span id="114"> 114</span>
+<span id="115"> 115</span>
+<span id="116"> 116</span>
+<span id="117"> 117</span>
+<span id="118"> 118</span>
+<span id="119"> 119</span>
+<span id="120"> 120</span>
+<span id="121"> 121</span>
+<span id="122"> 122</span>
+<span id="123"> 123</span>
+<span id="124"> 124</span>
+<span id="125"> 125</span>
+<span id="126"> 126</span>
+<span id="127"> 127</span>
+<span id="128"> 128</span>
+<span id="129"> 129</span>
+<span id="130"> 130</span>
+<span id="131"> 131</span>
+<span id="132"> 132</span>
+<span id="133"> 133</span>
+<span id="134"> 134</span>
+<span id="135"> 135</span>
+<span id="136"> 136</span>
+<span id="137"> 137</span>
+<span id="138"> 138</span>
+<span id="139"> 139</span>
+<span id="140"> 140</span>
+<span id="141"> 141</span>
+<span id="142"> 142</span>
+<span id="143"> 143</span>
+<span id="144"> 144</span>
+<span id="145"> 145</span>
+<span id="146"> 146</span>
+<span id="147"> 147</span>
+<span id="148"> 148</span>
+<span id="149"> 149</span>
+<span id="150"> 150</span>
+<span id="151"> 151</span>
+<span id="152"> 152</span>
+<span id="153"> 153</span>
+<span id="154"> 154</span>
+<span id="155"> 155</span>
+<span id="156"> 156</span>
+<span id="157"> 157</span>
+<span id="158"> 158</span>
+<span id="159"> 159</span>
+<span id="160"> 160</span>
+<span id="161"> 161</span>
+<span id="162"> 162</span>
+<span id="163"> 163</span>
+<span id="164"> 164</span>
+<span id="165"> 165</span>
+<span id="166"> 166</span>
+<span id="167"> 167</span>
+<span id="168"> 168</span>
+<span id="169"> 169</span>
+<span id="170"> 170</span>
+<span id="171"> 171</span>
+<span id="172"> 172</span>
+<span id="173"> 173</span>
+<span id="174"> 174</span>
+<span id="175"> 175</span>
+<span id="176"> 176</span>
+<span id="177"> 177</span>
+<span id="178"> 178</span>
+<span id="179"> 179</span>
+<span id="180"> 180</span>
+<span id="181"> 181</span>
+<span id="182"> 182</span>
+<span id="183"> 183</span>
+<span id="184"> 184</span>
+<span id="185"> 185</span>
+<span id="186"> 186</span>
+<span id="187"> 187</span>
+<span id="188"> 188</span>
+<span id="189"> 189</span>
+<span id="190"> 190</span>
+<span id="191"> 191</span>
+<span id="192"> 192</span>
+<span id="193"> 193</span>
+<span id="194"> 194</span>
+<span id="195"> 195</span>
+<span id="196"> 196</span>
+<span id="197"> 197</span>
+<span id="198"> 198</span>
+<span id="199"> 199</span>
+<span id="200"> 200</span>
+<span id="201"> 201</span>
+<span id="202"> 202</span>
+<span id="203"> 203</span>
+<span id="204"> 204</span>
+<span id="205"> 205</span>
+<span id="206"> 206</span>
+<span id="207"> 207</span>
+<span id="208"> 208</span>
+<span id="209"> 209</span>
+<span id="210"> 210</span>
+<span id="211"> 211</span>
+<span id="212"> 212</span>
+<span id="213"> 213</span>
+<span id="214"> 214</span>
+<span id="215"> 215</span>
+<span id="216"> 216</span>
+<span id="217"> 217</span>
+<span id="218"> 218</span>
+<span id="219"> 219</span>
+<span id="220"> 220</span>
+<span id="221"> 221</span>
+<span id="222"> 222</span>
+<span id="223"> 223</span>
+<span id="224"> 224</span>
+<span id="225"> 225</span>
+<span id="226"> 226</span>
+<span id="227"> 227</span>
+<span id="228"> 228</span>
+<span id="229"> 229</span>
+<span id="230"> 230</span>
+<span id="231"> 231</span>
+<span id="232"> 232</span>
+<span id="233"> 233</span>
+<span id="234"> 234</span>
+<span id="235"> 235</span>
+<span id="236"> 236</span>
+<span id="237"> 237</span>
+<span id="238"> 238</span>
+<span id="239"> 239</span>
+<span id="240"> 240</span>
+<span id="241"> 241</span>
+<span id="242"> 242</span>
+<span id="243"> 243</span>
+<span id="244"> 244</span>
+<span id="245"> 245</span>
+<span id="246"> 246</span>
+<span id="247"> 247</span>
+<span id="248"> 248</span>
+<span id="249"> 249</span>
+<span id="250"> 250</span>
+<span id="251"> 251</span>
+<span id="252"> 252</span>
+<span id="253"> 253</span>
+<span id="254"> 254</span>
+<span id="255"> 255</span>
+<span id="256"> 256</span>
+<span id="257"> 257</span>
+<span id="258"> 258</span>
+<span id="259"> 259</span>
+<span id="260"> 260</span>
+<span id="261"> 261</span>
+<span id="262"> 262</span>
+<span id="263"> 263</span>
+<span id="264"> 264</span>
+<span id="265"> 265</span>
+<span id="266"> 266</span>
+<span id="267"> 267</span>
+<span id="268"> 268</span>
+<span id="269"> 269</span>
+<span id="270"> 270</span>
+<span id="271"> 271</span>
+<span id="272"> 272</span>
+<span id="273"> 273</span>
+<span id="274"> 274</span>
+<span id="275"> 275</span>
+<span id="276"> 276</span>
+<span id="277"> 277</span>
+<span id="278"> 278</span>
+<span id="279"> 279</span>
+<span id="280"> 280</span>
+<span id="281"> 281</span>
+<span id="282"> 282</span>
+<span id="283"> 283</span>
+<span id="284"> 284</span>
+<span id="285"> 285</span>
+<span id="286"> 286</span>
+<span id="287"> 287</span>
+<span id="288"> 288</span>
+<span id="289"> 289</span>
+<span id="290"> 290</span>
+<span id="291"> 291</span>
+<span id="292"> 292</span>
+<span id="293"> 293</span>
+<span id="294"> 294</span>
+<span id="295"> 295</span>
+<span id="296"> 296</span>
+<span id="297"> 297</span>
+<span id="298"> 298</span>
+<span id="299"> 299</span>
+<span id="300"> 300</span>
+<span id="301"> 301</span>
+<span id="302"> 302</span>
+<span id="303"> 303</span>
+<span id="304"> 304</span>
+<span id="305"> 305</span>
+<span id="306"> 306</span>
+<span id="307"> 307</span>
+<span id="308"> 308</span>
+<span id="309"> 309</span>
+<span id="310"> 310</span>
+<span id="311"> 311</span>
+<span id="312"> 312</span>
+<span id="313"> 313</span>
+<span id="314"> 314</span>
+<span id="315"> 315</span>
+<span id="316"> 316</span>
+<span id="317"> 317</span>
+<span id="318"> 318</span>
+<span id="319"> 319</span>
+<span id="320"> 320</span>
+<span id="321"> 321</span>
+<span id="322"> 322</span>
+<span id="323"> 323</span>
+<span id="324"> 324</span>
+<span id="325"> 325</span>
+<span id="326"> 326</span>
+<span id="327"> 327</span>
+<span id="328"> 328</span>
+<span id="329"> 329</span>
+<span id="330"> 330</span>
+<span id="331"> 331</span>
+<span id="332"> 332</span>
+<span id="333"> 333</span>
+<span id="334"> 334</span>
+<span id="335"> 335</span>
+<span id="336"> 336</span>
+<span id="337"> 337</span>
+<span id="338"> 338</span>
+<span id="339"> 339</span>
+<span id="340"> 340</span>
+<span id="341"> 341</span>
+<span id="342"> 342</span>
+<span id="343"> 343</span>
+<span id="344"> 344</span>
+<span id="345"> 345</span>
+<span id="346"> 346</span>
+<span id="347"> 347</span>
+<span id="348"> 348</span>
+<span id="349"> 349</span>
+<span id="350"> 350</span>
+<span id="351"> 351</span>
+<span id="352"> 352</span>
+<span id="353"> 353</span>
+<span id="354"> 354</span>
+<span id="355"> 355</span>
+<span id="356"> 356</span>
+<span id="357"> 357</span>
+<span id="358"> 358</span>
+<span id="359"> 359</span>
+<span id="360"> 360</span>
+<span id="361"> 361</span>
+<span id="362"> 362</span>
+<span id="363"> 363</span>
+<span id="364"> 364</span>
+<span id="365"> 365</span>
+<span id="366"> 366</span>
+<span id="367"> 367</span>
+<span id="368"> 368</span>
+<span id="369"> 369</span>
+<span id="370"> 370</span>
+<span id="371"> 371</span>
+<span id="372"> 372</span>
+<span id="373"> 373</span>
+<span id="374"> 374</span>
+<span id="375"> 375</span>
+<span id="376"> 376</span>
+<span id="377"> 377</span>
+<span id="378"> 378</span>
+<span id="379"> 379</span>
+<span id="380"> 380</span>
+<span id="381"> 381</span>
+<span id="382"> 382</span>
+<span id="383"> 383</span>
+<span id="384"> 384</span>
+<span id="385"> 385</span>
+<span id="386"> 386</span>
+<span id="387"> 387</span>
+<span id="388"> 388</span>
+<span id="389"> 389</span>
+<span id="390"> 390</span>
+<span id="391"> 391</span>
+<span id="392"> 392</span>
+<span id="393"> 393</span>
+<span id="394"> 394</span>
+<span id="395"> 395</span>
+<span id="396"> 396</span>
+<span id="397"> 397</span>
+<span id="398"> 398</span>
+<span id="399"> 399</span>
+<span id="400"> 400</span>
+<span id="401"> 401</span>
+<span id="402"> 402</span>
+<span id="403"> 403</span>
+<span id="404"> 404</span>
+<span id="405"> 405</span>
+<span id="406"> 406</span>
+<span id="407"> 407</span>
+<span id="408"> 408</span>
+<span id="409"> 409</span>
+<span id="410"> 410</span>
+<span id="411"> 411</span>
+<span id="412"> 412</span>
+<span id="413"> 413</span>
+<span id="414"> 414</span>
+<span id="415"> 415</span>
+<span id="416"> 416</span>
+<span id="417"> 417</span>
+<span id="418"> 418</span>
+<span id="419"> 419</span>
+<span id="420"> 420</span>
+<span id="421"> 421</span>
+<span id="422"> 422</span>
+<span id="423"> 423</span>
+<span id="424"> 424</span>
+<span id="425"> 425</span>
+<span id="426"> 426</span>
+<span id="427"> 427</span>
+<span id="428"> 428</span>
+<span id="429"> 429</span>
+<span id="430"> 430</span>
+<span id="431"> 431</span>
+<span id="432"> 432</span>
+<span id="433"> 433</span>
+<span id="434"> 434</span>
+<span id="435"> 435</span>
+<span id="436"> 436</span>
+<span id="437"> 437</span>
+<span id="438"> 438</span>
+<span id="439"> 439</span>
+<span id="440"> 440</span>
+<span id="441"> 441</span>
+<span id="442"> 442</span>
+<span id="443"> 443</span>
+<span id="444"> 444</span>
+<span id="445"> 445</span>
+<span id="446"> 446</span>
+<span id="447"> 447</span>
+<span id="448"> 448</span>
+<span id="449"> 449</span>
+<span id="450"> 450</span>
+<span id="451"> 451</span>
+<span id="452"> 452</span>
+<span id="453"> 453</span>
+<span id="454"> 454</span>
+<span id="455"> 455</span>
+<span id="456"> 456</span>
+<span id="457"> 457</span>
+<span id="458"> 458</span>
+<span id="459"> 459</span>
+<span id="460"> 460</span>
+<span id="461"> 461</span>
+<span id="462"> 462</span>
+<span id="463"> 463</span>
+<span id="464"> 464</span>
+<span id="465"> 465</span>
+<span id="466"> 466</span>
+<span id="467"> 467</span>
+<span id="468"> 468</span>
+<span id="469"> 469</span>
+<span id="470"> 470</span>
+<span id="471"> 471</span>
+<span id="472"> 472</span>
+<span id="473"> 473</span>
+<span id="474"> 474</span>
+<span id="475"> 475</span>
+<span id="476"> 476</span>
+<span id="477"> 477</span>
+<span id="478"> 478</span>
+<span id="479"> 479</span>
+<span id="480"> 480</span>
+<span id="481"> 481</span>
+<span id="482"> 482</span>
+<span id="483"> 483</span>
+<span id="484"> 484</span>
+<span id="485"> 485</span>
+<span id="486"> 486</span>
+<span id="487"> 487</span>
+<span id="488"> 488</span>
+<span id="489"> 489</span>
+<span id="490"> 490</span>
+<span id="491"> 491</span>
+<span id="492"> 492</span>
+<span id="493"> 493</span>
+<span id="494"> 494</span>
+<span id="495"> 495</span>
+<span id="496"> 496</span>
+<span id="497"> 497</span>
+<span id="498"> 498</span>
+<span id="499"> 499</span>
+<span id="500"> 500</span>
+<span id="501"> 501</span>
+<span id="502"> 502</span>
+<span id="503"> 503</span>
+<span id="504"> 504</span>
+<span id="505"> 505</span>
+<span id="506"> 506</span>
+<span id="507"> 507</span>
+<span id="508"> 508</span>
+<span id="509"> 509</span>
+<span id="510"> 510</span>
+<span id="511"> 511</span>
+<span id="512"> 512</span>
+<span id="513"> 513</span>
+<span id="514"> 514</span>
+<span id="515"> 515</span>
+<span id="516"> 516</span>
+<span id="517"> 517</span>
+<span id="518"> 518</span>
+<span id="519"> 519</span>
+<span id="520"> 520</span>
+<span id="521"> 521</span>
+<span id="522"> 522</span>
+<span id="523"> 523</span>
+<span id="524"> 524</span>
+<span id="525"> 525</span>
+<span id="526"> 526</span>
+<span id="527"> 527</span>
+<span id="528"> 528</span>
+<span id="529"> 529</span>
+<span id="530"> 530</span>
+<span id="531"> 531</span>
+<span id="532"> 532</span>
+<span id="533"> 533</span>
+<span id="534"> 534</span>
+<span id="535"> 535</span>
+<span id="536"> 536</span>
+<span id="537"> 537</span>
+<span id="538"> 538</span>
+<span id="539"> 539</span>
+<span id="540"> 540</span>
+<span id="541"> 541</span>
+<span id="542"> 542</span>
+<span id="543"> 543</span>
+<span id="544"> 544</span>
+<span id="545"> 545</span>
+<span id="546"> 546</span>
+<span id="547"> 547</span>
+<span id="548"> 548</span>
+<span id="549"> 549</span>
+<span id="550"> 550</span>
+<span id="551"> 551</span>
+<span id="552"> 552</span>
+<span id="553"> 553</span>
+<span id="554"> 554</span>
+<span id="555"> 555</span>
+<span id="556"> 556</span>
+<span id="557"> 557</span>
+<span id="558"> 558</span>
+<span id="559"> 559</span>
+<span id="560"> 560</span>
+<span id="561"> 561</span>
+<span id="562"> 562</span>
+<span id="563"> 563</span>
+<span id="564"> 564</span>
+<span id="565"> 565</span>
+<span id="566"> 566</span>
+<span id="567"> 567</span>
+<span id="568"> 568</span>
+<span id="569"> 569</span>
+<span id="570"> 570</span>
+<span id="571"> 571</span>
+<span id="572"> 572</span>
+<span id="573"> 573</span>
+<span id="574"> 574</span>
+<span id="575"> 575</span>
+<span id="576"> 576</span>
+<span id="577"> 577</span>
+<span id="578"> 578</span>
+<span id="579"> 579</span>
+<span id="580"> 580</span>
+<span id="581"> 581</span>
+<span id="582"> 582</span>
+<span id="583"> 583</span>
+<span id="584"> 584</span>
+<span id="585"> 585</span>
+<span id="586"> 586</span>
+<span id="587"> 587</span>
+<span id="588"> 588</span>
+<span id="589"> 589</span>
+<span id="590"> 590</span>
+<span id="591"> 591</span>
+<span id="592"> 592</span>
+<span id="593"> 593</span>
+<span id="594"> 594</span>
+<span id="595"> 595</span>
+<span id="596"> 596</span>
+<span id="597"> 597</span>
+<span id="598"> 598</span>
+<span id="599"> 599</span>
+<span id="600"> 600</span>
+<span id="601"> 601</span>
+<span id="602"> 602</span>
+<span id="603"> 603</span>
+<span id="604"> 604</span>
+<span id="605"> 605</span>
+<span id="606"> 606</span>
+<span id="607"> 607</span>
+<span id="608"> 608</span>
+<span id="609"> 609</span>
+<span id="610"> 610</span>
+<span id="611"> 611</span>
+<span id="612"> 612</span>
+<span id="613"> 613</span>
+<span id="614"> 614</span>
+<span id="615"> 615</span>
+<span id="616"> 616</span>
+<span id="617"> 617</span>
+<span id="618"> 618</span>
+<span id="619"> 619</span>
+<span id="620"> 620</span>
+<span id="621"> 621</span>
+<span id="622"> 622</span>
+<span id="623"> 623</span>
+<span id="624"> 624</span>
+<span id="625"> 625</span>
+<span id="626"> 626</span>
+<span id="627"> 627</span>
+<span id="628"> 628</span>
+<span id="629"> 629</span>
+<span id="630"> 630</span>
+<span id="631"> 631</span>
+<span id="632"> 632</span>
+<span id="633"> 633</span>
+<span id="634"> 634</span>
+<span id="635"> 635</span>
+<span id="636"> 636</span>
+<span id="637"> 637</span>
+<span id="638"> 638</span>
+<span id="639"> 639</span>
+<span id="640"> 640</span>
+<span id="641"> 641</span>
+<span id="642"> 642</span>
+<span id="643"> 643</span>
+<span id="644"> 644</span>
+<span id="645"> 645</span>
+<span id="646"> 646</span>
+<span id="647"> 647</span>
+<span id="648"> 648</span>
+<span id="649"> 649</span>
+<span id="650"> 650</span>
+<span id="651"> 651</span>
+<span id="652"> 652</span>
+<span id="653"> 653</span>
+<span id="654"> 654</span>
+<span id="655"> 655</span>
+<span id="656"> 656</span>
+<span id="657"> 657</span>
+<span id="658"> 658</span>
+<span id="659"> 659</span>
+<span id="660"> 660</span>
+<span id="661"> 661</span>
+<span id="662"> 662</span>
+<span id="663"> 663</span>
+<span id="664"> 664</span>
+<span id="665"> 665</span>
+<span id="666"> 666</span>
+<span id="667"> 667</span>
+<span id="668"> 668</span>
+<span id="669"> 669</span>
+<span id="670"> 670</span>
+<span id="671"> 671</span>
+<span id="672"> 672</span>
+<span id="673"> 673</span>
+<span id="674"> 674</span>
+<span id="675"> 675</span>
+<span id="676"> 676</span>
+<span id="677"> 677</span>
+<span id="678"> 678</span>
+<span id="679"> 679</span>
+<span id="680"> 680</span>
+<span id="681"> 681</span>
+<span id="682"> 682</span>
+<span id="683"> 683</span>
+<span id="684"> 684</span>
+<span id="685"> 685</span>
+<span id="686"> 686</span>
+<span id="687"> 687</span>
+<span id="688"> 688</span>
+<span id="689"> 689</span>
+<span id="690"> 690</span>
+<span id="691"> 691</span>
+<span id="692"> 692</span>
+<span id="693"> 693</span>
+<span id="694"> 694</span>
+<span id="695"> 695</span>
+<span id="696"> 696</span>
+<span id="697"> 697</span>
+<span id="698"> 698</span>
+<span id="699"> 699</span>
+<span id="700"> 700</span>
+<span id="701"> 701</span>
+<span id="702"> 702</span>
+<span id="703"> 703</span>
+<span id="704"> 704</span>
+<span id="705"> 705</span>
+<span id="706"> 706</span>
+<span id="707"> 707</span>
+<span id="708"> 708</span>
+<span id="709"> 709</span>
+<span id="710"> 710</span>
+<span id="711"> 711</span>
+<span id="712"> 712</span>
+<span id="713"> 713</span>
+<span id="714"> 714</span>
+<span id="715"> 715</span>
+<span id="716"> 716</span>
+<span id="717"> 717</span>
+<span id="718"> 718</span>
+<span id="719"> 719</span>
+<span id="720"> 720</span>
+<span id="721"> 721</span>
+<span id="722"> 722</span>
+<span id="723"> 723</span>
+<span id="724"> 724</span>
+<span id="725"> 725</span>
+<span id="726"> 726</span>
+<span id="727"> 727</span>
+<span id="728"> 728</span>
+<span id="729"> 729</span>
+<span id="730"> 730</span>
+<span id="731"> 731</span>
+<span id="732"> 732</span>
+<span id="733"> 733</span>
+<span id="734"> 734</span>
+<span id="735"> 735</span>
+<span id="736"> 736</span>
+<span id="737"> 737</span>
+<span id="738"> 738</span>
+<span id="739"> 739</span>
+<span id="740"> 740</span>
+<span id="741"> 741</span>
+<span id="742"> 742</span>
+<span id="743"> 743</span>
+<span id="744"> 744</span>
+<span id="745"> 745</span>
+<span id="746"> 746</span>
+<span id="747"> 747</span>
+<span id="748"> 748</span>
+<span id="749"> 749</span>
+<span id="750"> 750</span>
+<span id="751"> 751</span>
+<span id="752"> 752</span>
+<span id="753"> 753</span>
+<span id="754"> 754</span>
+<span id="755"> 755</span>
+<span id="756"> 756</span>
+<span id="757"> 757</span>
+<span id="758"> 758</span>
+<span id="759"> 759</span>
+<span id="760"> 760</span>
+<span id="761"> 761</span>
+<span id="762"> 762</span>
+<span id="763"> 763</span>
+<span id="764"> 764</span>
+<span id="765"> 765</span>
+<span id="766"> 766</span>
+<span id="767"> 767</span>
+<span id="768"> 768</span>
+<span id="769"> 769</span>
+<span id="770"> 770</span>
+<span id="771"> 771</span>
+<span id="772"> 772</span>
+<span id="773"> 773</span>
+<span id="774"> 774</span>
+<span id="775"> 775</span>
+<span id="776"> 776</span>
+<span id="777"> 777</span>
+<span id="778"> 778</span>
+<span id="779"> 779</span>
+<span id="780"> 780</span>
+<span id="781"> 781</span>
+<span id="782"> 782</span>
+<span id="783"> 783</span>
+<span id="784"> 784</span>
+<span id="785"> 785</span>
+<span id="786"> 786</span>
+<span id="787"> 787</span>
+<span id="788"> 788</span>
+<span id="789"> 789</span>
+<span id="790"> 790</span>
+<span id="791"> 791</span>
+<span id="792"> 792</span>
+<span id="793"> 793</span>
+<span id="794"> 794</span>
+<span id="795"> 795</span>
+<span id="796"> 796</span>
+<span id="797"> 797</span>
+<span id="798"> 798</span>
+<span id="799"> 799</span>
+<span id="800"> 800</span>
+<span id="801"> 801</span>
+<span id="802"> 802</span>
+<span id="803"> 803</span>
+<span id="804"> 804</span>
+<span id="805"> 805</span>
+<span id="806"> 806</span>
+<span id="807"> 807</span>
+<span id="808"> 808</span>
+<span id="809"> 809</span>
+<span id="810"> 810</span>
+<span id="811"> 811</span>
+<span id="812"> 812</span>
+<span id="813"> 813</span>
+<span id="814"> 814</span>
+<span id="815"> 815</span>
+<span id="816"> 816</span>
+<span id="817"> 817</span>
+<span id="818"> 818</span>
+<span id="819"> 819</span>
+<span id="820"> 820</span>
+<span id="821"> 821</span>
+<span id="822"> 822</span>
+<span id="823"> 823</span>
+<span id="824"> 824</span>
+<span id="825"> 825</span>
+<span id="826"> 826</span>
+<span id="827"> 827</span>
+<span id="828"> 828</span>
+<span id="829"> 829</span>
+<span id="830"> 830</span>
+<span id="831"> 831</span>
+<span id="832"> 832</span>
+<span id="833"> 833</span>
+<span id="834"> 834</span>
+<span id="835"> 835</span>
+<span id="836"> 836</span>
+<span id="837"> 837</span>
+<span id="838"> 838</span>
+<span id="839"> 839</span>
+<span id="840"> 840</span>
+<span id="841"> 841</span>
+<span id="842"> 842</span>
+<span id="843"> 843</span>
+<span id="844"> 844</span>
+<span id="845"> 845</span>
+<span id="846"> 846</span>
+<span id="847"> 847</span>
+<span id="848"> 848</span>
+<span id="849"> 849</span>
+<span id="850"> 850</span>
+<span id="851"> 851</span>
+<span id="852"> 852</span>
+<span id="853"> 853</span>
+<span id="854"> 854</span>
+<span id="855"> 855</span>
+<span id="856"> 856</span>
+<span id="857"> 857</span>
+<span id="858"> 858</span>
+<span id="859"> 859</span>
+<span id="860"> 860</span>
+<span id="861"> 861</span>
+<span id="862"> 862</span>
+<span id="863"> 863</span>
+<span id="864"> 864</span>
+<span id="865"> 865</span>
+<span id="866"> 866</span>
+<span id="867"> 867</span>
+<span id="868"> 868</span>
+<span id="869"> 869</span>
+<span id="870"> 870</span>
+<span id="871"> 871</span>
+<span id="872"> 872</span>
+<span id="873"> 873</span>
+<span id="874"> 874</span>
+<span id="875"> 875</span>
+<span id="876"> 876</span>
+<span id="877"> 877</span>
+<span id="878"> 878</span>
+<span id="879"> 879</span>
+<span id="880"> 880</span>
+<span id="881"> 881</span>
+<span id="882"> 882</span>
+<span id="883"> 883</span>
+<span id="884"> 884</span>
+<span id="885"> 885</span>
+<span id="886"> 886</span>
+<span id="887"> 887</span>
+<span id="888"> 888</span>
+<span id="889"> 889</span>
+<span id="890"> 890</span>
+<span id="891"> 891</span>
+<span id="892"> 892</span>
+<span id="893"> 893</span>
+<span id="894"> 894</span>
+<span id="895"> 895</span>
+<span id="896"> 896</span>
+<span id="897"> 897</span>
+<span id="898"> 898</span>
+<span id="899"> 899</span>
+<span id="900"> 900</span>
+<span id="901"> 901</span>
+<span id="902"> 902</span>
+<span id="903"> 903</span>
+<span id="904"> 904</span>
+<span id="905"> 905</span>
+<span id="906"> 906</span>
+<span id="907"> 907</span>
+<span id="908"> 908</span>
+<span id="909"> 909</span>
+<span id="910"> 910</span>
+<span id="911"> 911</span>
+<span id="912"> 912</span>
+<span id="913"> 913</span>
+<span id="914"> 914</span>
+<span id="915"> 915</span>
+<span id="916"> 916</span>
+<span id="917"> 917</span>
+<span id="918"> 918</span>
+<span id="919"> 919</span>
+<span id="920"> 920</span>
+<span id="921"> 921</span>
+<span id="922"> 922</span>
+<span id="923"> 923</span>
+<span id="924"> 924</span>
+<span id="925"> 925</span>
+<span id="926"> 926</span>
+<span id="927"> 927</span>
+<span id="928"> 928</span>
+<span id="929"> 929</span>
+<span id="930"> 930</span>
+<span id="931"> 931</span>
+<span id="932"> 932</span>
+<span id="933"> 933</span>
+<span id="934"> 934</span>
+<span id="935"> 935</span>
+<span id="936"> 936</span>
+<span id="937"> 937</span>
+<span id="938"> 938</span>
+<span id="939"> 939</span>
+<span id="940"> 940</span>
+<span id="941"> 941</span>
+<span id="942"> 942</span>
+<span id="943"> 943</span>
+<span id="944"> 944</span>
+<span id="945"> 945</span>
+<span id="946"> 946</span>
+<span id="947"> 947</span>
+<span id="948"> 948</span>
+<span id="949"> 949</span>
+<span id="950"> 950</span>
+<span id="951"> 951</span>
+<span id="952"> 952</span>
+<span id="953"> 953</span>
+<span id="954"> 954</span>
+<span id="955"> 955</span>
+<span id="956"> 956</span>
+<span id="957"> 957</span>
+<span id="958"> 958</span>
+<span id="959"> 959</span>
+<span id="960"> 960</span>
+<span id="961"> 961</span>
+<span id="962"> 962</span>
+<span id="963"> 963</span>
+<span id="964"> 964</span>
+<span id="965"> 965</span>
+<span id="966"> 966</span>
+<span id="967"> 967</span>
+<span id="968"> 968</span>
+<span id="969"> 969</span>
+<span id="970"> 970</span>
+<span id="971"> 971</span>
+<span id="972"> 972</span>
+<span id="973"> 973</span>
+<span id="974"> 974</span>
+<span id="975"> 975</span>
+<span id="976"> 976</span>
+<span id="977"> 977</span>
+<span id="978"> 978</span>
+<span id="979"> 979</span>
+<span id="980"> 980</span>
+<span id="981"> 981</span>
+<span id="982"> 982</span>
+<span id="983"> 983</span>
+<span id="984"> 984</span>
+<span id="985"> 985</span>
+<span id="986"> 986</span>
+<span id="987"> 987</span>
+<span id="988"> 988</span>
+<span id="989"> 989</span>
+<span id="990"> 990</span>
+<span id="991"> 991</span>
+<span id="992"> 992</span>
+<span id="993"> 993</span>
+<span id="994"> 994</span>
+<span id="995"> 995</span>
+<span id="996"> 996</span>
+<span id="997"> 997</span>
+<span id="998"> 998</span>
+<span id="999"> 999</span>
+<span id="1000">1000</span>
+</pre><pre class="rust">
+<span class="doccomment">//! [![github]](https://github.com/dtolnay/syn)&amp;ensp;[![crates-io]](https://crates.io/crates/syn)&amp;ensp;[![docs-rs]](crate)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github</span>
+<span class="doccomment">//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust</span>
+<span class="doccomment">//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Syn is a parsing library for parsing a stream of Rust tokens into a syntax</span>
+<span class="doccomment">//! tree of Rust source code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Currently this library is geared toward use in Rust procedural macros, but</span>
+<span class="doccomment">//! contains some APIs that may be useful more generally.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **Data structures** — Syn provides a complete syntax tree that can</span>
+<span class="doccomment">//!   represent any valid Rust source code. The syntax tree is rooted at</span>
+<span class="doccomment">//!   [`syn::File`] which represents a full source file, but there are other</span>
+<span class="doccomment">//!   entry points that may be useful to procedural macros including</span>
+<span class="doccomment">//!   [`syn::Item`], [`syn::Expr`] and [`syn::Type`].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **Derives** — Of particular interest to derive macros is</span>
+<span class="doccomment">//!   [`syn::DeriveInput`] which is any of the three legal input items to a</span>
+<span class="doccomment">//!   derive macro. An example below shows using this type in a library that can</span>
+<span class="doccomment">//!   derive implementations of a user-defined trait.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **Parsing** — Parsing in Syn is built around [parser functions] with the</span>
+<span class="doccomment">//!   signature `fn(ParseStream) -&gt; Result&lt;T&gt;`. Every syntax tree node defined</span>
+<span class="doccomment">//!   by Syn is individually parsable and may be used as a building block for</span>
+<span class="doccomment">//!   custom syntaxes, or you may dream up your own brand new syntax without</span>
+<span class="doccomment">//!   involving any of our syntax tree types.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **Location information** — Every token parsed by Syn is associated with a</span>
+<span class="doccomment">//!   `Span` that tracks line and column information back to the source of that</span>
+<span class="doccomment">//!   token. These spans allow a procedural macro to display detailed error</span>
+<span class="doccomment">//!   messages pointing to all the right places in the user&#39;s code. There is an</span>
+<span class="doccomment">//!   example of this below.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **Feature flags** — Functionality is aggressively feature gated so your</span>
+<span class="doccomment">//!   procedural macros enable only what they need, and do not pay in compile</span>
+<span class="doccomment">//!   time for all the rest.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`syn::File`]: File</span>
+<span class="doccomment">//! [`syn::Item`]: Item</span>
+<span class="doccomment">//! [`syn::Expr`]: Expr</span>
+<span class="doccomment">//! [`syn::Type`]: Type</span>
+<span class="doccomment">//! [`syn::DeriveInput`]: DeriveInput</span>
+<span class="doccomment">//! [parser functions]: mod@parse</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Example of a derive macro</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The canonical derive macro using Syn looks like this. We write an ordinary</span>
+<span class="doccomment">//! Rust function tagged with a `proc_macro_derive` attribute and the name of</span>
+<span class="doccomment">//! the trait we are deriving. Any time that derive appears in the user&#39;s code,</span>
+<span class="doccomment">//! the Rust compiler passes their data structure as tokens into our macro. We</span>
+<span class="doccomment">//! get to execute arbitrary Rust code to figure out what to do with those</span>
+<span class="doccomment">//! tokens, then hand some tokens back to the compiler to compile into the</span>
+<span class="doccomment">//! user&#39;s crate.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`TokenStream`]: proc_macro::TokenStream</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```toml</span>
+<span class="doccomment">//! [dependencies]</span>
+<span class="doccomment">//! syn = &quot;1.0&quot;</span>
+<span class="doccomment">//! quote = &quot;1.0&quot;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [lib]</span>
+<span class="doccomment">//! proc-macro = true</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # extern crate proc_macro;</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! use proc_macro::TokenStream;</span>
+<span class="doccomment">//! use quote::quote;</span>
+<span class="doccomment">//! use syn::{parse_macro_input, DeriveInput};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # const IGNORE_TOKENS: &amp;str = stringify! {</span>
+<span class="doccomment">//! #[proc_macro_derive(MyMacro)]</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! pub fn my_macro(input: TokenStream) -&gt; TokenStream {</span>
+<span class="doccomment">//!     // Parse the input tokens into a syntax tree</span>
+<span class="doccomment">//!     let input = parse_macro_input!(input as DeriveInput);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Build the output, possibly using quasi-quotation</span>
+<span class="doccomment">//!     let expanded = quote! {</span>
+<span class="doccomment">//!         // ...</span>
+<span class="doccomment">//!     };</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Hand the output tokens back to the compiler</span>
+<span class="doccomment">//!     TokenStream::from(expanded)</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The [`heapsize`] example directory shows a complete working implementation</span>
+<span class="doccomment">//! of a derive macro. It works on any Rust compiler 1.31+. The example derives</span>
+<span class="doccomment">//! a `HeapSize` trait which computes an estimate of the amount of heap memory</span>
+<span class="doccomment">//! owned by a value.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`heapsize`]: https://github.com/dtolnay/syn/tree/master/examples/heapsize</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! pub trait HeapSize {</span>
+<span class="doccomment">//!     /// Total number of bytes of heap memory owned by `self`.</span>
+<span class="doccomment">//!     fn heap_size_of_children(&amp;self) -&gt; usize;</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The derive macro allows users to write `#[derive(HeapSize)]` on data</span>
+<span class="doccomment">//! structures in their program.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const IGNORE_TOKENS: &amp;str = stringify! {</span>
+<span class="doccomment">//! #[derive(HeapSize)]</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! struct Demo&lt;&#39;a, T: ?Sized&gt; {</span>
+<span class="doccomment">//!     a: Box&lt;T&gt;,</span>
+<span class="doccomment">//!     b: u8,</span>
+<span class="doccomment">//!     c: &amp;&#39;a str,</span>
+<span class="doccomment">//!     d: String,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;p&gt;&lt;br&gt;&lt;/p&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Spans and error reporting</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The token-based procedural macro API provides great control over where the</span>
+<span class="doccomment">//! compiler&#39;s error messages are displayed in user code. Consider the error the</span>
+<span class="doccomment">//! user sees if one of their field types does not implement `HeapSize`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # const IGNORE_TOKENS: &amp;str = stringify! {</span>
+<span class="doccomment">//! #[derive(HeapSize)]</span>
+<span class="doccomment">//! # };</span>
+<span class="doccomment">//! struct Broken {</span>
+<span class="doccomment">//!     ok: String,</span>
+<span class="doccomment">//!     bad: std::thread::Thread,</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! By tracking span information all the way through the expansion of a</span>
+<span class="doccomment">//! procedural macro as shown in the `heapsize` example, token-based macros in</span>
+<span class="doccomment">//! Syn are able to trigger errors that directly pinpoint the source of the</span>
+<span class="doccomment">//! problem.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```text</span>
+<span class="doccomment">//! error[E0277]: the trait bound `std::thread::Thread: HeapSize` is not satisfied</span>
+<span class="doccomment">//!  --&gt; src/main.rs:7:5</span>
+<span class="doccomment">//!   |</span>
+<span class="doccomment">//! 7 |     bad: std::thread::Thread,</span>
+<span class="doccomment">//!   |     ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `HeapSize` is not implemented for `Thread`</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Parsing a custom syntax</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The [`lazy-static`] example directory shows the implementation of a</span>
+<span class="doccomment">//! `functionlike!(...)` procedural macro in which the input tokens are parsed</span>
+<span class="doccomment">//! using Syn&#39;s parsing API.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`lazy-static`]: https://github.com/dtolnay/syn/tree/master/examples/lazy-static</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The example reimplements the popular `lazy_static` crate from crates.io as a</span>
+<span class="doccomment">//! procedural macro.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! # macro_rules! lazy_static {</span>
+<span class="doccomment">//! #     ($($tt:tt)*) =&gt; {}</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! lazy_static! {</span>
+<span class="doccomment">//!     static ref USERNAME: Regex = Regex::new(&quot;^[a-z0-9_-]{3,16}$&quot;).unwrap();</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The implementation shows how to trigger custom warnings and error messages</span>
+<span class="doccomment">//! on the macro input.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```text</span>
+<span class="doccomment">//! warning: come on, pick a more creative name</span>
+<span class="doccomment">//!   --&gt; src/main.rs:10:16</span>
+<span class="doccomment">//!    |</span>
+<span class="doccomment">//! 10 |     static ref FOO: String = &quot;lazy_static&quot;.to_owned();</span>
+<span class="doccomment">//!    |                ^^^</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Testing</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When testing macros, we often care not just that the macro can be used</span>
+<span class="doccomment">//! successfully but also that when the macro is provided with invalid input it</span>
+<span class="doccomment">//! produces maximally helpful error messages. Consider using the [`trybuild`]</span>
+<span class="doccomment">//! crate to write tests for errors that are emitted by your macro or errors</span>
+<span class="doccomment">//! detected by the Rust compiler in the expanded code following misuse of the</span>
+<span class="doccomment">//! macro. Such tests help avoid regressions from later refactors that</span>
+<span class="doccomment">//! mistakenly make an error no longer trigger or be less helpful than it used</span>
+<span class="doccomment">//! to be.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`trybuild`]: https://github.com/dtolnay/trybuild</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Debugging</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When developing a procedural macro it can be helpful to look at what the</span>
+<span class="doccomment">//! generated code looks like. Use `cargo rustc -- -Zunstable-options</span>
+<span class="doccomment">//! --pretty=expanded` or the [`cargo expand`] subcommand.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`cargo expand`]: https://github.com/dtolnay/cargo-expand</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To show the expanded code for some crate that uses your procedural macro,</span>
+<span class="doccomment">//! run `cargo expand` from that crate. To show the expanded code for one of</span>
+<span class="doccomment">//! your own test cases, run `cargo expand --test the_test_case` where the last</span>
+<span class="doccomment">//! argument is the name of the test file without the `.rs` extension.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This write-up by Brandon W Maister discusses debugging in more detail:</span>
+<span class="doccomment">//! [Debugging Rust&#39;s new Custom Derive system][debugging].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [debugging]: https://quodlibetor.github.io/posts/debugging-rusts-new-custom-derive-system/</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;br&gt;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Optional features</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Syn puts a lot of functionality behind optional features in order to</span>
+<span class="doccomment">//! optimize compile time for the most common use cases. The following features</span>
+<span class="doccomment">//! are available.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - **`derive`** *(enabled by default)* — Data structures for representing the</span>
+<span class="doccomment">//!   possible input to a derive macro, including structs and enums and types.</span>
+<span class="doccomment">//! - **`full`** — Data structures for representing the syntax tree of all valid</span>
+<span class="doccomment">//!   Rust source code, including items and expressions.</span>
+<span class="doccomment">//! - **`parsing`** *(enabled by default)* — Ability to parse input tokens into</span>
+<span class="doccomment">//!   a syntax tree node of a chosen type.</span>
+<span class="doccomment">//! - **`printing`** *(enabled by default)* — Ability to print a syntax tree</span>
+<span class="doccomment">//!   node as tokens of Rust source code.</span>
+<span class="doccomment">//! - **`visit`** — Trait for traversing a syntax tree.</span>
+<span class="doccomment">//! - **`visit-mut`** — Trait for traversing and mutating in place a syntax</span>
+<span class="doccomment">//!   tree.</span>
+<span class="doccomment">//! - **`fold`** — Trait for transforming an owned syntax tree.</span>
+<span class="doccomment">//! - **`clone-impls`** *(enabled by default)* — Clone impls for all syntax tree</span>
+<span class="doccomment">//!   types.</span>
+<span class="doccomment">//! - **`extra-traits`** — Debug, Eq, PartialEq, Hash impls for all syntax tree</span>
+<span class="doccomment">//!   types.</span>
+<span class="doccomment">//! - **`proc-macro`** *(enabled by default)* — Runtime dependency on the</span>
+<span class="doccomment">//!   dynamic library libproc_macro from rustc toolchain.</span>
+
+<span class="comment">// Syn types in rustdoc of other crates get linked to here.</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/syn/1.0.73&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>))]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+<span class="comment">// Ignored clippy lints.</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">clippy::doc_markdown</span>,
+    <span class="ident">clippy::eval_order_dependence</span>,
+    <span class="ident">clippy::inherent_to_string</span>,
+    <span class="ident">clippy::large_enum_variant</span>,
+    <span class="ident">clippy::manual_map</span>, <span class="comment">// https://github.com/rust-lang/rust-clippy/issues/6795</span>
+    <span class="ident">clippy::match_on_vec_items</span>,
+    <span class="ident">clippy::missing_panics_doc</span>,
+    <span class="ident">clippy::needless_doctest_main</span>,
+    <span class="ident">clippy::needless_pass_by_value</span>,
+    <span class="ident">clippy::never_loop</span>,
+    <span class="ident">clippy::too_many_arguments</span>,
+    <span class="ident">clippy::trivially_copy_pass_by_ref</span>,
+    <span class="ident">clippy::unnecessary_unwrap</span>,
+    <span class="comment">// clippy bug: https://github.com/rust-lang/rust-clippy/issues/6983</span>
+    <span class="ident">clippy::wrong_self_convention</span>
+)]</span>
+<span class="comment">// Ignored clippy_pedantic lints.</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">clippy::cast_possible_truncation</span>,
+    <span class="comment">// clippy bug: https://github.com/rust-lang/rust-clippy/issues/7127</span>
+    <span class="ident">clippy::cloned_instead_of_copied</span>,
+    <span class="ident">clippy::default_trait_access</span>,
+    <span class="ident">clippy::empty_enum</span>,
+    <span class="ident">clippy::expl_impl_clone_on_copy</span>,
+    <span class="ident">clippy::if_not_else</span>,
+    <span class="ident">clippy::match_same_arms</span>,
+    <span class="comment">// clippy bug: https://github.com/rust-lang/rust-clippy/issues/6984</span>
+    <span class="ident">clippy::match_wildcard_for_single_variants</span>,
+    <span class="ident">clippy::missing_errors_doc</span>,
+    <span class="ident">clippy::module_name_repetitions</span>,
+    <span class="ident">clippy::must_use_candidate</span>,
+    <span class="ident">clippy::option_if_let_else</span>,
+    <span class="ident">clippy::redundant_else</span>,
+    <span class="ident">clippy::shadow_unrelated</span>,
+    <span class="ident">clippy::similar_names</span>,
+    <span class="ident">clippy::single_match_else</span>,
+    <span class="ident">clippy::too_many_lines</span>,
+    <span class="ident">clippy::unseparated_literal_suffix</span>,
+    <span class="ident">clippy::used_underscore_binding</span>,
+    <span class="ident">clippy::wildcard_imports</span>
+)]</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+    <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>))),
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc-macro&quot;</span>
+))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro2</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">unicode_xid</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quote</span>;
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">mod</span> <span class="ident">macros</span>;
+
+<span class="comment">// Not public API.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">group</span>;
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">token</span>;
+
+<span class="kw">mod</span> <span class="ident">ident</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ident::Ident</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">attr</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::attr</span>::{
+    <span class="ident">AttrStyle</span>, <span class="ident">Attribute</span>, <span class="ident">AttributeArgs</span>, <span class="ident">Meta</span>, <span class="ident">MetaList</span>, <span class="ident">MetaNameValue</span>, <span class="ident">NestedMeta</span>,
+};
+
+<span class="kw">mod</span> <span class="ident">bigint</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">data</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::data</span>::{
+    <span class="ident">Field</span>, <span class="ident">Fields</span>, <span class="ident">FieldsNamed</span>, <span class="ident">FieldsUnnamed</span>, <span class="ident">Variant</span>, <span class="ident">VisCrate</span>, <span class="ident">VisPublic</span>, <span class="ident">VisRestricted</span>,
+    <span class="ident">Visibility</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">expr</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::expr</span>::{
+    <span class="ident">Arm</span>, <span class="ident">FieldValue</span>, <span class="ident">GenericMethodArgument</span>, <span class="ident">Label</span>, <span class="ident">MethodTurbofish</span>, <span class="ident">RangeLimits</span>,
+};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::expr</span>::{
+    <span class="ident">Expr</span>, <span class="ident">ExprArray</span>, <span class="ident">ExprAssign</span>, <span class="ident">ExprAssignOp</span>, <span class="ident">ExprAsync</span>, <span class="ident">ExprAwait</span>, <span class="ident">ExprBinary</span>, <span class="ident">ExprBlock</span>,
+    <span class="ident">ExprBox</span>, <span class="ident">ExprBreak</span>, <span class="ident">ExprCall</span>, <span class="ident">ExprCast</span>, <span class="ident">ExprClosure</span>, <span class="ident">ExprContinue</span>, <span class="ident">ExprField</span>, <span class="ident">ExprForLoop</span>,
+    <span class="ident">ExprGroup</span>, <span class="ident">ExprIf</span>, <span class="ident">ExprIndex</span>, <span class="ident">ExprLet</span>, <span class="ident">ExprLit</span>, <span class="ident">ExprLoop</span>, <span class="ident">ExprMacro</span>, <span class="ident">ExprMatch</span>, <span class="ident">ExprMethodCall</span>,
+    <span class="ident">ExprParen</span>, <span class="ident">ExprPath</span>, <span class="ident">ExprRange</span>, <span class="ident">ExprReference</span>, <span class="ident">ExprRepeat</span>, <span class="ident">ExprReturn</span>, <span class="ident">ExprStruct</span>, <span class="ident">ExprTry</span>,
+    <span class="ident">ExprTryBlock</span>, <span class="ident">ExprTuple</span>, <span class="ident">ExprType</span>, <span class="ident">ExprUnary</span>, <span class="ident">ExprUnsafe</span>, <span class="ident">ExprWhile</span>, <span class="ident">ExprYield</span>, <span class="ident">Index</span>, <span class="ident">Member</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">generics</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::generics</span>::{
+    <span class="ident">BoundLifetimes</span>, <span class="ident">ConstParam</span>, <span class="ident">GenericParam</span>, <span class="ident">Generics</span>, <span class="ident">LifetimeDef</span>, <span class="ident">PredicateEq</span>,
+    <span class="ident">PredicateLifetime</span>, <span class="ident">PredicateType</span>, <span class="ident">TraitBound</span>, <span class="ident">TraitBoundModifier</span>, <span class="ident">TypeParam</span>, <span class="ident">TypeParamBound</span>,
+    <span class="ident">WhereClause</span>, <span class="ident">WherePredicate</span>,
+};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::generics</span>::{<span class="ident">ImplGenerics</span>, <span class="ident">Turbofish</span>, <span class="ident">TypeGenerics</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">item</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::item</span>::{
+    <span class="ident">FnArg</span>, <span class="ident">ForeignItem</span>, <span class="ident">ForeignItemFn</span>, <span class="ident">ForeignItemMacro</span>, <span class="ident">ForeignItemStatic</span>, <span class="ident">ForeignItemType</span>,
+    <span class="ident">ImplItem</span>, <span class="ident">ImplItemConst</span>, <span class="ident">ImplItemMacro</span>, <span class="ident">ImplItemMethod</span>, <span class="ident">ImplItemType</span>, <span class="ident">Item</span>, <span class="ident">ItemConst</span>,
+    <span class="ident">ItemEnum</span>, <span class="ident">ItemExternCrate</span>, <span class="ident">ItemFn</span>, <span class="ident">ItemForeignMod</span>, <span class="ident">ItemImpl</span>, <span class="ident">ItemMacro</span>, <span class="ident">ItemMacro2</span>, <span class="ident">ItemMod</span>,
+    <span class="ident">ItemStatic</span>, <span class="ident">ItemStruct</span>, <span class="ident">ItemTrait</span>, <span class="ident">ItemTraitAlias</span>, <span class="ident">ItemType</span>, <span class="ident">ItemUnion</span>, <span class="ident">ItemUse</span>, <span class="ident">Receiver</span>,
+    <span class="ident">Signature</span>, <span class="ident">TraitItem</span>, <span class="ident">TraitItemConst</span>, <span class="ident">TraitItemMacro</span>, <span class="ident">TraitItemMethod</span>, <span class="ident">TraitItemType</span>, <span class="ident">UseGlob</span>,
+    <span class="ident">UseGroup</span>, <span class="ident">UseName</span>, <span class="ident">UsePath</span>, <span class="ident">UseRename</span>, <span class="ident">UseTree</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">file</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::file::File</span>;
+
+<span class="kw">mod</span> <span class="ident">lifetime</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lifetime::Lifetime</span>;
+
+<span class="kw">mod</span> <span class="ident">lit</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::lit</span>::{
+    <span class="ident">Lit</span>, <span class="ident">LitBool</span>, <span class="ident">LitByte</span>, <span class="ident">LitByteStr</span>, <span class="ident">LitChar</span>, <span class="ident">LitFloat</span>, <span class="ident">LitInt</span>, <span class="ident">LitStr</span>, <span class="ident">StrStyle</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">mac</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::mac</span>::{<span class="ident">Macro</span>, <span class="ident">MacroDelimiter</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">derive</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::derive</span>::{<span class="ident">Data</span>, <span class="ident">DataEnum</span>, <span class="ident">DataStruct</span>, <span class="ident">DataUnion</span>, <span class="ident">DeriveInput</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">op</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::op</span>::{<span class="ident">BinOp</span>, <span class="ident">UnOp</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">stmt</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::stmt</span>::{<span class="ident">Block</span>, <span class="ident">Local</span>, <span class="ident">Stmt</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">ty</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ty</span>::{
+    <span class="ident">Abi</span>, <span class="ident">BareFnArg</span>, <span class="ident">ReturnType</span>, <span class="ident">Type</span>, <span class="ident">TypeArray</span>, <span class="ident">TypeBareFn</span>, <span class="ident">TypeGroup</span>, <span class="ident">TypeImplTrait</span>, <span class="ident">TypeInfer</span>,
+    <span class="ident">TypeMacro</span>, <span class="ident">TypeNever</span>, <span class="ident">TypeParen</span>, <span class="ident">TypePath</span>, <span class="ident">TypePtr</span>, <span class="ident">TypeReference</span>, <span class="ident">TypeSlice</span>, <span class="ident">TypeTraitObject</span>,
+    <span class="ident">TypeTuple</span>, <span class="ident">Variadic</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">pat</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pat</span>::{
+    <span class="ident">FieldPat</span>, <span class="ident">Pat</span>, <span class="ident">PatBox</span>, <span class="ident">PatIdent</span>, <span class="ident">PatLit</span>, <span class="ident">PatMacro</span>, <span class="ident">PatOr</span>, <span class="ident">PatPath</span>, <span class="ident">PatRange</span>, <span class="ident">PatReference</span>,
+    <span class="ident">PatRest</span>, <span class="ident">PatSlice</span>, <span class="ident">PatStruct</span>, <span class="ident">PatTuple</span>, <span class="ident">PatTupleStruct</span>, <span class="ident">PatType</span>, <span class="ident">PatWild</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">path</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::path</span>::{
+    <span class="ident">AngleBracketedGenericArguments</span>, <span class="ident">Binding</span>, <span class="ident">Constraint</span>, <span class="ident">GenericArgument</span>,
+    <span class="ident">ParenthesizedGenericArguments</span>, <span class="ident">Path</span>, <span class="ident">PathArguments</span>, <span class="ident">PathSegment</span>, <span class="ident">QSelf</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">buffer</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ext</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">punctuated</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;extra-traits&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">tt</span>;
+
+<span class="comment">// Not public API except the `parse_quote!` macro.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parse_quote</span>;
+
+<span class="comment">// Not public API except the `parse_macro_input!` macro.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+    <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>))),
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>,
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc-macro&quot;</span>
+))]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parse_macro_input</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>))))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">spanned</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">whitespace</span>;
+
+<span class="kw">mod</span> <span class="ident">gen</span> {
+    <span class="doccomment">/// Syntax tree traversal to walk a shared borrow of a syntax tree.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Each method of the [`Visit`] trait is a hook that can be overridden to</span>
+    <span class="doccomment">/// customize the behavior when visiting the corresponding type of node. By</span>
+    <span class="doccomment">/// default, every method recursively visits the substructure of the input</span>
+    <span class="doccomment">/// by invoking the right visitor method of each of its fields.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Visit`]: visit::Visit</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use syn::{Attribute, BinOp, Expr, ExprBinary};</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// pub trait Visit&lt;&#39;ast&gt; {</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     fn visit_expr_binary(&amp;mut self, node: &amp;&#39;ast ExprBinary) {</span>
+    <span class="doccomment">///         visit_expr_binary(self, node);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///     # fn visit_attribute(&amp;mut self, node: &amp;&#39;ast Attribute);</span>
+    <span class="doccomment">///     # fn visit_expr(&amp;mut self, node: &amp;&#39;ast Expr);</span>
+    <span class="doccomment">///     # fn visit_bin_op(&amp;mut self, node: &amp;&#39;ast BinOp);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// pub fn visit_expr_binary&lt;&#39;ast, V&gt;(v: &amp;mut V, node: &amp;&#39;ast ExprBinary)</span>
+    <span class="doccomment">/// where</span>
+    <span class="doccomment">///     V: Visit&lt;&#39;ast&gt; + ?Sized,</span>
+    <span class="doccomment">/// {</span>
+    <span class="doccomment">///     for attr in &amp;node.attrs {</span>
+    <span class="doccomment">///         v.visit_attribute(attr);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///     v.visit_expr(&amp;*node.left);</span>
+    <span class="doccomment">///     v.visit_bin_op(&amp;node.op);</span>
+    <span class="doccomment">///     v.visit_expr(&amp;*node.right);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// /* ... */</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// *This module is available only if Syn is built with the `&quot;visit&quot;` feature.*</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// &lt;br&gt;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This visitor will print the name of every freestanding function in the</span>
+    <span class="doccomment">/// syntax tree, including nested functions.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// // [dependencies]</span>
+    <span class="doccomment">/// // quote = &quot;1.0&quot;</span>
+    <span class="doccomment">/// // syn = { version = &quot;1.0&quot;, features = [&quot;full&quot;, &quot;visit&quot;] }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// use quote::quote;</span>
+    <span class="doccomment">/// use syn::visit::{self, Visit};</span>
+    <span class="doccomment">/// use syn::{File, ItemFn};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct FnVisitor;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// impl&lt;&#39;ast&gt; Visit&lt;&#39;ast&gt; for FnVisitor {</span>
+    <span class="doccomment">///     fn visit_item_fn(&amp;mut self, node: &amp;&#39;ast ItemFn) {</span>
+    <span class="doccomment">///         println!(&quot;Function with name={}&quot;, node.sig.ident);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         // Delegate to the default impl to visit any nested functions.</span>
+    <span class="doccomment">///         visit::visit_item_fn(self, node);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let code = quote! {</span>
+    <span class="doccomment">///         pub fn f() {</span>
+    <span class="doccomment">///             fn g() {}</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///     };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let syntax_tree: File = syn::parse2(code).unwrap();</span>
+    <span class="doccomment">///     FnVisitor.visit_file(&amp;syntax_tree);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `&#39;ast` lifetime on the input references means that the syntax tree</span>
+    <span class="doccomment">/// outlives the complete recursive visit call, so the visitor is allowed to</span>
+    <span class="doccomment">/// hold on to references into the syntax tree.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use quote::quote;</span>
+    <span class="doccomment">/// use syn::visit::{self, Visit};</span>
+    <span class="doccomment">/// use syn::{File, ItemFn};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct FnVisitor&lt;&#39;ast&gt; {</span>
+    <span class="doccomment">///     functions: Vec&lt;&amp;&#39;ast ItemFn&gt;,</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// impl&lt;&#39;ast&gt; Visit&lt;&#39;ast&gt; for FnVisitor&lt;&#39;ast&gt; {</span>
+    <span class="doccomment">///     fn visit_item_fn(&amp;mut self, node: &amp;&#39;ast ItemFn) {</span>
+    <span class="doccomment">///         self.functions.push(node);</span>
+    <span class="doccomment">///         visit::visit_item_fn(self, node);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let code = quote! {</span>
+    <span class="doccomment">///         pub fn f() {</span>
+    <span class="doccomment">///             fn g() {}</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///     };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let syntax_tree: File = syn::parse2(code).unwrap();</span>
+    <span class="doccomment">///     let mut visitor = FnVisitor { functions: Vec::new() };</span>
+    <span class="doccomment">///     visitor.visit_file(&amp;syntax_tree);</span>
+    <span class="doccomment">///     for f in visitor.functions {</span>
+    <span class="doccomment">///         println!(&quot;Function with name={}&quot;, f.sig.ident);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;visit&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;visit&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">visit</span>;
+
+    <span class="doccomment">/// Syntax tree traversal to mutate an exclusive borrow of a syntax tree in</span>
+    <span class="doccomment">/// place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Each method of the [`VisitMut`] trait is a hook that can be overridden</span>
+    <span class="doccomment">/// to customize the behavior when mutating the corresponding type of node.</span>
+    <span class="doccomment">/// By default, every method recursively visits the substructure of the</span>
+    <span class="doccomment">/// input by invoking the right visitor method of each of its fields.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`VisitMut`]: visit_mut::VisitMut</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use syn::{Attribute, BinOp, Expr, ExprBinary};</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// pub trait VisitMut {</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     fn visit_expr_binary_mut(&amp;mut self, node: &amp;mut ExprBinary) {</span>
+    <span class="doccomment">///         visit_expr_binary_mut(self, node);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///     # fn visit_attribute_mut(&amp;mut self, node: &amp;mut Attribute);</span>
+    <span class="doccomment">///     # fn visit_expr_mut(&amp;mut self, node: &amp;mut Expr);</span>
+    <span class="doccomment">///     # fn visit_bin_op_mut(&amp;mut self, node: &amp;mut BinOp);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// pub fn visit_expr_binary_mut&lt;V&gt;(v: &amp;mut V, node: &amp;mut ExprBinary)</span>
+    <span class="doccomment">/// where</span>
+    <span class="doccomment">///     V: VisitMut + ?Sized,</span>
+    <span class="doccomment">/// {</span>
+    <span class="doccomment">///     for attr in &amp;mut node.attrs {</span>
+    <span class="doccomment">///         v.visit_attribute_mut(attr);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///     v.visit_expr_mut(&amp;mut *node.left);</span>
+    <span class="doccomment">///     v.visit_bin_op_mut(&amp;mut node.op);</span>
+    <span class="doccomment">///     v.visit_expr_mut(&amp;mut *node.right);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// /* ... */</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// *This module is available only if Syn is built with the `&quot;visit-mut&quot;`</span>
+    <span class="doccomment">/// feature.*</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// &lt;br&gt;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This mut visitor replace occurrences of u256 suffixed integer literals</span>
+    <span class="doccomment">/// like `999u256` with a macro invocation `bigint::u256!(999)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// // [dependencies]</span>
+    <span class="doccomment">/// // quote = &quot;1.0&quot;</span>
+    <span class="doccomment">/// // syn = { version = &quot;1.0&quot;, features = [&quot;full&quot;, &quot;visit-mut&quot;] }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// use quote::quote;</span>
+    <span class="doccomment">/// use syn::visit_mut::{self, VisitMut};</span>
+    <span class="doccomment">/// use syn::{parse_quote, Expr, File, Lit, LitInt};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct BigintReplace;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// impl VisitMut for BigintReplace {</span>
+    <span class="doccomment">///     fn visit_expr_mut(&amp;mut self, node: &amp;mut Expr) {</span>
+    <span class="doccomment">///         if let Expr::Lit(expr) = &amp;node {</span>
+    <span class="doccomment">///             if let Lit::Int(int) = &amp;expr.lit {</span>
+    <span class="doccomment">///                 if int.suffix() == &quot;u256&quot; {</span>
+    <span class="doccomment">///                     let digits = int.base10_digits();</span>
+    <span class="doccomment">///                     let unsuffixed: LitInt = syn::parse_str(digits).unwrap();</span>
+    <span class="doccomment">///                     *node = parse_quote!(bigint::u256!(#unsuffixed));</span>
+    <span class="doccomment">///                     return;</span>
+    <span class="doccomment">///                 }</span>
+    <span class="doccomment">///             }</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         // Delegate to the default impl to visit nested expressions.</span>
+    <span class="doccomment">///         visit_mut::visit_expr_mut(self, node);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let code = quote! {</span>
+    <span class="doccomment">///         fn main() {</span>
+    <span class="doccomment">///             let _ = 999u256;</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///     };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     let mut syntax_tree: File = syn::parse2(code).unwrap();</span>
+    <span class="doccomment">///     BigintReplace.visit_file_mut(&amp;mut syntax_tree);</span>
+    <span class="doccomment">///     println!(&quot;{}&quot;, quote!(#syntax_tree));</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;visit-mut&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;visit-mut&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">visit_mut</span>;
+
+    <span class="doccomment">/// Syntax tree traversal to transform the nodes of an owned syntax tree.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Each method of the [`Fold`] trait is a hook that can be overridden to</span>
+    <span class="doccomment">/// customize the behavior when transforming the corresponding type of node.</span>
+    <span class="doccomment">/// By default, every method recursively visits the substructure of the</span>
+    <span class="doccomment">/// input by invoking the right visitor method of each of its fields.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Fold`]: fold::Fold</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use syn::{Attribute, BinOp, Expr, ExprBinary};</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// pub trait Fold {</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     fn fold_expr_binary(&amp;mut self, node: ExprBinary) -&gt; ExprBinary {</span>
+    <span class="doccomment">///         fold_expr_binary(self, node)</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     /* ... */</span>
+    <span class="doccomment">///     # fn fold_attribute(&amp;mut self, node: Attribute) -&gt; Attribute;</span>
+    <span class="doccomment">///     # fn fold_expr(&amp;mut self, node: Expr) -&gt; Expr;</span>
+    <span class="doccomment">///     # fn fold_bin_op(&amp;mut self, node: BinOp) -&gt; BinOp;</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// pub fn fold_expr_binary&lt;V&gt;(v: &amp;mut V, node: ExprBinary) -&gt; ExprBinary</span>
+    <span class="doccomment">/// where</span>
+    <span class="doccomment">///     V: Fold + ?Sized,</span>
+    <span class="doccomment">/// {</span>
+    <span class="doccomment">///     ExprBinary {</span>
+    <span class="doccomment">///         attrs: node</span>
+    <span class="doccomment">///             .attrs</span>
+    <span class="doccomment">///             .into_iter()</span>
+    <span class="doccomment">///             .map(|attr| v.fold_attribute(attr))</span>
+    <span class="doccomment">///             .collect(),</span>
+    <span class="doccomment">///         left: Box::new(v.fold_expr(*node.left)),</span>
+    <span class="doccomment">///         op: v.fold_bin_op(node.op),</span>
+    <span class="doccomment">///         right: Box::new(v.fold_expr(*node.right)),</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// /* ... */</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// *This module is available only if Syn is built with the `&quot;fold&quot;` feature.*</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// &lt;br&gt;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This fold inserts parentheses to fully parenthesizes any expression.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// // [dependencies]</span>
+    <span class="doccomment">/// // quote = &quot;1.0&quot;</span>
+    <span class="doccomment">/// // syn = { version = &quot;1.0&quot;, features = [&quot;fold&quot;, &quot;full&quot;] }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// use quote::quote;</span>
+    <span class="doccomment">/// use syn::fold::{fold_expr, Fold};</span>
+    <span class="doccomment">/// use syn::{token, Expr, ExprParen};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct ParenthesizeEveryExpr;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// impl Fold for ParenthesizeEveryExpr {</span>
+    <span class="doccomment">///     fn fold_expr(&amp;mut self, expr: Expr) -&gt; Expr {</span>
+    <span class="doccomment">///         Expr::Paren(ExprParen {</span>
+    <span class="doccomment">///             attrs: Vec::new(),</span>
+    <span class="doccomment">///             expr: Box::new(fold_expr(self, expr)),</span>
+    <span class="doccomment">///             paren_token: token::Paren::default(),</span>
+    <span class="doccomment">///         })</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let code = quote! { a() + b(1) * c.d };</span>
+    <span class="doccomment">///     let expr: Expr = syn::parse2(code).unwrap();</span>
+    <span class="doccomment">///     let parenthesized = ParenthesizeEveryExpr.fold_expr(expr);</span>
+    <span class="doccomment">///     println!(&quot;{}&quot;, quote!(#parenthesized));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // Output: (((a)()) + (((b)((1))) * ((c).d)))</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;fold&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;fold&quot;</span>)))]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fold</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;clone-impls&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">mod</span> <span class="ident">clone</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;extra-traits&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">mod</span> <span class="ident">eq</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;extra-traits&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">mod</span> <span class="ident">hash</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;extra-traits&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+    <span class="kw">mod</span> <span class="ident">debug</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;../gen_helper.rs&quot;</span>]</span>
+    <span class="kw">mod</span> <span class="ident">helper</span>;
+}
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::gen</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// Not public API.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="attribute">#[<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;export.rs&quot;</span>]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">__private</span>;
+
+<span class="kw">mod</span> <span class="ident">custom_keyword</span>;
+<span class="kw">mod</span> <span class="ident">custom_punctuation</span>;
+<span class="kw">mod</span> <span class="ident">sealed</span>;
+<span class="kw">mod</span> <span class="ident">span</span>;
+<span class="kw">mod</span> <span class="ident">thread</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">lookahead</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parse</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">reserved</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">verbatim</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">print</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::__private::private</span>;
+
+<span class="comment">////////////////////////////////////////////////////////////////////////////////</span>
+
+<span class="comment">// https://github.com/rust-lang/rust/issues/62830</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">rustdoc_workaround</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::parse</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">parse_module</span>};
+}
+
+<span class="comment">////////////////////////////////////////////////////////////////////////////////</span>
+
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
+
+<span class="doccomment">/// Parse tokens of source code into the chosen syntax tree node.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is preferred over parsing a string because tokens are able to preserve</span>
+<span class="doccomment">/// information about where in the user&#39;s code they were originally written (the</span>
+<span class="doccomment">/// &quot;span&quot; of the token), possibly allowing the compiler to produce better error</span>
+<span class="doccomment">/// messages.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This function parses a `proc_macro::TokenStream` which is the type used for</span>
+<span class="doccomment">/// interop with the compiler in a procedural macro. To parse a</span>
+<span class="doccomment">/// `proc_macro2::TokenStream`, use [`syn::parse2`] instead.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [`syn::parse2`]: parse2</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// *This function is available only if Syn is built with both the `&quot;parsing&quot;` and</span>
+<span class="doccomment">/// `&quot;proc-macro&quot;` features.*</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # extern crate proc_macro;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// use proc_macro::TokenStream;</span>
+<span class="doccomment">/// use quote::quote;</span>
+<span class="doccomment">/// use syn::DeriveInput;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # const IGNORE_TOKENS: &amp;str = stringify! {</span>
+<span class="doccomment">/// #[proc_macro_derive(MyMacro)]</span>
+<span class="doccomment">/// # };</span>
+<span class="doccomment">/// pub fn my_macro(input: TokenStream) -&gt; TokenStream {</span>
+<span class="doccomment">///     // Parse the tokens into a syntax tree</span>
+<span class="doccomment">///     let ast: DeriveInput = syn::parse(input).unwrap();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // Build the output, possibly using quasi-quotation</span>
+<span class="doccomment">///     let expanded = quote! {</span>
+<span class="doccomment">///         /* ... */</span>
+<span class="doccomment">///     };</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // Convert into a token stream and return it</span>
+<span class="doccomment">///     expanded.into()</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+    <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">any</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;unknown&quot;</span>, <span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>))),
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>,
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc-macro&quot;</span>
+))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;proc-macro&quot;</span>))))]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">parse::Parse</span><span class="op">&gt;</span>(<span class="ident">tokens</span>: <span class="ident">proc_macro::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">parse::Parser::parse</span>(<span class="ident">T::parse</span>, <span class="ident">tokens</span>)
+}
+
+<span class="doccomment">/// Parse a proc-macro2 token stream into the chosen syntax tree node.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This function parses a `proc_macro2::TokenStream` which is commonly useful</span>
+<span class="doccomment">/// when the input comes from a node of the Syn syntax tree, for example the</span>
+<span class="doccomment">/// body tokens of a [`Macro`] node. When in a procedural macro parsing the</span>
+<span class="doccomment">/// `proc_macro::TokenStream` provided by the compiler, use [`syn::parse`]</span>
+<span class="doccomment">/// instead.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [`syn::parse`]: parse()</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// *This function is available only if Syn is built with the `&quot;parsing&quot;` feature.*</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse2</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">parse::Parse</span><span class="op">&gt;</span>(<span class="ident">tokens</span>: <span class="ident">proc_macro2::TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">parse::Parser::parse2</span>(<span class="ident">T::parse</span>, <span class="ident">tokens</span>)
+}
+
+<span class="doccomment">/// Parse a string of Rust code into the chosen syntax tree node.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// *This function is available only if Syn is built with the `&quot;parsing&quot;` feature.*</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Hygiene</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Every span in the resulting syntax tree will be set to resolve at the macro</span>
+<span class="doccomment">/// call site.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// use syn::{Expr, Result};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn run() -&gt; Result&lt;()&gt; {</span>
+<span class="doccomment">///     let code = &quot;assert_eq!(u8::max_value(), 255)&quot;;</span>
+<span class="doccomment">///     let expr = syn::parse_str::&lt;Expr&gt;(code)?;</span>
+<span class="doccomment">///     println!(&quot;{:#?}&quot;, expr);</span>
+<span class="doccomment">///     Ok(())</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// # run().unwrap();</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)))]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_str</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">parse::Parse</span><span class="op">&gt;</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">parse::Parser::parse_str</span>(<span class="ident">T::parse</span>, <span class="ident">s</span>)
+}
+
+<span class="comment">// FIXME the name parse_file makes it sound like you might pass in a path to a</span>
+<span class="comment">// file, rather than the content.</span>
+<span class="doccomment">/// Parse the content of a file of Rust code.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is different from `syn::parse_str::&lt;File&gt;(content)` in two ways:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - It discards a leading byte order mark `\u{FEFF}` if the file has one.</span>
+<span class="doccomment">/// - It preserves the shebang line of the file, such as `#!/usr/bin/env rustx`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If present, either of these would be an error using `from_str`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// *This function is available only if Syn is built with the `&quot;parsing&quot;` and</span>
+<span class="doccomment">/// `&quot;full&quot;` features.*</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_run</span>
+<span class="doccomment">/// use std::error::Error;</span>
+<span class="doccomment">/// use std::fs::File;</span>
+<span class="doccomment">/// use std::io::Read;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn run() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {</span>
+<span class="doccomment">///     let mut file = File::open(&quot;path/to/code.rs&quot;)?;</span>
+<span class="doccomment">///     let mut content = String::new();</span>
+<span class="doccomment">///     file.read_to_string(&amp;mut content)?;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let ast = syn::parse_file(&amp;content)?;</span>
+<span class="doccomment">///     if let Some(shebang) = ast.shebang {</span>
+<span class="doccomment">///         println!(&quot;{}&quot;, shebang);</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///     println!(&quot;{} items&quot;, ast.items.len());</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     Ok(())</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// # run().unwrap();</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">doc_cfg</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>))))]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_file</span>(<span class="kw-2">mut</span> <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">File</span><span class="op">&gt;</span> {
+    <span class="comment">// Strip the BOM if it is present</span>
+    <span class="kw">const</span> <span class="ident">BOM</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;\u{feff}&quot;</span>;
+    <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">starts_with</span>(<span class="ident">BOM</span>) {
+        <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">BOM</span>.<span class="ident">len</span>()..];
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shebang</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">starts_with</span>(<span class="string">&quot;#!&quot;</span>) {
+        <span class="kw">let</span> <span class="ident">rest</span> <span class="op">=</span> <span class="ident">whitespace::skip</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="number">2</span>..]);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">rest</span>.<span class="ident">starts_with</span>(<span class="string">&#39;[&#39;</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">content</span>.<span class="ident">find</span>(<span class="string">&#39;\n&#39;</span>) {
+                <span class="ident">shebang</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">content</span>[..<span class="ident">idx</span>].<span class="ident">to_string</span>());
+                <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">idx</span>..];
+            } <span class="kw">else</span> {
+                <span class="ident">shebang</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">content</span>.<span class="ident">to_string</span>());
+                <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
+            }
+        }
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span>: <span class="ident">File</span> <span class="op">=</span> <span class="ident">parse_str</span>(<span class="ident">content</span>)<span class="question-mark">?</span>;
+    <span class="ident">file</span>.<span class="ident">shebang</span> <span class="op">=</span> <span class="ident">shebang</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">file</span>)
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["TypeVisitor","A utility trait to help user to traverse against parquet type."]]});

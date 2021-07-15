@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;git&#x2F;checkouts&#x2F;arrow-rs-3b86e19e889d5acc&#x2F;a1aace8&#x2F;arrow&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../arrow/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+</pre><pre class="rust">
+<span class="comment">// Licensed to the Apache Software Foundation (ASF) under one</span>
+<span class="comment">// or more contributor license agreements.  See the NOTICE file</span>
+<span class="comment">// distributed with this work for additional information</span>
+<span class="comment">// regarding copyright ownership.  The ASF licenses this file</span>
+<span class="comment">// to you under the Apache License, Version 2.0 (the</span>
+<span class="comment">// &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="comment">// with the License.  You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing,</span>
+<span class="comment">// software distributed under the License is distributed on an</span>
+<span class="comment">// &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="comment">// KIND, either express or implied.  See the License for the</span>
+<span class="comment">// specific language governing permissions and limitations</span>
+<span class="comment">// under the License.</span>
+
+<span class="doccomment">//! A native Rust implementation of [Apache Arrow](https://arrow.apache.org), a cross-language</span>
+<span class="doccomment">//! development platform for in-memory data.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ### DataType</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Every [`Array`](array::Array) in this crate has an associated [`DataType`](datatypes::DataType),</span>
+<span class="doccomment">//! that specifies how its data is layed in memory and represented.</span>
+<span class="doccomment">//! Thus, a central enum of this crate is [`DataType`](datatypes::DataType), that contains the set of valid</span>
+<span class="doccomment">//! DataTypes in the specification. For example, [`DataType::Utf8`](datatypes::DataType::Utf8).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Array</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The central trait of this package is the dynamically-typed [`Array`](array::Array) that</span>
+<span class="doccomment">//! represents a fixed-sized, immutable, Send + Sync Array of nullable elements. An example of such an array is [`UInt32Array`](array::UInt32Array).</span>
+<span class="doccomment">//! One way to think about an arrow [`Array`](array::Array) is a `Arc&lt;[Option&lt;T&gt;; len]&gt;` where T can be anything ranging from an integer to a string, or even</span>
+<span class="doccomment">//! another [`Array`](array::Array).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`Arrays`](array::Array) have [`len()`](array::Array::len), [`data_type()`](array::Array::data_type), and the nullability of each of its elements,</span>
+<span class="doccomment">//! can be obtained via [`is_null(index)`](array::Array::is_null). To downcast an [`Array`](array::Array) to a specific implementation, you can use</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use arrow::array::{Array, UInt32Array};</span>
+<span class="doccomment">//! let array = UInt32Array::from(vec![Some(1), None, Some(3)]);</span>
+<span class="doccomment">//! assert_eq!(array.len(), 3);</span>
+<span class="doccomment">//! assert_eq!(array.value(0), 1);</span>
+<span class="doccomment">//! assert_eq!(array.is_null(1), true);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To make the array dynamically typed, we wrap it in an [`Arc`](std::sync::Arc):</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! # use std::sync::Arc;</span>
+<span class="doccomment">//! use arrow::datatypes::DataType;</span>
+<span class="doccomment">//! use arrow::array::{UInt32Array, ArrayRef};</span>
+<span class="doccomment">//! # let array = UInt32Array::from(vec![Some(1), None, Some(3)]);</span>
+<span class="doccomment">//! let array: ArrayRef = Arc::new(array);</span>
+<span class="doccomment">//! assert_eq!(array.len(), 3);</span>
+<span class="doccomment">//! // array.value() is not available in the dynamically-typed version</span>
+<span class="doccomment">//! assert_eq!(array.is_null(1), true);</span>
+<span class="doccomment">//! assert_eq!(array.data_type(), &amp;DataType::UInt32);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! to downcast, use `as_any()`:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! # use std::sync::Arc;</span>
+<span class="doccomment">//! # use arrow::array::{UInt32Array, ArrayRef};</span>
+<span class="doccomment">//! # let array = UInt32Array::from(vec![Some(1), None, Some(3)]);</span>
+<span class="doccomment">//! # let array: ArrayRef = Arc::new(array);</span>
+<span class="doccomment">//! let array = array.as_any().downcast_ref::&lt;UInt32Array&gt;().unwrap();</span>
+<span class="doccomment">//! assert_eq!(array.value(0), 1);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Memory and Buffers</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Data in [`Array`](array::Array) is stored in [`ArrayData`](array::ArrayData), that in turn</span>
+<span class="doccomment">//! is a collection of other [`ArrayData`](array::ArrayData) and [`Buffers`](buffer::Buffer).</span>
+<span class="doccomment">//! [`Buffers`](buffer::Buffer) is the central struct that array implementations use keep allocated memory and pointers.</span>
+<span class="doccomment">//! The [`MutableBuffer`](buffer::MutableBuffer) is the mutable counter-part of[`Buffer`](buffer::Buffer).</span>
+<span class="doccomment">//! These are the lowest abstractions of this crate, and are used throughout the crate to</span>
+<span class="doccomment">//! efficiently allocate, write, read and deallocate memory.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Field, Schema and RecordBatch</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [`Field`](datatypes::Field) is a struct that contains an array&#39;s metadata (datatype and whether its values</span>
+<span class="doccomment">//! can be null), and a name. [`Schema`](datatypes::Schema) is a vector of fields with optional metadata.</span>
+<span class="doccomment">//! Together, they form the basis of a schematic representation of a group of [`Arrays`](array::Array).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In fact, [`RecordBatch`](record_batch::RecordBatch) is a struct with a [`Schema`](datatypes::Schema) and a vector of</span>
+<span class="doccomment">//! [`Array`](array::Array)s, all with the same `len`. A record batch is the highest order struct that this crate currently offers</span>
+<span class="doccomment">//! and is broadly used to represent a table where each column in an `Array`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Compute</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate offers many operations (called kernels) to operate on `Array`s, that you can find at [compute::kernels].</span>
+<span class="doccomment">//! It has both vertical and horizontal operations, and some of them have an SIMD implementation.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Status</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate has most of the implementation of the arrow specification. Specifically, it supports the following types:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * All arrow primitive types, such as [`Int32Array`](array::UInt8Array), [`BooleanArray`](array::BooleanArray) and [`Float64Array`](array::Float64Array).</span>
+<span class="doccomment">//! * All arrow variable length types, such as [`StringArray`](array::StringArray) and [`BinaryArray`](array::BinaryArray)</span>
+<span class="doccomment">//! * All composite types such as [`StructArray`](array::StructArray) and [`ListArray`](array::ListArray)</span>
+<span class="doccomment">//! * Dictionary types  [`DictionaryArray`](array::DictionaryArray)</span>
+
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate also implements many common vertical operations:</span>
+<span class="doccomment">//! * all mathematical binary operators, such as [`subtract`](compute::kernels::arithmetic::subtract)</span>
+<span class="doccomment">//! * all boolean binary operators such as [`equality`](compute::kernels::comparison::eq)</span>
+<span class="doccomment">//! * [`cast`](compute::kernels::cast::cast)</span>
+<span class="doccomment">//! * [`filter`](compute::kernels::filter::filter)</span>
+<span class="doccomment">//! * [`take`](compute::kernels::take::take) and [`limit`](compute::kernels::limit::limit)</span>
+<span class="doccomment">//! * [`sort`](compute::kernels::sort::sort)</span>
+<span class="doccomment">//! * some string operators such as [`substring`](compute::kernels::substring::substring) and [`length`](compute::kernels::length::length)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! as well as some horizontal operations, such as</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * [`min`](compute::kernels::aggregate::min) and [`max`](compute::kernels::aggregate::max)</span>
+<span class="doccomment">//! * [`sum`](compute::kernels::aggregate::sum)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Finally, this crate implements some readers and writers to different formats:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * json: [reader](json::reader::Reader)</span>
+<span class="doccomment">//! * csv: [reader](csv::reader::Reader) and [writer](csv::writer::Writer)</span>
+<span class="doccomment">//! * ipc: [reader](ipc::reader::StreamReader) and [writer](ipc::writer::FileWriter)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The parquet implementation is on a [separate crate](https://crates.io/crates/parquet)</span>
+
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;avx512&quot;</span>, <span class="ident">feature</span>(<span class="ident">stdsimd</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;avx512&quot;</span>, <span class="ident">feature</span>(<span class="ident">repr_simd</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;avx512&quot;</span>, <span class="ident">feature</span>(<span class="ident">avx512_target_feature</span>))]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="comment">// introduced to ignore lint errors when upgrading from 2020-04-22 to 2020-11-14</span>
+    <span class="ident">clippy::float_equality_without_abs</span>,
+    <span class="ident">clippy::type_complexity</span>,
+    <span class="comment">// upper_case_acronyms lint was introduced in Rust 1.51.</span>
+    <span class="comment">// It is triggered in the ffi module, and ipc::gen, which we have no control over</span>
+    <span class="ident">clippy::upper_case_acronyms</span>,
+    <span class="ident">clippy::vec_init_then_push</span>
+)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">bare_trait_objects</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_debug_implementations</span>)]</span>
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">alloc</span>;
+<span class="kw">mod</span> <span class="ident">arch</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">array</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bitmap</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">buffer</span>;
+<span class="kw">mod</span> <span class="ident">bytes</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compute</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;csv&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">csv</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">datatypes</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ffi</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ipc&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ipc</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">json</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">record_batch</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">temporal_conversions</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tensor</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">util</span>;
+<span class="kw">mod</span> <span class="ident">zz_memory_check</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="arrow" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="(De)serialize JSON files."><meta name="keywords" content="rust, rustlang, rust-lang, json"><title>polars_io::json - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../polars_io/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module json</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="json" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">polars_io</a>::<wbr><a class="mod" href="#">json</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/polars_io/json.rs.html#1-233" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="deserialize-json-files" class="section-header"><a href="#deserialize-json-files">(De)serialize JSON files.</a></h1><h2 id="write-a-dataframe-to-a-json-file" class="section-header"><a href="#write-a-dataframe-to-a-json-file">Write a DataFrame to a JSON file</a></h2><h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars_core::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars_io::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+
+<span class="kw">fn</span> <span class="ident">example</span>(<span class="ident">df</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DataFrame</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="string">&quot;example.csv&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;could not create file&quot;</span>);
+     
+    <span class="ident">JsonWriter::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">file</span>)
+    .<span class="ident">finish</span>(<span class="ident">df</span>)
+}</pre></div>
+<h2 id="read-json-to-a-dataframe" class="section-header"><a href="#read-json-to-a-dataframe">Read JSON to a DataFrame</a></h2><h2 id="example-1" class="section-header"><a href="#example-1">Example</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars_core::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars_io::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
+
+<span class="kw">let</span> <span class="ident">basic_json</span> <span class="op">=</span> <span class="string">r#&quot;{&quot;a&quot;:1, &quot;b&quot;:2.0, &quot;c&quot;:false, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:-10, &quot;b&quot;:-3.5, &quot;c&quot;:true, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:2, &quot;b&quot;:0.6, &quot;c&quot;:false, &quot;d&quot;:&quot;text&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:2.0, &quot;c&quot;:false, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:7, &quot;b&quot;:-3.5, &quot;c&quot;:true, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:0.6, &quot;c&quot;:false, &quot;d&quot;:&quot;text&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:2.0, &quot;c&quot;:false, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:5, &quot;b&quot;:-3.5, &quot;c&quot;:true, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:0.6, &quot;c&quot;:false, &quot;d&quot;:&quot;text&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:2.0, &quot;c&quot;:false, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:1, &quot;b&quot;:-3.5, &quot;c&quot;:true, &quot;d&quot;:&quot;4&quot;}
+{&quot;a&quot;:100000000000000, &quot;b&quot;:0.6, &quot;c&quot;:false, &quot;d&quot;:&quot;text&quot;}&quot;#</span>;
+<span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">basic_json</span>);
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">JsonReader::new</span>(<span class="ident">file</span>)
+.<span class="ident">infer_schema</span>(<span class="prelude-val">Some</span>(<span class="number">3</span>))
+.<span class="ident">with_batch_size</span>(<span class="number">3</span>)
+.<span class="ident">finish</span>()
+.<span class="ident">unwrap</span>();
+
+<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">df</span>);</pre></div>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>Outputs:</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<pre><code class="language-text">+-----+--------+-------+--------+
+| a   | b      | c     | d      |
+| --- | ---    | ---   | ---    |
+| i64 | f64    | bool  | str    |
++=====+========+=======+========+
+| 1   | 2      | false | &quot;4&quot;    |
++-----+--------+-------+--------+
+| -10 | -3.5e0 | true  | &quot;4&quot;    |
++-----+--------+-------+--------+
+| 2   | 0.6    | false | &quot;text&quot; |
++-----+--------+-------+--------+
+| 1   | 2      | false | &quot;4&quot;    |
++-----+--------+-------+--------+
+| 7   | -3.5e0 | true  | &quot;4&quot;    |
++-----+--------+-------+--------+
+| 1   | 0.6    | false | &quot;text&quot; |
++-----+--------+-------+--------+
+| 1   | 2      | false | &quot;4&quot;    |
++-----+--------+-------+--------+
+| 5   | -3.5e0 | true  | &quot;4&quot;    |
++-----+--------+-------+--------+
+| 1   | 0.6    | false | &quot;text&quot; |
++-----+--------+-------+--------+
+| 1   | 2      | false | &quot;4&quot;    |
++-----+--------+-------+--------+
+</code></pre>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.JsonReader.html" title="polars_io::json::JsonReader struct">JsonReader</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="struct" href="struct.JsonWriter.html" title="polars_io::json::JsonWriter struct">JsonWriter</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="struct" href="struct.ReaderBuilder.html" title="polars_io::json::ReaderBuilder struct">ReaderBuilder</a></div><div class="item-right docblock-short"><p>JSON file reader builder</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.LineDelimitedWriter.html" title="polars_io::json::LineDelimitedWriter type">LineDelimitedWriter</a></div><div class="item-right docblock-short"><p>A JSON writer which serializes <a href="../../arrow/record_batch/struct.RecordBatch.html" title="RecordBatch"><code>RecordBatch</code></a>es to newline delimited JSON objects</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="polars_io" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

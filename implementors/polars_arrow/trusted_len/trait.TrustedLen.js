@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["polars_arrow"] = [];
+implementors["polars_core"] = [{"text":"impl&lt;'a, I&gt; <a class=\"trait\" href=\"polars_arrow/trusted_len/trait.TrustedLen.html\" title=\"trait polars_arrow::trusted_len::TrustedLen\">TrustedLen</a> for <a class=\"struct\" href=\"https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html\" title=\"struct alloc::boxed::Box\">Box</a>&lt;dyn <a class=\"trait\" href=\"polars_core/chunked_array/iterator/trait.PolarsIterator.html\" title=\"trait polars_core::chunked_array::iterator::PolarsIterator\">PolarsIterator</a>&lt;Item = I&gt; + 'a&gt;","synthetic":false,"types":["alloc::boxed::Box"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

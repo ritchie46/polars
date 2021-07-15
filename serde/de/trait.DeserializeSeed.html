@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`DeserializeSeed` is the stateful form of the `Deserialize` trait. If you ever find yourself looking for a way to pass data into a `Deserialize` impl, this trait is the way to do it."><meta name="keywords" content="rust, rustlang, rust-lang, DeserializeSeed"><title>DeserializeSeed in serde::de - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Trait DeserializeSeed</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#associated-types">Associated Types</a><div class="sidebar-links"><a href="#associatedtype.Value">Value</a></div><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.deserialize">deserialize</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-DeserializeSeed%3C%27de%3E-for-PhantomData%3CT%3E">PhantomData&lt;T&gt;</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class="location">Other items in<br><a href="../index.html">serde</a>::<wbr><a href="index.html">de</a></p><div id="sidebar-vars" data-name="DeserializeSeed" data-ty="trait" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Trait <a href="../index.html">serde</a>::<wbr><a href="index.html">de</a>::<wbr><a class="trait" href="#">DeserializeSeed</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/serde/de/mod.rs.html#763-772" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><pre class="rust trait">pub trait DeserializeSeed&lt;'de&gt;: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> {
+    type <a href="#associatedtype.Value" class="type">Value</a>;
+    fn <a href="#tymethod.deserialize" class="fnname">deserialize</a>&lt;D&gt;(self, deserializer: D) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self::<a class="type" href="trait.DeserializeSeed.html#associatedtype.Value" title="type serde::de::DeserializeSeed::Value">Value</a>, D::<a class="type" href="../trait.Deserializer.html#associatedtype.Error" title="type serde::Deserializer::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../trait.Deserializer.html" title="trait serde::Deserializer">Deserializer</a>&lt;'de&gt;</span>;
+}</pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><code>DeserializeSeed</code> is the stateful form of the <code>Deserialize</code> trait. If you
+ever find yourself looking for a way to pass data into a <code>Deserialize</code> impl,
+this trait is the way to do it.</p>
+<p>As one example of stateful deserialization consider deserializing a JSON
+array into an existing buffer. Using the <code>Deserialize</code> trait we could
+deserialize a JSON array into a <code>Vec&lt;T&gt;</code> but it would be a freshly allocated
+<code>Vec&lt;T&gt;</code>; there is no way for <code>Deserialize</code> to reuse a previously allocated
+buffer. Using <code>DeserializeSeed</code> instead makes this possible as in the
+example code below.</p>
+<p>The canonical API for stateless deserialization looks like this:</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="kw">fn</span> <span class="ident">func</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span></pre></div>
+<p>Adjusting an API like this to support stateful deserialization is a matter
+of accepting a seed as input:</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="kw">fn</span> <span class="ident">func_seed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span>: <span class="ident">DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">seed</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Value</span>, <span class="ident">Error</span><span class="op">&gt;</span></pre></div>
+<p>In practice the majority of deserialization is stateless. An API expecting a
+seed can be appeased by passing <code>std::marker::PhantomData</code> as a seed in the
+case of stateless deserialization.</p>
+<h1 id="lifetime" class="section-header"><a href="#lifetime">Lifetime</a></h1>
+<p>The <code>'de</code> lifetime of this trait is the lifetime of data that may be
+borrowed by <code>Self::Value</code> when deserialized. See the page <a href="https://serde.rs/lifetimes.html">Understanding
+deserializer lifetimes</a> for a more detailed explanation of these lifetimes.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>Suppose we have JSON that looks like <code>[[1, 2], [3, 4, 5], [6]]</code> and we need
+to deserialize it into a flat representation like <code>vec![1, 2, 3, 4, 5, 6]</code>.
+Allocating a brand new <code>Vec&lt;T&gt;</code> for each subarray would be slow. Instead we
+would like to allocate a single <code>Vec&lt;T&gt;</code> and then deserialize each subarray
+into it. This requires stateful deserialization using the <code>DeserializeSeed</code>
+trait.</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+
+<span class="kw">use</span> <span class="ident">serde::de</span>::{<span class="ident">Deserialize</span>, <span class="ident">DeserializeSeed</span>, <span class="ident">Deserializer</span>, <span class="ident">SeqAccess</span>, <span class="ident">Visitor</span>};
+
+<span class="comment">// A DeserializeSeed implementation that uses stateful deserialization to</span>
+<span class="comment">// append array elements onto the end of an existing vector. The preexisting</span>
+<span class="comment">// state (&quot;seed&quot;) in this case is the Vec&lt;T&gt;. The `deserialize` method of</span>
+<span class="comment">// `ExtendVec` will be traversing the inner arrays of the JSON input and</span>
+<span class="comment">// appending each integer into the existing Vec.</span>
+<span class="kw">struct</span> <span class="ident">ExtendVec</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DeserializeSeed</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExtendVec</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+{
+    <span class="comment">// The return type of the `deserialize` method. This implementation</span>
+    <span class="comment">// appends onto an existing vector but does not create any new data</span>
+    <span class="comment">// structure, so the return type is ().</span>
+    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> ();
+
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">deserializer</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Value</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    {
+        <span class="comment">// Visitor implementation that will walk an inner array of the JSON</span>
+        <span class="comment">// input.</span>
+        <span class="kw">struct</span> <span class="ident">ExtendVecVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExtendVecVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
+        <span class="kw">where</span>
+            <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+        {
+            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> ();
+
+            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+                <span class="macro">write!</span>(<span class="ident">formatter</span>, <span class="string">&quot;an array of integers&quot;</span>)
+            }
+
+            <span class="kw">fn</span> <span class="ident">visit_seq</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">seq</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">A::Error</span><span class="op">&gt;</span>
+            <span class="kw">where</span>
+                <span class="ident">A</span>: <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+            {
+                <span class="comment">// Visit each element in the inner array and push it onto</span>
+                <span class="comment">// the existing vector.</span>
+                <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">elem</span>) <span class="op">=</span> <span class="ident">seq</span>.<span class="ident">next_element</span>()<span class="question-mark">?</span> {
+                    <span class="self">self</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">elem</span>);
+                }
+                <span class="prelude-val">Ok</span>(())
+            }
+        }
+
+        <span class="ident">deserializer</span>.<span class="ident">deserialize_seq</span>(<span class="ident">ExtendVecVisitor</span>(<span class="self">self</span>.<span class="number">0</span>))
+    }
+}
+
+<span class="comment">// Visitor implementation that will walk the outer array of the JSON input.</span>
+<span class="kw">struct</span> <span class="ident">FlattenedVecVisitor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FlattenedVecVisitor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+{
+    <span class="comment">// This Visitor constructs a single Vec&lt;T&gt; to hold the flattened</span>
+    <span class="comment">// contents of the inner arrays.</span>
+    <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">formatter</span>, <span class="string">&quot;an array of arrays&quot;</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_seq</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">seq</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">A::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">A</span>: <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    {
+        <span class="comment">// Create a single Vec to hold the flattened contents.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+        <span class="comment">// Each iteration through this loop is one inner array.</span>
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(()) <span class="op">=</span> <span class="ident">seq</span>.<span class="ident">next_element_seed</span>(<span class="ident">ExtendVec</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">vec</span>))<span class="question-mark">?</span> {
+            <span class="comment">// Nothing to do; inner array has been appended into `vec`.</span>
+        }
+
+        <span class="comment">// Return the finished vec.</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">vec</span>)
+    }
+}
+
+<span class="kw">let</span> <span class="ident">visitor</span> <span class="op">=</span> <span class="ident">FlattenedVecVisitor</span>(<span class="ident">PhantomData</span>);
+<span class="kw">let</span> <span class="ident">flattened</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">deserializer</span>.<span class="ident">deserialize_seq</span>(<span class="ident">visitor</span>)<span class="question-mark">?</span>;</pre></div>
+</div></details><h2 id="associated-types" class="small-section-header">Associated Types<a href="#associated-types" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="associatedtype.Value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/serde/de/mod.rs.html#765" title="goto source code">[src]</a></div><code>type <a href="#associatedtype.Value" class="type">Value</a></code></div></summary><div class="docblock"><p>The type produced by using this seed.</p>
+</div></details></div><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="tymethod.deserialize" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/serde/de/mod.rs.html#769-771" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.deserialize" class="fnname">deserialize</a>&lt;D&gt;(self, deserializer: D) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self::<a class="type" href="trait.DeserializeSeed.html#associatedtype.Value" title="type serde::de::DeserializeSeed::Value">Value</a>, D::<a class="type" href="../trait.Deserializer.html#associatedtype.Error" title="type serde::Deserializer::Error">Error</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../trait.Deserializer.html" title="trait serde::Deserializer">Deserializer</a>&lt;'de&gt;,&nbsp;</span></code></div></summary><div class="docblock"><p>Equivalent to the more common <code>Deserialize::deserialize</code> method, except
+with some initial piece of data (the seed) passed in.</p>
+</div></details></div><h2 id="foreign-impls" class="small-section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-DeserializeSeed%3C%27de%3E-for-PhantomData%3CT%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/serde/de/mod.rs.html#774-787" title="goto source code">[src]</a></div><a href="#impl-DeserializeSeed%3C%27de%3E-for-PhantomData%3CT%3E" class="anchor"></a><code class="in-band">impl&lt;'de, T&gt; <a class="trait" href="trait.DeserializeSeed.html" title="trait serde::de::DeserializeSeed">DeserializeSeed</a>&lt;'de&gt; for <a class="struct" href="https://doc.rust-lang.org/nightly/core/marker/struct.PhantomData.html" title="struct core::marker::PhantomData">PhantomData</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../trait.Deserialize.html" title="trait serde::Deserialize">Deserialize</a>&lt;'de&gt;,&nbsp;</span></code></div></summary><div class="impl-items"><div id="associatedtype.Value-1" class="type trait-impl has-srclink"><a href="#associatedtype.Value-1" class="anchor"></a><code>type <a href="#associatedtype.Value" class="type">Value</a> = T</code></div><div id="method.deserialize" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/serde/de/mod.rs.html#781-786" title="goto source code">[src]</a></div><a href="#method.deserialize" class="anchor"></a><code>fn <a href="#tymethod.deserialize" class="fnname">deserialize</a>&lt;D&gt;(self, deserializer: D) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T, D::<a class="type" href="../trait.Deserializer.html#associatedtype.Error" title="type serde::Deserializer::Error">Error</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../trait.Deserializer.html" title="trait serde::Deserializer">Deserializer</a>&lt;'de&gt;,&nbsp;</span></code></div></div></details><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><script type="text/javascript" src="../../implementors/serde/de/trait.DeserializeSeed.js" async></script></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

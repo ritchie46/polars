@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["acquire_resource","Acquire a resource identified by key in the deadlock detector Noop if deadlock_detection feature isn’t enabled."],["release_resource","Release a resource identified by key in the deadlock detector. Noop if deadlock_detection feature isn’t enabled."]]});

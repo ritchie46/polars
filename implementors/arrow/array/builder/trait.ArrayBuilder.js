@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["polars_arrow"] = [{"text":"impl <a class=\"trait\" href=\"arrow/array/builder/trait.ArrayBuilder.html\" title=\"trait arrow::array::builder::ArrayBuilder\">ArrayBuilder</a> for <a class=\"struct\" href=\"polars_arrow/builder/struct.BooleanArrayBuilder.html\" title=\"struct polars_arrow::builder::BooleanArrayBuilder\">BooleanArrayBuilder</a>","synthetic":false,"types":["polars_arrow::builder::BooleanArrayBuilder"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

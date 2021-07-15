@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;k_cos.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>k_cos.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+</pre><pre class="rust">
+<span class="comment">// origin: FreeBSD /usr/src/lib/msun/src/k_cos.c</span>
+<span class="comment">//</span>
+<span class="comment">// ====================================================</span>
+<span class="comment">// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.</span>
+<span class="comment">//</span>
+<span class="comment">// Developed at SunSoft, a Sun Microsystems, Inc. business.</span>
+<span class="comment">// Permission to use, copy, modify, and distribute this</span>
+<span class="comment">// software is freely granted, provided that this notice</span>
+<span class="comment">// is preserved.</span>
+<span class="comment">// ====================================================</span>
+
+<span class="kw">const</span> <span class="ident">C1</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">4.16666666666666019037e-02</span>; <span class="comment">/* 0x3FA55555, 0x5555554C */</span>
+<span class="kw">const</span> <span class="ident">C2</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.38888888888741095749e-03</span>; <span class="comment">/* 0xBF56C16C, 0x16C15177 */</span>
+<span class="kw">const</span> <span class="ident">C3</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.48015872894767294178e-05</span>; <span class="comment">/* 0x3EFA01A0, 0x19CB1590 */</span>
+<span class="kw">const</span> <span class="ident">C4</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">2.75573143513906633035e-07</span>; <span class="comment">/* 0xBE927E4F, 0x809C52AD */</span>
+<span class="kw">const</span> <span class="ident">C5</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.08757232129817482790e-09</span>; <span class="comment">/* 0x3E21EE9E, 0xBDB4B1C4 */</span>
+<span class="kw">const</span> <span class="ident">C6</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.13596475577881948265e-11</span>; <span class="comment">/* 0xBDA8FAE9, 0xBE8838D4 */</span>
+
+<span class="comment">// kernel cos function on [-pi/4, pi/4], pi/4 ~ 0.785398164</span>
+<span class="comment">// Input x is assumed to be bounded by ~pi/4 in magnitude.</span>
+<span class="comment">// Input y is the tail of x.</span>
+<span class="comment">//</span>
+<span class="comment">// Algorithm</span>
+<span class="comment">//      1. Since cos(-x) = cos(x), we need only to consider positive x.</span>
+<span class="comment">//      2. if x &lt; 2^-27 (hx&lt;0x3e400000 0), return 1 with inexact if x!=0.</span>
+<span class="comment">//      3. cos(x) is approximated by a polynomial of degree 14 on</span>
+<span class="comment">//         [0,pi/4]</span>
+<span class="comment">//                                       4            14</span>
+<span class="comment">//              cos(x) ~ 1 - x*x/2 + C1*x + ... + C6*x</span>
+<span class="comment">//         where the remez error is</span>
+<span class="comment">//</span>
+<span class="comment">//      |              2     4     6     8     10    12     14 |     -58</span>
+<span class="comment">//      |cos(x)-(1-.5*x +C1*x +C2*x +C3*x +C4*x +C5*x  +C6*x  )| &lt;= 2</span>
+<span class="comment">//      |                                                      |</span>
+<span class="comment">//</span>
+<span class="comment">//                     4     6     8     10    12     14</span>
+<span class="comment">//      4. let r = C1*x +C2*x +C3*x +C4*x +C5*x  +C6*x  , then</span>
+<span class="comment">//             cos(x) ~ 1 - x*x/2 + r</span>
+<span class="comment">//         since cos(x+y) ~ cos(x) - sin(x)*y</span>
+<span class="comment">//                        ~ cos(x) - x*y,</span>
+<span class="comment">//         a correction term is necessary in cos(x) and hence</span>
+<span class="comment">//              cos(x+y) = 1 - (x*x/2 - (r - x*y))</span>
+<span class="comment">//         For better accuracy, rearrange to</span>
+<span class="comment">//              cos(x+y) ~ w + (tmp + (r-x*y))</span>
+<span class="comment">//         where w = 1 - x*x/2 and tmp is a tiny correction term</span>
+<span class="comment">//         (1 - x*x/2 == w + tmp exactly in infinite precision).</span>
+<span class="comment">//         The exactness of w + tmp in infinite precision depends on w</span>
+<span class="comment">//         and tmp having the same precision as x.  If they have extra</span>
+<span class="comment">//         precision due to compiler bugs, then the extra precision is</span>
+<span class="comment">//         only good provided it is retained in all terms of the final</span>
+<span class="comment">//         expression for cos().  Retention happens in all cases tested</span>
+<span class="comment">//         under FreeBSD, so don&#39;t pessimize things by forcibly clipping</span>
+<span class="comment">//         any extra precision in w.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">k_cos</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+    <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">z</span>;
+    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">C1</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">C2</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">C3</span>)) <span class="op">+</span> <span class="ident">w</span> <span class="op">*</span> <span class="ident">w</span> <span class="op">*</span> (<span class="ident">C4</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">C5</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">C6</span>));
+    <span class="kw">let</span> <span class="ident">hz</span> <span class="op">=</span> <span class="number">0.5</span> <span class="op">*</span> <span class="ident">z</span>;
+    <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">hz</span>;
+    <span class="ident">w</span> <span class="op">+</span> (((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">w</span>) <span class="op">-</span> <span class="ident">hz</span>) <span class="op">+</span> (<span class="ident">z</span> <span class="op">*</span> <span class="ident">r</span> <span class="op">-</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">y</span>))
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

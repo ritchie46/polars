@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AllocatedStackMemory",""],["CompressorReader",""],["CompressorReaderCustomAlloc",""],["CompressorReaderCustomIo",""],["IntoIoReader",""],["IoReaderWrapper",""],["IoWriterWrapper",""],["StackAllocator",""],["StandardAlloc",""]],"trait":[["Allocator",""],["SliceWrapper",""],["SliceWrapperMut",""]]});

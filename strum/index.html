@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Strum"><meta name="keywords" content="rust, rustlang, rust-lang, strum"><title>strum - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../strum/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate strum</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.20.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all strum's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="strum" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">strum</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/strum/lib.rs.html#1-217" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="strum" class="section-header"><a href="#strum">Strum</a></h1>
+<p><a href="https://travis-ci.org/Peternator7/strum"><img src="https://travis-ci.org/Peternator7/strum.svg?branch=master" alt="Build Status" /></a>
+<a href="https://crates.io/crates/strum"><img src="https://img.shields.io/crates/v/strum.svg" alt="Latest Version" /></a>
+<a href="https://docs.rs/strum"><img src="https://docs.rs/strum/badge.svg" alt="Rust Documentation" /></a></p>
+<p>Strum is a set of macros and traits for working with
+enums and strings easier in Rust.</p>
+<p>The full version of the README can be found on <a href="https://github.com/Peternator7/strum">Github</a>.</p>
+<h1 id="including-strum-in-your-project" class="section-header"><a href="#including-strum-in-your-project">Including Strum in Your Project</a></h1>
+<p>Import strum and strum_macros into your project by adding the following lines to your
+Cargo.toml. Strum_macros contains the macros needed to derive all the traits in Strum.</p>
+<pre><code class="language-toml">[dependencies]
+strum = &quot;0.20&quot;
+strum_macros = &quot;0.20&quot;
+
+# You can also access strum_macros exports directly through strum using the &quot;derive&quot; feature
+strum = { version = &quot;0.20&quot;, features = [&quot;derive&quot;] }
+</code></pre>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="additional_attributes/index.html" title="strum::additional_attributes mod">additional_attributes</a></div><div class="item-right docblock-short"><p>Documentation for Additional Attributes</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.ParseError.html" title="strum::ParseError enum">ParseError</a></div><div class="item-right docblock-short"><p>The ParseError enum is a collection of all the possible reasons
+an enum can fail to parse from a string.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.AsStaticRef.html" title="strum::AsStaticRef trait">AsStaticRef</a></div><div class="item-right docblock-short"><p>A cheap reference-to-reference conversion. Used to convert a value to a
+reference value with <code>'static</code> lifetime within generic code.
+#[deprecated(since=“0.13.0”, note=“please use <code>#[derive(IntoStaticStr)]</code> instead”)]</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.EnumCount.html" title="strum::EnumCount trait">EnumCount</a></div><div class="item-right docblock-short"><p>A trait for capturing the number of variants in Enum. This trait can be autoderived by
+<code>strum_macros</code>.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.EnumMessage.html" title="strum::EnumMessage trait">EnumMessage</a></div><div class="item-right docblock-short"><p>Associates additional pieces of information with an Enum. This can be
+autoimplemented by deriving <code>EnumMessage</code> and annotating your variants with
+`#[strum(message=“…”)].</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.EnumProperty.html" title="strum::EnumProperty trait">EnumProperty</a></div><div class="item-right docblock-short"><p>EnumProperty is a trait that makes it possible to store additional information
+with enum variants. This trait is designed to be used with the macro of the same
+name in the <code>strum_macros</code> crate. Currently, the only string literals are supported
+in attributes, the other methods will be implemented as additional attribute types
+become stabilized.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.IntoEnumIterator.html" title="strum::IntoEnumIterator trait">IntoEnumIterator</a></div><div class="item-right docblock-short"><p>This trait designates that an <code>Enum</code> can be iterated over. It can
+be auto generated using <code>strum_macros</code> on your behalf.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.VariantNames.html" title="strum::VariantNames trait">VariantNames</a></div><div class="item-right docblock-short"><p>A trait for retrieving the names of each variant in Enum. This trait can
+be autoderived by <code>strum_macros</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="strum" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

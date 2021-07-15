@@ -1,0 +1,433 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="github crates-io docs-rs"><meta name="keywords" content="rust, rustlang, rust-lang, syn"><title>syn - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../syn/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate syn</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.73</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all syn's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="syn" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">syn</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/syn/lib.rs.html#1-1000" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/dtolnay/syn"><img src="https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github" alt="github" /></a> <a href="https://crates.io/crates/syn"><img src="https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust" alt="crates-io" /></a> <a href="index.html"><img src="https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K" alt="docs-rs" /></a></p>
+<br>
+<p>Syn is a parsing library for parsing a stream of Rust tokens into a syntax
+tree of Rust source code.</p>
+<p>Currently this library is geared toward use in Rust procedural macros, but
+contains some APIs that may be useful more generally.</p>
+<ul>
+<li>
+<p><strong>Data structures</strong> — Syn provides a complete syntax tree that can
+represent any valid Rust source code. The syntax tree is rooted at
+<a href="struct.File.html"><code>syn::File</code></a> which represents a full source file, but there are other
+entry points that may be useful to procedural macros including
+<a href="enum.Item.html"><code>syn::Item</code></a>, <a href="enum.Expr.html"><code>syn::Expr</code></a> and <a href="enum.Type.html"><code>syn::Type</code></a>.</p>
+</li>
+<li>
+<p><strong>Derives</strong> — Of particular interest to derive macros is
+<a href="struct.DeriveInput.html"><code>syn::DeriveInput</code></a> which is any of the three legal input items to a
+derive macro. An example below shows using this type in a library that can
+derive implementations of a user-defined trait.</p>
+</li>
+<li>
+<p><strong>Parsing</strong> — Parsing in Syn is built around <a href="parse/index.html">parser functions</a> with the
+signature <code>fn(ParseStream) -&gt; Result&lt;T&gt;</code>. Every syntax tree node defined
+by Syn is individually parsable and may be used as a building block for
+custom syntaxes, or you may dream up your own brand new syntax without
+involving any of our syntax tree types.</p>
+</li>
+<li>
+<p><strong>Location information</strong> — Every token parsed by Syn is associated with a
+<code>Span</code> that tracks line and column information back to the source of that
+token. These spans allow a procedural macro to display detailed error
+messages pointing to all the right places in the user’s code. There is an
+example of this below.</p>
+</li>
+<li>
+<p><strong>Feature flags</strong> — Functionality is aggressively feature gated so your
+procedural macros enable only what they need, and do not pay in compile
+time for all the rest.</p>
+</li>
+</ul>
+<br>
+<h1 id="example-of-a-derive-macro" class="section-header"><a href="#example-of-a-derive-macro">Example of a derive macro</a></h1>
+<p>The canonical derive macro using Syn looks like this. We write an ordinary
+Rust function tagged with a <code>proc_macro_derive</code> attribute and the name of
+the trait we are deriving. Any time that derive appears in the user’s code,
+the Rust compiler passes their data structure as tokens into our macro. We
+get to execute arbitrary Rust code to figure out what to do with those
+tokens, then hand some tokens back to the compiler to compile into the
+user’s crate.</p>
+<pre><code class="language-toml">[dependencies]
+syn = &quot;1.0&quot;
+quote = &quot;1.0&quot;
+
+[lib]
+proc-macro = true
+</code></pre>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
+<span class="kw">use</span> <span class="ident">quote::quote</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parse_macro_input</span>, <span class="ident">DeriveInput</span>};
+
+<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MyMacro</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_macro</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="comment">// Parse the input tokens into a syntax tree</span>
+    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">DeriveInput</span>);
+
+    <span class="comment">// Build the output, possibly using quasi-quotation</span>
+    <span class="kw">let</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="macro">quote!</span> {
+        <span class="comment">// ...</span>
+    };
+
+    <span class="comment">// Hand the output tokens back to the compiler</span>
+    <span class="ident">TokenStream::from</span>(<span class="ident">expanded</span>)
+}</pre></div>
+<p>The <a href="https://github.com/dtolnay/syn/tree/master/examples/heapsize"><code>heapsize</code></a> example directory shows a complete working implementation
+of a derive macro. It works on any Rust compiler 1.31+. The example derives
+a <code>HeapSize</code> trait which computes an estimate of the amount of heap memory
+owned by a value.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HeapSize</span> {
+    <span class="doccomment">/// Total number of bytes of heap memory owned by `self`.</span>
+    <span class="kw">fn</span> <span class="ident">heap_size_of_children</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span>;
+}</pre></div>
+<p>The derive macro allows users to write <code>#[derive(HeapSize)]</code> on data
+structures in their program.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">HeapSize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Demo</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">b</span>: <span class="ident">u8</span>,
+    <span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+    <span class="ident">d</span>: <span class="ident">String</span>,
+}</pre></div>
+<p><br></p>
+<h1 id="spans-and-error-reporting" class="section-header"><a href="#spans-and-error-reporting">Spans and error reporting</a></h1>
+<p>The token-based procedural macro API provides great control over where the
+compiler’s error messages are displayed in user code. Consider the error the
+user sees if one of their field types does not implement <code>HeapSize</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">HeapSize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Broken</span> {
+    <span class="ident">ok</span>: <span class="ident">String</span>,
+    <span class="ident">bad</span>: <span class="ident">std::thread::Thread</span>,
+}</pre></div>
+<p>By tracking span information all the way through the expansion of a
+procedural macro as shown in the <code>heapsize</code> example, token-based macros in
+Syn are able to trigger errors that directly pinpoint the source of the
+problem.</p>
+<pre><code class="language-text">error[E0277]: the trait bound `std::thread::Thread: HeapSize` is not satisfied
+ --&gt; src/main.rs:7:5
+  |
+7 |     bad: std::thread::Thread,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `HeapSize` is not implemented for `Thread`
+</code></pre>
+<br>
+<h1 id="parsing-a-custom-syntax" class="section-header"><a href="#parsing-a-custom-syntax">Parsing a custom syntax</a></h1>
+<p>The <a href="https://github.com/dtolnay/syn/tree/master/examples/lazy-static"><code>lazy-static</code></a> example directory shows the implementation of a
+<code>functionlike!(...)</code> procedural macro in which the input tokens are parsed
+using Syn’s parsing API.</p>
+<p>The example reimplements the popular <code>lazy_static</code> crate from crates.io as a
+procedural macro.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="macro">lazy_static!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">USERNAME</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;^[a-z0-9_-]{3,16}$&quot;</span>).<span class="ident">unwrap</span>();
+}</pre></div>
+<p>The implementation shows how to trigger custom warnings and error messages
+on the macro input.</p>
+<pre><code class="language-text">warning: come on, pick a more creative name
+  --&gt; src/main.rs:10:16
+   |
+10 |     static ref FOO: String = &quot;lazy_static&quot;.to_owned();
+   |                ^^^
+</code></pre>
+<br>
+<h1 id="testing" class="section-header"><a href="#testing">Testing</a></h1>
+<p>When testing macros, we often care not just that the macro can be used
+successfully but also that when the macro is provided with invalid input it
+produces maximally helpful error messages. Consider using the <a href="https://github.com/dtolnay/trybuild"><code>trybuild</code></a>
+crate to write tests for errors that are emitted by your macro or errors
+detected by the Rust compiler in the expanded code following misuse of the
+macro. Such tests help avoid regressions from later refactors that
+mistakenly make an error no longer trigger or be less helpful than it used
+to be.</p>
+<br>
+<h1 id="debugging" class="section-header"><a href="#debugging">Debugging</a></h1>
+<p>When developing a procedural macro it can be helpful to look at what the
+generated code looks like. Use <code>cargo rustc -- -Zunstable-options --pretty=expanded</code> or the <a href="https://github.com/dtolnay/cargo-expand"><code>cargo expand</code></a> subcommand.</p>
+<p>To show the expanded code for some crate that uses your procedural macro,
+run <code>cargo expand</code> from that crate. To show the expanded code for one of
+your own test cases, run <code>cargo expand --test the_test_case</code> where the last
+argument is the name of the test file without the <code>.rs</code> extension.</p>
+<p>This write-up by Brandon W Maister discusses debugging in more detail:
+<a href="https://quodlibetor.github.io/posts/debugging-rusts-new-custom-derive-system/">Debugging Rust’s new Custom Derive system</a>.</p>
+<br>
+<h1 id="optional-features" class="section-header"><a href="#optional-features">Optional features</a></h1>
+<p>Syn puts a lot of functionality behind optional features in order to
+optimize compile time for the most common use cases. The following features
+are available.</p>
+<ul>
+<li><strong><code>derive</code></strong> <em>(enabled by default)</em> — Data structures for representing the
+possible input to a derive macro, including structs and enums and types.</li>
+<li><strong><code>full</code></strong> — Data structures for representing the syntax tree of all valid
+Rust source code, including items and expressions.</li>
+<li><strong><code>parsing</code></strong> <em>(enabled by default)</em> — Ability to parse input tokens into
+a syntax tree node of a chosen type.</li>
+<li><strong><code>printing</code></strong> <em>(enabled by default)</em> — Ability to print a syntax tree
+node as tokens of Rust source code.</li>
+<li><strong><code>visit</code></strong> — Trait for traversing a syntax tree.</li>
+<li><strong><code>visit-mut</code></strong> — Trait for traversing and mutating in place a syntax
+tree.</li>
+<li><strong><code>fold</code></strong> — Trait for transforming an owned syntax tree.</li>
+<li><strong><code>clone-impls</code></strong> <em>(enabled by default)</em> — Clone impls for all syntax tree
+types.</li>
+<li><strong><code>extra-traits</code></strong> — Debug, Eq, PartialEq, Hash impls for all syntax tree
+types.</li>
+<li><strong><code>proc-macro</code></strong> <em>(enabled by default)</em> — Runtime dependency on the
+dynamic library libproc_macro from rustc toolchain.</li>
+</ul>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="buffer/index.html" title="syn::buffer mod">buffer</a></div><div class="item-right docblock-short"><p>A stably addressed token buffer supporting efficient traversal based on a
+cheaply copyable cursor.</p>
+</div><div class="item-left module-item"><a class="mod" href="ext/index.html" title="syn::ext mod">ext</a></div><div class="item-right docblock-short"><p>Extension traits to provide parsing methods on foreign types.</p>
+</div><div class="item-left module-item"><a class="mod" href="parse/index.html" title="syn::parse mod">parse</a></div><div class="item-right docblock-short"><p>Parsing interface for parsing a token stream into a syntax tree node.</p>
+</div><div class="item-left module-item"><a class="mod" href="punctuated/index.html" title="syn::punctuated mod">punctuated</a></div><div class="item-right docblock-short"><p>A punctuated sequence of syntax tree nodes separated by punctuation.</p>
+</div><div class="item-left module-item"><a class="mod" href="spanned/index.html" title="syn::spanned mod">spanned</a></div><div class="item-right docblock-short"><p>A trait that can provide the <code>Span</code> of the complete contents of a syntax
+tree node.</p>
+</div><div class="item-left module-item"><a class="mod" href="token/index.html" title="syn::token mod">token</a></div><div class="item-right docblock-short"><p>Tokens representing Rust punctuation, keywords, and delimiters.</p>
+</div><div class="item-left module-item"><a class="mod" href="visit/index.html" title="syn::visit mod">visit</a></div><div class="item-right docblock-short"><p>Syntax tree traversal to walk a shared borrow of a syntax tree.</p>
+</div><div class="item-left module-item"><a class="mod" href="visit_mut/index.html" title="syn::visit_mut mod">visit_mut</a></div><div class="item-right docblock-short"><p>Syntax tree traversal to mutate an exclusive borrow of a syntax tree in
+place.</p>
+</div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.Token.html" title="syn::Token macro">Token</a></div><div class="item-right docblock-short"><p>A type-macro that expands to the name of the Rust type representation of a
+given token.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.braced.html" title="syn::braced macro">braced</a></div><div class="item-right docblock-short"><p>Parse a set of curly braces and expose their content to subsequent parsers.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.bracketed.html" title="syn::bracketed macro">bracketed</a></div><div class="item-right docblock-short"><p>Parse a set of square brackets and expose their content to subsequent
+parsers.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.custom_keyword.html" title="syn::custom_keyword macro">custom_keyword</a></div><div class="item-right docblock-short"><p>Define a type that supports parsing and printing a given identifier as if it
+were a keyword.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.custom_punctuation.html" title="syn::custom_punctuation macro">custom_punctuation</a></div><div class="item-right docblock-short"><p>Define a type that supports parsing and printing a multi-character symbol
+as if it were a punctuation token.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.parenthesized.html" title="syn::parenthesized macro">parenthesized</a></div><div class="item-right docblock-short"><p>Parse a set of parentheses and expose their content to subsequent parsers.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.parse_macro_input.html" title="syn::parse_macro_input macro">parse_macro_input</a></div><div class="item-right docblock-short"><p>Parse the input TokenStream of a macro, triggering a compile error if the
+tokens fail to parse.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.parse_quote.html" title="syn::parse_quote macro">parse_quote</a></div><div class="item-right docblock-short"><p>Quasi-quotation macro that accepts input like the <a href="https://docs.rs/quote/1.0/quote/index.html"><code>quote!</code></a> macro but uses
+type inference to figure out a return type for those tokens.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Abi.html" title="syn::Abi struct">Abi</a></div><div class="item-right docblock-short"><p>The binary interface of a function: <code>extern &quot;C&quot;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.AngleBracketedGenericArguments.html" title="syn::AngleBracketedGenericArguments struct">AngleBracketedGenericArguments</a></div><div class="item-right docblock-short"><p>Angle bracketed arguments of a path segment: the <code>&lt;K, V&gt;</code> in <code>HashMap&lt;K, V&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Arm.html" title="syn::Arm struct">Arm</a></div><div class="item-right docblock-short"><p>One arm of a <code>match</code> expression: <code>0...10 =&gt; { return true; }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Attribute.html" title="syn::Attribute struct">Attribute</a></div><div class="item-right docblock-short"><p>An attribute like <code>#[repr(transparent)]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.BareFnArg.html" title="syn::BareFnArg struct">BareFnArg</a></div><div class="item-right docblock-short"><p>An argument in a function type: the <code>usize</code> in <code>fn(usize) -&gt; bool</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Binding.html" title="syn::Binding struct">Binding</a></div><div class="item-right docblock-short"><p>A binding (equality constraint) on an associated type: <code>Item = u8</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Block.html" title="syn::Block struct">Block</a></div><div class="item-right docblock-short"><p>A braced block containing Rust statements.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.BoundLifetimes.html" title="syn::BoundLifetimes struct">BoundLifetimes</a></div><div class="item-right docblock-short"><p>A set of bound lifetimes: <code>for&lt;'a, 'b, 'c&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ConstParam.html" title="syn::ConstParam struct">ConstParam</a></div><div class="item-right docblock-short"><p>A const generic parameter: <code>const LENGTH: usize</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Constraint.html" title="syn::Constraint struct">Constraint</a></div><div class="item-right docblock-short"><p>An associated type bound: <code>Iterator&lt;Item: Display&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DataEnum.html" title="syn::DataEnum struct">DataEnum</a></div><div class="item-right docblock-short"><p>An enum input to a <code>proc_macro_derive</code> macro.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DataStruct.html" title="syn::DataStruct struct">DataStruct</a></div><div class="item-right docblock-short"><p>A struct input to a <code>proc_macro_derive</code> macro.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DataUnion.html" title="syn::DataUnion struct">DataUnion</a></div><div class="item-right docblock-short"><p>An untagged union input to a <code>proc_macro_derive</code> macro.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DeriveInput.html" title="syn::DeriveInput struct">DeriveInput</a></div><div class="item-right docblock-short"><p>Data structure sent to a <code>proc_macro_derive</code> macro.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="syn::Error struct">Error</a></div><div class="item-right docblock-short"><p>Error returned when a Syn parser cannot parse the input tokens.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprArray.html" title="syn::ExprArray struct">ExprArray</a></div><div class="item-right docblock-short"><p>A slice literal expression: <code>[a, b, c, d]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprAssign.html" title="syn::ExprAssign struct">ExprAssign</a></div><div class="item-right docblock-short"><p>An assignment expression: <code>a = compute()</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprAssignOp.html" title="syn::ExprAssignOp struct">ExprAssignOp</a></div><div class="item-right docblock-short"><p>A compound assignment expression: <code>counter += 1</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprAsync.html" title="syn::ExprAsync struct">ExprAsync</a></div><div class="item-right docblock-short"><p>An async block: <code>async { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprAwait.html" title="syn::ExprAwait struct">ExprAwait</a></div><div class="item-right docblock-short"><p>An await expression: <code>fut.await</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprBinary.html" title="syn::ExprBinary struct">ExprBinary</a></div><div class="item-right docblock-short"><p>A binary operation: <code>a + b</code>, <code>a * b</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprBlock.html" title="syn::ExprBlock struct">ExprBlock</a></div><div class="item-right docblock-short"><p>A blocked scope: <code>{ ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprBox.html" title="syn::ExprBox struct">ExprBox</a></div><div class="item-right docblock-short"><p>A box expression: <code>box f</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprBreak.html" title="syn::ExprBreak struct">ExprBreak</a></div><div class="item-right docblock-short"><p>A <code>break</code>, with an optional label to break and an optional
+expression.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprCall.html" title="syn::ExprCall struct">ExprCall</a></div><div class="item-right docblock-short"><p>A function call expression: <code>invoke(a, b)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprCast.html" title="syn::ExprCast struct">ExprCast</a></div><div class="item-right docblock-short"><p>A cast expression: <code>foo as f64</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprClosure.html" title="syn::ExprClosure struct">ExprClosure</a></div><div class="item-right docblock-short"><p>A closure expression: <code>|a, b| a + b</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprContinue.html" title="syn::ExprContinue struct">ExprContinue</a></div><div class="item-right docblock-short"><p>A <code>continue</code>, with an optional label.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprField.html" title="syn::ExprField struct">ExprField</a></div><div class="item-right docblock-short"><p>Access of a named struct field (<code>obj.k</code>) or unnamed tuple struct
+field (<code>obj.0</code>).</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprForLoop.html" title="syn::ExprForLoop struct">ExprForLoop</a></div><div class="item-right docblock-short"><p>A for loop: <code>for pat in expr { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprGroup.html" title="syn::ExprGroup struct">ExprGroup</a></div><div class="item-right docblock-short"><p>An expression contained within invisible delimiters.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprIf.html" title="syn::ExprIf struct">ExprIf</a></div><div class="item-right docblock-short"><p>An <code>if</code> expression with an optional <code>else</code> block: <code>if expr { ... } else { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprIndex.html" title="syn::ExprIndex struct">ExprIndex</a></div><div class="item-right docblock-short"><p>A square bracketed indexing expression: <code>vector[2]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprLet.html" title="syn::ExprLet struct">ExprLet</a></div><div class="item-right docblock-short"><p>A <code>let</code> guard: <code>let Some(x) = opt</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprLit.html" title="syn::ExprLit struct">ExprLit</a></div><div class="item-right docblock-short"><p>A literal in place of an expression: <code>1</code>, <code>&quot;foo&quot;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprLoop.html" title="syn::ExprLoop struct">ExprLoop</a></div><div class="item-right docblock-short"><p>Conditionless loop: <code>loop { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprMacro.html" title="syn::ExprMacro struct">ExprMacro</a></div><div class="item-right docblock-short"><p>A macro invocation expression: <code>format!(&quot;{}&quot;, q)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprMatch.html" title="syn::ExprMatch struct">ExprMatch</a></div><div class="item-right docblock-short"><p>A <code>match</code> expression: <code>match n { Some(n) =&gt; {}, None =&gt; {} }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprMethodCall.html" title="syn::ExprMethodCall struct">ExprMethodCall</a></div><div class="item-right docblock-short"><p>A method call expression: <code>x.foo::&lt;T&gt;(a, b)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprParen.html" title="syn::ExprParen struct">ExprParen</a></div><div class="item-right docblock-short"><p>A parenthesized expression: <code>(a + b)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprPath.html" title="syn::ExprPath struct">ExprPath</a></div><div class="item-right docblock-short"><p>A path like <code>std::mem::replace</code> possibly containing generic
+parameters and a qualified self-type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprRange.html" title="syn::ExprRange struct">ExprRange</a></div><div class="item-right docblock-short"><p>A range expression: <code>1..2</code>, <code>1..</code>, <code>..2</code>, <code>1..=2</code>, <code>..=2</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprReference.html" title="syn::ExprReference struct">ExprReference</a></div><div class="item-right docblock-short"><p>A referencing operation: <code>&amp;a</code> or <code>&amp;mut a</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprRepeat.html" title="syn::ExprRepeat struct">ExprRepeat</a></div><div class="item-right docblock-short"><p>An array literal constructed from one repeated element: <code>[0u8; N]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprReturn.html" title="syn::ExprReturn struct">ExprReturn</a></div><div class="item-right docblock-short"><p>A <code>return</code>, with an optional value to be returned.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprStruct.html" title="syn::ExprStruct struct">ExprStruct</a></div><div class="item-right docblock-short"><p>A struct literal expression: <code>Point { x: 1, y: 1 }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprTry.html" title="syn::ExprTry struct">ExprTry</a></div><div class="item-right docblock-short"><p>A try-expression: <code>expr?</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprTryBlock.html" title="syn::ExprTryBlock struct">ExprTryBlock</a></div><div class="item-right docblock-short"><p>A try block: <code>try { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprTuple.html" title="syn::ExprTuple struct">ExprTuple</a></div><div class="item-right docblock-short"><p>A tuple expression: <code>(a, b, c, d)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprType.html" title="syn::ExprType struct">ExprType</a></div><div class="item-right docblock-short"><p>A type ascription expression: <code>foo: f64</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprUnary.html" title="syn::ExprUnary struct">ExprUnary</a></div><div class="item-right docblock-short"><p>A unary operation: <code>!x</code>, <code>*x</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprUnsafe.html" title="syn::ExprUnsafe struct">ExprUnsafe</a></div><div class="item-right docblock-short"><p>An unsafe block: <code>unsafe { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprWhile.html" title="syn::ExprWhile struct">ExprWhile</a></div><div class="item-right docblock-short"><p>A while loop: <code>while expr { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ExprYield.html" title="syn::ExprYield struct">ExprYield</a></div><div class="item-right docblock-short"><p>A yield expression: <code>yield expr</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Field.html" title="syn::Field struct">Field</a></div><div class="item-right docblock-short"><p>A field of a struct or enum variant.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FieldPat.html" title="syn::FieldPat struct">FieldPat</a></div><div class="item-right docblock-short"><p>A single field in a struct pattern.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FieldValue.html" title="syn::FieldValue struct">FieldValue</a></div><div class="item-right docblock-short"><p>A field-value pair in a struct literal.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FieldsNamed.html" title="syn::FieldsNamed struct">FieldsNamed</a></div><div class="item-right docblock-short"><p>Named fields of a struct or struct variant such as <code>Point { x: f64, y: f64 }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FieldsUnnamed.html" title="syn::FieldsUnnamed struct">FieldsUnnamed</a></div><div class="item-right docblock-short"><p>Unnamed fields of a tuple struct or tuple variant such as <code>Some(T)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.File.html" title="syn::File struct">File</a></div><div class="item-right docblock-short"><p>A complete file of Rust source code.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ForeignItemFn.html" title="syn::ForeignItemFn struct">ForeignItemFn</a></div><div class="item-right docblock-short"><p>A foreign function in an <code>extern</code> block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ForeignItemMacro.html" title="syn::ForeignItemMacro struct">ForeignItemMacro</a></div><div class="item-right docblock-short"><p>A macro invocation within an extern block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ForeignItemStatic.html" title="syn::ForeignItemStatic struct">ForeignItemStatic</a></div><div class="item-right docblock-short"><p>A foreign static item in an <code>extern</code> block: <code>static ext: u8</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ForeignItemType.html" title="syn::ForeignItemType struct">ForeignItemType</a></div><div class="item-right docblock-short"><p>A foreign type in an <code>extern</code> block: <code>type void</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Generics.html" title="syn::Generics struct">Generics</a></div><div class="item-right docblock-short"><p>Lifetimes and type parameters attached to a declaration of a function,
+enum, trait, etc.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Ident.html" title="syn::Ident struct">Ident</a></div><div class="item-right docblock-short"><p>A word of Rust code, which may be a keyword or legal variable name.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ImplGenerics.html" title="syn::ImplGenerics struct">ImplGenerics</a></div><div class="item-right docblock-short"><p>Returned by <code>Generics::split_for_impl</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ImplItemConst.html" title="syn::ImplItemConst struct">ImplItemConst</a></div><div class="item-right docblock-short"><p>An associated constant within an impl block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ImplItemMacro.html" title="syn::ImplItemMacro struct">ImplItemMacro</a></div><div class="item-right docblock-short"><p>A macro invocation within an impl block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ImplItemMethod.html" title="syn::ImplItemMethod struct">ImplItemMethod</a></div><div class="item-right docblock-short"><p>A method within an impl block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ImplItemType.html" title="syn::ImplItemType struct">ImplItemType</a></div><div class="item-right docblock-short"><p>An associated type within an impl block.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Index.html" title="syn::Index struct">Index</a></div><div class="item-right docblock-short"><p>The index of an unnamed tuple struct field.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemConst.html" title="syn::ItemConst struct">ItemConst</a></div><div class="item-right docblock-short"><p>A constant item: <code>const MAX: u16 = 65535</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemEnum.html" title="syn::ItemEnum struct">ItemEnum</a></div><div class="item-right docblock-short"><p>An enum definition: <code>enum Foo&lt;A, B&gt; { A(A), B(B) }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemExternCrate.html" title="syn::ItemExternCrate struct">ItemExternCrate</a></div><div class="item-right docblock-short"><p>An <code>extern crate</code> item: <code>extern crate serde</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemFn.html" title="syn::ItemFn struct">ItemFn</a></div><div class="item-right docblock-short"><p>A free-standing function: <code>fn process(n: usize) -&gt; Result&lt;()&gt; { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemForeignMod.html" title="syn::ItemForeignMod struct">ItemForeignMod</a></div><div class="item-right docblock-short"><p>A block of foreign items: <code>extern &quot;C&quot; { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemImpl.html" title="syn::ItemImpl struct">ItemImpl</a></div><div class="item-right docblock-short"><p>An impl block providing trait or associated items: <code>impl&lt;A&gt; Trait for Data&lt;A&gt; { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemMacro.html" title="syn::ItemMacro struct">ItemMacro</a></div><div class="item-right docblock-short"><p>A macro invocation, which includes <code>macro_rules!</code> definitions.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemMacro2.html" title="syn::ItemMacro2 struct">ItemMacro2</a></div><div class="item-right docblock-short"><p>A 2.0-style declarative macro introduced by the <code>macro</code> keyword.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemMod.html" title="syn::ItemMod struct">ItemMod</a></div><div class="item-right docblock-short"><p>A module or module declaration: <code>mod m</code> or <code>mod m { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemStatic.html" title="syn::ItemStatic struct">ItemStatic</a></div><div class="item-right docblock-short"><p>A static item: <code>static BIKE: Shed = Shed(42)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemStruct.html" title="syn::ItemStruct struct">ItemStruct</a></div><div class="item-right docblock-short"><p>A struct definition: <code>struct Foo&lt;A&gt; { x: A }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemTrait.html" title="syn::ItemTrait struct">ItemTrait</a></div><div class="item-right docblock-short"><p>A trait definition: <code>pub trait Iterator { ... }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemTraitAlias.html" title="syn::ItemTraitAlias struct">ItemTraitAlias</a></div><div class="item-right docblock-short"><p>A trait alias: <code>pub trait SharableIterator = Iterator + Sync</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemType.html" title="syn::ItemType struct">ItemType</a></div><div class="item-right docblock-short"><p>A type alias: <code>type Result&lt;T&gt; = std::result::Result&lt;T, MyError&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemUnion.html" title="syn::ItemUnion struct">ItemUnion</a></div><div class="item-right docblock-short"><p>A union definition: <code>union Foo&lt;A, B&gt; { x: A, y: B }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ItemUse.html" title="syn::ItemUse struct">ItemUse</a></div><div class="item-right docblock-short"><p>A use declaration: <code>use std::collections::HashMap</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Label.html" title="syn::Label struct">Label</a></div><div class="item-right docblock-short"><p>A lifetime labeling a <code>for</code>, <code>while</code>, or <code>loop</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Lifetime.html" title="syn::Lifetime struct">Lifetime</a></div><div class="item-right docblock-short"><p>A Rust lifetime: <code>'a</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LifetimeDef.html" title="syn::LifetimeDef struct">LifetimeDef</a></div><div class="item-right docblock-short"><p>A lifetime definition: <code>'a: 'b + 'c + 'd</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitBool.html" title="syn::LitBool struct">LitBool</a></div><div class="item-right docblock-short"><p>A boolean literal: <code>true</code> or <code>false</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitByte.html" title="syn::LitByte struct">LitByte</a></div><div class="item-right docblock-short"><p>A byte literal: <code>b'f'</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitByteStr.html" title="syn::LitByteStr struct">LitByteStr</a></div><div class="item-right docblock-short"><p>A byte string literal: <code>b&quot;foo&quot;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitChar.html" title="syn::LitChar struct">LitChar</a></div><div class="item-right docblock-short"><p>A character literal: <code>'a'</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitFloat.html" title="syn::LitFloat struct">LitFloat</a></div><div class="item-right docblock-short"><p>A floating point literal: <code>1f64</code> or <code>1.0e10f64</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitInt.html" title="syn::LitInt struct">LitInt</a></div><div class="item-right docblock-short"><p>An integer literal: <code>1</code> or <code>1u16</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.LitStr.html" title="syn::LitStr struct">LitStr</a></div><div class="item-right docblock-short"><p>A UTF-8 string literal: <code>&quot;foo&quot;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Local.html" title="syn::Local struct">Local</a></div><div class="item-right docblock-short"><p>A local <code>let</code> binding: <code>let x: u64 = s.parse()?</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Macro.html" title="syn::Macro struct">Macro</a></div><div class="item-right docblock-short"><p>A macro invocation: <code>println!(&quot;{}&quot;, mac)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MetaList.html" title="syn::MetaList struct">MetaList</a></div><div class="item-right docblock-short"><p>A structured list within an attribute, like <code>derive(Copy, Clone)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MetaNameValue.html" title="syn::MetaNameValue struct">MetaNameValue</a></div><div class="item-right docblock-short"><p>A name-value pair within an attribute, like <code>feature = &quot;nightly&quot;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MethodTurbofish.html" title="syn::MethodTurbofish struct">MethodTurbofish</a></div><div class="item-right docblock-short"><p>The <code>::&lt;&gt;</code> explicit type parameters passed to a method call:
+<code>parse::&lt;u64&gt;()</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParenthesizedGenericArguments.html" title="syn::ParenthesizedGenericArguments struct">ParenthesizedGenericArguments</a></div><div class="item-right docblock-short"><p>Arguments of a function path segment: the <code>(A, B) -&gt; C</code> in <code>Fn(A,B) -&gt; C</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatBox.html" title="syn::PatBox struct">PatBox</a></div><div class="item-right docblock-short"><p>A box pattern: <code>box v</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatIdent.html" title="syn::PatIdent struct">PatIdent</a></div><div class="item-right docblock-short"><p>A pattern that binds a new variable: <code>ref mut binding @ SUBPATTERN</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatLit.html" title="syn::PatLit struct">PatLit</a></div><div class="item-right docblock-short"><p>A literal pattern: <code>0</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatMacro.html" title="syn::PatMacro struct">PatMacro</a></div><div class="item-right docblock-short"><p>A macro in pattern position.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatOr.html" title="syn::PatOr struct">PatOr</a></div><div class="item-right docblock-short"><p>A pattern that matches any one of a set of cases.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatPath.html" title="syn::PatPath struct">PatPath</a></div><div class="item-right docblock-short"><p>A path pattern like <code>Color::Red</code>, optionally qualified with a
+self-type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatRange.html" title="syn::PatRange struct">PatRange</a></div><div class="item-right docblock-short"><p>A range pattern: <code>1..=2</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatReference.html" title="syn::PatReference struct">PatReference</a></div><div class="item-right docblock-short"><p>A reference pattern: <code>&amp;mut var</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatRest.html" title="syn::PatRest struct">PatRest</a></div><div class="item-right docblock-short"><p>The dots in a tuple or slice pattern: <code>[0, 1, ..]</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatSlice.html" title="syn::PatSlice struct">PatSlice</a></div><div class="item-right docblock-short"><p>A dynamically sized slice pattern: <code>[a, b, ref i @ .., y, z]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatStruct.html" title="syn::PatStruct struct">PatStruct</a></div><div class="item-right docblock-short"><p>A struct or struct variant pattern: <code>Variant { x, y, .. }</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatTuple.html" title="syn::PatTuple struct">PatTuple</a></div><div class="item-right docblock-short"><p>A tuple pattern: <code>(a, b)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatTupleStruct.html" title="syn::PatTupleStruct struct">PatTupleStruct</a></div><div class="item-right docblock-short"><p>A tuple struct or tuple variant pattern: <code>Variant(x, y, .., z)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatType.html" title="syn::PatType struct">PatType</a></div><div class="item-right docblock-short"><p>A type ascription pattern: <code>foo: f64</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PatWild.html" title="syn::PatWild struct">PatWild</a></div><div class="item-right docblock-short"><p>A pattern that matches any value: <code>_</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Path.html" title="syn::Path struct">Path</a></div><div class="item-right docblock-short"><p>A path at which a named item is exported (e.g. <code>std::collections::HashMap</code>).</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PathSegment.html" title="syn::PathSegment struct">PathSegment</a></div><div class="item-right docblock-short"><p>A segment of a path together with any path arguments on that segment.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PredicateEq.html" title="syn::PredicateEq struct">PredicateEq</a></div><div class="item-right docblock-short"><p>An equality predicate in a <code>where</code> clause (unsupported).</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PredicateLifetime.html" title="syn::PredicateLifetime struct">PredicateLifetime</a></div><div class="item-right docblock-short"><p>A lifetime predicate in a <code>where</code> clause: <code>'a: 'b + 'c</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.PredicateType.html" title="syn::PredicateType struct">PredicateType</a></div><div class="item-right docblock-short"><p>A type predicate in a <code>where</code> clause: <code>for&lt;'c&gt; Foo&lt;'c&gt;: Trait&lt;'c&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.QSelf.html" title="syn::QSelf struct">QSelf</a></div><div class="item-right docblock-short"><p>The explicit Self type in a qualified path: the <code>T</code> in <code>&lt;T as Display&gt;::fmt</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Receiver.html" title="syn::Receiver struct">Receiver</a></div><div class="item-right docblock-short"><p>The <code>self</code> argument of an associated method, whether taken by value
+or by reference.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Signature.html" title="syn::Signature struct">Signature</a></div><div class="item-right docblock-short"><p>A function signature in a trait or implementation: <code>unsafe fn initialize(&amp;self)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TraitBound.html" title="syn::TraitBound struct">TraitBound</a></div><div class="item-right docblock-short"><p>A trait used as a bound on a type parameter.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TraitItemConst.html" title="syn::TraitItemConst struct">TraitItemConst</a></div><div class="item-right docblock-short"><p>An associated constant within the definition of a trait.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TraitItemMacro.html" title="syn::TraitItemMacro struct">TraitItemMacro</a></div><div class="item-right docblock-short"><p>A macro invocation within the definition of a trait.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TraitItemMethod.html" title="syn::TraitItemMethod struct">TraitItemMethod</a></div><div class="item-right docblock-short"><p>A trait method within the definition of a trait.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TraitItemType.html" title="syn::TraitItemType struct">TraitItemType</a></div><div class="item-right docblock-short"><p>An associated type within the definition of a trait.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Turbofish.html" title="syn::Turbofish struct">Turbofish</a></div><div class="item-right docblock-short"><p>Returned by <code>TypeGenerics::as_turbofish</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeArray.html" title="syn::TypeArray struct">TypeArray</a></div><div class="item-right docblock-short"><p>A fixed size array type: <code>[T; n]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeBareFn.html" title="syn::TypeBareFn struct">TypeBareFn</a></div><div class="item-right docblock-short"><p>A bare function type: <code>fn(usize) -&gt; bool</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeGenerics.html" title="syn::TypeGenerics struct">TypeGenerics</a></div><div class="item-right docblock-short"><p>Returned by <code>Generics::split_for_impl</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeGroup.html" title="syn::TypeGroup struct">TypeGroup</a></div><div class="item-right docblock-short"><p>A type contained within invisible delimiters.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeImplTrait.html" title="syn::TypeImplTrait struct">TypeImplTrait</a></div><div class="item-right docblock-short"><p>An <code>impl Bound1 + Bound2 + Bound3</code> type where <code>Bound</code> is a trait or
+a lifetime.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeInfer.html" title="syn::TypeInfer struct">TypeInfer</a></div><div class="item-right docblock-short"><p>Indication that a type should be inferred by the compiler: <code>_</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeMacro.html" title="syn::TypeMacro struct">TypeMacro</a></div><div class="item-right docblock-short"><p>A macro in the type position.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeNever.html" title="syn::TypeNever struct">TypeNever</a></div><div class="item-right docblock-short"><p>The never type: <code>!</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeParam.html" title="syn::TypeParam struct">TypeParam</a></div><div class="item-right docblock-short"><p>A generic type parameter: <code>T: Into&lt;String&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeParen.html" title="syn::TypeParen struct">TypeParen</a></div><div class="item-right docblock-short"><p>A parenthesized type equivalent to the inner type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypePath.html" title="syn::TypePath struct">TypePath</a></div><div class="item-right docblock-short"><p>A path like <code>std::slice::Iter</code>, optionally qualified with a
+self-type as in <code>&lt;Vec&lt;T&gt; as SomeTrait&gt;::Associated</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypePtr.html" title="syn::TypePtr struct">TypePtr</a></div><div class="item-right docblock-short"><p>A raw pointer type: <code>*const T</code> or <code>*mut T</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeReference.html" title="syn::TypeReference struct">TypeReference</a></div><div class="item-right docblock-short"><p>A reference type: <code>&amp;'a T</code> or <code>&amp;'a mut T</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeSlice.html" title="syn::TypeSlice struct">TypeSlice</a></div><div class="item-right docblock-short"><p>A dynamically sized slice type: <code>[T]</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeTraitObject.html" title="syn::TypeTraitObject struct">TypeTraitObject</a></div><div class="item-right docblock-short"><p>A trait object type <code>Bound1 + Bound2 + Bound3</code> where <code>Bound</code> is a
+trait or a lifetime.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeTuple.html" title="syn::TypeTuple struct">TypeTuple</a></div><div class="item-right docblock-short"><p>A tuple type: <code>(A, B, C, String)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UseGlob.html" title="syn::UseGlob struct">UseGlob</a></div><div class="item-right docblock-short"><p>A glob import in a <code>use</code> item: <code>*</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UseGroup.html" title="syn::UseGroup struct">UseGroup</a></div><div class="item-right docblock-short"><p>A braced group of imports in a <code>use</code> item: <code>{A, B, C}</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UseName.html" title="syn::UseName struct">UseName</a></div><div class="item-right docblock-short"><p>An identifier imported by a <code>use</code> item: <code>HashMap</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UsePath.html" title="syn::UsePath struct">UsePath</a></div><div class="item-right docblock-short"><p>A path prefix of imports in a <code>use</code> item: <code>std::...</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.UseRename.html" title="syn::UseRename struct">UseRename</a></div><div class="item-right docblock-short"><p>An renamed identifier imported by a <code>use</code> item: <code>HashMap as Map</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Variadic.html" title="syn::Variadic struct">Variadic</a></div><div class="item-right docblock-short"><p>The variadic argument of a foreign function.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Variant.html" title="syn::Variant struct">Variant</a></div><div class="item-right docblock-short"><p>An enum variant.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.VisCrate.html" title="syn::VisCrate struct">VisCrate</a></div><div class="item-right docblock-short"><p>A crate-level visibility: <code>crate</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.VisPublic.html" title="syn::VisPublic struct">VisPublic</a></div><div class="item-right docblock-short"><p>A public visibility level: <code>pub</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.VisRestricted.html" title="syn::VisRestricted struct">VisRestricted</a></div><div class="item-right docblock-short"><p>A visibility level restricted to some path: <code>pub(self)</code> or
+<code>pub(super)</code> or <code>pub(crate)</code> or <code>pub(in some::module)</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.WhereClause.html" title="syn::WhereClause struct">WhereClause</a></div><div class="item-right docblock-short"><p>A <code>where</code> clause in a definition: <code>where T: Deserialize&lt;'de&gt;, D: 'static</code>.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.AttrStyle.html" title="syn::AttrStyle enum">AttrStyle</a></div><div class="item-right docblock-short"><p>Distinguishes between attributes that decorate an item and attributes
+that are contained within an item.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.BinOp.html" title="syn::BinOp enum">BinOp</a></div><div class="item-right docblock-short"><p>A binary operator: <code>+</code>, <code>+=</code>, <code>&amp;</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Data.html" title="syn::Data enum">Data</a></div><div class="item-right docblock-short"><p>The storage of a struct, enum or union data structure.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Expr.html" title="syn::Expr enum">Expr</a></div><div class="item-right docblock-short"><p>A Rust expression.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Fields.html" title="syn::Fields enum">Fields</a></div><div class="item-right docblock-short"><p>Data stored within an enum variant or struct.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.FnArg.html" title="syn::FnArg enum">FnArg</a></div><div class="item-right docblock-short"><p>An argument in a function signature: the <code>n: usize</code> in <code>fn f(n: usize)</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ForeignItem.html" title="syn::ForeignItem enum">ForeignItem</a></div><div class="item-right docblock-short"><p>An item within an <code>extern</code> block.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.GenericArgument.html" title="syn::GenericArgument enum">GenericArgument</a></div><div class="item-right docblock-short"><p>An individual generic argument, like <code>'a</code>, <code>T</code>, or <code>Item = T</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.GenericMethodArgument.html" title="syn::GenericMethodArgument enum">GenericMethodArgument</a></div><div class="item-right docblock-short"><p>An individual generic argument to a method, like <code>T</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.GenericParam.html" title="syn::GenericParam enum">GenericParam</a></div><div class="item-right docblock-short"><p>A generic type parameter, lifetime, or const generic: <code>T: Into&lt;String&gt;</code>,
+<code>'a: 'b</code>, <code>const LEN: usize</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ImplItem.html" title="syn::ImplItem enum">ImplItem</a></div><div class="item-right docblock-short"><p>An item within an impl block.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Item.html" title="syn::Item enum">Item</a></div><div class="item-right docblock-short"><p>Things that can appear directly inside of a module or scope.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Lit.html" title="syn::Lit enum">Lit</a></div><div class="item-right docblock-short"><p>A Rust literal such as a string or integer or boolean.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.MacroDelimiter.html" title="syn::MacroDelimiter enum">MacroDelimiter</a></div><div class="item-right docblock-short"><p>A grouping token that surrounds a macro body: <code>m!(...)</code> or <code>m!{...}</code> or <code>m![...]</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Member.html" title="syn::Member enum">Member</a></div><div class="item-right docblock-short"><p>A struct or tuple struct field accessed in a struct literal or field
+expression.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Meta.html" title="syn::Meta enum">Meta</a></div><div class="item-right docblock-short"><p>Content of a compile-time structured attribute.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.NestedMeta.html" title="syn::NestedMeta enum">NestedMeta</a></div><div class="item-right docblock-short"><p>Element of a compile-time attribute list.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Pat.html" title="syn::Pat enum">Pat</a></div><div class="item-right docblock-short"><p>A pattern in a local binding, function signature, match expression, or
+various other places.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.PathArguments.html" title="syn::PathArguments enum">PathArguments</a></div><div class="item-right docblock-short"><p>Angle bracketed or parenthesized arguments of a path segment.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.RangeLimits.html" title="syn::RangeLimits enum">RangeLimits</a></div><div class="item-right docblock-short"><p>Limit types of a range, inclusive or exclusive.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.ReturnType.html" title="syn::ReturnType enum">ReturnType</a></div><div class="item-right docblock-short"><p>Return type of a function signature.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Stmt.html" title="syn::Stmt enum">Stmt</a></div><div class="item-right docblock-short"><p>A statement, usually ending in a semicolon.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.StrStyle.html" title="syn::StrStyle enum">StrStyle</a></div><div class="item-right docblock-short"><p>The style of a string literal, either plain quoted or a raw string like
+<code>r##&quot;data&quot;##</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.TraitBoundModifier.html" title="syn::TraitBoundModifier enum">TraitBoundModifier</a></div><div class="item-right docblock-short"><p>A modifier on a trait bound, currently only used for the <code>?</code> in
+<code>?Sized</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.TraitItem.html" title="syn::TraitItem enum">TraitItem</a></div><div class="item-right docblock-short"><p>An item declaration within the definition of a trait.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Type.html" title="syn::Type enum">Type</a></div><div class="item-right docblock-short"><p>The possible types that a Rust value could have.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.TypeParamBound.html" title="syn::TypeParamBound enum">TypeParamBound</a></div><div class="item-right docblock-short"><p>A trait or lifetime used as a bound on a type parameter.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.UnOp.html" title="syn::UnOp enum">UnOp</a></div><div class="item-right docblock-short"><p>A unary operator: <code>*</code>, <code>!</code>, <code>-</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.UseTree.html" title="syn::UseTree enum">UseTree</a></div><div class="item-right docblock-short"><p>A suffix of an import tree in a <code>use</code> item: <code>Type as Renamed</code> or <code>*</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Visibility.html" title="syn::Visibility enum">Visibility</a></div><div class="item-right docblock-short"><p>The visibility level of an item: inherited or <code>pub</code> or
+<code>pub(restricted)</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.WherePredicate.html" title="syn::WherePredicate enum">WherePredicate</a></div><div class="item-right docblock-short"><p>A single predicate in a <code>where</code> clause: <code>T: Deserialize&lt;'de&gt;</code>.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.parse.html" title="syn::parse fn">parse</a></div><div class="item-right docblock-short"><p>Parse tokens of source code into the chosen syntax tree node.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.parse2.html" title="syn::parse2 fn">parse2</a></div><div class="item-right docblock-short"><p>Parse a proc-macro2 token stream into the chosen syntax tree node.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.parse_file.html" title="syn::parse_file fn">parse_file</a></div><div class="item-right docblock-short"><p>Parse the content of a file of Rust code.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.parse_str.html" title="syn::parse_str fn">parse_str</a></div><div class="item-right docblock-short"><p>Parse a string of Rust code into the chosen syntax tree node.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.AttributeArgs.html" title="syn::AttributeArgs type">AttributeArgs</a></div><div class="item-right docblock-short"><p>Conventional argument type associated with an invocation of an attribute
+macro.</p>
+</div><div class="item-left module-item"><a class="type" href="type.Result.html" title="syn::Result type">Result</a></div><div class="item-right docblock-short"><p>The result of a Syn parser.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="syn" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

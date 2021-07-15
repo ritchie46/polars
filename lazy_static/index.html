@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A macro for declaring lazily evaluated statics."><meta name="keywords" content="rust, rustlang, rust-lang, lazy_static"><title>lazy_static - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../lazy_static/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate lazy_static</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.4.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all lazy_static's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="lazy_static" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">lazy_static</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/lazy_static/lib.rs.html#8-215" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A macro for declaring lazily evaluated statics.</p>
+<p>Using this macro, it is possible to have <code>static</code>s that require code to be
+executed at runtime in order to be initialized.
+This includes anything requiring heap allocations, like vectors or hash maps,
+as well as anything that requires function calls to be computed.</p>
+<h1 id="syntax" class="section-header"><a href="#syntax">Syntax</a></h1>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="macro">lazy_static!</span> {
+    [<span class="kw">pub</span>] <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NAME_1</span>: <span class="ident">TYPE_1</span> <span class="op">=</span> <span class="ident">EXPR_1</span>;
+    [<span class="kw">pub</span>] <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NAME_2</span>: <span class="ident">TYPE_2</span> <span class="op">=</span> <span class="ident">EXPR_2</span>;
+    ...
+    [<span class="kw">pub</span>] <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NAME_N</span>: <span class="ident">TYPE_N</span> <span class="op">=</span> <span class="ident">EXPR_N</span>;
+}</pre></div>
+<p>Attributes (including doc comments) are supported as well:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="macro">lazy_static!</span> {
+    <span class="doccomment">/// This is an example for using doc comment attributes</span>
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">EXAMPLE</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">42</span>;
+}</pre></div>
+<h1 id="semantics" class="section-header"><a href="#semantics">Semantics</a></h1>
+<p>For a given <code>static ref NAME: TYPE = EXPR;</code>, the macro generates a unique type that
+implements <code>Deref&lt;TYPE&gt;</code> and stores it in a static with name <code>NAME</code>. (Attributes end up
+attaching to this type.)</p>
+<p>On first deref, <code>EXPR</code> gets evaluated and stored internally, such that all further derefs
+can return a reference to the same object. Note that this can lead to deadlocks
+if you have multiple lazy statics that depend on each other in their initialization.</p>
+<p>Apart from the lazy initialization, the resulting “static ref” variables
+have generally the same properties as regular “static” variables:</p>
+<ul>
+<li>Any type in them needs to fulfill the <code>Sync</code> trait.</li>
+<li>If the type has a destructor, then it will not run when the process exits.</li>
+</ul>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>Using the macro:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lazy_static</span>;
+
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+
+<span class="macro">lazy_static!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">HASHMAP</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">&quot;foo&quot;</span>);
+        <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="string">&quot;bar&quot;</span>);
+        <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">2</span>, <span class="string">&quot;baz&quot;</span>);
+        <span class="ident">m</span>
+    };
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">COUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">HASHMAP</span>.<span class="ident">len</span>();
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">NUMBER</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">times_two</span>(<span class="number">21</span>);
+}
+
+<span class="kw">fn</span> <span class="ident">times_two</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> { <span class="ident">n</span> <span class="op">*</span> <span class="number">2</span> }
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="macro">println!</span>(<span class="string">&quot;The map has {} entries.&quot;</span>, <span class="kw-2">*</span><span class="ident">COUNT</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;The entry for `0` is \&quot;{}\&quot;.&quot;</span>, <span class="ident">HASHMAP</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">0</span>).<span class="ident">unwrap</span>());
+    <span class="macro">println!</span>(<span class="string">&quot;A expensive calculation on a static results in: {}.&quot;</span>, <span class="kw-2">*</span><span class="ident">NUMBER</span>);
+}</pre></div>
+<h1 id="implementation-details" class="section-header"><a href="#implementation-details">Implementation details</a></h1>
+<p>The <code>Deref</code> implementation uses a hidden static variable that is guarded by an atomic check on each access.</p>
+<h1 id="cargo-features" class="section-header"><a href="#cargo-features">Cargo features</a></h1>
+<p>This crate provides one cargo feature:</p>
+<ul>
+<li><code>spin_no_std</code>: This allows using this crate in a no-std environment, by depending on the standalone <code>spin</code> crate.</li>
+</ul>
+</div></details><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.lazy_static.html" title="lazy_static::lazy_static macro">lazy_static</a></div><div class="item-right docblock-short"></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.LazyStatic.html" title="lazy_static::LazyStatic trait">LazyStatic</a></div><div class="item-right docblock-short"><p>Support trait for enabling a few common operation on lazy static values.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.initialize.html" title="lazy_static::initialize fn">initialize</a></div><div class="item-right docblock-short"><p>Takes a shared reference to a lazy static and initializes
+it if it has not been already.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="lazy_static" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

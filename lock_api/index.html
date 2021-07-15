@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This library provides type-safe and fully-featured `Mutex` and `RwLock` types which wrap a simple raw mutex or rwlock type. This has several benefits: not only does it eliminate a large portion of the work in implementing custom lock types, it also allows users to write code which is generic with regards to different lock implementations."><meta name="keywords" content="rust, rustlang, rust-lang, lock_api"><title>lock_api - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../lock_api/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate lock_api</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.4.4</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all lock_api's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="lock_api" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">lock_api</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/lock_api/lib.rs.html#8-111" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This library provides type-safe and fully-featured <code>Mutex</code> and <code>RwLock</code>
+types which wrap a simple raw mutex or rwlock type. This has several
+benefits: not only does it eliminate a large portion of the work in
+implementing custom lock types, it also allows users to write code which is
+generic with regards to different lock implementations.</p>
+<p>Basic usage of this crate is very straightforward:</p>
+<ol>
+<li>Create a raw lock type. This should only contain the lock state, not any
+data protected by the lock.</li>
+<li>Implement the <code>RawMutex</code> trait for your custom lock type.</li>
+<li>Export your mutex as a type alias for <code>lock_api::Mutex</code>, and
+your mutex guard as a type alias for <code>lock_api::MutexGuard</code>.
+See the <a href="#example">example</a> below for details.</li>
+</ol>
+<p>This process is similar for RwLocks, except that two guards need to be
+exported instead of one. (Or 3 guards if your type supports upgradable read
+locks, see <a href="#extension-traits">extension traits</a> below for details)</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lock_api</span>::{<span class="ident">RawMutex</span>, <span class="ident">Mutex</span>, <span class="ident">GuardSend</span>};
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">Ordering</span>};
+
+<span class="comment">// 1. Define our raw lock type</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawSpinlock</span>(<span class="ident">AtomicBool</span>);
+
+<span class="comment">// 2. Implement RawMutex for this type</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">RawMutex</span> <span class="kw">for</span> <span class="ident">RawSpinlock</span> {
+    <span class="kw">const</span> <span class="ident">INIT</span>: <span class="ident">RawSpinlock</span> <span class="op">=</span> <span class="ident">RawSpinlock</span>(<span class="ident">AtomicBool::new</span>(<span class="bool-val">false</span>));
+
+    <span class="comment">// A spinlock guard can be sent to another thread and unlocked there</span>
+    <span class="kw">type</span> <span class="ident">GuardMarker</span> <span class="op">=</span> <span class="ident">GuardSend</span>;
+
+    <span class="kw">fn</span> <span class="ident">lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="comment">// Note: This isn&#39;t the best way of implementing a spinlock, but it</span>
+        <span class="comment">// suffices for the sake of this example.</span>
+        <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">try_lock</span>() {}
+    }
+
+    <span class="kw">fn</span> <span class="ident">try_lock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="number">0</span>
+            .<span class="ident">compare_exchange</span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="ident">Ordering::Acquire</span>, <span class="ident">Ordering::Relaxed</span>)
+            .<span class="ident">is_ok</span>()
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">unlock</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::Release</span>);
+    }
+}
+
+<span class="comment">// 3. Export the wrappers. This are the types that your users will actually use.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Spinlock</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lock_api::Mutex</span><span class="op">&lt;</span><span class="ident">RawSpinlock</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SpinlockGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lock_api::MutexGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">RawSpinlock</span>, <span class="ident">T</span><span class="op">&gt;</span>;</pre></div>
+<h1 id="extension-traits" class="section-header"><a href="#extension-traits">Extension traits</a></h1>
+<p>In addition to basic locking &amp; unlocking functionality, you have the option
+of exposing additional functionality in your lock types by implementing
+additional traits for it. Examples of extension features include:</p>
+<ul>
+<li>Fair unlocking (<code>RawMutexFair</code>, <code>RawRwLockFair</code>)</li>
+<li>Lock timeouts (<code>RawMutexTimed</code>, <code>RawRwLockTimed</code>)</li>
+<li>Downgradable write locks (<code>RawRwLockDowngradable</code>)</li>
+<li>Recursive read locks (<code>RawRwLockRecursive</code>)</li>
+<li>Upgradable read locks (<code>RawRwLockUpgrade</code>)</li>
+</ul>
+<p>The <code>Mutex</code> and <code>RwLock</code> wrappers will automatically expose this additional
+functionality if the raw lock type implements these extension traits.</p>
+<h1 id="cargo-features" class="section-header"><a href="#cargo-features">Cargo features</a></h1>
+<p>This crate supports two cargo features:</p>
+<ul>
+<li><code>owning_ref</code>: Allows your lock types to be used with the <code>owning_ref</code> crate.</li>
+<li><code>nightly</code>: Enables nightly-only features. At the moment the only such
+feature is <code>const fn</code> constructors for lock types.</li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.GuardNoSend.html" title="lock_api::GuardNoSend struct">GuardNoSend</a></div><div class="item-right docblock-short"><p>Marker type which indicates that the Guard type for a lock is not <code>Send</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.GuardSend.html" title="lock_api::GuardSend struct">GuardSend</a></div><div class="item-right docblock-short"><p>Marker type which indicates that the Guard type for a lock is <code>Send</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MappedMutexGuard.html" title="lock_api::MappedMutexGuard struct">MappedMutexGuard</a></div><div class="item-right docblock-short"><p>An RAII mutex guard returned by <code>MutexGuard::map</code>, which can point to a
+subfield of the protected data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MappedReentrantMutexGuard.html" title="lock_api::MappedReentrantMutexGuard struct">MappedReentrantMutexGuard</a></div><div class="item-right docblock-short"><p>An RAII mutex guard returned by <code>ReentrantMutexGuard::map</code>, which can point to a
+subfield of the protected data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MappedRwLockReadGuard.html" title="lock_api::MappedRwLockReadGuard struct">MappedRwLockReadGuard</a></div><div class="item-right docblock-short"><p>An RAII read lock guard returned by <code>RwLockReadGuard::map</code>, which can point to a
+subfield of the protected data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MappedRwLockWriteGuard.html" title="lock_api::MappedRwLockWriteGuard struct">MappedRwLockWriteGuard</a></div><div class="item-right docblock-short"><p>An RAII write lock guard returned by <code>RwLockWriteGuard::map</code>, which can point to a
+subfield of the protected data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Mutex.html" title="lock_api::Mutex struct">Mutex</a></div><div class="item-right docblock-short"><p>A mutual exclusion primitive useful for protecting shared data</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.MutexGuard.html" title="lock_api::MutexGuard struct">MutexGuard</a></div><div class="item-right docblock-short"><p>An RAII implementation of a “scoped lock” of a mutex. When this structure is
+dropped (falls out of scope), the lock will be unlocked.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RawReentrantMutex.html" title="lock_api::RawReentrantMutex struct">RawReentrantMutex</a></div><div class="item-right docblock-short"><p>A raw mutex type that wraps another raw mutex to provide reentrancy.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ReentrantMutex.html" title="lock_api::ReentrantMutex struct">ReentrantMutex</a></div><div class="item-right docblock-short"><p>A mutex which can be recursively locked by a single thread.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ReentrantMutexGuard.html" title="lock_api::ReentrantMutexGuard struct">ReentrantMutexGuard</a></div><div class="item-right docblock-short"><p>An RAII implementation of a “scoped lock” of a reentrant mutex. When this structure
+is dropped (falls out of scope), the lock will be unlocked.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RwLock.html" title="lock_api::RwLock struct">RwLock</a></div><div class="item-right docblock-short"><p>A reader-writer lock</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RwLockReadGuard.html" title="lock_api::RwLockReadGuard struct">RwLockReadGuard</a></div><div class="item-right docblock-short"><p>RAII structure used to release the shared read access of a lock when
+dropped.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RwLockUpgradableReadGuard.html" title="lock_api::RwLockUpgradableReadGuard struct">RwLockUpgradableReadGuard</a></div><div class="item-right docblock-short"><p>RAII structure used to release the upgradable read access of a lock when
+dropped.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RwLockWriteGuard.html" title="lock_api::RwLockWriteGuard struct">RwLockWriteGuard</a></div><div class="item-right docblock-short"><p>RAII structure used to release the exclusive write access of a lock when
+dropped.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.GetThreadId.html" title="lock_api::GetThreadId trait">GetThreadId</a></div><div class="item-right docblock-short"><p>Helper trait which returns a non-zero thread ID.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawMutex.html" title="lock_api::RawMutex trait">RawMutex</a></div><div class="item-right docblock-short"><p>Basic operations for a mutex.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawMutexFair.html" title="lock_api::RawMutexFair trait">RawMutexFair</a></div><div class="item-right docblock-short"><p>Additional methods for mutexes which support fair unlocking.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawMutexTimed.html" title="lock_api::RawMutexTimed trait">RawMutexTimed</a></div><div class="item-right docblock-short"><p>Additional methods for mutexes which support locking with timeouts.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLock.html" title="lock_api::RawRwLock trait">RawRwLock</a></div><div class="item-right docblock-short"><p>Basic operations for a reader-writer lock.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockDowngrade.html" title="lock_api::RawRwLockDowngrade trait">RawRwLockDowngrade</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support atomically downgrading an
+exclusive lock to a shared lock.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockFair.html" title="lock_api::RawRwLockFair trait">RawRwLockFair</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support fair unlocking.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockRecursive.html" title="lock_api::RawRwLockRecursive trait">RawRwLockRecursive</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support recursive read locks.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockRecursiveTimed.html" title="lock_api::RawRwLockRecursiveTimed trait">RawRwLockRecursiveTimed</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support recursive read locks and timeouts.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockTimed.html" title="lock_api::RawRwLockTimed trait">RawRwLockTimed</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support locking with timeouts.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockUpgrade.html" title="lock_api::RawRwLockUpgrade trait">RawRwLockUpgrade</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support atomically upgrading a shared
+lock to an exclusive lock.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockUpgradeDowngrade.html" title="lock_api::RawRwLockUpgradeDowngrade trait">RawRwLockUpgradeDowngrade</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support upgradable locks and lock
+downgrading.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockUpgradeFair.html" title="lock_api::RawRwLockUpgradeFair trait">RawRwLockUpgradeFair</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support upgradable locks and fair
+unlocking.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.RawRwLockUpgradeTimed.html" title="lock_api::RawRwLockUpgradeTimed trait">RawRwLockUpgradeTimed</a></div><div class="item-right docblock-short"><p>Additional methods for RwLocks which support upgradable locks and locking
+with timeouts.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="lock_api" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

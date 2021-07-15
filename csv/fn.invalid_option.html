@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A custom Serde deserializer for possibly invalid `Option&lt;T&gt;` fields."><meta name="keywords" content="rust, rustlang, rust-lang, invalid_option"><title>invalid_option in csv - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../csv/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">csv</a></p><div id="sidebar-vars" data-name="invalid_option" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">csv</a>::<wbr><a class="fn" href="#">invalid_option</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/csv/lib.rs.html#353-359" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn invalid_option&lt;'de, D, T&gt;(de: D) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;T&gt;, D::<a class="type" href="../serde/de/trait.Deserializer.html#associatedtype.Error" title="type serde::de::Deserializer::Error">Error</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../serde/de/trait.Deserializer.html" title="trait serde::de::Deserializer">Deserializer</a>&lt;'de&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;T&gt;: <a class="trait" href="../serde/de/trait.Deserialize.html" title="trait serde::de::Deserialize">Deserialize</a>&lt;'de&gt;,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A custom Serde deserializer for possibly invalid <code>Option&lt;T&gt;</code> fields.</p>
+<p>When deserializing CSV data, it is sometimes desirable to simply ignore
+fields with invalid data. For example, there might be a field that is
+usually a number, but will occasionally contain garbage data that causes
+number parsing to fail.</p>
+<p>You might be inclined to use, say, <code>Option&lt;i32&gt;</code> for fields such at this.
+By default, however, <code>Option&lt;i32&gt;</code> will either capture <em>empty</em> fields with
+<code>None</code> or valid numeric fields with <code>Some(the_number)</code>. If the field is
+non-empty and not a valid number, then deserialization will return an error
+instead of using <code>None</code>.</p>
+<p>This function allows you to override this default behavior. Namely, if
+<code>Option&lt;T&gt;</code> is deserialized with non-empty but invalid data, then the value
+will be <code>None</code> and the error will be ignored.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>This example shows how to parse CSV records with numerical data, even if
+some numerical data is absent or invalid. Without the
+<code>serde(deserialize_with = &quot;...&quot;)</code> annotations, this example would return
+an error.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+
+<span class="kw">use</span> <span class="ident">csv::Reader</span>;
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Row</span> {
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;csv::invalid_option&quot;</span>)]</span>
+    <span class="ident">a</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;csv::invalid_option&quot;</span>)]</span>
+    <span class="ident">b</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;csv::invalid_option&quot;</span>)]</span>
+    <span class="ident">c</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="string">&quot;\
+a,b,c
+5,\&quot;\&quot;,xyz
+&quot;</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">Reader::from_reader</span>(<span class="ident">data</span>.<span class="ident">as_bytes</span>());
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">rdr</span>.<span class="ident">deserialize</span>().<span class="ident">next</span>() {
+        <span class="kw">let</span> <span class="ident">record</span>: <span class="ident">Row</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(<span class="ident">record</span>, <span class="ident">Row</span> { <span class="ident">a</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>), <span class="ident">b</span>: <span class="prelude-val">None</span>, <span class="ident">c</span>: <span class="prelude-val">None</span> });
+        <span class="prelude-val">Ok</span>(())
+    } <span class="kw">else</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">From::from</span>(<span class="string">&quot;expected at least one record but got none&quot;</span>))
+    }
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="csv" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

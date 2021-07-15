@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Data-parallelism library that makes it easy to convert sequential computations into parallel"><meta name="keywords" content="rust, rustlang, rust-lang, rayon"><title>rayon - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rayon/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate rayon</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.5.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all rayon's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="rayon" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">rayon</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rayon/lib.rs.html#1-121" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Data-parallelism library that makes it easy to convert sequential
+computations into parallel</p>
+<p>Rayon is lightweight and convenient for introducing parallelism into existing
+code. It guarantees data-race free executions and takes advantage of
+parallelism when sensible, based on work-load at runtime.</p>
+<h1 id="how-to-use-rayon" class="section-header"><a href="#how-to-use-rayon">How to use Rayon</a></h1>
+<p>There are two ways to use Rayon:</p>
+<ul>
+<li><strong>High-level parallel constructs</strong> are the simplest way to use Rayon and also
+typically the most efficient.
+<ul>
+<li><a href="iter/index.html">Parallel iterators</a> make it easy to convert a sequential iterator to
+execute in parallel.
+<ul>
+<li>The <a href="iter/trait.ParallelIterator.html"><code>ParallelIterator</code></a> trait defines general methods for all parallel iterators.</li>
+<li>The <a href="iter/trait.IndexedParallelIterator.html"><code>IndexedParallelIterator</code></a> trait adds methods for iterators that support random
+access.</li>
+</ul>
+</li>
+<li>The <a href="slice/trait.ParallelSliceMut.html#method.par_sort"><code>par_sort</code></a> method sorts <code>&amp;mut [T]</code> slices (or vectors) in parallel.</li>
+<li><a href="iter/trait.ParallelExtend.html#tymethod.par_extend"><code>par_extend</code></a> can be used to efficiently grow collections with items produced
+by a parallel iterator.</li>
+</ul>
+</li>
+<li><strong>Custom tasks</strong> let you divide your work into parallel tasks yourself.
+<ul>
+<li><a href="fn.join.html"><code>join</code></a> is used to subdivide a task into two pieces.</li>
+<li><a href="fn.scope.html"><code>scope</code></a> creates a scope within which you can create any number of parallel tasks.</li>
+<li><a href="struct.ThreadPoolBuilder.html"><code>ThreadPoolBuilder</code></a> can be used to create your own thread pools or customize
+the global one.</li>
+</ul>
+</li>
+</ul>
+<h1 id="basic-usage-and-the-rayon-prelude" class="section-header"><a href="#basic-usage-and-the-rayon-prelude">Basic usage and the Rayon prelude</a></h1>
+<p>First, you will need to add <code>rayon</code> to your <code>Cargo.toml</code>.</p>
+<p>Next, to use parallel iterators or the other high-level methods,
+you need to import several traits. Those traits are bundled into
+the module <a href="prelude/index.html"><code>rayon::prelude</code></a>. It is recommended that you import
+all of these traits at once by adding <code>use rayon::prelude::*</code> at
+the top of each module that uses Rayon methods.</p>
+<p>These traits give you access to the <code>par_iter</code> method which provides
+parallel implementations of many iterative functions such as <a href="iter/trait.ParallelIterator.html#method.map"><code>map</code></a>,
+<a href="iter/trait.ParallelIterator.html#method.for_each"><code>for_each</code></a>, <a href="iter/trait.ParallelIterator.html#method.filter"><code>filter</code></a>, <a href="iter/trait.ParallelIterator.html#method.fold"><code>fold</code></a>, and <a href="iter/trait.ParallelIterator.html#provided-methods">more</a>.</p>
+<h1 id="crate-layout" class="section-header"><a href="#crate-layout">Crate Layout</a></h1>
+<p>Rayon extends many of the types found in the standard library with
+parallel iterator implementations. The modules in the <code>rayon</code>
+crate mirror <a href="https://doc.rust-lang.org/std/"><code>std</code></a> itself: so, e.g., the <code>option</code> module in
+Rayon contains parallel iterators for the <code>Option</code> type, which is
+found in <a href="https://doc.rust-lang.org/std/option/index.html">the <code>option</code> module of <code>std</code></a>. Similarly, the
+<code>collections</code> module in Rayon offers parallel iterator types for
+<a href="https://doc.rust-lang.org/std/collections/index.html">the <code>collections</code> from <code>std</code></a>. You will rarely need to access
+these submodules unless you need to name iterator types
+explicitly.</p>
+<h1 id="other-questions" class="section-header"><a href="#other-questions">Other questions?</a></h1>
+<p>See <a href="https://github.com/rayon-rs/rayon/blob/master/FAQ.md">the Rayon FAQ</a>.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="array/index.html" title="rayon::array mod">array</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/std/primitive.array.html">arrays</a> (<code>[T; N]</code>)</p>
+</div><div class="item-left module-item"><a class="mod" href="collections/index.html" title="rayon::collections mod">collections</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/collections/">standard collections</a></p>
+</div><div class="item-left module-item"><a class="mod" href="iter/index.html" title="rayon::iter mod">iter</a></div><div class="item-right docblock-short"><p>Traits for writing parallel programs using an iterator-style interface</p>
+</div><div class="item-left module-item"><a class="mod" href="option/index.html" title="rayon::option mod">option</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/option/">options</a></p>
+</div><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="rayon::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>The rayon prelude imports the various <code>ParallelIterator</code> traits.
+The intention is that one can include <code>use rayon::prelude::*</code> and
+have easy access to the various traits and methods you will need.</p>
+</div><div class="item-left module-item"><a class="mod" href="range/index.html" title="rayon::range mod">range</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/core/ops/struct.Range.html">ranges</a>,
+the type for values created by <code>a..b</code> expressions</p>
+</div><div class="item-left module-item"><a class="mod" href="range_inclusive/index.html" title="rayon::range_inclusive mod">range_inclusive</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/core/ops/struct.RangeInclusive.html">inclusive ranges</a>,
+the type for values created by <code>a..=b</code> expressions</p>
+</div><div class="item-left module-item"><a class="mod" href="result/index.html" title="rayon::result mod">result</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/result/">results</a></p>
+</div><div class="item-left module-item"><a class="mod" href="slice/index.html" title="rayon::slice mod">slice</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/slice/">slices</a></p>
+</div><div class="item-left module-item"><a class="mod" href="str/index.html" title="rayon::str mod">str</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/str/">strings</a></p>
+</div><div class="item-left module-item"><a class="mod" href="string/index.html" title="rayon::string mod">string</a></div><div class="item-right docblock-short"><p>This module contains the parallel iterator types for owned strings
+(<code>String</code>). You will rarely need to interact with it directly
+unless you have need to name one of the iterator types.</p>
+</div><div class="item-left module-item"><a class="mod" href="vec/index.html" title="rayon::vec mod">vec</a></div><div class="item-right docblock-short"><p>Parallel iterator types for <a href="https://doc.rust-lang.org/stable/std/vec/">vectors</a> (<code>Vec&lt;T&gt;</code>)</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.FnContext.html" title="rayon::FnContext struct">FnContext</a></div><div class="item-right docblock-short"><p>Provides the calling context to a closure called by <code>join_context</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Scope.html" title="rayon::Scope struct">Scope</a></div><div class="item-right docblock-short"><p>Represents a fork-join scope which can be used to spawn any number of tasks.
+See <a href="fn.scope.html"><code>scope()</code></a> for more information.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ScopeFifo.html" title="rayon::ScopeFifo struct">ScopeFifo</a></div><div class="item-right docblock-short"><p>Represents a fork-join scope which can be used to spawn any number of tasks.
+Those spawned from the same thread are prioritized in relative FIFO order.
+See <a href="fn.scope_fifo.html"><code>scope_fifo()</code></a> for more information.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ThreadBuilder.html" title="rayon::ThreadBuilder struct">ThreadBuilder</a></div><div class="item-right docblock-short"><p>Thread builder used for customization via
+<a href="struct.ThreadPoolBuilder.html#method.spawn_handler"><code>ThreadPoolBuilder::spawn_handler</code></a>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ThreadPool.html" title="rayon::ThreadPool struct">ThreadPool</a></div><div class="item-right docblock-short"><p>Represents a user created <a href="https://en.wikipedia.org/wiki/Thread_pool">thread-pool</a>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ThreadPoolBuildError.html" title="rayon::ThreadPoolBuildError struct">ThreadPoolBuildError</a></div><div class="item-right docblock-short"><p>Error when initializing a thread pool.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ThreadPoolBuilder.html" title="rayon::ThreadPoolBuilder struct">ThreadPoolBuilder</a></div><div class="item-right docblock-short"><p>Used to create a new <a href="struct.ThreadPool.html"><code>ThreadPool</code></a> or to configure the global rayon thread pool.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.current_num_threads.html" title="rayon::current_num_threads fn">current_num_threads</a></div><div class="item-right docblock-short"><p>Returns the number of threads in the current registry. If this
+code is executing within a Rayon thread-pool, then this will be
+the number of threads for the thread-pool of the current
+thread. Otherwise, it will be the number of threads for the global
+thread-pool.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.current_thread_index.html" title="rayon::current_thread_index fn">current_thread_index</a></div><div class="item-right docblock-short"><p>If called from a Rayon worker thread, returns the index of that
+thread within its current pool; if not called from a Rayon thread,
+returns <code>None</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.in_place_scope.html" title="rayon::in_place_scope fn">in_place_scope</a></div><div class="item-right docblock-short"><p>Creates a “fork-join” scope <code>s</code> and invokes the closure with a
+reference to <code>s</code>. This closure can then spawn asynchronous tasks
+into <code>s</code>. Those tasks may run asynchronously with respect to the
+closure; they may themselves spawn additional tasks into <code>s</code>. When
+the closure returns, it will block until all tasks that have been
+spawned into <code>s</code> complete.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.in_place_scope_fifo.html" title="rayon::in_place_scope_fifo fn">in_place_scope_fifo</a></div><div class="item-right docblock-short"><p>Creates a “fork-join” scope <code>s</code> with FIFO order, and invokes the
+closure with a reference to <code>s</code>. This closure can then spawn
+asynchronous tasks into <code>s</code>. Those tasks may run asynchronously with
+respect to the closure; they may themselves spawn additional tasks
+into <code>s</code>. When the closure returns, it will block until all tasks
+that have been spawned into <code>s</code> complete.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.join.html" title="rayon::join fn">join</a></div><div class="item-right docblock-short"><p>Takes two closures and <em>potentially</em> runs them in parallel. It
+returns a pair of the results from those closures.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.join_context.html" title="rayon::join_context fn">join_context</a></div><div class="item-right docblock-short"><p>Identical to <code>join</code>, except that the closures have a parameter
+that provides context for the way the closure has been called,
+especially indicating whether they’re executing on a different
+thread than where <code>join_context</code> was called.  This will occur if
+the second job is stolen by a different thread, or if
+<code>join_context</code> was called from outside the thread pool to begin
+with.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.scope.html" title="rayon::scope fn">scope</a></div><div class="item-right docblock-short"><p>Creates a “fork-join” scope <code>s</code> and invokes the closure with a
+reference to <code>s</code>. This closure can then spawn asynchronous tasks
+into <code>s</code>. Those tasks may run asynchronously with respect to the
+closure; they may themselves spawn additional tasks into <code>s</code>. When
+the closure returns, it will block until all tasks that have been
+spawned into <code>s</code> complete.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.scope_fifo.html" title="rayon::scope_fifo fn">scope_fifo</a></div><div class="item-right docblock-short"><p>Creates a “fork-join” scope <code>s</code> with FIFO order, and invokes the
+closure with a reference to <code>s</code>. This closure can then spawn
+asynchronous tasks into <code>s</code>. Those tasks may run asynchronously with
+respect to the closure; they may themselves spawn additional tasks
+into <code>s</code>. When the closure returns, it will block until all tasks
+that have been spawned into <code>s</code> complete.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.spawn.html" title="rayon::spawn fn">spawn</a></div><div class="item-right docblock-short"><p>Fires off a task into the Rayon threadpool in the “static” or
+“global” scope.  Just like a standard thread, this task is not
+tied to the current stack frame, and hence it cannot hold any
+references other than those with <code>'static</code> lifetime. If you want
+to spawn a task that references stack data, use <a href="fn.scope.html">the <code>scope()</code>
+function</a> to create a scope.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.spawn_fifo.html" title="rayon::spawn_fifo fn">spawn_fifo</a></div><div class="item-right docblock-short"><p>Fires off a task into the Rayon threadpool in the “static” or
+“global” scope.  Just like a standard thread, this task is not
+tied to the current stack frame, and hence it cannot hold any
+references other than those with <code>'static</code> lifetime. If you want
+to spawn a task that references stack data, use <a href="fn.scope_fifo.html">the <code>scope_fifo()</code>
+function</a> to create a scope.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rayon" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

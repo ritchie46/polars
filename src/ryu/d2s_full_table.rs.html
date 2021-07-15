@@ -1,0 +1,1397 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;ryu-1.0.5&#x2F;src&#x2F;d2s_full_table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>d2s_full_table.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ryu/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+</pre><pre class="rust">
+<span class="comment">// Translated from C to Rust. The original C code can be found at</span>
+<span class="comment">// https://github.com/ulfjack/ryu and carries the following license:</span>
+<span class="comment">//</span>
+<span class="comment">// Copyright 2018 Ulf Adams</span>
+<span class="comment">//</span>
+<span class="comment">// The contents of this file may be used under the terms of the Apache License,</span>
+<span class="comment">// Version 2.0.</span>
+<span class="comment">//</span>
+<span class="comment">//    (See accompanying file LICENSE-Apache or copy at</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0)</span>
+<span class="comment">//</span>
+<span class="comment">// Alternatively, the contents of this file may be used under the terms of</span>
+<span class="comment">// the Boost Software License, Version 1.0.</span>
+<span class="comment">//    (See accompanying file LICENSE-Boost or copy at</span>
+<span class="comment">//     https://www.boost.org/LICENSE_1_0.txt)</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, this software</span>
+<span class="comment">// is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="comment">// KIND, either express or implied.</span>
+
+<span class="kw">const</span> <span class="ident">DOUBLE_POW5_INV_TABLE_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">342</span>;
+<span class="kw">const</span> <span class="ident">DOUBLE_POW5_TABLE_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">326</span>;
+
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">DOUBLE_POW5_INV_SPLIT</span>: [(<span class="ident">u64</span>, <span class="ident">u64</span>); <span class="ident">DOUBLE_POW5_INV_TABLE_SIZE</span>] <span class="op">=</span> [
+    (<span class="number">1</span>, <span class="number">2305843009213693952</span>),
+    (<span class="number">11068046444225730970</span>, <span class="number">1844674407370955161</span>),
+    (<span class="number">5165088340638674453</span>, <span class="number">1475739525896764129</span>),
+    (<span class="number">7821419487252849886</span>, <span class="number">1180591620717411303</span>),
+    (<span class="number">8824922364862649494</span>, <span class="number">1888946593147858085</span>),
+    (<span class="number">7059937891890119595</span>, <span class="number">1511157274518286468</span>),
+    (<span class="number">13026647942995916322</span>, <span class="number">1208925819614629174</span>),
+    (<span class="number">9774590264567735146</span>, <span class="number">1934281311383406679</span>),
+    (<span class="number">11509021026396098440</span>, <span class="number">1547425049106725343</span>),
+    (<span class="number">16585914450600699399</span>, <span class="number">1237940039285380274</span>),
+    (<span class="number">15469416676735388068</span>, <span class="number">1980704062856608439</span>),
+    (<span class="number">16064882156130220778</span>, <span class="number">1584563250285286751</span>),
+    (<span class="number">9162556910162266299</span>, <span class="number">1267650600228229401</span>),
+    (<span class="number">7281393426775805432</span>, <span class="number">2028240960365167042</span>),
+    (<span class="number">16893161185646375315</span>, <span class="number">1622592768292133633</span>),
+    (<span class="number">2446482504291369283</span>, <span class="number">1298074214633706907</span>),
+    (<span class="number">7603720821608101175</span>, <span class="number">2076918743413931051</span>),
+    (<span class="number">2393627842544570617</span>, <span class="number">1661534994731144841</span>),
+    (<span class="number">16672297533003297786</span>, <span class="number">1329227995784915872</span>),
+    (<span class="number">11918280793837635165</span>, <span class="number">2126764793255865396</span>),
+    (<span class="number">5845275820328197809</span>, <span class="number">1701411834604692317</span>),
+    (<span class="number">15744267100488289217</span>, <span class="number">1361129467683753853</span>),
+    (<span class="number">3054734472329800808</span>, <span class="number">2177807148294006166</span>),
+    (<span class="number">17201182836831481939</span>, <span class="number">1742245718635204932</span>),
+    (<span class="number">6382248639981364905</span>, <span class="number">1393796574908163946</span>),
+    (<span class="number">2832900194486363201</span>, <span class="number">2230074519853062314</span>),
+    (<span class="number">5955668970331000884</span>, <span class="number">1784059615882449851</span>),
+    (<span class="number">1075186361522890384</span>, <span class="number">1427247692705959881</span>),
+    (<span class="number">12788344622662355584</span>, <span class="number">2283596308329535809</span>),
+    (<span class="number">13920024512871794791</span>, <span class="number">1826877046663628647</span>),
+    (<span class="number">3757321980813615186</span>, <span class="number">1461501637330902918</span>),
+    (<span class="number">10384555214134712795</span>, <span class="number">1169201309864722334</span>),
+    (<span class="number">5547241898389809503</span>, <span class="number">1870722095783555735</span>),
+    (<span class="number">4437793518711847602</span>, <span class="number">1496577676626844588</span>),
+    (<span class="number">10928932444453298728</span>, <span class="number">1197262141301475670</span>),
+    (<span class="number">17486291911125277965</span>, <span class="number">1915619426082361072</span>),
+    (<span class="number">6610335899416401726</span>, <span class="number">1532495540865888858</span>),
+    (<span class="number">12666966349016942027</span>, <span class="number">1225996432692711086</span>),
+    (<span class="number">12888448528943286597</span>, <span class="number">1961594292308337738</span>),
+    (<span class="number">17689456452638449924</span>, <span class="number">1569275433846670190</span>),
+    (<span class="number">14151565162110759939</span>, <span class="number">1255420347077336152</span>),
+    (<span class="number">7885109000409574610</span>, <span class="number">2008672555323737844</span>),
+    (<span class="number">9997436015069570011</span>, <span class="number">1606938044258990275</span>),
+    (<span class="number">7997948812055656009</span>, <span class="number">1285550435407192220</span>),
+    (<span class="number">12796718099289049614</span>, <span class="number">2056880696651507552</span>),
+    (<span class="number">2858676849947419045</span>, <span class="number">1645504557321206042</span>),
+    (<span class="number">13354987924183666206</span>, <span class="number">1316403645856964833</span>),
+    (<span class="number">17678631863951955605</span>, <span class="number">2106245833371143733</span>),
+    (<span class="number">3074859046935833515</span>, <span class="number">1684996666696914987</span>),
+    (<span class="number">13527933681774397782</span>, <span class="number">1347997333357531989</span>),
+    (<span class="number">10576647446613305481</span>, <span class="number">2156795733372051183</span>),
+    (<span class="number">15840015586774465031</span>, <span class="number">1725436586697640946</span>),
+    (<span class="number">8982663654677661702</span>, <span class="number">1380349269358112757</span>),
+    (<span class="number">18061610662226169046</span>, <span class="number">2208558830972980411</span>),
+    (<span class="number">10759939715039024913</span>, <span class="number">1766847064778384329</span>),
+    (<span class="number">12297300586773130254</span>, <span class="number">1413477651822707463</span>),
+    (<span class="number">15986332124095098083</span>, <span class="number">2261564242916331941</span>),
+    (<span class="number">9099716884534168143</span>, <span class="number">1809251394333065553</span>),
+    (<span class="number">14658471137111155161</span>, <span class="number">1447401115466452442</span>),
+    (<span class="number">4348079280205103483</span>, <span class="number">1157920892373161954</span>),
+    (<span class="number">14335624477811986218</span>, <span class="number">1852673427797059126</span>),
+    (<span class="number">7779150767507678651</span>, <span class="number">1482138742237647301</span>),
+    (<span class="number">2533971799264232598</span>, <span class="number">1185710993790117841</span>),
+    (<span class="number">15122401323048503126</span>, <span class="number">1897137590064188545</span>),
+    (<span class="number">12097921058438802501</span>, <span class="number">1517710072051350836</span>),
+    (<span class="number">5988988032009131678</span>, <span class="number">1214168057641080669</span>),
+    (<span class="number">16961078480698431330</span>, <span class="number">1942668892225729070</span>),
+    (<span class="number">13568862784558745064</span>, <span class="number">1554135113780583256</span>),
+    (<span class="number">7165741412905085728</span>, <span class="number">1243308091024466605</span>),
+    (<span class="number">11465186260648137165</span>, <span class="number">1989292945639146568</span>),
+    (<span class="number">16550846638002330379</span>, <span class="number">1591434356511317254</span>),
+    (<span class="number">16930026125143774626</span>, <span class="number">1273147485209053803</span>),
+    (<span class="number">4951948911778577463</span>, <span class="number">2037035976334486086</span>),
+    (<span class="number">272210314680951647</span>, <span class="number">1629628781067588869</span>),
+    (<span class="number">3907117066486671641</span>, <span class="number">1303703024854071095</span>),
+    (<span class="number">6251387306378674625</span>, <span class="number">2085924839766513752</span>),
+    (<span class="number">16069156289328670670</span>, <span class="number">1668739871813211001</span>),
+    (<span class="number">9165976216721026213</span>, <span class="number">1334991897450568801</span>),
+    (<span class="number">7286864317269821294</span>, <span class="number">2135987035920910082</span>),
+    (<span class="number">16897537898041588005</span>, <span class="number">1708789628736728065</span>),
+    (<span class="number">13518030318433270404</span>, <span class="number">1367031702989382452</span>),
+    (<span class="number">6871453250525591353</span>, <span class="number">2187250724783011924</span>),
+    (<span class="number">9186511415162383406</span>, <span class="number">1749800579826409539</span>),
+    (<span class="number">11038557946871817048</span>, <span class="number">1399840463861127631</span>),
+    (<span class="number">10282995085511086630</span>, <span class="number">2239744742177804210</span>),
+    (<span class="number">8226396068408869304</span>, <span class="number">1791795793742243368</span>),
+    (<span class="number">13959814484210916090</span>, <span class="number">1433436634993794694</span>),
+    (<span class="number">11267656730511734774</span>, <span class="number">2293498615990071511</span>),
+    (<span class="number">5324776569667477496</span>, <span class="number">1834798892792057209</span>),
+    (<span class="number">7949170070475892320</span>, <span class="number">1467839114233645767</span>),
+    (<span class="number">17427382500606444826</span>, <span class="number">1174271291386916613</span>),
+    (<span class="number">5747719112518849781</span>, <span class="number">1878834066219066582</span>),
+    (<span class="number">15666221734240810795</span>, <span class="number">1503067252975253265</span>),
+    (<span class="number">12532977387392648636</span>, <span class="number">1202453802380202612</span>),
+    (<span class="number">5295368560860596524</span>, <span class="number">1923926083808324180</span>),
+    (<span class="number">4236294848688477220</span>, <span class="number">1539140867046659344</span>),
+    (<span class="number">7078384693692692099</span>, <span class="number">1231312693637327475</span>),
+    (<span class="number">11325415509908307358</span>, <span class="number">1970100309819723960</span>),
+    (<span class="number">9060332407926645887</span>, <span class="number">1576080247855779168</span>),
+    (<span class="number">14626963555825137356</span>, <span class="number">1260864198284623334</span>),
+    (<span class="number">12335095245094488799</span>, <span class="number">2017382717255397335</span>),
+    (<span class="number">9868076196075591040</span>, <span class="number">1613906173804317868</span>),
+    (<span class="number">15273158586344293478</span>, <span class="number">1291124939043454294</span>),
+    (<span class="number">13369007293925138595</span>, <span class="number">2065799902469526871</span>),
+    (<span class="number">7005857020398200553</span>, <span class="number">1652639921975621497</span>),
+    (<span class="number">16672732060544291412</span>, <span class="number">1322111937580497197</span>),
+    (<span class="number">11918976037903224966</span>, <span class="number">2115379100128795516</span>),
+    (<span class="number">5845832015580669650</span>, <span class="number">1692303280103036413</span>),
+    (<span class="number">12055363241948356366</span>, <span class="number">1353842624082429130</span>),
+    (<span class="number">841837113407818570</span>, <span class="number">2166148198531886609</span>),
+    (<span class="number">4362818505468165179</span>, <span class="number">1732918558825509287</span>),
+    (<span class="number">14558301248600263113</span>, <span class="number">1386334847060407429</span>),
+    (<span class="number">12225235553534690011</span>, <span class="number">2218135755296651887</span>),
+    (<span class="number">2401490813343931363</span>, <span class="number">1774508604237321510</span>),
+    (<span class="number">1921192650675145090</span>, <span class="number">1419606883389857208</span>),
+    (<span class="number">17831303500047873437</span>, <span class="number">2271371013423771532</span>),
+    (<span class="number">6886345170554478103</span>, <span class="number">1817096810739017226</span>),
+    (<span class="number">1819727321701672159</span>, <span class="number">1453677448591213781</span>),
+    (<span class="number">16213177116328979020</span>, <span class="number">1162941958872971024</span>),
+    (<span class="number">14873036941900635463</span>, <span class="number">1860707134196753639</span>),
+    (<span class="number">15587778368262418694</span>, <span class="number">1488565707357402911</span>),
+    (<span class="number">8780873879868024632</span>, <span class="number">1190852565885922329</span>),
+    (<span class="number">2981351763563108441</span>, <span class="number">1905364105417475727</span>),
+    (<span class="number">13453127855076217722</span>, <span class="number">1524291284333980581</span>),
+    (<span class="number">7073153469319063855</span>, <span class="number">1219433027467184465</span>),
+    (<span class="number">11317045550910502167</span>, <span class="number">1951092843947495144</span>),
+    (<span class="number">12742985255470312057</span>, <span class="number">1560874275157996115</span>),
+    (<span class="number">10194388204376249646</span>, <span class="number">1248699420126396892</span>),
+    (<span class="number">1553625868034358140</span>, <span class="number">1997919072202235028</span>),
+    (<span class="number">8621598323911307159</span>, <span class="number">1598335257761788022</span>),
+    (<span class="number">17965325103354776697</span>, <span class="number">1278668206209430417</span>),
+    (<span class="number">13987124906400001422</span>, <span class="number">2045869129935088668</span>),
+    (<span class="number">121653480894270168</span>, <span class="number">1636695303948070935</span>),
+    (<span class="number">97322784715416134</span>, <span class="number">1309356243158456748</span>),
+    (<span class="number">14913111714512307107</span>, <span class="number">2094969989053530796</span>),
+    (<span class="number">8241140556867935363</span>, <span class="number">1675975991242824637</span>),
+    (<span class="number">17660958889720079260</span>, <span class="number">1340780792994259709</span>),
+    (<span class="number">17189487779326395846</span>, <span class="number">2145249268790815535</span>),
+    (<span class="number">13751590223461116677</span>, <span class="number">1716199415032652428</span>),
+    (<span class="number">18379969808252713988</span>, <span class="number">1372959532026121942</span>),
+    (<span class="number">14650556434236701088</span>, <span class="number">2196735251241795108</span>),
+    (<span class="number">652398703163629901</span>, <span class="number">1757388200993436087</span>),
+    (<span class="number">11589965406756634890</span>, <span class="number">1405910560794748869</span>),
+    (<span class="number">7475898206584884855</span>, <span class="number">2249456897271598191</span>),
+    (<span class="number">2291369750525997561</span>, <span class="number">1799565517817278553</span>),
+    (<span class="number">9211793429904618695</span>, <span class="number">1439652414253822842</span>),
+    (<span class="number">18428218302589300235</span>, <span class="number">2303443862806116547</span>),
+    (<span class="number">7363877012587619542</span>, <span class="number">1842755090244893238</span>),
+    (<span class="number">13269799239553916280</span>, <span class="number">1474204072195914590</span>),
+    (<span class="number">10615839391643133024</span>, <span class="number">1179363257756731672</span>),
+    (<span class="number">2227947767661371545</span>, <span class="number">1886981212410770676</span>),
+    (<span class="number">16539753473096738529</span>, <span class="number">1509584969928616540</span>),
+    (<span class="number">13231802778477390823</span>, <span class="number">1207667975942893232</span>),
+    (<span class="number">6413489186596184024</span>, <span class="number">1932268761508629172</span>),
+    (<span class="number">16198837793502678189</span>, <span class="number">1545815009206903337</span>),
+    (<span class="number">5580372605318321905</span>, <span class="number">1236652007365522670</span>),
+    (<span class="number">8928596168509315048</span>, <span class="number">1978643211784836272</span>),
+    (<span class="number">18210923379033183008</span>, <span class="number">1582914569427869017</span>),
+    (<span class="number">7190041073742725760</span>, <span class="number">1266331655542295214</span>),
+    (<span class="number">436019273762630246</span>, <span class="number">2026130648867672343</span>),
+    (<span class="number">7727513048493924843</span>, <span class="number">1620904519094137874</span>),
+    (<span class="number">9871359253537050198</span>, <span class="number">1296723615275310299</span>),
+    (<span class="number">4726128361433549347</span>, <span class="number">2074757784440496479</span>),
+    (<span class="number">7470251503888749801</span>, <span class="number">1659806227552397183</span>),
+    (<span class="number">13354898832594820487</span>, <span class="number">1327844982041917746</span>),
+    (<span class="number">13989140502667892133</span>, <span class="number">2124551971267068394</span>),
+    (<span class="number">14880661216876224029</span>, <span class="number">1699641577013654715</span>),
+    (<span class="number">11904528973500979224</span>, <span class="number">1359713261610923772</span>),
+    (<span class="number">4289851098633925465</span>, <span class="number">2175541218577478036</span>),
+    (<span class="number">18189276137874781665</span>, <span class="number">1740432974861982428</span>),
+    (<span class="number">3483374466074094362</span>, <span class="number">1392346379889585943</span>),
+    (<span class="number">1884050330976640656</span>, <span class="number">2227754207823337509</span>),
+    (<span class="number">5196589079523222848</span>, <span class="number">1782203366258670007</span>),
+    (<span class="number">15225317707844309248</span>, <span class="number">1425762693006936005</span>),
+    (<span class="number">5913764258841343181</span>, <span class="number">2281220308811097609</span>),
+    (<span class="number">8420360221814984868</span>, <span class="number">1824976247048878087</span>),
+    (<span class="number">17804334621677718864</span>, <span class="number">1459980997639102469</span>),
+    (<span class="number">17932816512084085415</span>, <span class="number">1167984798111281975</span>),
+    (<span class="number">10245762345624985047</span>, <span class="number">1868775676978051161</span>),
+    (<span class="number">4507261061758077715</span>, <span class="number">1495020541582440929</span>),
+    (<span class="number">7295157664148372495</span>, <span class="number">1196016433265952743</span>),
+    (<span class="number">7982903447895485668</span>, <span class="number">1913626293225524389</span>),
+    (<span class="number">10075671573058298858</span>, <span class="number">1530901034580419511</span>),
+    (<span class="number">4371188443704728763</span>, <span class="number">1224720827664335609</span>),
+    (<span class="number">14372599139411386667</span>, <span class="number">1959553324262936974</span>),
+    (<span class="number">15187428126271019657</span>, <span class="number">1567642659410349579</span>),
+    (<span class="number">15839291315758726049</span>, <span class="number">1254114127528279663</span>),
+    (<span class="number">3206773216762499739</span>, <span class="number">2006582604045247462</span>),
+    (<span class="number">13633465017635730761</span>, <span class="number">1605266083236197969</span>),
+    (<span class="number">14596120828850494932</span>, <span class="number">1284212866588958375</span>),
+    (<span class="number">4907049252451240275</span>, <span class="number">2054740586542333401</span>),
+    (<span class="number">236290587219081897</span>, <span class="number">1643792469233866721</span>),
+    (<span class="number">14946427728742906810</span>, <span class="number">1315033975387093376</span>),
+    (<span class="number">16535586736504830250</span>, <span class="number">2104054360619349402</span>),
+    (<span class="number">5849771759720043554</span>, <span class="number">1683243488495479522</span>),
+    (<span class="number">15747863852001765813</span>, <span class="number">1346594790796383617</span>),
+    (<span class="number">10439186904235184007</span>, <span class="number">2154551665274213788</span>),
+    (<span class="number">15730047152871967852</span>, <span class="number">1723641332219371030</span>),
+    (<span class="number">12584037722297574282</span>, <span class="number">1378913065775496824</span>),
+    (<span class="number">9066413911450387881</span>, <span class="number">2206260905240794919</span>),
+    (<span class="number">10942479943902220628</span>, <span class="number">1765008724192635935</span>),
+    (<span class="number">8753983955121776503</span>, <span class="number">1412006979354108748</span>),
+    (<span class="number">10317025513452932081</span>, <span class="number">2259211166966573997</span>),
+    (<span class="number">874922781278525018</span>, <span class="number">1807368933573259198</span>),
+    (<span class="number">8078635854506640661</span>, <span class="number">1445895146858607358</span>),
+    (<span class="number">13841606313089133175</span>, <span class="number">1156716117486885886</span>),
+    (<span class="number">14767872471458792434</span>, <span class="number">1850745787979017418</span>),
+    (<span class="number">746251532941302978</span>, <span class="number">1480596630383213935</span>),
+    (<span class="number">597001226353042382</span>, <span class="number">1184477304306571148</span>),
+    (<span class="number">15712597221132509104</span>, <span class="number">1895163686890513836</span>),
+    (<span class="number">8880728962164096960</span>, <span class="number">1516130949512411069</span>),
+    (<span class="number">10793931984473187891</span>, <span class="number">1212904759609928855</span>),
+    (<span class="number">17270291175157100626</span>, <span class="number">1940647615375886168</span>),
+    (<span class="number">2748186495899949531</span>, <span class="number">1552518092300708935</span>),
+    (<span class="number">2198549196719959625</span>, <span class="number">1242014473840567148</span>),
+    (<span class="number">18275073973719576693</span>, <span class="number">1987223158144907436</span>),
+    (<span class="number">10930710364233751031</span>, <span class="number">1589778526515925949</span>),
+    (<span class="number">12433917106128911148</span>, <span class="number">1271822821212740759</span>),
+    (<span class="number">8826220925580526867</span>, <span class="number">2034916513940385215</span>),
+    (<span class="number">7060976740464421494</span>, <span class="number">1627933211152308172</span>),
+    (<span class="number">16716827836597268165</span>, <span class="number">1302346568921846537</span>),
+    (<span class="number">11989529279587987770</span>, <span class="number">2083754510274954460</span>),
+    (<span class="number">9591623423670390216</span>, <span class="number">1667003608219963568</span>),
+    (<span class="number">15051996368420132820</span>, <span class="number">1333602886575970854</span>),
+    (<span class="number">13015147745246481542</span>, <span class="number">2133764618521553367</span>),
+    (<span class="number">3033420566713364587</span>, <span class="number">1707011694817242694</span>),
+    (<span class="number">6116085268112601993</span>, <span class="number">1365609355853794155</span>),
+    (<span class="number">9785736428980163188</span>, <span class="number">2184974969366070648</span>),
+    (<span class="number">15207286772667951197</span>, <span class="number">1747979975492856518</span>),
+    (<span class="number">1097782973908629988</span>, <span class="number">1398383980394285215</span>),
+    (<span class="number">1756452758253807981</span>, <span class="number">2237414368630856344</span>),
+    (<span class="number">5094511021344956708</span>, <span class="number">1789931494904685075</span>),
+    (<span class="number">4075608817075965366</span>, <span class="number">1431945195923748060</span>),
+    (<span class="number">6520974107321544586</span>, <span class="number">2291112313477996896</span>),
+    (<span class="number">1527430471115325346</span>, <span class="number">1832889850782397517</span>),
+    (<span class="number">12289990821117991246</span>, <span class="number">1466311880625918013</span>),
+    (<span class="number">17210690286378213644</span>, <span class="number">1173049504500734410</span>),
+    (<span class="number">9090360384495590213</span>, <span class="number">1876879207201175057</span>),
+    (<span class="number">18340334751822203140</span>, <span class="number">1501503365760940045</span>),
+    (<span class="number">14672267801457762512</span>, <span class="number">1201202692608752036</span>),
+    (<span class="number">16096930852848599373</span>, <span class="number">1921924308174003258</span>),
+    (<span class="number">1809498238053148529</span>, <span class="number">1537539446539202607</span>),
+    (<span class="number">12515645034668249793</span>, <span class="number">1230031557231362085</span>),
+    (<span class="number">1578287981759648052</span>, <span class="number">1968050491570179337</span>),
+    (<span class="number">12330676829633449412</span>, <span class="number">1574440393256143469</span>),
+    (<span class="number">13553890278448669853</span>, <span class="number">1259552314604914775</span>),
+    (<span class="number">3239480371808320148</span>, <span class="number">2015283703367863641</span>),
+    (<span class="number">17348979556414297411</span>, <span class="number">1612226962694290912</span>),
+    (<span class="number">6500486015647617283</span>, <span class="number">1289781570155432730</span>),
+    (<span class="number">10400777625036187652</span>, <span class="number">2063650512248692368</span>),
+    (<span class="number">15699319729512770768</span>, <span class="number">1650920409798953894</span>),
+    (<span class="number">16248804598352126938</span>, <span class="number">1320736327839163115</span>),
+    (<span class="number">7551343283653851484</span>, <span class="number">2113178124542660985</span>),
+    (<span class="number">6041074626923081187</span>, <span class="number">1690542499634128788</span>),
+    (<span class="number">12211557331022285596</span>, <span class="number">1352433999707303030</span>),
+    (<span class="number">1091747655926105338</span>, <span class="number">2163894399531684849</span>),
+    (<span class="number">4562746939482794594</span>, <span class="number">1731115519625347879</span>),
+    (<span class="number">7339546366328145998</span>, <span class="number">1384892415700278303</span>),
+    (<span class="number">8053925371383123274</span>, <span class="number">2215827865120445285</span>),
+    (<span class="number">6443140297106498619</span>, <span class="number">1772662292096356228</span>),
+    (<span class="number">12533209867169019542</span>, <span class="number">1418129833677084982</span>),
+    (<span class="number">5295740528502789974</span>, <span class="number">2269007733883335972</span>),
+    (<span class="number">15304638867027962949</span>, <span class="number">1815206187106668777</span>),
+    (<span class="number">4865013464138549713</span>, <span class="number">1452164949685335022</span>),
+    (<span class="number">14960057215536570740</span>, <span class="number">1161731959748268017</span>),
+    (<span class="number">9178696285890871890</span>, <span class="number">1858771135597228828</span>),
+    (<span class="number">14721654658196518159</span>, <span class="number">1487016908477783062</span>),
+    (<span class="number">4398626097073393881</span>, <span class="number">1189613526782226450</span>),
+    (<span class="number">7037801755317430209</span>, <span class="number">1903381642851562320</span>),
+    (<span class="number">5630241404253944167</span>, <span class="number">1522705314281249856</span>),
+    (<span class="number">814844308661245011</span>, <span class="number">1218164251424999885</span>),
+    (<span class="number">1303750893857992017</span>, <span class="number">1949062802279999816</span>),
+    (<span class="number">15800395974054034906</span>, <span class="number">1559250241823999852</span>),
+    (<span class="number">5261619149759407279</span>, <span class="number">1247400193459199882</span>),
+    (<span class="number">12107939454356961969</span>, <span class="number">1995840309534719811</span>),
+    (<span class="number">5997002748743659252</span>, <span class="number">1596672247627775849</span>),
+    (<span class="number">8486951013736837725</span>, <span class="number">1277337798102220679</span>),
+    (<span class="number">2511075177753209390</span>, <span class="number">2043740476963553087</span>),
+    (<span class="number">13076906586428298482</span>, <span class="number">1634992381570842469</span>),
+    (<span class="number">14150874083884549109</span>, <span class="number">1307993905256673975</span>),
+    (<span class="number">4194654460505726958</span>, <span class="number">2092790248410678361</span>),
+    (<span class="number">18113118827372222859</span>, <span class="number">1674232198728542688</span>),
+    (<span class="number">3422448617672047318</span>, <span class="number">1339385758982834151</span>),
+    (<span class="number">16543964232501006678</span>, <span class="number">2143017214372534641</span>),
+    (<span class="number">9545822571258895019</span>, <span class="number">1714413771498027713</span>),
+    (<span class="number">15015355686490936662</span>, <span class="number">1371531017198422170</span>),
+    (<span class="number">5577825024675947042</span>, <span class="number">2194449627517475473</span>),
+    (<span class="number">11840957649224578280</span>, <span class="number">1755559702013980378</span>),
+    (<span class="number">16851463748863483271</span>, <span class="number">1404447761611184302</span>),
+    (<span class="number">12204946739213931940</span>, <span class="number">2247116418577894884</span>),
+    (<span class="number">13453306206113055875</span>, <span class="number">1797693134862315907</span>),
+    (<span class="number">3383947335406624054</span>, <span class="number">1438154507889852726</span>),
+    (<span class="number">16482362180876329456</span>, <span class="number">2301047212623764361</span>),
+    (<span class="number">9496540929959153242</span>, <span class="number">1840837770099011489</span>),
+    (<span class="number">11286581558709232917</span>, <span class="number">1472670216079209191</span>),
+    (<span class="number">5339916432225476010</span>, <span class="number">1178136172863367353</span>),
+    (<span class="number">4854517476818851293</span>, <span class="number">1885017876581387765</span>),
+    (<span class="number">3883613981455081034</span>, <span class="number">1508014301265110212</span>),
+    (<span class="number">14174937629389795797</span>, <span class="number">1206411441012088169</span>),
+    (<span class="number">11611853762797942306</span>, <span class="number">1930258305619341071</span>),
+    (<span class="number">5600134195496443521</span>, <span class="number">1544206644495472857</span>),
+    (<span class="number">15548153800622885787</span>, <span class="number">1235365315596378285</span>),
+    (<span class="number">6430302007287065643</span>, <span class="number">1976584504954205257</span>),
+    (<span class="number">16212288050055383484</span>, <span class="number">1581267603963364205</span>),
+    (<span class="number">12969830440044306787</span>, <span class="number">1265014083170691364</span>),
+    (<span class="number">9683682259845159889</span>, <span class="number">2024022533073106183</span>),
+    (<span class="number">15125643437359948558</span>, <span class="number">1619218026458484946</span>),
+    (<span class="number">8411165935146048523</span>, <span class="number">1295374421166787957</span>),
+    (<span class="number">17147214310975587960</span>, <span class="number">2072599073866860731</span>),
+    (<span class="number">10028422634038560045</span>, <span class="number">1658079259093488585</span>),
+    (<span class="number">8022738107230848036</span>, <span class="number">1326463407274790868</span>),
+    (<span class="number">9147032156827446534</span>, <span class="number">2122341451639665389</span>),
+    (<span class="number">11006974540203867551</span>, <span class="number">1697873161311732311</span>),
+    (<span class="number">5116230817421183718</span>, <span class="number">1358298529049385849</span>),
+    (<span class="number">15564666937357714594</span>, <span class="number">2173277646479017358</span>),
+    (<span class="number">1383687105660440706</span>, <span class="number">1738622117183213887</span>),
+    (<span class="number">12174996128754083534</span>, <span class="number">1390897693746571109</span>),
+    (<span class="number">8411947361780802685</span>, <span class="number">2225436309994513775</span>),
+    (<span class="number">6729557889424642148</span>, <span class="number">1780349047995611020</span>),
+    (<span class="number">5383646311539713719</span>, <span class="number">1424279238396488816</span>),
+    (<span class="number">1235136468979721303</span>, <span class="number">2278846781434382106</span>),
+    (<span class="number">15745504434151418335</span>, <span class="number">1823077425147505684</span>),
+    (<span class="number">16285752362063044992</span>, <span class="number">1458461940118004547</span>),
+    (<span class="number">5649904260166615347</span>, <span class="number">1166769552094403638</span>),
+    (<span class="number">5350498001524674232</span>, <span class="number">1866831283351045821</span>),
+    (<span class="number">591049586477829062</span>, <span class="number">1493465026680836657</span>),
+    (<span class="number">11540886113407994219</span>, <span class="number">1194772021344669325</span>),
+    (<span class="number">18673707743239135</span>, <span class="number">1911635234151470921</span>),
+    (<span class="number">14772334225162232601</span>, <span class="number">1529308187321176736</span>),
+    (<span class="number">8128518565387875758</span>, <span class="number">1223446549856941389</span>),
+    (<span class="number">1937583260394870242</span>, <span class="number">1957514479771106223</span>),
+    (<span class="number">8928764237799716840</span>, <span class="number">1566011583816884978</span>),
+    (<span class="number">14521709019723594119</span>, <span class="number">1252809267053507982</span>),
+    (<span class="number">8477339172590109297</span>, <span class="number">2004494827285612772</span>),
+    (<span class="number">17849917782297818407</span>, <span class="number">1603595861828490217</span>),
+    (<span class="number">6901236596354434079</span>, <span class="number">1282876689462792174</span>),
+    (<span class="number">18420676183650915173</span>, <span class="number">2052602703140467478</span>),
+    (<span class="number">3668494502695001169</span>, <span class="number">1642082162512373983</span>),
+    (<span class="number">10313493231639821582</span>, <span class="number">1313665730009899186</span>),
+    (<span class="number">9122891541139893884</span>, <span class="number">2101865168015838698</span>),
+    (<span class="number">14677010862395735754</span>, <span class="number">1681492134412670958</span>),
+    (<span class="number">673562245690857633</span>, <span class="number">1345193707530136767</span>),
+];
+
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">DOUBLE_POW5_SPLIT</span>: [(<span class="ident">u64</span>, <span class="ident">u64</span>); <span class="ident">DOUBLE_POW5_TABLE_SIZE</span>] <span class="op">=</span> [
+    (<span class="number">0</span>, <span class="number">1152921504606846976</span>),
+    (<span class="number">0</span>, <span class="number">1441151880758558720</span>),
+    (<span class="number">0</span>, <span class="number">1801439850948198400</span>),
+    (<span class="number">0</span>, <span class="number">2251799813685248000</span>),
+    (<span class="number">0</span>, <span class="number">1407374883553280000</span>),
+    (<span class="number">0</span>, <span class="number">1759218604441600000</span>),
+    (<span class="number">0</span>, <span class="number">2199023255552000000</span>),
+    (<span class="number">0</span>, <span class="number">1374389534720000000</span>),
+    (<span class="number">0</span>, <span class="number">1717986918400000000</span>),
+    (<span class="number">0</span>, <span class="number">2147483648000000000</span>),
+    (<span class="number">0</span>, <span class="number">1342177280000000000</span>),
+    (<span class="number">0</span>, <span class="number">1677721600000000000</span>),
+    (<span class="number">0</span>, <span class="number">2097152000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1310720000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1638400000000000000</span>),
+    (<span class="number">0</span>, <span class="number">2048000000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1280000000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1600000000000000000</span>),
+    (<span class="number">0</span>, <span class="number">2000000000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1250000000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1562500000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1953125000000000000</span>),
+    (<span class="number">0</span>, <span class="number">1220703125000000000</span>),
+    (<span class="number">0</span>, <span class="number">1525878906250000000</span>),
+    (<span class="number">0</span>, <span class="number">1907348632812500000</span>),
+    (<span class="number">0</span>, <span class="number">1192092895507812500</span>),
+    (<span class="number">0</span>, <span class="number">1490116119384765625</span>),
+    (<span class="number">4611686018427387904</span>, <span class="number">1862645149230957031</span>),
+    (<span class="number">9799832789158199296</span>, <span class="number">1164153218269348144</span>),
+    (<span class="number">12249790986447749120</span>, <span class="number">1455191522836685180</span>),
+    (<span class="number">15312238733059686400</span>, <span class="number">1818989403545856475</span>),
+    (<span class="number">14528612397897220096</span>, <span class="number">2273736754432320594</span>),
+    (<span class="number">13692068767113150464</span>, <span class="number">1421085471520200371</span>),
+    (<span class="number">12503399940464050176</span>, <span class="number">1776356839400250464</span>),
+    (<span class="number">15629249925580062720</span>, <span class="number">2220446049250313080</span>),
+    (<span class="number">9768281203487539200</span>, <span class="number">1387778780781445675</span>),
+    (<span class="number">7598665485932036096</span>, <span class="number">1734723475976807094</span>),
+    (<span class="number">274959820560269312</span>, <span class="number">2168404344971008868</span>),
+    (<span class="number">9395221924704944128</span>, <span class="number">1355252715606880542</span>),
+    (<span class="number">2520655369026404352</span>, <span class="number">1694065894508600678</span>),
+    (<span class="number">12374191248137781248</span>, <span class="number">2117582368135750847</span>),
+    (<span class="number">14651398557727195136</span>, <span class="number">1323488980084844279</span>),
+    (<span class="number">13702562178731606016</span>, <span class="number">1654361225106055349</span>),
+    (<span class="number">3293144668132343808</span>, <span class="number">2067951531382569187</span>),
+    (<span class="number">18199116482078572544</span>, <span class="number">1292469707114105741</span>),
+    (<span class="number">8913837547316051968</span>, <span class="number">1615587133892632177</span>),
+    (<span class="number">15753982952572452864</span>, <span class="number">2019483917365790221</span>),
+    (<span class="number">12152082354571476992</span>, <span class="number">1262177448353618888</span>),
+    (<span class="number">15190102943214346240</span>, <span class="number">1577721810442023610</span>),
+    (<span class="number">9764256642163156992</span>, <span class="number">1972152263052529513</span>),
+    (<span class="number">17631875447420442880</span>, <span class="number">1232595164407830945</span>),
+    (<span class="number">8204786253993389888</span>, <span class="number">1540743955509788682</span>),
+    (<span class="number">1032610780636961552</span>, <span class="number">1925929944387235853</span>),
+    (<span class="number">2951224747111794922</span>, <span class="number">1203706215242022408</span>),
+    (<span class="number">3689030933889743652</span>, <span class="number">1504632769052528010</span>),
+    (<span class="number">13834660704216955373</span>, <span class="number">1880790961315660012</span>),
+    (<span class="number">17870034976990372916</span>, <span class="number">1175494350822287507</span>),
+    (<span class="number">17725857702810578241</span>, <span class="number">1469367938527859384</span>),
+    (<span class="number">3710578054803671186</span>, <span class="number">1836709923159824231</span>),
+    (<span class="number">26536550077201078</span>, <span class="number">2295887403949780289</span>),
+    (<span class="number">11545800389866720434</span>, <span class="number">1434929627468612680</span>),
+    (<span class="number">14432250487333400542</span>, <span class="number">1793662034335765850</span>),
+    (<span class="number">8816941072311974870</span>, <span class="number">2242077542919707313</span>),
+    (<span class="number">17039803216263454053</span>, <span class="number">1401298464324817070</span>),
+    (<span class="number">12076381983474541759</span>, <span class="number">1751623080406021338</span>),
+    (<span class="number">5872105442488401391</span>, <span class="number">2189528850507526673</span>),
+    (<span class="number">15199280947623720629</span>, <span class="number">1368455531567204170</span>),
+    (<span class="number">9775729147674874978</span>, <span class="number">1710569414459005213</span>),
+    (<span class="number">16831347453020981627</span>, <span class="number">2138211768073756516</span>),
+    (<span class="number">1296220121283337709</span>, <span class="number">1336382355046097823</span>),
+    (<span class="number">15455333206886335848</span>, <span class="number">1670477943807622278</span>),
+    (<span class="number">10095794471753144002</span>, <span class="number">2088097429759527848</span>),
+    (<span class="number">6309871544845715001</span>, <span class="number">1305060893599704905</span>),
+    (<span class="number">12499025449484531656</span>, <span class="number">1631326116999631131</span>),
+    (<span class="number">11012095793428276666</span>, <span class="number">2039157646249538914</span>),
+    (<span class="number">11494245889320060820</span>, <span class="number">1274473528905961821</span>),
+    (<span class="number">532749306367912313</span>, <span class="number">1593091911132452277</span>),
+    (<span class="number">5277622651387278295</span>, <span class="number">1991364888915565346</span>),
+    (<span class="number">7910200175544436838</span>, <span class="number">1244603055572228341</span>),
+    (<span class="number">14499436237857933952</span>, <span class="number">1555753819465285426</span>),
+    (<span class="number">8900923260467641632</span>, <span class="number">1944692274331606783</span>),
+    (<span class="number">12480606065433357876</span>, <span class="number">1215432671457254239</span>),
+    (<span class="number">10989071563364309441</span>, <span class="number">1519290839321567799</span>),
+    (<span class="number">9124653435777998898</span>, <span class="number">1899113549151959749</span>),
+    (<span class="number">8008751406574943263</span>, <span class="number">1186945968219974843</span>),
+    (<span class="number">5399253239791291175</span>, <span class="number">1483682460274968554</span>),
+    (<span class="number">15972438586593889776</span>, <span class="number">1854603075343710692</span>),
+    (<span class="number">759402079766405302</span>, <span class="number">1159126922089819183</span>),
+    (<span class="number">14784310654990170340</span>, <span class="number">1448908652612273978</span>),
+    (<span class="number">9257016281882937117</span>, <span class="number">1811135815765342473</span>),
+    (<span class="number">16182956370781059300</span>, <span class="number">2263919769706678091</span>),
+    (<span class="number">7808504722524468110</span>, <span class="number">1414949856066673807</span>),
+    (<span class="number">5148944884728197234</span>, <span class="number">1768687320083342259</span>),
+    (<span class="number">1824495087482858639</span>, <span class="number">2210859150104177824</span>),
+    (<span class="number">1140309429676786649</span>, <span class="number">1381786968815111140</span>),
+    (<span class="number">1425386787095983311</span>, <span class="number">1727233711018888925</span>),
+    (<span class="number">6393419502297367043</span>, <span class="number">2159042138773611156</span>),
+    (<span class="number">13219259225790630210</span>, <span class="number">1349401336733506972</span>),
+    (<span class="number">16524074032238287762</span>, <span class="number">1686751670916883715</span>),
+    (<span class="number">16043406521870471799</span>, <span class="number">2108439588646104644</span>),
+    (<span class="number">803757039314269066</span>, <span class="number">1317774742903815403</span>),
+    (<span class="number">14839754354425000045</span>, <span class="number">1647218428629769253</span>),
+    (<span class="number">4714634887749086344</span>, <span class="number">2059023035787211567</span>),
+    (<span class="number">9864175832484260821</span>, <span class="number">1286889397367007229</span>),
+    (<span class="number">16941905809032713930</span>, <span class="number">1608611746708759036</span>),
+    (<span class="number">2730638187581340797</span>, <span class="number">2010764683385948796</span>),
+    (<span class="number">10930020904093113806</span>, <span class="number">1256727927116217997</span>),
+    (<span class="number">18274212148543780162</span>, <span class="number">1570909908895272496</span>),
+    (<span class="number">4396021111970173586</span>, <span class="number">1963637386119090621</span>),
+    (<span class="number">5053356204195052443</span>, <span class="number">1227273366324431638</span>),
+    (<span class="number">15540067292098591362</span>, <span class="number">1534091707905539547</span>),
+    (<span class="number">14813398096695851299</span>, <span class="number">1917614634881924434</span>),
+    (<span class="number">13870059828862294966</span>, <span class="number">1198509146801202771</span>),
+    (<span class="number">12725888767650480803</span>, <span class="number">1498136433501503464</span>),
+    (<span class="number">15907360959563101004</span>, <span class="number">1872670541876879330</span>),
+    (<span class="number">14553786618154326031</span>, <span class="number">1170419088673049581</span>),
+    (<span class="number">4357175217410743827</span>, <span class="number">1463023860841311977</span>),
+    (<span class="number">10058155040190817688</span>, <span class="number">1828779826051639971</span>),
+    (<span class="number">7961007781811134206</span>, <span class="number">2285974782564549964</span>),
+    (<span class="number">14199001900486734687</span>, <span class="number">1428734239102843727</span>),
+    (<span class="number">13137066357181030455</span>, <span class="number">1785917798878554659</span>),
+    (<span class="number">11809646928048900164</span>, <span class="number">2232397248598193324</span>),
+    (<span class="number">16604401366885338411</span>, <span class="number">1395248280373870827</span>),
+    (<span class="number">16143815690179285109</span>, <span class="number">1744060350467338534</span>),
+    (<span class="number">10956397575869330579</span>, <span class="number">2180075438084173168</span>),
+    (<span class="number">6847748484918331612</span>, <span class="number">1362547148802608230</span>),
+    (<span class="number">17783057643002690323</span>, <span class="number">1703183936003260287</span>),
+    (<span class="number">17617136035325974999</span>, <span class="number">2128979920004075359</span>),
+    (<span class="number">17928239049719816230</span>, <span class="number">1330612450002547099</span>),
+    (<span class="number">17798612793722382384</span>, <span class="number">1663265562503183874</span>),
+    (<span class="number">13024893955298202172</span>, <span class="number">2079081953128979843</span>),
+    (<span class="number">5834715712847682405</span>, <span class="number">1299426220705612402</span>),
+    (<span class="number">16516766677914378815</span>, <span class="number">1624282775882015502</span>),
+    (<span class="number">11422586310538197711</span>, <span class="number">2030353469852519378</span>),
+    (<span class="number">11750802462513761473</span>, <span class="number">1268970918657824611</span>),
+    (<span class="number">10076817059714813937</span>, <span class="number">1586213648322280764</span>),
+    (<span class="number">12596021324643517422</span>, <span class="number">1982767060402850955</span>),
+    (<span class="number">5566670318688504437</span>, <span class="number">1239229412751781847</span>),
+    (<span class="number">2346651879933242642</span>, <span class="number">1549036765939727309</span>),
+    (<span class="number">7545000868343941206</span>, <span class="number">1936295957424659136</span>),
+    (<span class="number">4715625542714963254</span>, <span class="number">1210184973390411960</span>),
+    (<span class="number">5894531928393704067</span>, <span class="number">1512731216738014950</span>),
+    (<span class="number">16591536947346905892</span>, <span class="number">1890914020922518687</span>),
+    (<span class="number">17287239619732898039</span>, <span class="number">1181821263076574179</span>),
+    (<span class="number">16997363506238734644</span>, <span class="number">1477276578845717724</span>),
+    (<span class="number">2799960309088866689</span>, <span class="number">1846595723557147156</span>),
+    (<span class="number">10973347230035317489</span>, <span class="number">1154122327223216972</span>),
+    (<span class="number">13716684037544146861</span>, <span class="number">1442652909029021215</span>),
+    (<span class="number">12534169028502795672</span>, <span class="number">1803316136286276519</span>),
+    (<span class="number">11056025267201106687</span>, <span class="number">2254145170357845649</span>),
+    (<span class="number">18439230838069161439</span>, <span class="number">1408840731473653530</span>),
+    (<span class="number">13825666510731675991</span>, <span class="number">1761050914342066913</span>),
+    (<span class="number">3447025083132431277</span>, <span class="number">2201313642927583642</span>),
+    (<span class="number">6766076695385157452</span>, <span class="number">1375821026829739776</span>),
+    (<span class="number">8457595869231446815</span>, <span class="number">1719776283537174720</span>),
+    (<span class="number">10571994836539308519</span>, <span class="number">2149720354421468400</span>),
+    (<span class="number">6607496772837067824</span>, <span class="number">1343575221513417750</span>),
+    (<span class="number">17482743002901110588</span>, <span class="number">1679469026891772187</span>),
+    (<span class="number">17241742735199000331</span>, <span class="number">2099336283614715234</span>),
+    (<span class="number">15387775227926763111</span>, <span class="number">1312085177259197021</span>),
+    (<span class="number">5399660979626290177</span>, <span class="number">1640106471573996277</span>),
+    (<span class="number">11361262242960250625</span>, <span class="number">2050133089467495346</span>),
+    (<span class="number">11712474920277544544</span>, <span class="number">1281333180917184591</span>),
+    (<span class="number">10028907631919542777</span>, <span class="number">1601666476146480739</span>),
+    (<span class="number">7924448521472040567</span>, <span class="number">2002083095183100924</span>),
+    (<span class="number">14176152362774801162</span>, <span class="number">1251301934489438077</span>),
+    (<span class="number">3885132398186337741</span>, <span class="number">1564127418111797597</span>),
+    (<span class="number">9468101516160310080</span>, <span class="number">1955159272639746996</span>),
+    (<span class="number">15140935484454969608</span>, <span class="number">1221974545399841872</span>),
+    (<span class="number">479425281859160394</span>, <span class="number">1527468181749802341</span>),
+    (<span class="number">5210967620751338397</span>, <span class="number">1909335227187252926</span>),
+    (<span class="number">17091912818251750210</span>, <span class="number">1193334516992033078</span>),
+    (<span class="number">12141518985959911954</span>, <span class="number">1491668146240041348</span>),
+    (<span class="number">15176898732449889943</span>, <span class="number">1864585182800051685</span>),
+    (<span class="number">11791404716994875166</span>, <span class="number">1165365739250032303</span>),
+    (<span class="number">10127569877816206054</span>, <span class="number">1456707174062540379</span>),
+    (<span class="number">8047776328842869663</span>, <span class="number">1820883967578175474</span>),
+    (<span class="number">836348374198811271</span>, <span class="number">2276104959472719343</span>),
+    (<span class="number">7440246761515338900</span>, <span class="number">1422565599670449589</span>),
+    (<span class="number">13911994470321561530</span>, <span class="number">1778206999588061986</span>),
+    (<span class="number">8166621051047176104</span>, <span class="number">2222758749485077483</span>),
+    (<span class="number">2798295147690791113</span>, <span class="number">1389224218428173427</span>),
+    (<span class="number">17332926989895652603</span>, <span class="number">1736530273035216783</span>),
+    (<span class="number">17054472718942177850</span>, <span class="number">2170662841294020979</span>),
+    (<span class="number">8353202440125167204</span>, <span class="number">1356664275808763112</span>),
+    (<span class="number">10441503050156459005</span>, <span class="number">1695830344760953890</span>),
+    (<span class="number">3828506775840797949</span>, <span class="number">2119787930951192363</span>),
+    (<span class="number">86973725686804766</span>, <span class="number">1324867456844495227</span>),
+    (<span class="number">13943775212390669669</span>, <span class="number">1656084321055619033</span>),
+    (<span class="number">3594660960206173375</span>, <span class="number">2070105401319523792</span>),
+    (<span class="number">2246663100128858359</span>, <span class="number">1293815875824702370</span>),
+    (<span class="number">12031700912015848757</span>, <span class="number">1617269844780877962</span>),
+    (<span class="number">5816254103165035138</span>, <span class="number">2021587305976097453</span>),
+    (<span class="number">5941001823691840913</span>, <span class="number">1263492066235060908</span>),
+    (<span class="number">7426252279614801142</span>, <span class="number">1579365082793826135</span>),
+    (<span class="number">4671129331091113523</span>, <span class="number">1974206353492282669</span>),
+    (<span class="number">5225298841145639904</span>, <span class="number">1233878970932676668</span>),
+    (<span class="number">6531623551432049880</span>, <span class="number">1542348713665845835</span>),
+    (<span class="number">3552843420862674446</span>, <span class="number">1927935892082307294</span>),
+    (<span class="number">16055585193321335241</span>, <span class="number">1204959932551442058</span>),
+    (<span class="number">10846109454796893243</span>, <span class="number">1506199915689302573</span>),
+    (<span class="number">18169322836923504458</span>, <span class="number">1882749894611628216</span>),
+    (<span class="number">11355826773077190286</span>, <span class="number">1176718684132267635</span>),
+    (<span class="number">9583097447919099954</span>, <span class="number">1470898355165334544</span>),
+    (<span class="number">11978871809898874942</span>, <span class="number">1838622943956668180</span>),
+    (<span class="number">14973589762373593678</span>, <span class="number">2298278679945835225</span>),
+    (<span class="number">2440964573842414192</span>, <span class="number">1436424174966147016</span>),
+    (<span class="number">3051205717303017741</span>, <span class="number">1795530218707683770</span>),
+    (<span class="number">13037379183483547984</span>, <span class="number">2244412773384604712</span>),
+    (<span class="number">8148361989677217490</span>, <span class="number">1402757983365377945</span>),
+    (<span class="number">14797138505523909766</span>, <span class="number">1753447479206722431</span>),
+    (<span class="number">13884737113477499304</span>, <span class="number">2191809349008403039</span>),
+    (<span class="number">15595489723564518921</span>, <span class="number">1369880843130251899</span>),
+    (<span class="number">14882676136028260747</span>, <span class="number">1712351053912814874</span>),
+    (<span class="number">9379973133180550126</span>, <span class="number">2140438817391018593</span>),
+    (<span class="number">17391698254306313589</span>, <span class="number">1337774260869386620</span>),
+    (<span class="number">3292878744173340370</span>, <span class="number">1672217826086733276</span>),
+    (<span class="number">4116098430216675462</span>, <span class="number">2090272282608416595</span>),
+    (<span class="number">266718509671728212</span>, <span class="number">1306420176630260372</span>),
+    (<span class="number">333398137089660265</span>, <span class="number">1633025220787825465</span>),
+    (<span class="number">5028433689789463235</span>, <span class="number">2041281525984781831</span>),
+    (<span class="number">10060300083759496378</span>, <span class="number">1275800953740488644</span>),
+    (<span class="number">12575375104699370472</span>, <span class="number">1594751192175610805</span>),
+    (<span class="number">1884160825592049379</span>, <span class="number">1993438990219513507</span>),
+    (<span class="number">17318501580490888525</span>, <span class="number">1245899368887195941</span>),
+    (<span class="number">7813068920331446945</span>, <span class="number">1557374211108994927</span>),
+    (<span class="number">5154650131986920777</span>, <span class="number">1946717763886243659</span>),
+    (<span class="number">915813323278131534</span>, <span class="number">1216698602428902287</span>),
+    (<span class="number">14979824709379828129</span>, <span class="number">1520873253036127858</span>),
+    (<span class="number">9501408849870009354</span>, <span class="number">1901091566295159823</span>),
+    (<span class="number">12855909558809837702</span>, <span class="number">1188182228934474889</span>),
+    (<span class="number">2234828893230133415</span>, <span class="number">1485227786168093612</span>),
+    (<span class="number">2793536116537666769</span>, <span class="number">1856534732710117015</span>),
+    (<span class="number">8663489100477123587</span>, <span class="number">1160334207943823134</span>),
+    (<span class="number">1605989338741628675</span>, <span class="number">1450417759929778918</span>),
+    (<span class="number">11230858710281811652</span>, <span class="number">1813022199912223647</span>),
+    (<span class="number">9426887369424876662</span>, <span class="number">2266277749890279559</span>),
+    (<span class="number">12809333633531629769</span>, <span class="number">1416423593681424724</span>),
+    (<span class="number">16011667041914537212</span>, <span class="number">1770529492101780905</span>),
+    (<span class="number">6179525747111007803</span>, <span class="number">2213161865127226132</span>),
+    (<span class="number">13085575628799155685</span>, <span class="number">1383226165704516332</span>),
+    (<span class="number">16356969535998944606</span>, <span class="number">1729032707130645415</span>),
+    (<span class="number">15834525901571292854</span>, <span class="number">2161290883913306769</span>),
+    (<span class="number">2979049660840976177</span>, <span class="number">1350806802445816731</span>),
+    (<span class="number">17558870131333383934</span>, <span class="number">1688508503057270913</span>),
+    (<span class="number">8113529608884566205</span>, <span class="number">2110635628821588642</span>),
+    (<span class="number">9682642023980241782</span>, <span class="number">1319147268013492901</span>),
+    (<span class="number">16714988548402690132</span>, <span class="number">1648934085016866126</span>),
+    (<span class="number">11670363648648586857</span>, <span class="number">2061167606271082658</span>),
+    (<span class="number">11905663298832754689</span>, <span class="number">1288229753919426661</span>),
+    (<span class="number">1047021068258779650</span>, <span class="number">1610287192399283327</span>),
+    (<span class="number">15143834390605638274</span>, <span class="number">2012858990499104158</span>),
+    (<span class="number">4853210475701136017</span>, <span class="number">1258036869061940099</span>),
+    (<span class="number">1454827076199032118</span>, <span class="number">1572546086327425124</span>),
+    (<span class="number">1818533845248790147</span>, <span class="number">1965682607909281405</span>),
+    (<span class="number">3442426662494187794</span>, <span class="number">1228551629943300878</span>),
+    (<span class="number">13526405364972510550</span>, <span class="number">1535689537429126097</span>),
+    (<span class="number">3072948650933474476</span>, <span class="number">1919611921786407622</span>),
+    (<span class="number">15755650962115585259</span>, <span class="number">1199757451116504763</span>),
+    (<span class="number">15082877684217093670</span>, <span class="number">1499696813895630954</span>),
+    (<span class="number">9630225068416591280</span>, <span class="number">1874621017369538693</span>),
+    (<span class="number">8324733676974063502</span>, <span class="number">1171638135855961683</span>),
+    (<span class="number">5794231077790191473</span>, <span class="number">1464547669819952104</span>),
+    (<span class="number">7242788847237739342</span>, <span class="number">1830684587274940130</span>),
+    (<span class="number">18276858095901949986</span>, <span class="number">2288355734093675162</span>),
+    (<span class="number">16034722328366106645</span>, <span class="number">1430222333808546976</span>),
+    (<span class="number">1596658836748081690</span>, <span class="number">1787777917260683721</span>),
+    (<span class="number">6607509564362490017</span>, <span class="number">2234722396575854651</span>),
+    (<span class="number">1823850468512862308</span>, <span class="number">1396701497859909157</span>),
+    (<span class="number">6891499104068465790</span>, <span class="number">1745876872324886446</span>),
+    (<span class="number">17837745916940358045</span>, <span class="number">2182346090406108057</span>),
+    (<span class="number">4231062170446641922</span>, <span class="number">1363966306503817536</span>),
+    (<span class="number">5288827713058302403</span>, <span class="number">1704957883129771920</span>),
+    (<span class="number">6611034641322878003</span>, <span class="number">2131197353912214900</span>),
+    (<span class="number">13355268687681574560</span>, <span class="number">1331998346195134312</span>),
+    (<span class="number">16694085859601968200</span>, <span class="number">1664997932743917890</span>),
+    (<span class="number">11644235287647684442</span>, <span class="number">2081247415929897363</span>),
+    (<span class="number">4971804045566108824</span>, <span class="number">1300779634956185852</span>),
+    (<span class="number">6214755056957636030</span>, <span class="number">1625974543695232315</span>),
+    (<span class="number">3156757802769657134</span>, <span class="number">2032468179619040394</span>),
+    (<span class="number">6584659645158423613</span>, <span class="number">1270292612261900246</span>),
+    (<span class="number">17454196593302805324</span>, <span class="number">1587865765327375307</span>),
+    (<span class="number">17206059723201118751</span>, <span class="number">1984832206659219134</span>),
+    (<span class="number">6142101308573311315</span>, <span class="number">1240520129162011959</span>),
+    (<span class="number">3065940617289251240</span>, <span class="number">1550650161452514949</span>),
+    (<span class="number">8444111790038951954</span>, <span class="number">1938312701815643686</span>),
+    (<span class="number">665883850346957067</span>, <span class="number">1211445438634777304</span>),
+    (<span class="number">832354812933696334</span>, <span class="number">1514306798293471630</span>),
+    (<span class="number">10263815553021896226</span>, <span class="number">1892883497866839537</span>),
+    (<span class="number">17944099766707154901</span>, <span class="number">1183052186166774710</span>),
+    (<span class="number">13206752671529167818</span>, <span class="number">1478815232708468388</span>),
+    (<span class="number">16508440839411459773</span>, <span class="number">1848519040885585485</span>),
+    (<span class="number">12623618533845856310</span>, <span class="number">1155324400553490928</span>),
+    (<span class="number">15779523167307320387</span>, <span class="number">1444155500691863660</span>),
+    (<span class="number">1277659885424598868</span>, <span class="number">1805194375864829576</span>),
+    (<span class="number">1597074856780748586</span>, <span class="number">2256492969831036970</span>),
+    (<span class="number">5609857803915355770</span>, <span class="number">1410308106144398106</span>),
+    (<span class="number">16235694291748970521</span>, <span class="number">1762885132680497632</span>),
+    (<span class="number">1847873790976661535</span>, <span class="number">2203606415850622041</span>),
+    (<span class="number">12684136165428883219</span>, <span class="number">1377254009906638775</span>),
+    (<span class="number">11243484188358716120</span>, <span class="number">1721567512383298469</span>),
+    (<span class="number">219297180166231438</span>, <span class="number">2151959390479123087</span>),
+    (<span class="number">7054589765244976505</span>, <span class="number">1344974619049451929</span>),
+    (<span class="number">13429923224983608535</span>, <span class="number">1681218273811814911</span>),
+    (<span class="number">12175718012802122765</span>, <span class="number">2101522842264768639</span>),
+    (<span class="number">14527352785642408584</span>, <span class="number">1313451776415480399</span>),
+    (<span class="number">13547504963625622826</span>, <span class="number">1641814720519350499</span>),
+    (<span class="number">12322695186104640628</span>, <span class="number">2052268400649188124</span>),
+    (<span class="number">16925056528170176201</span>, <span class="number">1282667750405742577</span>),
+    (<span class="number">7321262604930556539</span>, <span class="number">1603334688007178222</span>),
+    (<span class="number">18374950293017971482</span>, <span class="number">2004168360008972777</span>),
+    (<span class="number">4566814905495150320</span>, <span class="number">1252605225005607986</span>),
+    (<span class="number">14931890668723713708</span>, <span class="number">1565756531257009982</span>),
+    (<span class="number">9441491299049866327</span>, <span class="number">1957195664071262478</span>),
+    (<span class="number">1289246043478778550</span>, <span class="number">1223247290044539049</span>),
+    (<span class="number">6223243572775861092</span>, <span class="number">1529059112555673811</span>),
+    (<span class="number">3167368447542438461</span>, <span class="number">1911323890694592264</span>),
+    (<span class="number">1979605279714024038</span>, <span class="number">1194577431684120165</span>),
+    (<span class="number">7086192618069917952</span>, <span class="number">1493221789605150206</span>),
+    (<span class="number">18081112809442173248</span>, <span class="number">1866527237006437757</span>),
+    (<span class="number">13606538515115052232</span>, <span class="number">1166579523129023598</span>),
+    (<span class="number">7784801107039039482</span>, <span class="number">1458224403911279498</span>),
+    (<span class="number">507629346944023544</span>, <span class="number">1822780504889099373</span>),
+    (<span class="number">5246222702107417334</span>, <span class="number">2278475631111374216</span>),
+    (<span class="number">3278889188817135834</span>, <span class="number">1424047269444608885</span>),
+    (<span class="number">8710297504448807696</span>, <span class="number">1780059086805761106</span>),
+];
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ryu" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

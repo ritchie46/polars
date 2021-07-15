@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A native Rust implementation of Apache Arrow, a cross-language development platform for in-memory data."><meta name="keywords" content="rust, rustlang, rust-lang, arrow"><title>arrow - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../arrow/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate arrow</p><div class="block version"><div class="narrow-helper"></div><p>Version 5.0.0-SNAPSHOT</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all arrow's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><div id="sidebar-vars" data-name="arrow" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">arrow</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/arrow/lib.rs.html#18-164" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A native Rust implementation of <a href="https://arrow.apache.org">Apache Arrow</a>, a cross-language
+development platform for in-memory data.</p>
+<h3 id="datatype" class="section-header"><a href="#datatype">DataType</a></h3>
+<p>Every <a href="array/trait.Array.html"><code>Array</code></a> in this crate has an associated <a href="datatypes/enum.DataType.html"><code>DataType</code></a>,
+that specifies how its data is layed in memory and represented.
+Thus, a central enum of this crate is <a href="datatypes/enum.DataType.html"><code>DataType</code></a>, that contains the set of valid
+DataTypes in the specification. For example, <a href="datatypes/enum.DataType.html#variant.Utf8"><code>DataType::Utf8</code></a>.</p>
+<h2 id="array" class="section-header"><a href="#array">Array</a></h2>
+<p>The central trait of this package is the dynamically-typed <a href="array/trait.Array.html"><code>Array</code></a> that
+represents a fixed-sized, immutable, Send + Sync Array of nullable elements. An example of such an array is <a href="array/type.UInt32Array.html"><code>UInt32Array</code></a>.
+One way to think about an arrow <a href="array/trait.Array.html"><code>Array</code></a> is a <code>Arc&lt;[Option&lt;T&gt;; len]&gt;</code> where T can be anything ranging from an integer to a string, or even
+another <a href="array/trait.Array.html"><code>Array</code></a>.</p>
+<p><a href="array/trait.Array.html"><code>Arrays</code></a> have <a href="array/trait.Array.html#method.len"><code>len()</code></a>, <a href="array/trait.Array.html#method.data_type"><code>data_type()</code></a>, and the nullability of each of its elements,
+can be obtained via <a href="array/trait.Array.html#method.is_null"><code>is_null(index)</code></a>. To downcast an <a href="array/trait.Array.html"><code>Array</code></a> to a specific implementation, you can use</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">arrow::array</span>::{<span class="ident">Array</span>, <span class="ident">UInt32Array</span>};
+<span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">UInt32Array::from</span>(<span class="macro">vec!</span>[<span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">3</span>)]);
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">len</span>(), <span class="number">3</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">value</span>(<span class="number">0</span>), <span class="number">1</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">is_null</span>(<span class="number">1</span>), <span class="bool-val">true</span>);</pre></div>
+<p>To make the array dynamically typed, we wrap it in an <a href="https://doc.rust-lang.org/nightly/alloc/sync/struct.Arc.html"><code>Arc</code></a>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">arrow::datatypes::DataType</span>;
+<span class="kw">use</span> <span class="ident">arrow::array</span>::{<span class="ident">UInt32Array</span>, <span class="ident">ArrayRef</span>};
+<span class="kw">let</span> <span class="ident">array</span>: <span class="ident">ArrayRef</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">array</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">len</span>(), <span class="number">3</span>);
+<span class="comment">// array.value() is not available in the dynamically-typed version</span>
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">is_null</span>(<span class="number">1</span>), <span class="bool-val">true</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">data_type</span>(), <span class="kw-2">&amp;</span><span class="ident">DataType::UInt32</span>);</pre></div>
+<p>to downcast, use <code>as_any()</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">array</span>.<span class="ident">as_any</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">UInt32Array</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">array</span>.<span class="ident">value</span>(<span class="number">0</span>), <span class="number">1</span>);</pre></div>
+<h2 id="memory-and-buffers" class="section-header"><a href="#memory-and-buffers">Memory and Buffers</a></h2>
+<p>Data in <a href="array/trait.Array.html"><code>Array</code></a> is stored in <a href="array/struct.ArrayData.html"><code>ArrayData</code></a>, that in turn
+is a collection of other <a href="array/struct.ArrayData.html"><code>ArrayData</code></a> and <a href="buffer/struct.Buffer.html"><code>Buffers</code></a>.
+<a href="buffer/struct.Buffer.html"><code>Buffers</code></a> is the central struct that array implementations use keep allocated memory and pointers.
+The <a href="buffer/struct.MutableBuffer.html"><code>MutableBuffer</code></a> is the mutable counter-part of<a href="buffer/struct.Buffer.html"><code>Buffer</code></a>.
+These are the lowest abstractions of this crate, and are used throughout the crate to
+efficiently allocate, write, read and deallocate memory.</p>
+<h2 id="field-schema-and-recordbatch" class="section-header"><a href="#field-schema-and-recordbatch">Field, Schema and RecordBatch</a></h2>
+<p><a href="datatypes/struct.Field.html"><code>Field</code></a> is a struct that contains an array’s metadata (datatype and whether its values
+can be null), and a name. <a href="datatypes/struct.Schema.html"><code>Schema</code></a> is a vector of fields with optional metadata.
+Together, they form the basis of a schematic representation of a group of <a href="array/trait.Array.html"><code>Arrays</code></a>.</p>
+<p>In fact, <a href="record_batch/struct.RecordBatch.html"><code>RecordBatch</code></a> is a struct with a <a href="datatypes/struct.Schema.html"><code>Schema</code></a> and a vector of
+<a href="array/trait.Array.html"><code>Array</code></a>s, all with the same <code>len</code>. A record batch is the highest order struct that this crate currently offers
+and is broadly used to represent a table where each column in an <code>Array</code>.</p>
+<h2 id="compute" class="section-header"><a href="#compute">Compute</a></h2>
+<p>This crate offers many operations (called kernels) to operate on <code>Array</code>s, that you can find at <a href="compute/kernels/index.html" title="compute::kernels">compute::kernels</a>.
+It has both vertical and horizontal operations, and some of them have an SIMD implementation.</p>
+<h2 id="status" class="section-header"><a href="#status">Status</a></h2>
+<p>This crate has most of the implementation of the arrow specification. Specifically, it supports the following types:</p>
+<ul>
+<li>All arrow primitive types, such as <a href="array/type.UInt8Array.html"><code>Int32Array</code></a>, <a href="array/struct.BooleanArray.html"><code>BooleanArray</code></a> and <a href="array/type.Float64Array.html"><code>Float64Array</code></a>.</li>
+<li>All arrow variable length types, such as <a href="array/type.StringArray.html"><code>StringArray</code></a> and <a href="array/type.BinaryArray.html"><code>BinaryArray</code></a></li>
+<li>All composite types such as <a href="array/struct.StructArray.html"><code>StructArray</code></a> and <a href="array/type.ListArray.html"><code>ListArray</code></a></li>
+<li>Dictionary types  <a href="array/struct.DictionaryArray.html"><code>DictionaryArray</code></a></li>
+</ul>
+<p>This crate also implements many common vertical operations:</p>
+<ul>
+<li>all mathematical binary operators, such as <a href="compute/kernels/arithmetic/fn.subtract.html"><code>subtract</code></a></li>
+<li>all boolean binary operators such as <a href="compute/kernels/comparison/fn.eq.html"><code>equality</code></a></li>
+<li><a href="compute/kernels/cast/fn.cast.html"><code>cast</code></a></li>
+<li><a href="compute/kernels/filter/fn.filter.html"><code>filter</code></a></li>
+<li><a href="compute/kernels/take/fn.take.html"><code>take</code></a> and <a href="compute/kernels/limit/fn.limit.html"><code>limit</code></a></li>
+<li><a href="compute/kernels/sort/fn.sort.html"><code>sort</code></a></li>
+<li>some string operators such as <a href="compute/kernels/substring/fn.substring.html"><code>substring</code></a> and <a href="compute/kernels/length/fn.length.html"><code>length</code></a></li>
+</ul>
+<p>as well as some horizontal operations, such as</p>
+<ul>
+<li><a href="compute/kernels/aggregate/fn.min.html"><code>min</code></a> and <a href="compute/kernels/aggregate/fn.max.html"><code>max</code></a></li>
+<li><a href="compute/kernels/aggregate/fn.sum.html"><code>sum</code></a></li>
+</ul>
+<p>Finally, this crate implements some readers and writers to different formats:</p>
+<ul>
+<li>json: <a href="json/reader/struct.Reader.html">reader</a></li>
+<li>csv: <a href="csv/reader/struct.Reader.html">reader</a> and <a href="csv/writer/struct.Writer.html">writer</a></li>
+<li>ipc: <a href="ipc/reader/struct.StreamReader.html">reader</a> and <a href="ipc/writer/struct.FileWriter.html">writer</a></li>
+</ul>
+<p>The parquet implementation is on a <a href="https://crates.io/crates/parquet">separate crate</a></p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="alloc/index.html" title="arrow::alloc mod">alloc</a></div><div class="item-right docblock-short"><p>Defines memory-related functions, such as allocate/deallocate/reallocate memory
+regions, cache and allocation alignments.</p>
+</div><div class="item-left module-item"><a class="mod" href="array/index.html" title="arrow::array mod">array</a></div><div class="item-right docblock-short"><p>The central type in Apache Arrow are arrays, represented
+by the <a href="array/trait.Array.html"><code>Array</code> trait</a>.
+An array represents a known-length sequence of values all
+having the same type.</p>
+</div><div class="item-left module-item"><a class="mod" href="bitmap/index.html" title="arrow::bitmap mod">bitmap</a></div><div class="item-right docblock-short"><p>Defines a bitmap, which is used to track which values in an Arrow array are null.
+This is called a “validity bitmap” in the Arrow documentation.</p>
+</div><div class="item-left module-item"><a class="mod" href="buffer/index.html" title="arrow::buffer mod">buffer</a></div><div class="item-right docblock-short"><p>This module contains two main structs: <a href="buffer/struct.Buffer.html" title="Buffer">Buffer</a> and <a href="buffer/struct.MutableBuffer.html" title="MutableBuffer">MutableBuffer</a>. A buffer represents
+a contiguous memory region that can be shared via <code>offsets</code>.</p>
+</div><div class="item-left module-item"><a class="mod" href="compute/index.html" title="arrow::compute mod">compute</a></div><div class="item-right docblock-short"><p>Computation kernels on Arrow Arrays</p>
+</div><div class="item-left module-item"><a class="mod" href="csv/index.html" title="arrow::csv mod">csv</a></div><div class="item-right docblock-short"><p>Transfer data between the Arrow memory format and CSV (comma-separated values).</p>
+</div><div class="item-left module-item"><a class="mod" href="datatypes/index.html" title="arrow::datatypes mod">datatypes</a></div><div class="item-right docblock-short"><p>Defines the logical data types of Arrow arrays.</p>
+</div><div class="item-left module-item"><a class="mod" href="error/index.html" title="arrow::error mod">error</a></div><div class="item-right docblock-short"><p>Defines <code>ArrowError</code> for representing failures in various Arrow operations.</p>
+</div><div class="item-left module-item"><a class="mod" href="ffi/index.html" title="arrow::ffi mod">ffi</a></div><div class="item-right docblock-short"><p>Contains declarations to bind to the <a href="https://arrow.apache.org/docs/format/CDataInterface.html">C Data Interface</a>.</p>
+</div><div class="item-left module-item"><a class="mod" href="ipc/index.html" title="arrow::ipc mod">ipc</a></div><div class="item-right docblock-short"></div><div class="item-left module-item"><a class="mod" href="json/index.html" title="arrow::json mod">json</a></div><div class="item-right docblock-short"><p>Transfer data between the Arrow memory format and JSON
+line-delimited records. See the module level documentation for the
+<a href="json/reader/index.html" title="reader"><code>reader</code></a> and <a href="json/writer/index.html" title="writer"><code>writer</code></a> for usage examples.</p>
+</div><div class="item-left module-item"><a class="mod" href="record_batch/index.html" title="arrow::record_batch mod">record_batch</a></div><div class="item-right docblock-short"><p>A two-dimensional batch of column-oriented data with a defined
+<a href="datatypes/struct.Schema.html">schema</a>.</p>
+</div><div class="item-left module-item"><a class="mod" href="temporal_conversions/index.html" title="arrow::temporal_conversions mod">temporal_conversions</a></div><div class="item-right docblock-short"><p>Conversion methods for dates and times.</p>
+</div><div class="item-left module-item"><a class="mod" href="tensor/index.html" title="arrow::tensor mod">tensor</a></div><div class="item-right docblock-short"><p>Arrow Tensor Type, defined in
+<a href="https://github.com/apache/arrow/blob/master/format/Tensor.fbs"><code>format/Tensor.fbs</code></a>.</p>
+</div><div class="item-left module-item"><a class="mod" href="util/index.html" title="arrow::util mod">util</a></div><div class="item-right docblock-short"></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="arrow" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

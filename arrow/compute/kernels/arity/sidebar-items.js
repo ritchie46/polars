@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["unary","Applies an unary and infalible function to a primitive array. This is the fastest way to perform an operation on a primitive array when the benefits of a vectorized operation outweights the cost of branching nulls and non-nulls."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PhysicalIoHelper","Wrapper struct that allow us to use a PhysicalExpr in polars-io."]],"trait":[["PhysicalAggregation",""],["PhysicalExpr","Take a DataFrame and evaluate the expressions. Implement this for Column, lt, eq, etc"]]});

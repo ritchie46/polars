@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RawIntoParIter","Parallel iterator which consumes a table and returns elements."],["RawParDrain","Parallel iterator which consumes elements without freeing the table storage."],["RawParIter","Parallel iterator which returns a raw pointer to every full bucket in the table."]]});

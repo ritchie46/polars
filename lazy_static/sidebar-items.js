@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["initialize","Takes a shared reference to a lazy static and initializes it if it has not been already."]],"macro":[["lazy_static",""]],"trait":[["LazyStatic","Support trait for enabling a few common operation on lazy static values."]]});

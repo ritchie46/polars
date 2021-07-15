@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["dsl","Domain specific language for the Lazy api."],["frame","Lazy variant of a DataFrame."],["functions","Functions"],["logical_plan",""],["physical_plan",""],["prelude",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["substring","Returns an ArrayRef with a substring starting from `start` and with optional length `length` of each of the elements in `array`. `start` can be negative, in which case the start counts from the end of the string. this function errors when the passed array is not a [Large]String array."]]});

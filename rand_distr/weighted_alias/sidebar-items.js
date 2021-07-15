@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["WeightedAliasIndex","A distribution using weighted sampling to pick a discretely selected item."]],"trait":[["AliasableWeight","Trait that must be implemented for weights, that are used with [`WeightedAliasIndex`]. Currently no guarantees on the correctness of [`WeightedAliasIndex`] are given for custom implementations of this trait."]]});

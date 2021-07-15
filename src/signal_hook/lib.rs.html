@@ -1,0 +1,385 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;signal-hook-0.1.17&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../signal_hook/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+</pre><pre class="rust">
+<span class="attribute">#![<span class="ident">doc</span>(
+    <span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">deny</span>(<span class="ident">warnings</span>))),
+    <span class="ident">test</span>(<span class="ident">attr</span>(<span class="ident">allow</span>(<span class="ident">bare_trait_objects</span>, <span class="ident">unknown_lints</span>)))
+)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(
+    <span class="ident">unknown_lints</span>,
+    <span class="ident">renamed_and_removed_lints</span>,
+    <span class="ident">intra_doc_link_resolution_failure</span>,
+    <span class="ident">broken_itra_doc_links</span>
+)]</span>
+<span class="doccomment">//! Library for easier and safe Unix signal handling</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Unix signals are inherently hard to handle correctly, for several reasons:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * They are a global resource. If a library wants to set its own signal handlers, it risks</span>
+<span class="doccomment">//!   disturbing some other library. It is possible to chain the previous signal handler, but then</span>
+<span class="doccomment">//!   it is impossible to remove the old signal handlers from the chains in any practical manner.</span>
+<span class="doccomment">//! * They can be called from whatever thread, requiring synchronization. Also, as they can</span>
+<span class="doccomment">//!   interrupt a thread at any time, making most handling race-prone.</span>
+<span class="doccomment">//! * According to the POSIX standard, the set of functions one may call inside a signal handler is</span>
+<span class="doccomment">//!   limited to very few of them. To highlight, mutexes (or other locking mechanisms) and memory</span>
+<span class="doccomment">//!   allocation and deallocation is *not* allowed.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library aims to solve some of the problems. It provides a global registry of actions</span>
+<span class="doccomment">//! performed on arrival of signals. It is possible to register multiple actions for the same</span>
+<span class="doccomment">//! signal and it is possible to remove the actions later on. If there was a previous signal</span>
+<span class="doccomment">//! handler when the first action for a signal is registered, it is chained (but the original one</span>
+<span class="doccomment">//! can&#39;t be removed).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The main function of the library is [`register`](fn.register.html).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It also offers several common actions one might want to register, implemented in the correct</span>
+<span class="doccomment">//! way. They are scattered through submodules and have the same limitations and characteristics as</span>
+<span class="doccomment">//! the [`register`](fn.register.html) function. Generally, they work to postpone the action taken</span>
+<span class="doccomment">//! outside of the signal handler, where the full freedom and power of rust is available.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Unlike other Rust libraries for signal handling, this should be flexible enough to handle all</span>
+<span class="doccomment">//! the common and useful patterns.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The library avoids all the newer fancy signal-handling routines. These generally have two</span>
+<span class="doccomment">//! downsides:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * They are not fully portable, therefore the library would have to contain *both* the</span>
+<span class="doccomment">//!   implementation using the basic routines and the fancy ones. As signal handling is not on the</span>
+<span class="doccomment">//!   hot path of most programs, this would not bring any actual benefit.</span>
+<span class="doccomment">//! * The other routines require that the given signal is masked in all application&#39;s threads. As</span>
+<span class="doccomment">//!   the signals are not masked by default and a new thread inherits the signal mask of its</span>
+<span class="doccomment">//!   parent, it is possible to guarantee such global mask by masking them before any threads</span>
+<span class="doccomment">//!   start. While this is possible for an application developer to do, it is not possible for a</span>
+<span class="doccomment">//!   a library.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Warning</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Even with this library, you should thread with care. It does not eliminate all the problems</span>
+<span class="doccomment">//! mentioned above.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Also, note that the OS may collate multiple instances of the same signal into just one call of</span>
+<span class="doccomment">//! the signal handler. Furthermore, some abstractions implemented here also naturally collate</span>
+<span class="doccomment">//! multiple instances of the same signal. The general guarantee is, if there was at least one</span>
+<span class="doccomment">//! signal of the given number delivered, an action will be taken, but it is not specified how many</span>
+<span class="doccomment">//! times ‒ signals work mostly as kind of „wake up now“ nudge, if the application is slow to wake</span>
+<span class="doccomment">//! up, it may be nudged multiple times before it does so.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Signal limitations</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! OS limits still apply ‒ it is not possible to redefine certain signals (eg. `SIGKILL` or</span>
+<span class="doccomment">//! `SIGSTOP`) and it is probably a *very* stupid idea to touch certain other ones (`SIGSEGV`,</span>
+<span class="doccomment">//! `SIGFPE`, `SIGILL`). Therefore, this library will panic if any attempt at manipulating these is</span>
+<span class="doccomment">//! made. There are some use cases for redefining the latter ones, but these are not well served by</span>
+<span class="doccomment">//! this library and you really *really* have to know what you&#39;re doing and are generally on your</span>
+<span class="doccomment">//! own doing that.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Signal masks</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! As the library uses `sigaction` under the hood, signal masking works as expected (eg. with</span>
+<span class="doccomment">//! `pthread_sigmask`). This means, signals will *not* be delivered if the signal is masked in all</span>
+<span class="doccomment">//! program&#39;s threads.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! By the way, if you do want to modify the signal mask (or do other Unix-specific magic), the</span>
+<span class="doccomment">//! [nix](https://crates.io/crates/nix) crate offers safe interface to many low-level functions,</span>
+<span class="doccomment">//! including</span>
+<span class="doccomment">//! [`pthread_sigmask`](https://docs.rs/nix/0.11.0/nix/sys/signal/fn.pthread_sigmask.html).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Portability</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! It should work on any POSIX.1-2001 system, which are all the major big OSes with the notable</span>
+<span class="doccomment">//! exception of Windows.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Non-standard signals are also supported. Pass the signal value directly from `libc` or use</span>
+<span class="doccomment">//! the numeric value directly.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use std::sync::Arc;</span>
+<span class="doccomment">//! use std::sync::atomic::{AtomicBool};</span>
+<span class="doccomment">//! let term = Arc::new(AtomicBool::new(false));</span>
+<span class="doccomment">//! let _ = signal_hook::flag::register(libc::SIGINT, Arc::clone(&amp;term));</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate includes a limited support for Windows, based on `signal`/`raise` in the CRT.</span>
+<span class="doccomment">//! There are differences in both API and behavior:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - `iterator` and `pipe` are not yet implemented.</span>
+<span class="doccomment">//! - We have only a few signals: `SIGABRT`, `SIGABRT_COMPAT`, `SIGBREAK`,</span>
+<span class="doccomment">//!   `SIGFPE`, `SIGILL`, `SIGINT`, `SIGSEGV` and `SIGTERM`.</span>
+<span class="doccomment">//! - Due to lack of signal blocking, there&#39;s a race condition.</span>
+<span class="doccomment">//!   After the call to `signal`, there&#39;s a moment where we miss a signal.</span>
+<span class="doccomment">//!   That means when you register a handler, there may be a signal which invokes</span>
+<span class="doccomment">//!   neither the default handler or the handler you register.</span>
+<span class="doccomment">//! - Handlers registered by `signal` in Windows are cleared on first signal.</span>
+<span class="doccomment">//!   To match behavior in other platforms, we re-register the handler each time the handler is</span>
+<span class="doccomment">//!   called, but there&#39;s a moment where we miss a handler.</span>
+<span class="doccomment">//!   That means when you receive two signals in a row, there may be a signal which invokes</span>
+<span class="doccomment">//!   the default handler, nevertheless you certainly have registered the handler.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Moreover, signals won&#39;t work as you expected. `SIGTERM` isn&#39;t actually used and</span>
+<span class="doccomment">//! not all `Ctrl-C`s are turned into `SIGINT`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Patches to improve Windows support in this library are welcome.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! extern crate signal_hook;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! use std::io::Error;</span>
+<span class="doccomment">//! use std::sync::Arc;</span>
+<span class="doccomment">//! use std::sync::atomic::{AtomicBool, Ordering};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn main() -&gt; Result&lt;(), Error&gt; {</span>
+<span class="doccomment">//!     let term = Arc::new(AtomicBool::new(false));</span>
+<span class="doccomment">//!     signal_hook::flag::register(signal_hook::SIGTERM, Arc::clone(&amp;term))?;</span>
+<span class="doccomment">//!     while !term.load(Ordering::Relaxed) {</span>
+<span class="doccomment">//!         // Do some time-limited stuff here</span>
+<span class="doccomment">//!         // (if this could block forever, then there&#39;s no guarantee the signal will have any</span>
+<span class="doccomment">//!         // effect).</span>
+<span class="doccomment">//! #</span>
+<span class="doccomment">//! #       // Hack to terminate the example, not part of the real code.</span>
+<span class="doccomment">//! #       term.store(true, Ordering::Relaxed);</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Features</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * `mio-support`: The [`Signals` iterator](iterator/struct.Signals.html) becomes pluggable into</span>
+<span class="doccomment">//!   mio 0.6.</span>
+<span class="doccomment">//! * `mio-0_7-support`: The [`Signals` iterator](iterator/struct.Signals.html) becomes pluggable into</span>
+<span class="doccomment">//!   mio 0.7.</span>
+<span class="doccomment">//! * `tokio-support`: The [`Signals`](iterator/struct.Signals.html) can be turned into</span>
+<span class="doccomment">//!   [`Async`](iterator/struct.Async.html), which provides a `Stream` interface for integration in</span>
+<span class="doccomment">//!   the asynchronous world.</span>
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-support&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">futures</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mio-support&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">mio</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mio-0_7-support&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">mio_0_7</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">signal_hook_registry</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio-support&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tokio_reactor</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">cleanup</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">flag</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iterator</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pipe</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">windows</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">libc</span>::{
+    <span class="ident">SIGABRT</span>, <span class="ident">SIGALRM</span>, <span class="ident">SIGBUS</span>, <span class="ident">SIGCHLD</span>, <span class="ident">SIGCONT</span>, <span class="ident">SIGFPE</span>, <span class="ident">SIGHUP</span>, <span class="ident">SIGILL</span>, <span class="ident">SIGINT</span>, <span class="ident">SIGIO</span>, <span class="ident">SIGKILL</span>,
+    <span class="ident">SIGPIPE</span>, <span class="ident">SIGPROF</span>, <span class="ident">SIGQUIT</span>, <span class="ident">SIGSEGV</span>, <span class="ident">SIGSTOP</span>, <span class="ident">SIGSYS</span>, <span class="ident">SIGTERM</span>, <span class="ident">SIGTRAP</span>, <span class="ident">SIGUSR1</span>, <span class="ident">SIGUSR2</span>,
+    <span class="ident">SIGWINCH</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">SIGABRT</span>, <span class="ident">SIGFPE</span>, <span class="ident">SIGILL</span>, <span class="ident">SIGINT</span>, <span class="ident">SIGSEGV</span>, <span class="ident">SIGTERM</span>};
+
+<span class="comment">// NOTE: they perhaps deserve backport to libc.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
+<span class="doccomment">/// Same as `SIGABRT`, but the number is compatible to other platforms.</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SIGABRT_COMPAT</span>: <span class="ident">libc::c_int</span> <span class="op">=</span> <span class="number">6</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
+<span class="doccomment">/// Ctrl-Break is pressed for Windows Console processes.</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SIGBREAK</span>: <span class="ident">libc::c_int</span> <span class="op">=</span> <span class="number">21</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">signal_hook_registry</span>::{<span class="ident">register</span>, <span class="ident">unregister</span>, <span class="ident">SigId</span>, <span class="ident">FORBIDDEN</span>};
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="signal_hook" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

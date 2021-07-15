@@ -1,0 +1,793 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;exp2.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>exp2.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+</pre><pre class="rust">
+<span class="comment">// origin: FreeBSD /usr/src/lib/msun/src/s_exp2.c */</span>
+<span class="comment">//-</span>
+<span class="comment">// Copyright (c) 2005 David Schultz &lt;das@FreeBSD.ORG&gt;</span>
+<span class="comment">// All rights reserved.</span>
+<span class="comment">//</span>
+<span class="comment">// Redistribution and use in source and binary forms, with or without</span>
+<span class="comment">// modification, are permitted provided that the following conditions</span>
+<span class="comment">// are met:</span>
+<span class="comment">// 1. Redistributions of source code must retain the above copyright</span>
+<span class="comment">//    notice, this list of conditions and the following disclaimer.</span>
+<span class="comment">// 2. Redistributions in binary form must reproduce the above copyright</span>
+<span class="comment">//    notice, this list of conditions and the following disclaimer in the</span>
+<span class="comment">//    documentation and/or other materials provided with the distribution.</span>
+<span class="comment">//</span>
+<span class="comment">// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS&#39;&#39; AND</span>
+<span class="comment">// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="comment">// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="comment">// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE</span>
+<span class="comment">// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
+<span class="comment">// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS</span>
+<span class="comment">// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)</span>
+<span class="comment">// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span class="comment">// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY</span>
+<span class="comment">// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</span>
+<span class="comment">// SUCH DAMAGE.</span>
+
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::scalbn</span>;
+
+<span class="kw">const</span> <span class="ident">TBLSIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">256</span>;
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt_skip</span>)]</span>
+<span class="kw">static</span> <span class="ident">TBL</span>: [<span class="ident">u64</span>; <span class="ident">TBLSIZE</span> <span class="op">*</span> <span class="number">2</span>] <span class="op">=</span> [
+    <span class="comment">//  exp2(z + eps)          eps</span>
+    <span class="number">0x3fe6a09e667f3d5d</span>, <span class="number">0x3d39880000000000</span>,
+    <span class="number">0x3fe6b052fa751744</span>, <span class="number">0x3cd8000000000000</span>,
+    <span class="number">0x3fe6c012750bd9fe</span>, <span class="number">0xbd28780000000000</span>,
+    <span class="number">0x3fe6cfdcddd476bf</span>, <span class="number">0x3d1ec00000000000</span>,
+    <span class="number">0x3fe6dfb23c651a29</span>, <span class="number">0xbcd8000000000000</span>,
+    <span class="number">0x3fe6ef9298593ae3</span>, <span class="number">0xbcbc000000000000</span>,
+    <span class="number">0x3fe6ff7df9519386</span>, <span class="number">0xbd2fd80000000000</span>,
+    <span class="number">0x3fe70f7466f42da3</span>, <span class="number">0xbd2c880000000000</span>,
+    <span class="number">0x3fe71f75e8ec5fc3</span>, <span class="number">0x3d13c00000000000</span>,
+    <span class="number">0x3fe72f8286eacf05</span>, <span class="number">0xbd38300000000000</span>,
+    <span class="number">0x3fe73f9a48a58152</span>, <span class="number">0xbd00c00000000000</span>,
+    <span class="number">0x3fe74fbd35d7ccfc</span>, <span class="number">0x3d2f880000000000</span>,
+    <span class="number">0x3fe75feb564267f1</span>, <span class="number">0x3d03e00000000000</span>,
+    <span class="number">0x3fe77024b1ab6d48</span>, <span class="number">0xbd27d00000000000</span>,
+    <span class="number">0x3fe780694fde5d38</span>, <span class="number">0xbcdd000000000000</span>,
+    <span class="number">0x3fe790b938ac1d00</span>, <span class="number">0x3ce3000000000000</span>,
+    <span class="number">0x3fe7a11473eb0178</span>, <span class="number">0xbced000000000000</span>,
+    <span class="number">0x3fe7b17b0976d060</span>, <span class="number">0x3d20400000000000</span>,
+    <span class="number">0x3fe7c1ed0130c133</span>, <span class="number">0x3ca0000000000000</span>,
+    <span class="number">0x3fe7d26a62ff8636</span>, <span class="number">0xbd26900000000000</span>,
+    <span class="number">0x3fe7e2f336cf4e3b</span>, <span class="number">0xbd02e00000000000</span>,
+    <span class="number">0x3fe7f3878491c3e8</span>, <span class="number">0xbd24580000000000</span>,
+    <span class="number">0x3fe80427543e1b4e</span>, <span class="number">0x3d33000000000000</span>,
+    <span class="number">0x3fe814d2add1071a</span>, <span class="number">0x3d0f000000000000</span>,
+    <span class="number">0x3fe82589994ccd7e</span>, <span class="number">0xbd21c00000000000</span>,
+    <span class="number">0x3fe8364c1eb942d0</span>, <span class="number">0x3d29d00000000000</span>,
+    <span class="number">0x3fe8471a4623cab5</span>, <span class="number">0x3d47100000000000</span>,
+    <span class="number">0x3fe857f4179f5bbc</span>, <span class="number">0x3d22600000000000</span>,
+    <span class="number">0x3fe868d99b4491af</span>, <span class="number">0xbd32c40000000000</span>,
+    <span class="number">0x3fe879cad931a395</span>, <span class="number">0xbd23000000000000</span>,
+    <span class="number">0x3fe88ac7d98a65b8</span>, <span class="number">0xbd2a800000000000</span>,
+    <span class="number">0x3fe89bd0a4785800</span>, <span class="number">0xbced000000000000</span>,
+    <span class="number">0x3fe8ace5422aa223</span>, <span class="number">0x3d33280000000000</span>,
+    <span class="number">0x3fe8be05bad619fa</span>, <span class="number">0x3d42b40000000000</span>,
+    <span class="number">0x3fe8cf3216b54383</span>, <span class="number">0xbd2ed00000000000</span>,
+    <span class="number">0x3fe8e06a5e08664c</span>, <span class="number">0xbd20500000000000</span>,
+    <span class="number">0x3fe8f1ae99157807</span>, <span class="number">0x3d28280000000000</span>,
+    <span class="number">0x3fe902fed0282c0e</span>, <span class="number">0xbd1cb00000000000</span>,
+    <span class="number">0x3fe9145b0b91ff96</span>, <span class="number">0xbd05e00000000000</span>,
+    <span class="number">0x3fe925c353aa2ff9</span>, <span class="number">0x3cf5400000000000</span>,
+    <span class="number">0x3fe93737b0cdc64a</span>, <span class="number">0x3d17200000000000</span>,
+    <span class="number">0x3fe948b82b5f98ae</span>, <span class="number">0xbd09000000000000</span>,
+    <span class="number">0x3fe95a44cbc852cb</span>, <span class="number">0x3d25680000000000</span>,
+    <span class="number">0x3fe96bdd9a766f21</span>, <span class="number">0xbd36d00000000000</span>,
+    <span class="number">0x3fe97d829fde4e2a</span>, <span class="number">0xbd01000000000000</span>,
+    <span class="number">0x3fe98f33e47a23a3</span>, <span class="number">0x3d2d000000000000</span>,
+    <span class="number">0x3fe9a0f170ca0604</span>, <span class="number">0xbd38a40000000000</span>,
+    <span class="number">0x3fe9b2bb4d53ff89</span>, <span class="number">0x3d355c0000000000</span>,
+    <span class="number">0x3fe9c49182a3f15b</span>, <span class="number">0x3d26b80000000000</span>,
+    <span class="number">0x3fe9d674194bb8c5</span>, <span class="number">0xbcec000000000000</span>,
+    <span class="number">0x3fe9e86319e3238e</span>, <span class="number">0x3d17d00000000000</span>,
+    <span class="number">0x3fe9fa5e8d07f302</span>, <span class="number">0x3d16400000000000</span>,
+    <span class="number">0x3fea0c667b5de54d</span>, <span class="number">0xbcf5000000000000</span>,
+    <span class="number">0x3fea1e7aed8eb8f6</span>, <span class="number">0x3d09e00000000000</span>,
+    <span class="number">0x3fea309bec4a2e27</span>, <span class="number">0x3d2ad80000000000</span>,
+    <span class="number">0x3fea42c980460a5d</span>, <span class="number">0xbd1af00000000000</span>,
+    <span class="number">0x3fea5503b23e259b</span>, <span class="number">0x3d0b600000000000</span>,
+    <span class="number">0x3fea674a8af46213</span>, <span class="number">0x3d38880000000000</span>,
+    <span class="number">0x3fea799e1330b3a7</span>, <span class="number">0x3d11200000000000</span>,
+    <span class="number">0x3fea8bfe53c12e8d</span>, <span class="number">0x3d06c00000000000</span>,
+    <span class="number">0x3fea9e6b5579fcd2</span>, <span class="number">0xbd29b80000000000</span>,
+    <span class="number">0x3feab0e521356fb8</span>, <span class="number">0x3d2b700000000000</span>,
+    <span class="number">0x3feac36bbfd3f381</span>, <span class="number">0x3cd9000000000000</span>,
+    <span class="number">0x3fead5ff3a3c2780</span>, <span class="number">0x3ce4000000000000</span>,
+    <span class="number">0x3feae89f995ad2a3</span>, <span class="number">0xbd2c900000000000</span>,
+    <span class="number">0x3feafb4ce622f367</span>, <span class="number">0x3d16500000000000</span>,
+    <span class="number">0x3feb0e07298db790</span>, <span class="number">0x3d2fd40000000000</span>,
+    <span class="number">0x3feb20ce6c9a89a9</span>, <span class="number">0x3d12700000000000</span>,
+    <span class="number">0x3feb33a2b84f1a4b</span>, <span class="number">0x3d4d470000000000</span>,
+    <span class="number">0x3feb468415b747e7</span>, <span class="number">0xbd38380000000000</span>,
+    <span class="number">0x3feb59728de5593a</span>, <span class="number">0x3c98000000000000</span>,
+    <span class="number">0x3feb6c6e29f1c56a</span>, <span class="number">0x3d0ad00000000000</span>,
+    <span class="number">0x3feb7f76f2fb5e50</span>, <span class="number">0x3cde800000000000</span>,
+    <span class="number">0x3feb928cf22749b2</span>, <span class="number">0xbd04c00000000000</span>,
+    <span class="number">0x3feba5b030a10603</span>, <span class="number">0xbd0d700000000000</span>,
+    <span class="number">0x3febb8e0b79a6f66</span>, <span class="number">0x3d0d900000000000</span>,
+    <span class="number">0x3febcc1e904bc1ff</span>, <span class="number">0x3d02a00000000000</span>,
+    <span class="number">0x3febdf69c3f3a16f</span>, <span class="number">0xbd1f780000000000</span>,
+    <span class="number">0x3febf2c25bd71db8</span>, <span class="number">0xbd10a00000000000</span>,
+    <span class="number">0x3fec06286141b2e9</span>, <span class="number">0xbd11400000000000</span>,
+    <span class="number">0x3fec199bdd8552e0</span>, <span class="number">0x3d0be00000000000</span>,
+    <span class="number">0x3fec2d1cd9fa64ee</span>, <span class="number">0xbd09400000000000</span>,
+    <span class="number">0x3fec40ab5fffd02f</span>, <span class="number">0xbd0ed00000000000</span>,
+    <span class="number">0x3fec544778fafd15</span>, <span class="number">0x3d39660000000000</span>,
+    <span class="number">0x3fec67f12e57d0cb</span>, <span class="number">0xbd1a100000000000</span>,
+    <span class="number">0x3fec7ba88988c1b6</span>, <span class="number">0xbd58458000000000</span>,
+    <span class="number">0x3fec8f6d9406e733</span>, <span class="number">0xbd1a480000000000</span>,
+    <span class="number">0x3feca3405751c4df</span>, <span class="number">0x3ccb000000000000</span>,
+    <span class="number">0x3fecb720dcef9094</span>, <span class="number">0x3d01400000000000</span>,
+    <span class="number">0x3feccb0f2e6d1689</span>, <span class="number">0x3cf0200000000000</span>,
+    <span class="number">0x3fecdf0b555dc412</span>, <span class="number">0x3cf3600000000000</span>,
+    <span class="number">0x3fecf3155b5bab3b</span>, <span class="number">0xbd06900000000000</span>,
+    <span class="number">0x3fed072d4a0789bc</span>, <span class="number">0x3d09a00000000000</span>,
+    <span class="number">0x3fed1b532b08c8fa</span>, <span class="number">0xbd15e00000000000</span>,
+    <span class="number">0x3fed2f87080d8a85</span>, <span class="number">0x3d1d280000000000</span>,
+    <span class="number">0x3fed43c8eacaa203</span>, <span class="number">0x3d01a00000000000</span>,
+    <span class="number">0x3fed5818dcfba491</span>, <span class="number">0x3cdf000000000000</span>,
+    <span class="number">0x3fed6c76e862e6a1</span>, <span class="number">0xbd03a00000000000</span>,
+    <span class="number">0x3fed80e316c9834e</span>, <span class="number">0xbd0cd80000000000</span>,
+    <span class="number">0x3fed955d71ff6090</span>, <span class="number">0x3cf4c00000000000</span>,
+    <span class="number">0x3feda9e603db32ae</span>, <span class="number">0x3cff900000000000</span>,
+    <span class="number">0x3fedbe7cd63a8325</span>, <span class="number">0x3ce9800000000000</span>,
+    <span class="number">0x3fedd321f301b445</span>, <span class="number">0xbcf5200000000000</span>,
+    <span class="number">0x3fede7d5641c05bf</span>, <span class="number">0xbd1d700000000000</span>,
+    <span class="number">0x3fedfc97337b9aec</span>, <span class="number">0xbd16140000000000</span>,
+    <span class="number">0x3fee11676b197d5e</span>, <span class="number">0x3d0b480000000000</span>,
+    <span class="number">0x3fee264614f5a3e7</span>, <span class="number">0x3d40ce0000000000</span>,
+    <span class="number">0x3fee3b333b16ee5c</span>, <span class="number">0x3d0c680000000000</span>,
+    <span class="number">0x3fee502ee78b3fb4</span>, <span class="number">0xbd09300000000000</span>,
+    <span class="number">0x3fee653924676d68</span>, <span class="number">0xbce5000000000000</span>,
+    <span class="number">0x3fee7a51fbc74c44</span>, <span class="number">0xbd07f80000000000</span>,
+    <span class="number">0x3fee8f7977cdb726</span>, <span class="number">0xbcf3700000000000</span>,
+    <span class="number">0x3feea4afa2a490e8</span>, <span class="number">0x3ce5d00000000000</span>,
+    <span class="number">0x3feeb9f4867ccae4</span>, <span class="number">0x3d161a0000000000</span>,
+    <span class="number">0x3feecf482d8e680d</span>, <span class="number">0x3cf5500000000000</span>,
+    <span class="number">0x3feee4aaa2188514</span>, <span class="number">0x3cc6400000000000</span>,
+    <span class="number">0x3feefa1bee615a13</span>, <span class="number">0xbcee800000000000</span>,
+    <span class="number">0x3fef0f9c1cb64106</span>, <span class="number">0xbcfa880000000000</span>,
+    <span class="number">0x3fef252b376bb963</span>, <span class="number">0xbd2c900000000000</span>,
+    <span class="number">0x3fef3ac948dd7275</span>, <span class="number">0x3caa000000000000</span>,
+    <span class="number">0x3fef50765b6e4524</span>, <span class="number">0xbcf4f00000000000</span>,
+    <span class="number">0x3fef6632798844fd</span>, <span class="number">0x3cca800000000000</span>,
+    <span class="number">0x3fef7bfdad9cbe38</span>, <span class="number">0x3cfabc0000000000</span>,
+    <span class="number">0x3fef91d802243c82</span>, <span class="number">0xbcd4600000000000</span>,
+    <span class="number">0x3fefa7c1819e908e</span>, <span class="number">0xbd0b0c0000000000</span>,
+    <span class="number">0x3fefbdba3692d511</span>, <span class="number">0xbcc0e00000000000</span>,
+    <span class="number">0x3fefd3c22b8f7194</span>, <span class="number">0xbd10de8000000000</span>,
+    <span class="number">0x3fefe9d96b2a23ee</span>, <span class="number">0x3cee430000000000</span>,
+    <span class="number">0x3ff0000000000000</span>, <span class="number">0x0</span>,
+    <span class="number">0x3ff00b1afa5abcbe</span>, <span class="number">0xbcb3400000000000</span>,
+    <span class="number">0x3ff0163da9fb3303</span>, <span class="number">0xbd12170000000000</span>,
+    <span class="number">0x3ff02168143b0282</span>, <span class="number">0x3cba400000000000</span>,
+    <span class="number">0x3ff02c9a3e77806c</span>, <span class="number">0x3cef980000000000</span>,
+    <span class="number">0x3ff037d42e11bbca</span>, <span class="number">0xbcc7400000000000</span>,
+    <span class="number">0x3ff04315e86e7f89</span>, <span class="number">0x3cd8300000000000</span>,
+    <span class="number">0x3ff04e5f72f65467</span>, <span class="number">0xbd1a3f0000000000</span>,
+    <span class="number">0x3ff059b0d315855a</span>, <span class="number">0xbd02840000000000</span>,
+    <span class="number">0x3ff0650a0e3c1f95</span>, <span class="number">0x3cf1600000000000</span>,
+    <span class="number">0x3ff0706b29ddf71a</span>, <span class="number">0x3d15240000000000</span>,
+    <span class="number">0x3ff07bd42b72a82d</span>, <span class="number">0xbce9a00000000000</span>,
+    <span class="number">0x3ff0874518759bd0</span>, <span class="number">0x3ce6400000000000</span>,
+    <span class="number">0x3ff092bdf66607c8</span>, <span class="number">0xbd00780000000000</span>,
+    <span class="number">0x3ff09e3ecac6f383</span>, <span class="number">0xbc98000000000000</span>,
+    <span class="number">0x3ff0a9c79b1f3930</span>, <span class="number">0x3cffa00000000000</span>,
+    <span class="number">0x3ff0b5586cf988fc</span>, <span class="number">0xbcfac80000000000</span>,
+    <span class="number">0x3ff0c0f145e46c8a</span>, <span class="number">0x3cd9c00000000000</span>,
+    <span class="number">0x3ff0cc922b724816</span>, <span class="number">0x3d05200000000000</span>,
+    <span class="number">0x3ff0d83b23395dd8</span>, <span class="number">0xbcfad00000000000</span>,
+    <span class="number">0x3ff0e3ec32d3d1f3</span>, <span class="number">0x3d1bac0000000000</span>,
+    <span class="number">0x3ff0efa55fdfa9a6</span>, <span class="number">0xbd04e80000000000</span>,
+    <span class="number">0x3ff0fb66affed2f0</span>, <span class="number">0xbd0d300000000000</span>,
+    <span class="number">0x3ff1073028d7234b</span>, <span class="number">0x3cf1500000000000</span>,
+    <span class="number">0x3ff11301d0125b5b</span>, <span class="number">0x3cec000000000000</span>,
+    <span class="number">0x3ff11edbab5e2af9</span>, <span class="number">0x3d16bc0000000000</span>,
+    <span class="number">0x3ff12abdc06c31d5</span>, <span class="number">0x3ce8400000000000</span>,
+    <span class="number">0x3ff136a814f2047d</span>, <span class="number">0xbd0ed00000000000</span>,
+    <span class="number">0x3ff1429aaea92de9</span>, <span class="number">0x3ce8e00000000000</span>,
+    <span class="number">0x3ff14e95934f3138</span>, <span class="number">0x3ceb400000000000</span>,
+    <span class="number">0x3ff15a98c8a58e71</span>, <span class="number">0x3d05300000000000</span>,
+    <span class="number">0x3ff166a45471c3df</span>, <span class="number">0x3d03380000000000</span>,
+    <span class="number">0x3ff172b83c7d5211</span>, <span class="number">0x3d28d40000000000</span>,
+    <span class="number">0x3ff17ed48695bb9f</span>, <span class="number">0xbd05d00000000000</span>,
+    <span class="number">0x3ff18af9388c8d93</span>, <span class="number">0xbd1c880000000000</span>,
+    <span class="number">0x3ff1972658375d66</span>, <span class="number">0x3d11f00000000000</span>,
+    <span class="number">0x3ff1a35beb6fcba7</span>, <span class="number">0x3d10480000000000</span>,
+    <span class="number">0x3ff1af99f81387e3</span>, <span class="number">0xbd47390000000000</span>,
+    <span class="number">0x3ff1bbe084045d54</span>, <span class="number">0x3d24e40000000000</span>,
+    <span class="number">0x3ff1c82f95281c43</span>, <span class="number">0xbd0a200000000000</span>,
+    <span class="number">0x3ff1d4873168b9b2</span>, <span class="number">0x3ce3800000000000</span>,
+    <span class="number">0x3ff1e0e75eb44031</span>, <span class="number">0x3ceac00000000000</span>,
+    <span class="number">0x3ff1ed5022fcd938</span>, <span class="number">0x3d01900000000000</span>,
+    <span class="number">0x3ff1f9c18438cdf7</span>, <span class="number">0xbd1b780000000000</span>,
+    <span class="number">0x3ff2063b88628d8f</span>, <span class="number">0x3d2d940000000000</span>,
+    <span class="number">0x3ff212be3578a81e</span>, <span class="number">0x3cd8000000000000</span>,
+    <span class="number">0x3ff21f49917ddd41</span>, <span class="number">0x3d2b340000000000</span>,
+    <span class="number">0x3ff22bdda2791323</span>, <span class="number">0x3d19f80000000000</span>,
+    <span class="number">0x3ff2387a6e7561e7</span>, <span class="number">0xbd19c80000000000</span>,
+    <span class="number">0x3ff2451ffb821427</span>, <span class="number">0x3d02300000000000</span>,
+    <span class="number">0x3ff251ce4fb2a602</span>, <span class="number">0xbd13480000000000</span>,
+    <span class="number">0x3ff25e85711eceb0</span>, <span class="number">0x3d12700000000000</span>,
+    <span class="number">0x3ff26b4565e27d16</span>, <span class="number">0x3d11d00000000000</span>,
+    <span class="number">0x3ff2780e341de00f</span>, <span class="number">0x3d31ee0000000000</span>,
+    <span class="number">0x3ff284dfe1f5633e</span>, <span class="number">0xbd14c00000000000</span>,
+    <span class="number">0x3ff291ba7591bb30</span>, <span class="number">0xbd13d80000000000</span>,
+    <span class="number">0x3ff29e9df51fdf09</span>, <span class="number">0x3d08b00000000000</span>,
+    <span class="number">0x3ff2ab8a66d10e9b</span>, <span class="number">0xbd227c0000000000</span>,
+    <span class="number">0x3ff2b87fd0dada3a</span>, <span class="number">0x3d2a340000000000</span>,
+    <span class="number">0x3ff2c57e39771af9</span>, <span class="number">0xbd10800000000000</span>,
+    <span class="number">0x3ff2d285a6e402d9</span>, <span class="number">0xbd0ed00000000000</span>,
+    <span class="number">0x3ff2df961f641579</span>, <span class="number">0xbcf4200000000000</span>,
+    <span class="number">0x3ff2ecafa93e2ecf</span>, <span class="number">0xbd24980000000000</span>,
+    <span class="number">0x3ff2f9d24abd8822</span>, <span class="number">0xbd16300000000000</span>,
+    <span class="number">0x3ff306fe0a31b625</span>, <span class="number">0xbd32360000000000</span>,
+    <span class="number">0x3ff31432edeea50b</span>, <span class="number">0xbd70df8000000000</span>,
+    <span class="number">0x3ff32170fc4cd7b8</span>, <span class="number">0xbd22480000000000</span>,
+    <span class="number">0x3ff32eb83ba8e9a2</span>, <span class="number">0xbd25980000000000</span>,
+    <span class="number">0x3ff33c08b2641766</span>, <span class="number">0x3d1ed00000000000</span>,
+    <span class="number">0x3ff3496266e3fa27</span>, <span class="number">0xbcdc000000000000</span>,
+    <span class="number">0x3ff356c55f929f0f</span>, <span class="number">0xbd30d80000000000</span>,
+    <span class="number">0x3ff36431a2de88b9</span>, <span class="number">0x3d22c80000000000</span>,
+    <span class="number">0x3ff371a7373aaa39</span>, <span class="number">0x3d20600000000000</span>,
+    <span class="number">0x3ff37f26231e74fe</span>, <span class="number">0xbd16600000000000</span>,
+    <span class="number">0x3ff38cae6d05d838</span>, <span class="number">0xbd0ae00000000000</span>,
+    <span class="number">0x3ff39a401b713ec3</span>, <span class="number">0xbd44720000000000</span>,
+    <span class="number">0x3ff3a7db34e5a020</span>, <span class="number">0x3d08200000000000</span>,
+    <span class="number">0x3ff3b57fbfec6e95</span>, <span class="number">0x3d3e800000000000</span>,
+    <span class="number">0x3ff3c32dc313a8f2</span>, <span class="number">0x3cef800000000000</span>,
+    <span class="number">0x3ff3d0e544ede122</span>, <span class="number">0xbd17a00000000000</span>,
+    <span class="number">0x3ff3dea64c1234bb</span>, <span class="number">0x3d26300000000000</span>,
+    <span class="number">0x3ff3ec70df1c4ecc</span>, <span class="number">0xbd48a60000000000</span>,
+    <span class="number">0x3ff3fa4504ac7e8c</span>, <span class="number">0xbd3cdc0000000000</span>,
+    <span class="number">0x3ff40822c367a0bb</span>, <span class="number">0x3d25b80000000000</span>,
+    <span class="number">0x3ff4160a21f72e95</span>, <span class="number">0x3d1ec00000000000</span>,
+    <span class="number">0x3ff423fb27094646</span>, <span class="number">0xbd13600000000000</span>,
+    <span class="number">0x3ff431f5d950a920</span>, <span class="number">0x3d23980000000000</span>,
+    <span class="number">0x3ff43ffa3f84b9eb</span>, <span class="number">0x3cfa000000000000</span>,
+    <span class="number">0x3ff44e0860618919</span>, <span class="number">0xbcf6c00000000000</span>,
+    <span class="number">0x3ff45c2042a7d201</span>, <span class="number">0xbd0bc00000000000</span>,
+    <span class="number">0x3ff46a41ed1d0016</span>, <span class="number">0xbd12800000000000</span>,
+    <span class="number">0x3ff4786d668b3326</span>, <span class="number">0x3d30e00000000000</span>,
+    <span class="number">0x3ff486a2b5c13c00</span>, <span class="number">0xbd2d400000000000</span>,
+    <span class="number">0x3ff494e1e192af04</span>, <span class="number">0x3d0c200000000000</span>,
+    <span class="number">0x3ff4a32af0d7d372</span>, <span class="number">0xbd1e500000000000</span>,
+    <span class="number">0x3ff4b17dea6db801</span>, <span class="number">0x3d07800000000000</span>,
+    <span class="number">0x3ff4bfdad53629e1</span>, <span class="number">0xbd13800000000000</span>,
+    <span class="number">0x3ff4ce41b817c132</span>, <span class="number">0x3d00800000000000</span>,
+    <span class="number">0x3ff4dcb299fddddb</span>, <span class="number">0x3d2c700000000000</span>,
+    <span class="number">0x3ff4eb2d81d8ab96</span>, <span class="number">0xbd1ce00000000000</span>,
+    <span class="number">0x3ff4f9b2769d2d02</span>, <span class="number">0x3d19200000000000</span>,
+    <span class="number">0x3ff508417f4531c1</span>, <span class="number">0xbd08c00000000000</span>,
+    <span class="number">0x3ff516daa2cf662a</span>, <span class="number">0xbcfa000000000000</span>,
+    <span class="number">0x3ff5257de83f51ea</span>, <span class="number">0x3d4a080000000000</span>,
+    <span class="number">0x3ff5342b569d4eda</span>, <span class="number">0xbd26d80000000000</span>,
+    <span class="number">0x3ff542e2f4f6ac1a</span>, <span class="number">0xbd32440000000000</span>,
+    <span class="number">0x3ff551a4ca5d94db</span>, <span class="number">0x3d483c0000000000</span>,
+    <span class="number">0x3ff56070dde9116b</span>, <span class="number">0x3d24b00000000000</span>,
+    <span class="number">0x3ff56f4736b529de</span>, <span class="number">0x3d415a0000000000</span>,
+    <span class="number">0x3ff57e27dbe2c40e</span>, <span class="number">0xbd29e00000000000</span>,
+    <span class="number">0x3ff58d12d497c76f</span>, <span class="number">0xbd23080000000000</span>,
+    <span class="number">0x3ff59c0827ff0b4c</span>, <span class="number">0x3d4dec0000000000</span>,
+    <span class="number">0x3ff5ab07dd485427</span>, <span class="number">0xbcc4000000000000</span>,
+    <span class="number">0x3ff5ba11fba87af4</span>, <span class="number">0x3d30080000000000</span>,
+    <span class="number">0x3ff5c9268a59460b</span>, <span class="number">0xbd26c80000000000</span>,
+    <span class="number">0x3ff5d84590998e3f</span>, <span class="number">0x3d469a0000000000</span>,
+    <span class="number">0x3ff5e76f15ad20e1</span>, <span class="number">0xbd1b400000000000</span>,
+    <span class="number">0x3ff5f6a320dcebca</span>, <span class="number">0x3d17700000000000</span>,
+    <span class="number">0x3ff605e1b976dcb8</span>, <span class="number">0x3d26f80000000000</span>,
+    <span class="number">0x3ff6152ae6cdf715</span>, <span class="number">0x3d01000000000000</span>,
+    <span class="number">0x3ff6247eb03a5531</span>, <span class="number">0xbd15d00000000000</span>,
+    <span class="number">0x3ff633dd1d1929b5</span>, <span class="number">0xbd12d00000000000</span>,
+    <span class="number">0x3ff6434634ccc313</span>, <span class="number">0xbcea800000000000</span>,
+    <span class="number">0x3ff652b9febc8efa</span>, <span class="number">0xbd28600000000000</span>,
+    <span class="number">0x3ff6623882553397</span>, <span class="number">0x3d71fe0000000000</span>,
+    <span class="number">0x3ff671c1c708328e</span>, <span class="number">0xbd37200000000000</span>,
+    <span class="number">0x3ff68155d44ca97e</span>, <span class="number">0x3ce6800000000000</span>,
+    <span class="number">0x3ff690f4b19e9471</span>, <span class="number">0xbd29780000000000</span>,
+];
+
+<span class="comment">// exp2(x): compute the base 2 exponential of x</span>
+<span class="comment">//</span>
+<span class="comment">// Accuracy: Peak error &lt; 0.503 ulp for normalized results.</span>
+<span class="comment">//</span>
+<span class="comment">// Method: (accurate tables)</span>
+<span class="comment">//</span>
+<span class="comment">//   Reduce x:</span>
+<span class="comment">//     x = k + y, for integer k and |y| &lt;= 1/2.</span>
+<span class="comment">//     Thus we have exp2(x) = 2**k * exp2(y).</span>
+<span class="comment">//</span>
+<span class="comment">//   Reduce y:</span>
+<span class="comment">//     y = i/TBLSIZE + z - eps[i] for integer i near y * TBLSIZE.</span>
+<span class="comment">//     Thus we have exp2(y) = exp2(i/TBLSIZE) * exp2(z - eps[i]),</span>
+<span class="comment">//     with |z - eps[i]| &lt;= 2**-9 + 2**-39 for the table used.</span>
+<span class="comment">//</span>
+<span class="comment">//   We compute exp2(i/TBLSIZE) via table lookup and exp2(z - eps[i]) via</span>
+<span class="comment">//   a degree-5 minimax polynomial with maximum error under 1.3 * 2**-61.</span>
+<span class="comment">//   The values in exp2t[] and eps[] are chosen such that</span>
+<span class="comment">//   exp2t[i] = exp2(i/TBLSIZE + eps[i]), and eps[i] is a small offset such</span>
+<span class="comment">//   that exp2t[i] is accurate to 2**-64.</span>
+<span class="comment">//</span>
+<span class="comment">//   Note that the range of i is +-TBLSIZE/2, so we actually index the tables</span>
+<span class="comment">//   by i0 = i + TBLSIZE/2.  For cache efficiency, exp2t[] and eps[] are</span>
+<span class="comment">//   virtual tables, interleaved in the real table tbl[].</span>
+<span class="comment">//</span>
+<span class="comment">//   This method is due to Gal, with many details due to Gal and Bachelis:</span>
+<span class="comment">//</span>
+<span class="comment">//      Gal, S. and Bachelis, B.  An Accurate Elementary Mathematical Library</span>
+<span class="comment">//      for the IEEE Floating Point Standard.  TOMS 17(1), 26-46 (1991).</span>
+
+<span class="doccomment">/// Exponential, base 2 (f64)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Calculate `2^x`, that is, 2 raised to the power `x`.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exp2</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">redux</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x4338000000000000</span>) <span class="op">/</span> <span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3fe62e42fefa39ef</span>);
+    <span class="kw">let</span> <span class="ident">p2</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3fcebfbdff82c575</span>);
+    <span class="kw">let</span> <span class="ident">p3</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3fac6b08d704a0a6</span>);
+    <span class="kw">let</span> <span class="ident">p4</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3f83b2ab88f70400</span>);
+    <span class="kw">let</span> <span class="ident">p5</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x3f55d88003875c74</span>);
+
+    <span class="comment">// double_t r, t, z;</span>
+    <span class="comment">// uint32_t ix, i0;</span>
+    <span class="comment">// union {double f; uint64_t i;} u = {x};</span>
+    <span class="comment">// union {uint32_t u; int32_t i;} k;</span>
+    <span class="kw">let</span> <span class="ident">x1p1023</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x7fe0000000000000</span>);
+    <span class="kw">let</span> <span class="ident">x1p52</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0x4330000000000000</span>);
+    <span class="kw">let</span> <span class="ident">_0x1p_149</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="number">0xb6a0000000000000</span>);
+
+    <span class="comment">/* Filter out exceptional cases. */</span>
+    <span class="kw">let</span> <span class="ident">ui</span> <span class="op">=</span> <span class="ident">f64::to_bits</span>(<span class="ident">x</span>);
+    <span class="kw">let</span> <span class="ident">ix</span> <span class="op">=</span> <span class="ident">ui</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">32</span> <span class="op">&amp;</span> <span class="number">0x7fffffff</span>;
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x408ff000</span> {
+        <span class="comment">/* |x| &gt;= 1022 or nan */</span>
+        <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40900000</span> <span class="op">&amp;&amp;</span> <span class="ident">ui</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">63</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="comment">/* x &gt;= 1024 or nan */</span>
+            <span class="comment">/* overflow */</span>
+            <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">x1p1023</span>;
+            <span class="kw">return</span> <span class="ident">x</span>;
+        }
+        <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x7ff00000</span> {
+            <span class="comment">/* -inf or -nan */</span>
+            <span class="kw">return</span> <span class="op">-</span><span class="number">1.0</span> <span class="op">/</span> <span class="ident">x</span>;
+        }
+        <span class="kw">if</span> <span class="ident">ui</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">63</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="comment">/* x &lt;= -1022 */</span>
+            <span class="comment">/* underflow */</span>
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="op">-</span><span class="number">1075.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">-</span> <span class="ident">x1p52</span> <span class="op">+</span> <span class="ident">x1p52</span> <span class="op">!</span><span class="op">=</span> <span class="ident">x</span> {
+                <span class="macro">force_eval!</span>((<span class="ident">_0x1p_149</span> <span class="op">/</span> <span class="ident">x</span>) <span class="kw">as</span> <span class="ident">f32</span>);
+            }
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="op">-</span><span class="number">1075.0</span> {
+                <span class="kw">return</span> <span class="number">0.0</span>;
+            }
+        }
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span> <span class="number">0x3c900000</span> {
+        <span class="comment">/* |x| &lt; 0x1p-54 */</span>
+        <span class="kw">return</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">x</span>;
+    }
+
+    <span class="comment">/* Reduce x, computing z, i0, and k. */</span>
+    <span class="kw">let</span> <span class="ident">ui</span> <span class="op">=</span> <span class="ident">f64::to_bits</span>(<span class="ident">x</span> <span class="op">+</span> <span class="ident">redux</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i0</span> <span class="op">=</span> <span class="ident">ui</span> <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="ident">i0</span> <span class="op">=</span> <span class="ident">i0</span>.<span class="ident">wrapping_add</span>(<span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">/</span> <span class="number">2</span>);
+    <span class="kw">let</span> <span class="ident">ku</span> <span class="op">=</span> <span class="ident">i0</span> <span class="op">/</span> <span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">*</span> <span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">ki</span> <span class="op">=</span> <span class="ident">ku</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">/</span> <span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">i32</span>;
+    <span class="ident">i0</span> <span class="op">%</span><span class="op">=</span> <span class="ident">TBLSIZE</span> <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">uf</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="ident">ui</span>) <span class="op">-</span> <span class="ident">redux</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">-</span> <span class="ident">uf</span>;
+
+    <span class="comment">/* Compute r = exp2(y) = exp2t[i0] * p(z - eps[i]). */</span>
+    <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="ident">TBL</span>[<span class="number">2</span> <span class="op">*</span> <span class="ident">i0</span> <span class="kw">as</span> <span class="ident">usize</span>]); <span class="comment">/* exp2t[i0] */</span>
+    <span class="ident">z</span> <span class="op">-</span><span class="op">=</span> <span class="ident">f64::from_bits</span>(<span class="ident">TBL</span>[<span class="number">2</span> <span class="op">*</span> <span class="ident">i0</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">1</span>]); <span class="comment">/* eps[i0]   */</span>
+    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">t</span> <span class="op">+</span> <span class="ident">t</span> <span class="op">*</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p1</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p2</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p3</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p4</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">p5</span>))));
+
+    <span class="ident">scalbn</span>(<span class="ident">r</span>, <span class="ident">ki</span>)
+}
+
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">i0_wrap_test</span>() {
+    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="op">-</span><span class="number">3.0</span> <span class="op">/</span> <span class="number">256.0</span>;
+    <span class="macro">assert_eq!</span>(<span class="ident">exp2</span>(<span class="ident">x</span>), <span class="ident">f64::from_bits</span>(<span class="number">0x3fefbdba3692d514</span>));
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parse tokens of source code into the chosen syntax tree node."><meta name="keywords" content="rust, rustlang, rust-lang, parse"><title>parse in syn - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../syn/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">syn</a></p><div id="sidebar-vars" data-name="parse" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">syn</a>::<wbr><a class="fn" href="#">parse</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/syn/lib.rs.html#887-889" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn parse&lt;T:&nbsp;<a class="trait" href="parse/trait.Parse.html" title="trait syn::parse::Parse">Parse</a>&gt;(tokens: <a class="struct" href="https://doc.rust-lang.org/nightly/proc_macro/struct.TokenStream.html" title="struct proc_macro::TokenStream">TokenStream</a>) -&gt; <a class="type" href="parse/type.Result.html" title="type syn::parse::Result">Result</a>&lt;T&gt;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Parse tokens of source code into the chosen syntax tree node.</p>
+<p>This is preferred over parsing a string because tokens are able to preserve
+information about where in the user’s code they were originally written (the
+“span” of the token), possibly allowing the compiler to produce better error
+messages.</p>
+<p>This function parses a <code>proc_macro::TokenStream</code> which is the type used for
+interop with the compiler in a procedural macro. To parse a
+<code>proc_macro2::TokenStream</code>, use <a href="fn.parse2.html"><code>syn::parse2</code></a> instead.</p>
+<p><em>This function is available only if Syn is built with both the <code>&quot;parsing&quot;</code> and
+<code>&quot;proc-macro&quot;</code> features.</em></p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
+<span class="kw">use</span> <span class="ident">quote::quote</span>;
+<span class="kw">use</span> <span class="ident">syn::DeriveInput</span>;
+
+<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MyMacro</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_macro</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="comment">// Parse the tokens into a syntax tree</span>
+    <span class="kw">let</span> <span class="ident">ast</span>: <span class="ident">DeriveInput</span> <span class="op">=</span> <span class="ident">syn::parse</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
+
+    <span class="comment">// Build the output, possibly using quasi-quotation</span>
+    <span class="kw">let</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="macro">quote!</span> {
+        <span class="comment">/* ... */</span>
+    };
+
+    <span class="comment">// Convert into a token stream and return it</span>
+    <span class="ident">expanded</span>.<span class="ident">into</span>()
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="syn" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

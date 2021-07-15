@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Reader","A already configured CSV reader."],["ReaderBuilder","Builds a CSV reader with various configuration knobs."],["Writer","A already configured CSV writer."]],"type":[["Result","A type alias for `Result<T, csv::Error>`."]]});

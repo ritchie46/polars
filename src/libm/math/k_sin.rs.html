@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;k_sin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>k_sin.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+</pre><pre class="rust">
+<span class="comment">// origin: FreeBSD /usr/src/lib/msun/src/k_sin.c</span>
+<span class="comment">//</span>
+<span class="comment">// ====================================================</span>
+<span class="comment">// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.</span>
+<span class="comment">//</span>
+<span class="comment">// Developed at SunSoft, a Sun Microsystems, Inc. business.</span>
+<span class="comment">// Permission to use, copy, modify, and distribute this</span>
+<span class="comment">// software is freely granted, provided that this notice</span>
+<span class="comment">// is preserved.</span>
+<span class="comment">// ====================================================</span>
+
+<span class="kw">const</span> <span class="ident">S1</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.66666666666666324348e-01</span>; <span class="comment">/* 0xBFC55555, 0x55555549 */</span>
+<span class="kw">const</span> <span class="ident">S2</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">8.33333333332248946124e-03</span>; <span class="comment">/* 0x3F811111, 0x1110F8A6 */</span>
+<span class="kw">const</span> <span class="ident">S3</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.98412698298579493134e-04</span>; <span class="comment">/* 0xBF2A01A0, 0x19C161D5 */</span>
+<span class="kw">const</span> <span class="ident">S4</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.75573137070700676789e-06</span>; <span class="comment">/* 0x3EC71DE3, 0x57B1FE7D */</span>
+<span class="kw">const</span> <span class="ident">S5</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">2.50507602534068634195e-08</span>; <span class="comment">/* 0xBE5AE5E6, 0x8A2B9CEB */</span>
+<span class="kw">const</span> <span class="ident">S6</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.58969099521155010221e-10</span>; <span class="comment">/* 0x3DE5D93A, 0x5ACFD57C */</span>
+
+<span class="comment">// kernel sin function on ~[-pi/4, pi/4] (except on -0), pi/4 ~ 0.7854</span>
+<span class="comment">// Input x is assumed to be bounded by ~pi/4 in magnitude.</span>
+<span class="comment">// Input y is the tail of x.</span>
+<span class="comment">// Input iy indicates whether y is 0. (if iy=0, y assume to be 0).</span>
+<span class="comment">//</span>
+<span class="comment">// Algorithm</span>
+<span class="comment">//      1. Since sin(-x) = -sin(x), we need only to consider positive x.</span>
+<span class="comment">//      2. Callers must return sin(-0) = -0 without calling here since our</span>
+<span class="comment">//         odd polynomial is not evaluated in a way that preserves -0.</span>
+<span class="comment">//         Callers may do the optimization sin(x) ~ x for tiny x.</span>
+<span class="comment">//      3. sin(x) is approximated by a polynomial of degree 13 on</span>
+<span class="comment">//         [0,pi/4]</span>
+<span class="comment">//                               3            13</span>
+<span class="comment">//              sin(x) ~ x + S1*x + ... + S6*x</span>
+<span class="comment">//         where</span>
+<span class="comment">//</span>
+<span class="comment">//      |sin(x)         2     4     6     8     10     12  |     -58</span>
+<span class="comment">//      |----- - (1+S1*x +S2*x +S3*x +S4*x +S5*x  +S6*x   )| &lt;= 2</span>
+<span class="comment">//      |  x                                               |</span>
+<span class="comment">//</span>
+<span class="comment">//      4. sin(x+y) = sin(x) + sin&#39;(x&#39;)*y</span>
+<span class="comment">//                  ~ sin(x) + (1-x*x/2)*y</span>
+<span class="comment">//         For better accuracy, let</span>
+<span class="comment">//                   3      2      2      2      2</span>
+<span class="comment">//              r = x *(S2+x *(S3+x *(S4+x *(S5+x *S6))))</span>
+<span class="comment">//         then                   3    2</span>
+<span class="comment">//              sin(x) = x + (S1*x + (x *(r-y/2)+y))</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">assert_no_panic</span>), <span class="ident">no_panic::no_panic</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">k_sin</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>, <span class="ident">iy</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+    <span class="kw">let</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">z</span>;
+    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">S2</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">S3</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">S4</span>) <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">w</span> <span class="op">*</span> (<span class="ident">S5</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">S6</span>);
+    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">x</span>;
+    <span class="kw">if</span> <span class="ident">iy</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="ident">x</span> <span class="op">+</span> <span class="ident">v</span> <span class="op">*</span> (<span class="ident">S1</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">r</span>)
+    } <span class="kw">else</span> {
+        <span class="ident">x</span> <span class="op">-</span> ((<span class="ident">z</span> <span class="op">*</span> (<span class="number">0.5</span> <span class="op">*</span> <span class="ident">y</span> <span class="op">-</span> <span class="ident">v</span> <span class="op">*</span> <span class="ident">r</span>) <span class="op">-</span> <span class="ident">y</span>) <span class="op">-</span> <span class="ident">v</span> <span class="op">*</span> <span class="ident">S1</span>)
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

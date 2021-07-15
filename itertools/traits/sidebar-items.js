@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["HomogeneousTuple","Implemented for homogeneous tuples of size up to 4."]]});

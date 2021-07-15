@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RecordBatch","A two-dimensional batch of column-oriented data with a defined schema."],["RecordBatchOptions","Options that control the behaviour used when creating a [`RecordBatch`]."]],"trait":[["RecordBatchReader","Trait for types that can read `RecordBatch`’s."]]});

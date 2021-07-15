@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Statistics","Statistics for a column chunk and data page."]],"fn":[["from_thrift","Converts Thrift definition into `Statistics`."],["to_thrift",""]],"struct":[["TypedStatistics","Typed implementation for [`Statistics`]."]]});

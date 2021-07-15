@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Rawpointer adds extra utility methods to raw pointers `*const T`, `*mut T` and `NonNull&lt;T&gt;`."><meta name="keywords" content="rust, rustlang, rust-lang, rawpointer"><title>rawpointer - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rawpointer/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate rawpointer</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.2.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all rawpointer's items</p></a><div class="block items"><ul><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="rawpointer" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">rawpointer</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rawpointer/lib.rs.html#8-246" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Rawpointer adds extra utility methods to raw pointers <code>*const T</code>, <code>*mut T</code>
+and <code>NonNull&lt;T&gt;</code>.</p>
+<p>Features include:</p>
+<ul>
+<li>
+<p>Strided offsets - <a href="trait.PointerExt.html#method.stride_offset"><code>.stride_offset(stride, index)</code></a> make it easy to compute
+pointer offsets where the index is unsigned and the stride is signed.</p>
+</li>
+<li>
+<p>Offsetting methods in general for <code>NonNull</code>, since it does not have these
+from libcore</p>
+</li>
+<li>
+<p>Post- and preincrement and post- and predecrement methods</p>
+<ul>
+<li>For <code>p++</code> use <a href="trait.PointerExt.html#method.post_inc"><code>p.post_inc()</code></a>.</li>
+<li>For <code>++p</code> use <a href="trait.PointerExt.html#method.pre_inc"><code>p.pre_inc()</code></a>.</li>
+<li>For <code>p--</code> use <a href="trait.PointerExt.html#method.post_dec"><code>p.post_dec()</code></a>.</li>
+<li>For <code>--p</code> use <a href="trait.PointerExt.html#method.pre_dec"><code>p.pre_dec()</code></a>.</li>
+</ul>
+</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rawpointer::PointerExt</span>;
+
+<span class="kw">unsafe</span> {
+    <span class="comment">// In this example:</span>
+    <span class="comment">// Use .post_inc() to iterate and overwrite the first four</span>
+    <span class="comment">// elements of the array.</span>
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">xs</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">16</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">xs</span>.<span class="ident">as_mut_ptr</span>();
+    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">ptr</span>.<span class="ident">offset</span>(<span class="number">4</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">while</span> <span class="ident">ptr</span> <span class="op">!</span><span class="op">=</span> <span class="ident">end</span> {
+        <span class="kw-2">*</span><span class="ident">ptr</span>.<span class="ident">post_inc</span>() <span class="op">=</span> <span class="ident">i</span>;
+        <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    }
+    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">xs</span>[..<span class="number">8</span>], <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]);
+}</pre></div>
+<h2 id="safety" class="section-header"><a href="#safety">Safety</a></h2>
+<p>See the Rust <a href="https://doc.rust-lang.org/nightly/core/ptr/index.html" title="core::ptr">core::ptr</a> documentation for more information.</p>
+<h2 id="rust-version" class="section-header"><a href="#rust-version">Rust Version</a></h2>
+<p>This version of the crate requires Rust 1.26 or later</p>
+</div></details><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.PointerExt.html" title="rawpointer::PointerExt trait">PointerExt</a></div><div class="item-right docblock-short"><p>Extension methods for raw pointers</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.ptrdistance.html" title="rawpointer::ptrdistance fn">ptrdistance</a></div><div class="item-right docblock-short"><p>Return the number of elements of <code>T</code> from <code>start</code> to <code>end</code>.<br>
+Return the arithmetic difference if <code>T</code> is zero size.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rawpointer" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

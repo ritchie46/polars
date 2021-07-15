@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Parsing interface for parsing a token stream into a syntax tree node."><meta name="keywords" content="rust, rustlang, rust-lang, parse"><title>syn::parse - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module parse</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="parse" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">syn</a>::<wbr><a class="mod" href="#">parse</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/syn/parse.rs.html#1-1287" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Parsing interface for parsing a token stream into a syntax tree node.</p>
+<p>Parsing in Syn is built on parser functions that take in a <a href="type.ParseStream.html" title="ParseStream"><code>ParseStream</code></a>
+and produce a <a href="type.Result.html"><code>Result&lt;T&gt;</code></a> where <code>T</code> is some syntax tree node. Underlying
+these parser functions is a lower level mechanism built around the
+<a href="../buffer/struct.Cursor.html"><code>Cursor</code></a> type. <code>Cursor</code> is a cheaply copyable cursor over a range of
+tokens in a token stream.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>Here is a snippet of parsing code to get a feel for the style of the
+library. We define data structures for a subset of Rust syntax including
+enums (not shown) and structs, then provide implementations of the <a href="trait.Parse.html" title="Parse"><code>Parse</code></a>
+trait to parse these syntax tree data structures from a token stream.</p>
+<p>Once <code>Parse</code> impls have been defined, they can be called conveniently from a
+procedural macro through <a href="../macro.parse_macro_input.html"><code>parse_macro_input!</code></a> as shown at the bottom of
+the snippet. If the caller provides syntactically invalid input to the
+procedural macro, they will receive a helpful compiler error message
+pointing out the exact token that triggered the failure to parse.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">braced</span>, <span class="ident">parse_macro_input</span>, <span class="ident">token</span>, <span class="ident">Field</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
+
+<span class="kw">enum</span> <span class="ident">Item</span> {
+    <span class="ident">Struct</span>(<span class="ident">ItemStruct</span>),
+    <span class="ident">Enum</span>(<span class="ident">ItemEnum</span>),
+}
+
+<span class="kw">struct</span> <span class="ident">ItemStruct</span> {
+    <span class="ident">struct_token</span>: <span class="macro">Token!</span>[<span class="kw">struct</span>],
+    <span class="ident">ident</span>: <span class="ident">Ident</span>,
+    <span class="ident">brace_token</span>: <span class="ident">token::Brace</span>,
+    <span class="ident">fields</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Field</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Item</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
+        <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">struct</span>]) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">Item::Struct</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">enum</span>]) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">Item::Enum</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">lookahead</span>.<span class="ident">error</span>())
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">ItemStruct</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">content</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">ItemStruct</span> {
+            <span class="ident">struct_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">ident</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">brace_token</span>: <span class="macro">braced!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>),
+            <span class="ident">fields</span>: <span class="ident">content</span>.<span class="ident">parse_terminated</span>(<span class="ident">Field::parse_named</span>)<span class="question-mark">?</span>,
+        })
+    }
+}
+
+<span class="attribute">#[<span class="ident">proc_macro</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_macro</span>(<span class="ident">tokens</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+    <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro">parse_macro_input!</span>(<span class="ident">tokens</span> <span class="kw">as</span> <span class="ident">Item</span>);
+
+    <span class="comment">/* ... */</span>
+}</pre></div>
+<h1 id="the-synparse-functions" class="section-header"><a href="#the-synparse-functions">The <code>syn::parse*</code> functions</a></h1>
+<p>The <a href="../fn.parse.html"><code>syn::parse</code></a>, <a href="../fn.parse2.html"><code>syn::parse2</code></a>, and <a href="../fn.parse_str.html"><code>syn::parse_str</code></a> functions serve
+as an entry point for parsing syntax tree nodes that can be parsed in an
+obvious default way. These functions can return any syntax tree node that
+implements the <a href="trait.Parse.html" title="Parse"><code>Parse</code></a> trait, which includes most types in Syn.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn::Type</span>;
+
+<span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">syn::parse_str</span>(<span class="string">&quot;std::collections::HashMap&lt;String, Value&gt;&quot;</span>)<span class="question-mark">?</span>;</pre></div>
+<p>The <a href="../macro.parse_quote.html"><code>parse_quote!</code></a> macro also uses this approach.</p>
+<h1 id="the-parser-trait" class="section-header"><a href="#the-parser-trait">The <code>Parser</code> trait</a></h1>
+<p>Some types can be parsed in several ways depending on context. For example
+an <a href="../struct.Attribute.html"><code>Attribute</code></a> can be either “outer” like <code>#[...]</code> or “inner” like
+<code>#![...]</code> and parsing the wrong one would be a bug. Similarly <a href="../punctuated/index.html"><code>Punctuated</code></a>
+may or may not allow trailing punctuation, and parsing it the wrong way
+would either reject valid input or accept invalid input.</p>
+<p>The <code>Parse</code> trait is not implemented in these cases because there is no good
+behavior to consider the default.</p>
+
+<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
+<span class="comment">// Can&#39;t parse `Punctuated` without knowing whether trailing punctuation</span>
+<span class="comment">// should be allowed in this context.</span>
+<span class="kw">let</span> <span class="ident">path</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">PathSegment</span>, <span class="macro">Token!</span>[::]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">syn::parse</span>(<span class="ident">tokens</span>)<span class="question-mark">?</span>;</pre></div>
+<p>In these cases the types provide a choice of parser functions rather than a
+single <code>Parse</code> implementation, and those parser functions can be invoked
+through the <a href="trait.Parser.html" title="Parser"><code>Parser</code></a> trait.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">proc_macro::TokenStream</span>;
+<span class="kw">use</span> <span class="ident">syn::parse::Parser</span>;
+<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Attribute</span>, <span class="ident">Expr</span>, <span class="ident">PathSegment</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+
+<span class="kw">fn</span> <span class="ident">call_some_parser_methods</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// Parse a nonempty sequence of path segments separated by `::` punctuation</span>
+    <span class="comment">// with no trailing punctuation.</span>
+    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">PathSegment</span>, <span class="macro">Token!</span>[::]<span class="op">&gt;</span><span class="ident">::parse_separated_nonempty</span>;
+    <span class="kw">let</span> <span class="ident">_path</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">parse</span>(<span class="ident">tokens</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Parse a possibly empty sequence of expressions terminated by commas with</span>
+    <span class="comment">// an optional trailing punctuation.</span>
+    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">Punctuated</span>::<span class="op">&lt;</span><span class="ident">Expr</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::parse_terminated</span>;
+    <span class="kw">let</span> <span class="ident">_args</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">parse</span>(<span class="ident">tokens</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Parse zero or more outer attributes but not inner attributes.</span>
+    <span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">Attribute::parse_outer</span>;
+    <span class="kw">let</span> <span class="ident">_attrs</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">parse</span>(<span class="ident">tokens</span>)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<hr />
+<p><em>This module is available only if Syn is built with the <code>&quot;parsing&quot;</code> feature.</em></p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="discouraged/index.html" title="syn::parse::discouraged mod">discouraged</a></div><div class="item-right docblock-short"><p>Extensions to the parsing API with niche applicability.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="syn::parse::Error struct">Error</a></div><div class="item-right docblock-short"><p>Error returned when a Syn parser cannot parse the input tokens.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Lookahead1.html" title="syn::parse::Lookahead1 struct">Lookahead1</a></div><div class="item-right docblock-short"><p>Support for checking the next token in a stream to decide how to parse.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Nothing.html" title="syn::parse::Nothing struct">Nothing</a></div><div class="item-right docblock-short"><p>An empty syntax tree node that consumes no tokens when parsed.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParseBuffer.html" title="syn::parse::ParseBuffer struct">ParseBuffer</a></div><div class="item-right docblock-short"><p>Cursor position within a buffered token stream.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.StepCursor.html" title="syn::parse::StepCursor struct">StepCursor</a></div><div class="item-right docblock-short"><p>Cursor state associated with speculative parsing.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Parse.html" title="syn::parse::Parse trait">Parse</a></div><div class="item-right docblock-short"><p>Parsing interface implemented by all types that can be parsed in a default
+way from a token stream.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Parser.html" title="syn::parse::Parser trait">Parser</a></div><div class="item-right docblock-short"><p>Parser that can parse Rust tokens into a particular syntax tree node.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Peek.html" title="syn::parse::Peek trait">Peek</a></div><div class="item-right docblock-short"><p>Types that can be parsed by looking at just one token.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.ParseStream.html" title="syn::parse::ParseStream type">ParseStream</a></div><div class="item-right docblock-short"><p>Input to a Syn parser function.</p>
+</div><div class="item-left module-item"><a class="type" href="type.Result.html" title="syn::parse::Result type">Result</a></div><div class="item-right docblock-short"><p>The result of a Syn parser.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

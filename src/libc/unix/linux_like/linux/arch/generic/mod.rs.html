@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libc-0.2.98&#x2F;src&#x2F;unix&#x2F;linux_like&#x2F;linux&#x2F;arch&#x2F;generic&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../../../../storage.js"></script><script src="../../../../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../../../../libc/index.html'><div class='logo-container rust-logo'><img src='../../../../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+</pre><pre class="rust">
+<span class="comment">// include/uapi/asm-generic/socket.h</span>
+<span class="comment">// arch/alpha/include/uapi/asm/socket.h</span>
+<span class="comment">// tools/include/uapi/asm-generic/socket.h</span>
+<span class="comment">// arch/mips/include/uapi/asm/socket.h</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SOL_SOCKET</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">1</span>;
+
+<span class="comment">// Defined in unix/linux_like/mod.rs</span>
+<span class="comment">// pub const SO_DEBUG: ::c_int = 1;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_REUSEADDR</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TYPE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ERROR</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_DONTROUTE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BROADCAST</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">6</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SNDBUF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">7</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RCVBUF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">8</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_KEEPALIVE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">9</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_OOBINLINE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">10</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_NO_CHECK</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">11</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PRIORITY</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">12</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_LINGER</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">13</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BSDCOMPAT</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">14</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_REUSEPORT</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">15</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PASSCRED</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">16</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PEERCRED</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">17</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RCVLOWAT</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">18</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SNDLOWAT</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">19</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RCVTIMEO</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">20</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SNDTIMEO</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">21</span>;
+<span class="comment">// pub const SO_RCVTIMEO_OLD: ::c_int = 20;</span>
+<span class="comment">// pub const SO_SNDTIMEO_OLD: ::c_int = 21;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SECURITY_AUTHENTICATION</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">22</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SECURITY_ENCRYPTION_TRANSPORT</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">23</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SECURITY_ENCRYPTION_NETWORK</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">24</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BINDTODEVICE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">25</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ATTACH_FILTER</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">26</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_DETACH_FILTER</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">27</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_GET_FILTER</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_ATTACH_FILTER</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PEERNAME</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">28</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMP</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">29</span>;
+<span class="comment">// pub const SO_TIMESTAMP_OLD: ::c_int = 29;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ACCEPTCONN</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">30</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PEERSEC</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">31</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SNDBUFFORCE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">32</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RCVBUFFORCE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">33</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PASSSEC</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">34</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMPNS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">35</span>;
+<span class="comment">// pub const SO_TIMESTAMPNS_OLD: ::c_int = 35;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_MARK</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">36</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMPING</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">37</span>;
+<span class="comment">// pub const SO_TIMESTAMPING_OLD: ::c_int = 37;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PROTOCOL</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">38</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_DOMAIN</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">39</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RXQ_OVFL</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">40</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_WIFI_STATUS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">41</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_WIFI_STATUS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_WIFI_STATUS</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PEEK_OFF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">42</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_NOFCS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">43</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_LOCK_FILTER</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">44</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SELECT_ERR_QUEUE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">45</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BUSY_POLL</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">46</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_MAX_PACING_RATE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">47</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BPF_EXTENSIONS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">48</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_INCOMING_CPU</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">49</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ATTACH_BPF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">50</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_DETACH_BPF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_DETACH_FILTER</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ATTACH_REUSEPORT_CBPF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">51</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ATTACH_REUSEPORT_EBPF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">52</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_CNX_ADVICE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">53</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_TIMESTAMPING_OPT_STATS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">54</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_MEMINFO</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">55</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_INCOMING_NAPI_ID</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">56</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_COOKIE</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">57</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_TIMESTAMPING_PKTINFO</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">58</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_PEERGROUPS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">59</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_ZEROCOPY</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">60</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TXTIME</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">61</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_TXTIME</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_TXTIME</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_BINDTOIFINDEX</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">62</span>;
+<span class="macro">cfg_if!</span> {
+    <span class="comment">// Some of these platforms in CI already have these constants.</span>
+    <span class="comment">// But they may still not have those _OLD ones.</span>
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">any</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86&quot;</span>,
+                     <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;x86_64&quot;</span>,
+                     <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;aarch64&quot;</span>),
+                 <span class="ident">not</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;musl&quot;</span>)))]</span> {
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMP_NEW</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">63</span>;
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMPNS_NEW</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">64</span>;
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_TIMESTAMPING_NEW</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">65</span>;
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_RCVTIMEO_NEW</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">66</span>;
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_SNDTIMEO_NEW</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">67</span>;
+        <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SO_DETACH_REUSEPORT_BPF</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="number">68</span>;
+    }
+}
+<span class="comment">// pub const SO_PREFER_BUSY_POLL: ::c_int = 69;</span>
+<span class="comment">// pub const SO_BUSY_POLL_BUDGET: ::c_int = 70;</span>
+
+<span class="comment">// Defined in unix/linux_like/mod.rs</span>
+<span class="comment">// pub const SCM_TIMESTAMP: ::c_int = SO_TIMESTAMP;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_TIMESTAMPNS</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_TIMESTAMPNS</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCM_TIMESTAMPING</span>: <span class="ident">::c_int</span> <span class="op">=</span> <span class="ident">SO_TIMESTAMPING</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../../../../" data-current-crate="libc" data-search-index-js="../../../../../../../search-index.js" data-search-js="../../../../../../../search.js"></div>
+    <script src="../../../../../../../main.js"></script><script src="../../../../../../../source-script.js"></script><script src="../../../../../../../source-files.js"></script>
+</body></html>

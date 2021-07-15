@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CsvExec",""],["DataFrameExec","Producer of an in memory DataFrame"],["ParquetExec",""]]});

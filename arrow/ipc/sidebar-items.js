@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["convert","Utilities for converting between IPC types and native Arrow types"],["gen","Generated code"],["reader","Arrow IPC File and Stream Readers"],["writer","Arrow IPC File and Stream Writers"]]});

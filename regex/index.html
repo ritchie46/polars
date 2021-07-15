@@ -1,0 +1,514 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides a library for parsing, compiling, and executing regular expressions. Its syntax is similar to Perl-style regular expressions, but lacks a few features like look around and backreferences. In exchange, all searches execute in linear time with respect to the size of the regular expression and search text."><meta name="keywords" content="rust, rustlang, rust-lang, regex"><title>regex - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../regex/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate regex</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.5.4</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all regex's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="regex" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">regex</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/regex/lib.rs.html#1-767" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides a library for parsing, compiling, and executing regular
+expressions. Its syntax is similar to Perl-style regular expressions, but lacks
+a few features like look around and backreferences. In exchange, all searches
+execute in linear time with respect to the size of the regular expression and
+search text.</p>
+<p>This crate’s documentation provides some simple examples, describes
+<a href="#unicode">Unicode support</a> and exhaustively lists the
+<a href="#syntax">supported syntax</a>.</p>
+<p>For more specific details on the API for regular expressions, please see the
+documentation for the <a href="struct.Regex.html"><code>Regex</code></a> type.</p>
+<h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
+<p>This crate is <a href="https://crates.io/crates/regex">on crates.io</a> and can be
+used by adding <code>regex</code> to your dependencies in your project’s <code>Cargo.toml</code>.</p>
+<pre><code class="language-toml">[dependencies]
+regex = &quot;1&quot;
+</code></pre>
+<h1 id="example-find-a-date" class="section-header"><a href="#example-find-a-date">Example: find a date</a></h1>
+<p>General use of regular expressions in this package involves compiling an
+expression and then using it to search, split or replace text. For example,
+to confirm that some text resembles a date:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;^\d{4}-\d{2}-\d{2}$&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert!</span>(<span class="ident">re</span>.<span class="ident">is_match</span>(<span class="string">&quot;2014-01-01&quot;</span>));</pre></div>
+<p>Notice the use of the <code>^</code> and <code>$</code> anchors. In this crate, every expression
+is executed with an implicit <code>.*?</code> at the beginning and end, which allows
+it to match anywhere in the text. Anchors can be used to ensure that the
+full text matches an expression.</p>
+<p>This example also demonstrates the utility of
+<a href="https://doc.rust-lang.org/stable/reference/tokens.html#raw-string-literals">raw strings</a>
+in Rust, which
+are just like regular strings except they are prefixed with an <code>r</code> and do
+not process any escape sequences. For example, <code>&quot;\\d&quot;</code> is the same
+expression as <code>r&quot;\d&quot;</code>.</p>
+<h1 id="example-avoid-compiling-the-same-regex-in-a-loop" class="section-header"><a href="#example-avoid-compiling-the-same-regex-in-a-loop">Example: Avoid compiling the same regex in a loop</a></h1>
+<p>It is an anti-pattern to compile the same regular expression in a loop
+since compilation is typically expensive. (It takes anywhere from a few
+microseconds to a few <strong>milliseconds</strong> depending on the size of the
+regex.) Not only is compilation itself expensive, but this also prevents
+optimizations that reuse allocations internally to the matching engines.</p>
+<p>In Rust, it can sometimes be a pain to pass regular expressions around if
+they’re used from inside a helper function. Instead, we recommend using the
+<a href="https://crates.io/crates/lazy_static"><code>lazy_static</code></a> crate to ensure that
+regular expressions are compiled exactly once.</p>
+<p>For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
+
+<span class="kw">fn</span> <span class="ident">some_helper_function</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="macro">lazy_static!</span> {
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">RE</span>: <span class="ident">Regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">&quot;...&quot;</span>).<span class="ident">unwrap</span>();
+    }
+    <span class="ident">RE</span>.<span class="ident">is_match</span>(<span class="ident">text</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {}</pre></div>
+<p>Specifically, in this example, the regex will be compiled when it is used for
+the first time. On subsequent uses, it will reuse the previous compilation.</p>
+<h1 id="example-iterating-over-capture-groups" class="section-header"><a href="#example-iterating-over-capture-groups">Example: iterating over capture groups</a></h1>
+<p>This crate provides convenient iterators for matching an expression
+repeatedly against a search string to find successive non-overlapping
+matches. For example, to find all dates in a string and be able to access
+them by their component pieces:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(\d{4})-(\d{2})-(\d{2})&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="string">&quot;2012-03-14, 2013-01-01 and 2014-07-05&quot;</span>;
+<span class="kw">for</span> <span class="ident">cap</span> <span class="kw">in</span> <span class="ident">re</span>.<span class="ident">captures_iter</span>(<span class="ident">text</span>) {
+    <span class="macro">println!</span>(<span class="string">&quot;Month: {} Day: {} Year: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">3</span>], <span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">1</span>]);
+}
+<span class="comment">// Output:</span>
+<span class="comment">// Month: 03 Day: 14 Year: 2012</span>
+<span class="comment">// Month: 01 Day: 01 Year: 2013</span>
+<span class="comment">// Month: 07 Day: 05 Year: 2014</span></pre></div>
+<p>Notice that the year is in the capture group indexed at <code>1</code>. This is
+because the <em>entire match</em> is stored in the capture group at index <code>0</code>.</p>
+<h1 id="example-replacement-with-named-capture-groups" class="section-header"><a href="#example-replacement-with-named-capture-groups">Example: replacement with named capture groups</a></h1>
+<p>Building on the previous example, perhaps we’d like to rearrange the date
+formats. This can be done with text replacement. But to make the code
+clearer, we can <em>name</em>  our capture groups and use those names as variables
+in our replacement text:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?P&lt;y&gt;\d{4})-(?P&lt;m&gt;\d{2})-(?P&lt;d&gt;\d{2})&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="string">&quot;2012-03-14, 2013-01-01 and 2014-07-05&quot;</span>;
+<span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">replace_all</span>(<span class="ident">before</span>, <span class="string">&quot;$m/$d/$y&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">after</span>, <span class="string">&quot;03/14/2012, 01/01/2013 and 07/05/2014&quot;</span>);</pre></div>
+<p>The <code>replace</code> methods are actually polymorphic in the replacement, which
+provides more flexibility than is seen here. (See the documentation for
+<code>Regex::replace</code> for more details.)</p>
+<p>Note that if your regex gets complicated, you can use the <code>x</code> flag to
+enable insignificant whitespace mode, which also lets you write comments:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?x)
+  (?P&lt;y&gt;\d{4}) # the year
+  -
+  (?P&lt;m&gt;\d{2}) # the month
+  -
+  (?P&lt;d&gt;\d{2}) # the day
+&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="string">&quot;2012-03-14, 2013-01-01 and 2014-07-05&quot;</span>;
+<span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">replace_all</span>(<span class="ident">before</span>, <span class="string">&quot;$m/$d/$y&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">after</span>, <span class="string">&quot;03/14/2012, 01/01/2013 and 07/05/2014&quot;</span>);</pre></div>
+<p>If you wish to match against whitespace in this mode, you can still use <code>\s</code>,
+<code>\n</code>, <code>\t</code>, etc. For escaping a single space character, you can escape it
+directly with <code>\ </code>, use its hex character code <code>\x20</code> or temporarily disable
+the <code>x</code> flag, e.g., <code>(?-x: )</code>.</p>
+<h1 id="example-match-multiple-regular-expressions-simultaneously" class="section-header"><a href="#example-match-multiple-regular-expressions-simultaneously">Example: match multiple regular expressions simultaneously</a></h1>
+<p>This demonstrates how to use a <code>RegexSet</code> to match multiple (possibly
+overlapping) regular expressions in a single scan of the search text:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">regex::RegexSet</span>;
+
+<span class="kw">let</span> <span class="ident">set</span> <span class="op">=</span> <span class="ident">RegexSet::new</span>(<span class="kw-2">&amp;</span>[
+    <span class="string">r&quot;\w+&quot;</span>,
+    <span class="string">r&quot;\d+&quot;</span>,
+    <span class="string">r&quot;\pL+&quot;</span>,
+    <span class="string">r&quot;foo&quot;</span>,
+    <span class="string">r&quot;bar&quot;</span>,
+    <span class="string">r&quot;barfoo&quot;</span>,
+    <span class="string">r&quot;foobar&quot;</span>,
+]).<span class="ident">unwrap</span>();
+
+<span class="comment">// Iterate over and collect all of the matches.</span>
+<span class="kw">let</span> <span class="ident">matches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">set</span>.<span class="ident">matches</span>(<span class="string">&quot;foobar&quot;</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">matches</span>, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>]);
+
+<span class="comment">// You can also test whether a particular regex matched:</span>
+<span class="kw">let</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">set</span>.<span class="ident">matches</span>(<span class="string">&quot;foobar&quot;</span>);
+<span class="macro">assert!</span>(<span class="op">!</span><span class="ident">matches</span>.<span class="ident">matched</span>(<span class="number">5</span>));
+<span class="macro">assert!</span>(<span class="ident">matches</span>.<span class="ident">matched</span>(<span class="number">6</span>));</pre></div>
+<h1 id="pay-for-what-you-use" class="section-header"><a href="#pay-for-what-you-use">Pay for what you use</a></h1>
+<p>With respect to searching text with a regular expression, there are three
+questions that can be asked:</p>
+<ol>
+<li>Does the text match this expression?</li>
+<li>If so, where does it match?</li>
+<li>Where did the capturing groups match?</li>
+</ol>
+<p>Generally speaking, this crate could provide a function to answer only #3,
+which would subsume #1 and #2 automatically. However, it can be significantly
+more expensive to compute the location of capturing group matches, so it’s best
+not to do it if you don’t need to.</p>
+<p>Therefore, only use what you need. For example, don’t use <code>find</code> if you
+only need to test if an expression matches a string. (Use <code>is_match</code>
+instead.)</p>
+<h1 id="unicode" class="section-header"><a href="#unicode">Unicode</a></h1>
+<p>This implementation executes regular expressions <strong>only</strong> on valid UTF-8
+while exposing match locations as byte indices into the search string. (To
+relax this restriction, use the <a href="bytes/index.html"><code>bytes</code></a> sub-module.)</p>
+<p>Only simple case folding is supported. Namely, when matching
+case-insensitively, the characters are first mapped using the “simple” case
+folding rules defined by Unicode.</p>
+<p>Regular expressions themselves are <strong>only</strong> interpreted as a sequence of
+Unicode scalar values. This means you can use Unicode characters directly
+in your expression:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?i)Δ+&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">find</span>(<span class="string">&quot;ΔδΔ&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>((<span class="ident">mat</span>.<span class="ident">start</span>(), <span class="ident">mat</span>.<span class="ident">end</span>()), (<span class="number">0</span>, <span class="number">6</span>));</pre></div>
+<p>Most features of the regular expressions in this crate are Unicode aware. Here
+are some examples:</p>
+<ul>
+<li><code>.</code> will match any valid UTF-8 encoded Unicode scalar value except for <code>\n</code>.
+(To also match <code>\n</code>, enable the <code>s</code> flag, e.g., <code>(?s:.)</code>.)</li>
+<li><code>\w</code>, <code>\d</code> and <code>\s</code> are Unicode aware. For example, <code>\s</code> will match all forms
+of whitespace categorized by Unicode.</li>
+<li><code>\b</code> matches a Unicode word boundary.</li>
+<li>Negated character classes like <code>[^a]</code> match all Unicode scalar values except
+for <code>a</code>.</li>
+<li><code>^</code> and <code>$</code> are <strong>not</strong> Unicode aware in multi-line mode. Namely, they only
+recognize <code>\n</code> and not any of the other forms of line terminators defined
+by Unicode.</li>
+</ul>
+<p>Unicode general categories, scripts, script extensions, ages and a smattering
+of boolean properties are available as character classes. For example, you can
+match a sequence of numerals, Greek or Cherokee letters:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;[\pN\p{Greek}\p{Cherokee}]+&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">find</span>(<span class="string">&quot;abcΔᎠβⅠᏴγδⅡxyz&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>((<span class="ident">mat</span>.<span class="ident">start</span>(), <span class="ident">mat</span>.<span class="ident">end</span>()), (<span class="number">3</span>, <span class="number">23</span>));</pre></div>
+<p>For a more detailed breakdown of Unicode support with respect to
+<a href="https://unicode.org/reports/tr18/">UTS#18</a>,
+please see the
+<a href="https://github.com/rust-lang/regex/blob/master/UNICODE.md">UNICODE</a>
+document in the root of the regex repository.</p>
+<h1 id="opt-out-of-unicode-support" class="section-header"><a href="#opt-out-of-unicode-support">Opt out of Unicode support</a></h1>
+<p>The <code>bytes</code> sub-module provides a <code>Regex</code> type that can be used to match
+on <code>&amp;[u8]</code>. By default, text is interpreted as UTF-8 just like it is with
+the main <code>Regex</code> type. However, this behavior can be disabled by turning
+off the <code>u</code> flag, even if doing so could result in matching invalid UTF-8.
+For example, when the <code>u</code> flag is disabled, <code>.</code> will match any byte instead
+of any Unicode scalar value.</p>
+<p>Disabling the <code>u</code> flag is also possible with the standard <code>&amp;str</code>-based <code>Regex</code>
+type, but it is only allowed where the UTF-8 invariant is maintained. For
+example, <code>(?-u:\w)</code> is an ASCII-only <code>\w</code> character class and is legal in an
+<code>&amp;str</code>-based <code>Regex</code>, but <code>(?-u:\xFF)</code> will attempt to match the raw byte
+<code>\xFF</code>, which is invalid UTF-8 and therefore is illegal in <code>&amp;str</code>-based
+regexes.</p>
+<p>Finally, since Unicode support requires bundling large Unicode data
+tables, this crate exposes knobs to disable the compilation of those
+data tables, which can be useful for shrinking binary size and reducing
+compilation times. For details on how to do that, see the section on <a href="#crate-features">crate
+features</a>.</p>
+<h1 id="syntax" class="section-header"><a href="#syntax">Syntax</a></h1>
+<p>The syntax supported in this crate is documented below.</p>
+<p>Note that the regular expression parser and abstract syntax are exposed in
+a separate crate, <a href="https://docs.rs/regex-syntax"><code>regex-syntax</code></a>.</p>
+<h2 id="matching-one-character" class="section-header"><a href="#matching-one-character">Matching one character</a></h2><pre class="rust">
+.             any character except new line (includes new line with s flag)
+\d            digit (\p{Nd})
+\D            not digit
+\pN           One-letter name Unicode character class
+\p{Greek}     Unicode character class (general category or script)
+\PN           Negated one-letter name Unicode character class
+\P{Greek}     negated Unicode character class (general category or script)
+</pre>
+<h3 id="character-classes" class="section-header"><a href="#character-classes">Character classes</a></h3><pre class="rust">
+[xyz]         A character class matching either x, y or z (union).
+[^xyz]        A character class matching any character except x, y and z.
+[a-z]         A character class matching any character in range a-z.
+[[:alpha:]]   ASCII character class ([A-Za-z])
+[[:^alpha:]]  Negated ASCII character class ([^A-Za-z])
+[x[^xyz]]     Nested/grouping character class (matching any character except y and z)
+[a-y&&xyz]    Intersection (matching x or y)
+[0-9&&[^4]]   Subtraction using intersection and negation (matching 0-9 except 4)
+[0-9--4]      Direct subtraction (matching 0-9 except 4)
+[a-g~~b-h]    Symmetric difference (matching `a` and `h` only)
+[\[\]]        Escaping in character classes (matching [ or ])
+</pre>
+<p>Any named character class may appear inside a bracketed <code>[...]</code> character
+class. For example, <code>[\p{Greek}[:digit:]]</code> matches any Greek or ASCII
+digit. <code>[\p{Greek}&amp;&amp;\pL]</code> matches Greek letters.</p>
+<p>Precedence in character classes, from most binding to least:</p>
+<ol>
+<li>Ranges: <code>a-cd</code> == <code>[a-c]d</code></li>
+<li>Union: <code>ab&amp;&amp;bc</code> == <code>[ab]&amp;&amp;[bc]</code></li>
+<li>Intersection: <code>^a-z&amp;&amp;b</code> == <code>^[a-z&amp;&amp;b]</code></li>
+<li>Negation</li>
+</ol>
+<h2 id="composites" class="section-header"><a href="#composites">Composites</a></h2><pre class="rust">
+xy    concatenation (x followed by y)
+x|y   alternation (x or y, prefer x)
+</pre>
+<h2 id="repetitions" class="section-header"><a href="#repetitions">Repetitions</a></h2><pre class="rust">
+x*        zero or more of x (greedy)
+x+        one or more of x (greedy)
+x?        zero or one of x (greedy)
+x*?       zero or more of x (ungreedy/lazy)
+x+?       one or more of x (ungreedy/lazy)
+x??       zero or one of x (ungreedy/lazy)
+x{n,m}    at least n x and at most m x (greedy)
+x{n,}     at least n x (greedy)
+x{n}      exactly n x
+x{n,m}?   at least n x and at most m x (ungreedy/lazy)
+x{n,}?    at least n x (ungreedy/lazy)
+x{n}?     exactly n x
+</pre>
+<h2 id="empty-matches" class="section-header"><a href="#empty-matches">Empty matches</a></h2><pre class="rust">
+^     the beginning of text (or start-of-line with multi-line mode)
+$     the end of text (or end-of-line with multi-line mode)
+\A    only the beginning of text (even with multi-line mode enabled)
+\z    only the end of text (even with multi-line mode enabled)
+\b    a Unicode word boundary (\w on one side and \W, \A, or \z on other)
+\B    not a Unicode word boundary
+</pre>
+<h2 id="grouping-and-flags" class="section-header"><a href="#grouping-and-flags">Grouping and flags</a></h2><pre class="rust">
+(exp)          numbered capture group (indexed by opening parenthesis)
+(?P&lt;name&gt;exp)  named (also numbered) capture group (allowed chars: [_0-9a-zA-Z.\[\]])
+(?:exp)        non-capturing group
+(?flags)       set flags within current group
+(?flags:exp)   set flags for exp (non-capturing)
+</pre>
+<p>Flags are each a single character. For example, <code>(?x)</code> sets the flag <code>x</code>
+and <code>(?-x)</code> clears the flag <code>x</code>. Multiple flags can be set or cleared at
+the same time: <code>(?xy)</code> sets both the <code>x</code> and <code>y</code> flags and <code>(?x-y)</code> sets
+the <code>x</code> flag and clears the <code>y</code> flag.</p>
+<p>All flags are by default disabled unless stated otherwise. They are:</p>
+<pre class="rust">
+i     case-insensitive: letters match both upper and lower case
+m     multi-line mode: ^ and $ match begin/end of line
+s     allow . to match \n
+U     swap the meaning of x* and x*?
+u     Unicode support (enabled by default)
+x     ignore whitespace and allow line comments (starting with `#`)
+</pre>
+<p>Flags can be toggled within a pattern. Here’s an example that matches
+case-insensitively for the first part but case-sensitively for the second part:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?i)a+(?-i)b+&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">cap</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">captures</span>(<span class="string">&quot;AaAaAbbBBBb&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">0</span>], <span class="string">&quot;AaAaAbb&quot;</span>);</pre></div>
+<p>Notice that the <code>a+</code> matches either <code>a</code> or <code>A</code>, but the <code>b+</code> only matches
+<code>b</code>.</p>
+<p>Multi-line mode means <code>^</code> and <code>$</code> no longer match just at the beginning/end of
+the input, but at the beginning/end of lines:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?m)^line \d+&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">find</span>(<span class="string">&quot;line one\nline 2\n&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">m</span>.<span class="ident">as_str</span>(), <span class="string">&quot;line 2&quot;</span>);</pre></div>
+<p>Note that <code>^</code> matches after new lines, even at the end of input:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?m)^&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">find_iter</span>(<span class="string">&quot;test\n&quot;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>((<span class="ident">m</span>.<span class="ident">start</span>(), <span class="ident">m</span>.<span class="ident">end</span>()), (<span class="number">5</span>, <span class="number">5</span>));</pre></div>
+<p>Here is an example that uses an ASCII word boundary instead of a Unicode
+word boundary:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">re</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;(?-u:\b).+(?-u:\b)&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">cap</span> <span class="op">=</span> <span class="ident">re</span>.<span class="ident">captures</span>(<span class="string">&quot;$$abc$$&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">0</span>], <span class="string">&quot;abc&quot;</span>);</pre></div>
+<h2 id="escape-sequences" class="section-header"><a href="#escape-sequences">Escape sequences</a></h2><pre class="rust">
+\*          literal *, works for any punctuation character: \.+*?()|[]{}^$
+\a          bell (\x07)
+\f          form feed (\x0C)
+\t          horizontal tab
+\n          new line
+\r          carriage return
+\v          vertical tab (\x0B)
+\123        octal character code (up to three digits) (when enabled)
+\x7F        hex character code (exactly two digits)
+\x{10FFFF}  any hex character code corresponding to a Unicode code point
+\u007F      hex character code (exactly four digits)
+\u{7F}      any hex character code corresponding to a Unicode code point
+\U0000007F  hex character code (exactly eight digits)
+\U{7F}      any hex character code corresponding to a Unicode code point
+</pre>
+<h2 id="perl-character-classes-unicode-friendly" class="section-header"><a href="#perl-character-classes-unicode-friendly">Perl character classes (Unicode friendly)</a></h2>
+<p>These classes are based on the definitions provided in
+<a href="https://www.unicode.org/reports/tr18/#Compatibility_Properties">UTS#18</a>:</p>
+<pre class="rust">
+\d     digit (\p{Nd})
+\D     not digit
+\s     whitespace (\p{White_Space})
+\S     not whitespace
+\w     word character (\p{Alphabetic} + \p{M} + \d + \p{Pc} + \p{Join_Control})
+\W     not word character
+</pre>
+<h2 id="ascii-character-classes" class="section-header"><a href="#ascii-character-classes">ASCII character classes</a></h2><pre class="rust">
+[[:alnum:]]    alphanumeric ([0-9A-Za-z])
+[[:alpha:]]    alphabetic ([A-Za-z])
+[[:ascii:]]    ASCII ([\x00-\x7F])
+[[:blank:]]    blank ([\t ])
+[[:cntrl:]]    control ([\x00-\x1F\x7F])
+[[:digit:]]    digits ([0-9])
+[[:graph:]]    graphical ([!-~])
+[[:lower:]]    lower case ([a-z])
+[[:print:]]    printable ([ -~])
+[[:punct:]]    punctuation ([!-/:-@\[-`{-~])
+[[:space:]]    whitespace ([\t\n\v\f\r ])
+[[:upper:]]    upper case ([A-Z])
+[[:word:]]     word characters ([0-9A-Za-z_])
+[[:xdigit:]]   hex digit ([0-9A-Fa-f])
+</pre>
+<h1 id="crate-features" class="section-header"><a href="#crate-features">Crate features</a></h1>
+<p>By default, this crate tries pretty hard to make regex matching both as fast
+as possible and as correct as it can be, within reason. This means that there
+is a lot of code dedicated to performance, the handling of Unicode data and the
+Unicode data itself. Overall, this leads to more dependencies, larger binaries
+and longer compile times.  This trade off may not be appropriate in all cases,
+and indeed, even when all Unicode and performance features are disabled, one
+is still left with a perfectly serviceable regex engine that will work well
+in many cases.</p>
+<p>This crate exposes a number of features for controlling that trade off. Some
+of these features are strictly performance oriented, such that disabling them
+won’t result in a loss of functionality, but may result in worse performance.
+Other features, such as the ones controlling the presence or absence of Unicode
+data, can result in a loss of functionality. For example, if one disables the
+<code>unicode-case</code> feature (described below), then compiling the regex <code>(?i)a</code>
+will fail since Unicode case insensitivity is enabled by default. Instead,
+callers must use <code>(?i-u)a</code> instead to disable Unicode case folding. Stated
+differently, enabling or disabling any of the features below can only add or
+subtract from the total set of valid regular expressions. Enabling or disabling
+a feature will never modify the match semantics of a regular expression.</p>
+<p>All features below are enabled by default.</p>
+<h3 id="ecosystem-features" class="section-header"><a href="#ecosystem-features">Ecosystem features</a></h3>
+<ul>
+<li><strong>std</strong> -
+When enabled, this will cause <code>regex</code> to use the standard library. Currently,
+disabling this feature will always result in a compilation error. It is
+intended to add <code>alloc</code>-only support to regex in the future.</li>
+</ul>
+<h3 id="performance-features" class="section-header"><a href="#performance-features">Performance features</a></h3>
+<ul>
+<li><strong>perf</strong> -
+Enables all performance related features. This feature is enabled by default
+and will always cover all features that improve performance, even if more
+are added in the future.</li>
+<li><strong>perf-dfa</strong> -
+Enables the use of a lazy DFA for matching. The lazy DFA is used to compile
+portions of a regex to a very fast DFA on an as-needed basis. This can
+result in substantial speedups, usually by an order of magnitude on large
+haystacks. The lazy DFA does not bring in any new dependencies, but it can
+make compile times longer.</li>
+<li><strong>perf-inline</strong> -
+Enables the use of aggressive inlining inside match routines. This reduces
+the overhead of each match. The aggressive inlining, however, increases
+compile times and binary size.</li>
+<li><strong>perf-literal</strong> -
+Enables the use of literal optimizations for speeding up matches. In some
+cases, literal optimizations can result in speedups of <em>several</em> orders of
+magnitude. Disabling this drops the <code>aho-corasick</code> and <code>memchr</code> dependencies.</li>
+<li><strong>perf-cache</strong> -
+This feature used to enable a faster internal cache at the cost of using
+additional dependencies, but this is no longer an option. A fast internal
+cache is now used unconditionally with no additional dependencies. This may
+change in the future.</li>
+</ul>
+<h3 id="unicode-features" class="section-header"><a href="#unicode-features">Unicode features</a></h3>
+<ul>
+<li><strong>unicode</strong> -
+Enables all Unicode features. This feature is enabled by default, and will
+always cover all Unicode features, even if more are added in the future.</li>
+<li><strong>unicode-age</strong> -
+Provide the data for the
+<a href="https://www.unicode.org/reports/tr44/tr44-24.html#Character_Age">Unicode <code>Age</code> property</a>.
+This makes it possible to use classes like <code>\p{Age:6.0}</code> to refer to all
+codepoints first introduced in Unicode 6.0</li>
+<li><strong>unicode-bool</strong> -
+Provide the data for numerous Unicode boolean properties. The full list
+is not included here, but contains properties like <code>Alphabetic</code>, <code>Emoji</code>,
+<code>Lowercase</code>, <code>Math</code>, <code>Uppercase</code> and <code>White_Space</code>.</li>
+<li><strong>unicode-case</strong> -
+Provide the data for case insensitive matching using
+<a href="https://www.unicode.org/reports/tr18/#Simple_Loose_Matches">Unicode’s “simple loose matches” specification</a>.</li>
+<li><strong>unicode-gencat</strong> -
+Provide the data for
+<a href="https://www.unicode.org/reports/tr44/tr44-24.html#General_Category_Values">Unicode general categories</a>.
+This includes, but is not limited to, <code>Decimal_Number</code>, <code>Letter</code>,
+<code>Math_Symbol</code>, <code>Number</code> and <code>Punctuation</code>.</li>
+<li><strong>unicode-perl</strong> -
+Provide the data for supporting the Unicode-aware Perl character classes,
+corresponding to <code>\w</code>, <code>\s</code> and <code>\d</code>. This is also necessary for using
+Unicode-aware word boundary assertions. Note that if this feature is
+disabled, the <code>\s</code> and <code>\d</code> character classes are still available if the
+<code>unicode-bool</code> and <code>unicode-gencat</code> features are enabled, respectively.</li>
+<li><strong>unicode-script</strong> -
+Provide the data for
+<a href="https://www.unicode.org/reports/tr24/">Unicode scripts and script extensions</a>.
+This includes, but is not limited to, <code>Arabic</code>, <code>Cyrillic</code>, <code>Hebrew</code>,
+<code>Latin</code> and <code>Thai</code>.</li>
+<li><strong>unicode-segment</strong> -
+Provide the data necessary to provide the properties used to implement the
+<a href="https://www.unicode.org/reports/tr29/">Unicode text segmentation algorithms</a>.
+This enables using classes like <code>\p{gcb=Extend}</code>, <code>\p{wb=Katakana}</code> and
+<code>\p{sb=ATerm}</code>.</li>
+</ul>
+<h1 id="untrusted-input" class="section-header"><a href="#untrusted-input">Untrusted input</a></h1>
+<p>This crate can handle both untrusted regular expressions and untrusted
+search text.</p>
+<p>Untrusted regular expressions are handled by capping the size of a compiled
+regular expression.
+(See <a href="struct.RegexBuilder.html#method.size_limit"><code>RegexBuilder::size_limit</code></a>.)
+Without this, it would be trivial for an attacker to exhaust your system’s
+memory with expressions like <code>a{100}{100}{100}</code>.</p>
+<p>Untrusted search text is allowed because the matching engine(s) in this
+crate have time complexity <code>O(mn)</code> (with <code>m ~ regex</code> and <code>n ~ search text</code>), which means there’s no way to cause exponential blow-up like with
+some other regular expression engines. (We pay for this by disallowing
+features like arbitrary look-ahead and backreferences.)</p>
+<p>When a DFA is used, pathological cases with exponential state blow-up are
+avoided by constructing the DFA lazily or in an “online” manner. Therefore,
+at most one new state can be created for each byte of input. This satisfies
+our time complexity guarantees, but can lead to memory growth
+proportional to the size of the input. As a stopgap, the DFA is only
+allowed to store a fixed number of states. When the limit is reached, its
+states are wiped and continues on, possibly duplicating previous work. If
+the limit is reached too frequently, it gives up and hands control off to
+another matching engine with fixed memory requirements.
+(The DFA size limit can also be tweaked. See
+<a href="struct.RegexBuilder.html#method.dfa_size_limit"><code>RegexBuilder::dfa_size_limit</code></a>.)</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="bytes/index.html" title="regex::bytes mod">bytes</a></div><div class="item-right docblock-short"><p>Match regular expressions on arbitrary bytes.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.CaptureLocations.html" title="regex::CaptureLocations struct">CaptureLocations</a></div><div class="item-right docblock-short"><p>CaptureLocations is a low level representation of the raw offsets of each
+submatch.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CaptureMatches.html" title="regex::CaptureMatches struct">CaptureMatches</a></div><div class="item-right docblock-short"><p>An iterator that yields all non-overlapping capture groups matching a
+particular regular expression.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.CaptureNames.html" title="regex::CaptureNames struct">CaptureNames</a></div><div class="item-right docblock-short"><p>An iterator over the names of all possible captures.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Captures.html" title="regex::Captures struct">Captures</a></div><div class="item-right docblock-short"><p>Captures represents a group of captured strings for a single match.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Match.html" title="regex::Match struct">Match</a></div><div class="item-right docblock-short"><p>Match represents a single match of a regex in a haystack.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Matches.html" title="regex::Matches struct">Matches</a></div><div class="item-right docblock-short"><p>An iterator over all non-overlapping matches for a particular string.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.NoExpand.html" title="regex::NoExpand struct">NoExpand</a></div><div class="item-right docblock-short"><p><code>NoExpand</code> indicates literal string replacement.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Regex.html" title="regex::Regex struct">Regex</a></div><div class="item-right docblock-short"><p>A compiled regular expression for matching Unicode strings.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RegexBuilder.html" title="regex::RegexBuilder struct">RegexBuilder</a></div><div class="item-right docblock-short"><p>A configurable builder for a regular expression.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RegexSet.html" title="regex::RegexSet struct">RegexSet</a></div><div class="item-right docblock-short"><p>Match multiple (possibly overlapping) regular expressions in a single scan.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.RegexSetBuilder.html" title="regex::RegexSetBuilder struct">RegexSetBuilder</a></div><div class="item-right docblock-short"><p>A configurable builder for a set of regular expressions.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ReplacerRef.html" title="regex::ReplacerRef struct">ReplacerRef</a></div><div class="item-right docblock-short"><p>By-reference adaptor for a <code>Replacer</code></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SetMatches.html" title="regex::SetMatches struct">SetMatches</a></div><div class="item-right docblock-short"><p>A set of matches returned by a regex set.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SetMatchesIntoIter.html" title="regex::SetMatchesIntoIter struct">SetMatchesIntoIter</a></div><div class="item-right docblock-short"><p>An owned iterator over the set of matches from a regex set.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SetMatchesIter.html" title="regex::SetMatchesIter struct">SetMatchesIter</a></div><div class="item-right docblock-short"><p>A borrowed iterator over the set of matches from a regex set.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Split.html" title="regex::Split struct">Split</a></div><div class="item-right docblock-short"><p>Yields all substrings delimited by a regular expression match.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SplitN.html" title="regex::SplitN struct">SplitN</a></div><div class="item-right docblock-short"><p>Yields at most <code>N</code> substrings delimited by a regular expression match.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SubCaptureMatches.html" title="regex::SubCaptureMatches struct">SubCaptureMatches</a></div><div class="item-right docblock-short"><p>An iterator that yields all capturing matches in the order in which they
+appear in the regex.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Error.html" title="regex::Error enum">Error</a></div><div class="item-right docblock-short"><p>An error that occurred during parsing or compiling a regular expression.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Replacer.html" title="regex::Replacer trait">Replacer</a></div><div class="item-right docblock-short"><p>Replacer describes types that can be used to replace matches in a string.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.escape.html" title="regex::escape fn">escape</a></div><div class="item-right docblock-short"><p>Escapes all regular expression meta characters in <code>text</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="regex" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

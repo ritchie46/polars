@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["fb_to_schema","Deserialize a Schema table from IPC format to Schema data type"],["schema_from_bytes","Deserialize an IPC message into a schema"],["schema_to_fb","Serialize a schema in IPC format"],["schema_to_fb_offset",""]]});

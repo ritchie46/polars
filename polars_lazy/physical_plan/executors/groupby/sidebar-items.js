@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["GroupByExec","Take an input Executor and a multiple expressions"],["PartitionGroupByExec","Take an input Executor and a multiple expressions"]]});

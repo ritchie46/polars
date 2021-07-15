@@ -1,0 +1,457 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;signal-hook-0.1.17&#x2F;src&#x2F;pipe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pipe.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../signal_hook/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+</pre><pre class="rust">
+<span class="doccomment">//! Module with the self-pipe pattern.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! One of the common patterns around signals is to have a pipe with both ends in the same program.</span>
+<span class="doccomment">//! Whenever there&#39;s a signal, the signal handler writes one byte of garbage data to the write end,</span>
+<span class="doccomment">//! unless the pipe&#39;s already full. The application then can handle the read end.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This has two advantages. First, the real signal action moves outside of the signal handler</span>
+<span class="doccomment">//! where there are a lot less restrictions. Second, it fits nicely in all kinds of asynchronous</span>
+<span class="doccomment">//! loops and has less chance of race conditions.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This module offers premade functions for the write end (and doesn&#39;t insist that it must be a</span>
+<span class="doccomment">//! pipe ‒ anything that can be written to is fine ‒ sockets too, therefore `UnixStream::pair` is a</span>
+<span class="doccomment">//! good candidate).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If you want to integrate with some asynchronous library, plugging streams from `mio-uds` or</span>
+<span class="doccomment">//! `tokio-uds` libraries should work.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If it looks too low-level for your needs, the [`iterator`](../iterator/) module contains some</span>
+<span class="doccomment">//! higher-lever interface that also uses a self-pipe pattern under the hood.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Correct order of handling</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A care needs to be taken to avoid race conditions, especially when handling the same signal in</span>
+<span class="doccomment">//! a loop. Specifically, another signal might come when the action for the previous signal is</span>
+<span class="doccomment">//! being taken. The correct order is first to clear the content of the pipe (read some/all data</span>
+<span class="doccomment">//! from it) and then take the action. This way a spurious wakeup can happen (the pipe could wake</span>
+<span class="doccomment">//! up even when no signal came after the signal was taken, because ‒ it arrived between cleaning</span>
+<span class="doccomment">//! the pipe and taking the action). Note that some OS primitives (eg. `select`) suffer from</span>
+<span class="doccomment">//! spurious wakeups themselves (they can claim a FD is readable when it is not true) and blocking</span>
+<span class="doccomment">//! `read` might return prematurely (with eg. `EINTR`).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The reverse order of first taking the action and then clearing the pipe might lose signals,</span>
+<span class="doccomment">//! which is usually worse.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is not a problem with blocking on reading from the pipe (because both the blocking and</span>
+<span class="doccomment">//! cleaning is the same action), but in case of asynchronous handling it matters.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If you want to combine setting some flags with a self-pipe pattern, the flag needs to be set</span>
+<span class="doccomment">//! first, then the pipe written. On the read end, first the pipe needs to be cleaned, then the</span>
+<span class="doccomment">//! flag and then the action taken. This is what the [`Signals`](../iterator/struct.Signals.html)</span>
+<span class="doccomment">//! structure does internally.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Write collating</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! While unlikely if handled correctly, it is possible the write end is full when a signal comes.</span>
+<span class="doccomment">//! In such case the signal handler simply does nothing. If the write end is full, the read end is</span>
+<span class="doccomment">//! readable and therefore will wake up. On the other hand, blocking in the signal handler would</span>
+<span class="doccomment">//! definitely be a bad idea.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! However, this also means the number of bytes read from the end might be lower than the number</span>
+<span class="doccomment">//! of signals that arrived. This should not generally be a problem, since the OS already collates</span>
+<span class="doccomment">//! signals of the same kind together.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This example waits for at last one `SIGUSR1` signal to come before continuing (and</span>
+<span class="doccomment">//! terminating). It sends the signal to itself, so it correctly terminates.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! extern crate libc;</span>
+<span class="doccomment">//! extern crate signal_hook;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! use std::io::{Error, Read};</span>
+<span class="doccomment">//! use std::os::unix::net::UnixStream;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! fn main() -&gt; Result&lt;(), Error&gt; {</span>
+<span class="doccomment">//!     let (mut read, write) = UnixStream::pair()?;</span>
+<span class="doccomment">//!     signal_hook::pipe::register(signal_hook::SIGUSR1, write)?;</span>
+<span class="doccomment">//!     // This will write into the pipe write end through the signal handler</span>
+<span class="doccomment">//!     unsafe { libc::raise(signal_hook::SIGUSR1) };</span>
+<span class="doccomment">//!     let mut buff = [0];</span>
+<span class="doccomment">//!     read.read_exact(&amp;mut buff)?;</span>
+<span class="doccomment">//!     println!(&quot;Happily terminating&quot;);</span>
+<span class="doccomment">//!     Ok(())</span>
+<span class="doccomment">//! }</span>
+
+<span class="kw">use</span> <span class="ident">std::io::Error</span>;
+<span class="kw">use</span> <span class="ident">std::os::unix::io</span>::{<span class="ident">AsRawFd</span>, <span class="ident">RawFd</span>};
+
+<span class="kw">use</span> <span class="ident">libc</span>::{<span class="self">self</span>, <span class="ident">c_int</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::SigId</span>;
+
+<span class="kw">struct</span> <span class="ident">OwnedFd</span>(<span class="ident">RawFd</span>);
+
+<span class="kw">impl</span> <span class="ident">OwnedFd</span> {
+    <span class="doccomment">/// Sets close on exec and nonblock on the inner file descriptor.</span>
+    <span class="kw">fn</span> <span class="ident">set_flags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="ident">libc::fcntl</span>(<span class="self">self</span>.<span class="ident">as_raw_fd</span>(), <span class="ident">libc::F_GETFL</span>, <span class="number">0</span>);
+            <span class="kw">if</span> <span class="ident">flags</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::last_os_error</span>());
+            }
+            <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="ident">flags</span> <span class="op">|</span> <span class="ident">libc::O_NONBLOCK</span> <span class="op">|</span> <span class="ident">libc::O_CLOEXEC</span>;
+            <span class="kw">if</span> <span class="ident">libc::fcntl</span>(<span class="self">self</span>.<span class="ident">as_raw_fd</span>(), <span class="ident">libc::F_SETFL</span>, <span class="ident">flags</span>) <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::last_os_error</span>());
+            }
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">AsRawFd</span> <span class="kw">for</span> <span class="ident">OwnedFd</span> {
+    <span class="kw">fn</span> <span class="ident">as_raw_fd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawFd</span> {
+        <span class="self">self</span>.<span class="number">0</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">OwnedFd</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">unsafe</span> {
+            <span class="ident">libc::close</span>(<span class="self">self</span>.<span class="number">0</span>);
+        }
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">wake</span>(<span class="ident">pipe</span>: <span class="ident">RawFd</span>) {
+    <span class="kw">unsafe</span> {
+        <span class="comment">// This writes some data into the pipe.</span>
+        <span class="comment">//</span>
+        <span class="comment">// There are two tricks:</span>
+        <span class="comment">// * First, the crazy cast. The first part turns reference into pointer. The second part</span>
+        <span class="comment">//   turns pointer to u8 into a pointer to void, which is what write requires.</span>
+        <span class="comment">// * Second, we ignore errors, on purpose. We don&#39;t have any means to handling them. The</span>
+        <span class="comment">//   two conceivable errors are EBADFD, if someone passes a non-existent file descriptor or</span>
+        <span class="comment">//   if it is closed. The second is EAGAIN, in which case the pipe is full ‒ there were</span>
+        <span class="comment">//   many signals, but the reader didn&#39;t have time to read the data yet. It&#39;ll still get</span>
+        <span class="comment">//   woken up, so not fitting another letter in it is fine.</span>
+        <span class="ident">libc::write</span>(<span class="ident">pipe</span>, <span class="string">b&quot;X&quot;</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span>, <span class="number">1</span>);
+    }
+}
+
+<span class="doccomment">/// Registers a write to a self-pipe whenever there&#39;s the signal.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In this case, the pipe is taken as the `RawFd`. It is still the caller&#39;s responsibility to</span>
+<span class="doccomment">/// close it.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that passing the wrong file descriptor won&#39;t cause UB, but can still lead to severe bugs ‒</span>
+<span class="doccomment">/// like data corruptions in files.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_raw</span>(<span class="ident">signal</span>: <span class="ident">c_int</span>, <span class="ident">pipe</span>: <span class="ident">RawFd</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SigId</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="comment">// A trick here:</span>
+    <span class="comment">// We want to set the FD non-blocking. But it belongs to the caller. Therefore, we make our own</span>
+    <span class="comment">// copy with `dup` to play on instead.</span>
+    <span class="kw">let</span> <span class="ident">duped</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">libc::dup</span>(<span class="ident">pipe</span>) };
+    <span class="kw">if</span> <span class="ident">duped</span> <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::last_os_error</span>());
+    }
+    <span class="kw">let</span> <span class="ident">duped</span> <span class="op">=</span> <span class="ident">OwnedFd</span>(<span class="ident">duped</span>);
+    <span class="ident">duped</span>.<span class="ident">set_flags</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="ident">wake</span>(<span class="ident">duped</span>.<span class="ident">as_raw_fd</span>());
+    <span class="kw">unsafe</span> { <span class="kw">crate</span><span class="ident">::register</span>(<span class="ident">signal</span>, <span class="ident">action</span>) }
+}
+
+<span class="doccomment">/// Registers a write to a self-pipe whenever there&#39;s the signal.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The ownership of pipe is taken and will be closed whenever the created action is unregistered.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that if you want to register the same pipe for multiple signals, there&#39;s `try_clone`</span>
+<span class="doccomment">/// method on many unix socket primitives.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">signal</span>: <span class="ident">c_int</span>, <span class="ident">pipe</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SigId</span>, <span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">P</span>: <span class="ident">AsRawFd</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">register_raw</span>(<span class="ident">signal</span>, <span class="ident">pipe</span>.<span class="ident">as_raw_fd</span>())<span class="question-mark">?</span>;
+    <span class="comment">// Close the original</span>
+    <span class="ident">drop</span>(<span class="ident">pipe</span>);
+    <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">std::io::Read</span>;
+    <span class="kw">use</span> <span class="ident">std::os::unix::net</span>::{<span class="ident">UnixDatagram</span>, <span class="ident">UnixStream</span>};
+
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="comment">// Note: multiple tests share the SIGUSR1 signal. This is fine, we only need to know the signal</span>
+    <span class="comment">// arrives. It&#39;s OK to arrive multiple times, from multiple tests.</span>
+    <span class="kw">fn</span> <span class="ident">wakeup</span>() {
+        <span class="kw">unsafe</span> { <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">libc::raise</span>(<span class="ident">libc::SIGUSR1</span>)) }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">register_with_socket</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">read</span>, <span class="ident">write</span>) <span class="op">=</span> <span class="ident">UnixStream::pair</span>()<span class="question-mark">?</span>;
+        <span class="ident">register</span>(<span class="ident">libc::SIGUSR1</span>, <span class="ident">write</span>)<span class="question-mark">?</span>;
+        <span class="ident">read</span>.<span class="ident">set_nonblocking</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
+        <span class="ident">wakeup</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buff</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1</span>];
+        <span class="ident">read</span>.<span class="ident">read_exact</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buff</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;X&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">buff</span>);
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">register_dgram_socket</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">read</span>, <span class="ident">write</span>) <span class="op">=</span> <span class="ident">UnixDatagram::pair</span>()<span class="question-mark">?</span>;
+        <span class="ident">register</span>(<span class="ident">libc::SIGUSR1</span>, <span class="ident">write</span>)<span class="question-mark">?</span>;
+        <span class="ident">read</span>.<span class="ident">set_nonblocking</span>(<span class="bool-val">true</span>)<span class="question-mark">?</span>;
+        <span class="ident">wakeup</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buff</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1</span>];
+        <span class="ident">read</span>.<span class="ident">recv</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buff</span>)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;X&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">buff</span>);
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">register_with_pipe</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fds</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">2</span>];
+        <span class="kw">unsafe</span> { <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">libc::pipe</span>(<span class="ident">fds</span>.<span class="ident">as_mut_ptr</span>())) };
+        <span class="kw">let</span> <span class="ident">read</span> <span class="op">=</span> <span class="ident">OwnedFd</span>(<span class="ident">fds</span>[<span class="number">0</span>]);
+        <span class="kw">let</span> <span class="ident">write</span> <span class="op">=</span> <span class="ident">OwnedFd</span>(<span class="ident">fds</span>[<span class="number">1</span>]);
+        <span class="ident">register</span>(<span class="ident">libc::SIGUSR1</span>, <span class="ident">write</span>)<span class="question-mark">?</span>;
+        <span class="ident">read</span>.<span class="ident">set_flags</span>()<span class="question-mark">?</span>;
+        <span class="ident">wakeup</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buff</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">1</span>];
+        <span class="kw">unsafe</span> {
+            <span class="macro">assert_eq!</span>(
+                <span class="number">1</span>,
+                <span class="ident">libc::read</span>(<span class="ident">read</span>.<span class="ident">as_raw_fd</span>(), <span class="ident">buff</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>, <span class="number">1</span>)
+            )
+        }
+        <span class="macro">assert_eq!</span>(<span class="string">b&quot;X&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">buff</span>);
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="signal_hook" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

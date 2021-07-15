@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Small vectors in various sizes. These store a certain number of elements inline, and fall back to the heap for larger allocations.  This can be a useful optimization for improving cache locality and reducing allocator traffic for workloads that fit within the inline buffer."><meta name="keywords" content="rust, rustlang, rust-lang, smallvec"><title>smallvec - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../smallvec/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate smallvec</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.6.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all smallvec's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="smallvec" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">smallvec</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/smallvec/lib.rs.html#7-1981" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Small vectors in various sizes. These store a certain number of elements inline, and fall back
+to the heap for larger allocations.  This can be a useful optimization for improving cache
+locality and reducing allocator traffic for workloads that fit within the inline buffer.</p>
+<h2 id="no_std-support" class="section-header"><a href="#no_std-support"><code>no_std</code> support</a></h2>
+<p>By default, <code>smallvec</code> does not depend on <code>std</code>.  However, the optional
+<code>write</code> feature implements the <code>std::io::Write</code> trait for vectors of <code>u8</code>.
+When this feature is enabled, <code>smallvec</code> depends on <code>std</code>.</p>
+<h2 id="optional-features" class="section-header"><a href="#optional-features">Optional features</a></h2><h3 id="serde" class="section-header"><a href="#serde"><code>serde</code></a></h3>
+<p>When this optional dependency is enabled, <code>SmallVec</code> implements the <code>serde::Serialize</code> and
+<code>serde::Deserialize</code> traits.</p>
+<h3 id="write" class="section-header"><a href="#write"><code>write</code></a></h3>
+<p>When this feature is enabled, <code>SmallVec&lt;[u8; _]&gt;</code> implements the <code>std::io::Write</code> trait.
+This feature is not compatible with <code>#![no_std]</code> programs.</p>
+<h3 id="union" class="section-header"><a href="#union"><code>union</code></a></h3>
+<p><strong>This feature requires Rust 1.49.</strong></p>
+<p>When the <code>union</code> feature is enabled <code>smallvec</code> will track its state (inline or spilled)
+without the use of an enum tag, reducing the size of the <code>smallvec</code> by one machine word.
+This means that there is potentially no space overhead compared to <code>Vec</code>.
+Note that <code>smallvec</code> can still be larger than <code>Vec</code> if the inline buffer is larger than two
+machine words.</p>
+<p>To use this feature add <code>features = [&quot;union&quot;]</code> in the <code>smallvec</code> section of Cargo.toml.
+Note that this feature requires Rust 1.49.</p>
+<p>Tracking issue: <a href="https://github.com/rust-lang/rust/issues/55149">rust-lang/rust#55149</a></p>
+<h3 id="const_generics" class="section-header"><a href="#const_generics"><code>const_generics</code></a></h3>
+<p><strong>This feature is unstable and requires a nightly build of the Rust toolchain.</strong></p>
+<p>When this feature is enabled, <code>SmallVec</code> works with any arrays of any size, not just a fixed
+list of sizes.</p>
+<p>Tracking issue: <a href="https://github.com/rust-lang/rust/issues/44580">rust-lang/rust#44580</a></p>
+<h3 id="specialization" class="section-header"><a href="#specialization"><code>specialization</code></a></h3>
+<p><strong>This feature is unstable and requires a nightly build of the Rust toolchain.</strong></p>
+<p>When this feature is enabled, <code>SmallVec::from(slice)</code> has improved performance for slices
+of <code>Copy</code> types.  (Without this feature, you can use <code>SmallVec::from_slice</code> to get optimal
+performance for <code>Copy</code> types.)</p>
+<p>Tracking issue: <a href="https://github.com/rust-lang/rust/issues/31844">rust-lang/rust#31844</a></p>
+<h3 id="may_dangle" class="section-header"><a href="#may_dangle"><code>may_dangle</code></a></h3>
+<p><strong>This feature is unstable and requires a nightly build of the Rust toolchain.</strong></p>
+<p>This feature makes the Rust compiler less strict about use of vectors that contain borrowed
+references. For details, see the
+<a href="https://doc.rust-lang.org/1.42.0/nomicon/dropck.html#an-escape-hatch">Rustonomicon</a>.</p>
+<p>Tracking issue: <a href="https://github.com/rust-lang/rust/issues/34761">rust-lang/rust#34761</a></p>
+</div></details><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.smallvec.html" title="smallvec::smallvec macro">smallvec</a></div><div class="item-right docblock-short"><p>Creates a <a href="struct.SmallVec.html" title="SmallVec"><code>SmallVec</code></a> containing the arguments.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Drain.html" title="smallvec::Drain struct">Drain</a></div><div class="item-right docblock-short"><p>An iterator that removes the items from a <code>SmallVec</code> and yields them by value.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.IntoIter.html" title="smallvec::IntoIter struct">IntoIter</a></div><div class="item-right docblock-short"><p>An iterator that consumes a <code>SmallVec</code> and yields its items by value.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.SmallVec.html" title="smallvec::SmallVec struct">SmallVec</a></div><div class="item-right docblock-short"><p>A <code>Vec</code>-like container that can store a small number of elements inline.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.CollectionAllocErr.html" title="smallvec::CollectionAllocErr enum">CollectionAllocErr</a></div><div class="item-right docblock-short"><p>Error type for APIs with fallible heap allocation</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Array.html" title="smallvec::Array trait">Array</a></div><div class="item-right docblock-short"><p>Types that can be used as the backing store for a SmallVec</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.ToSmallVec.html" title="smallvec::ToSmallVec trait">ToSmallVec</a></div><div class="item-right docblock-short"><p>Convenience trait for constructing a <code>SmallVec</code></p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="smallvec" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Overview"><meta name="keywords" content="rust, rustlang, rust-lang, once_cell"><title>once_cell - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../once_cell/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate once_cell</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.8.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all once_cell's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><div id="sidebar-vars" data-name="once_cell" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">once_cell</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/once_cell/lib.rs.html#1-1172" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
+<p><code>once_cell</code> provides two new cell-like types, <a href="unsync/struct.OnceCell.html"><code>unsync::OnceCell</code></a> and <a href="sync/struct.OnceCell.html"><code>sync::OnceCell</code></a>. A <code>OnceCell</code>
+might store arbitrary non-<code>Copy</code> types, can be assigned to at most once and provides direct access
+to the stored contents. The core API looks <em>roughly</em> like this (and there’s much more inside, read on!):</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> { ... }
+    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">T</span><span class="op">&gt;</span> { ... }
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> { ... }
+}</pre></div>
+<p>Note that, like with <a href="https://doc.rust-lang.org/std/cell/struct.RefCell.html"><code>RefCell</code></a> and <a href="https://doc.rust-lang.org/std/sync/struct.Mutex.html"><code>Mutex</code></a>, the <code>set</code> method requires only a shared reference.
+Because of the single assignment restriction <code>get</code> can return a <code>&amp;T</code> instead of <code>Ref&lt;T&gt;</code>
+or <code>MutexGuard&lt;T&gt;</code>.</p>
+<p>The <code>sync</code> flavor is thread-safe (that is, implements the <a href="https://doc.rust-lang.org/std/marker/trait.Sync.html"><code>Sync</code></a> trait), while the <code>unsync</code> one is not.</p>
+<h1 id="recipes" class="section-header"><a href="#recipes">Recipes</a></h1>
+<p><code>OnceCell</code> might be useful for a variety of patterns.</p>
+<h2 id="safe-initialization-of-global-data" class="section-header"><a href="#safe-initialization-of-global-data">Safe Initialization of Global Data</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">io</span>};
+
+<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Logger</span> {
+    <span class="comment">// ...</span>
+}
+<span class="kw">static</span> <span class="ident">INSTANCE</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">Logger</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
+
+<span class="kw">impl</span> <span class="ident">Logger</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">global</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Logger</span> {
+        <span class="ident">INSTANCE</span>.<span class="ident">get</span>().<span class="ident">expect</span>(<span class="string">&quot;logger is not initialized&quot;</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">from_cli</span>(<span class="ident">args</span>: <span class="ident">env::Args</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Logger</span>, <span class="ident">std::io::Error</span><span class="op">&gt;</span> {
+       <span class="comment">// ...</span>
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">logger</span> <span class="op">=</span> <span class="ident">Logger::from_cli</span>(<span class="ident">env::args</span>()).<span class="ident">unwrap</span>();
+    <span class="ident">INSTANCE</span>.<span class="ident">set</span>(<span class="ident">logger</span>).<span class="ident">unwrap</span>();
+    <span class="comment">// use `Logger::global()` from now on</span>
+}</pre></div>
+<h2 id="lazy-initialized-global-data" class="section-header"><a href="#lazy-initialized-global-data">Lazy Initialized Global Data</a></h2>
+<p>This is essentially the <code>lazy_static!</code> macro, but without a macro.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Mutex</span>, <span class="ident">collections::HashMap</span>};
+
+<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+
+<span class="kw">fn</span> <span class="ident">global_data</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">static</span> <span class="ident">INSTANCE</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">OnceCell::new</span>();
+    <span class="ident">INSTANCE</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+        <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">13</span>, <span class="string">&quot;Spica&quot;</span>.<span class="ident">to_string</span>());
+        <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">74</span>, <span class="string">&quot;Hoyten&quot;</span>.<span class="ident">to_string</span>());
+        <span class="ident">Mutex::new</span>(<span class="ident">m</span>)
+    })
+}</pre></div>
+<p>There are also the <a href="sync/struct.Lazy.html"><code>sync::Lazy</code></a> and <a href="unsync/struct.Lazy.html"><code>unsync::Lazy</code></a> convenience types to streamline this pattern:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync::Mutex</span>, <span class="ident">collections::HashMap</span>};
+<span class="kw">use</span> <span class="ident">once_cell::sync::Lazy</span>;
+
+<span class="kw">static</span> <span class="ident">GLOBAL_DATA</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">13</span>, <span class="string">&quot;Spica&quot;</span>.<span class="ident">to_string</span>());
+    <span class="ident">m</span>.<span class="ident">insert</span>(<span class="number">74</span>, <span class="string">&quot;Hoyten&quot;</span>.<span class="ident">to_string</span>());
+    <span class="ident">Mutex::new</span>(<span class="ident">m</span>)
+});
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">GLOBAL_DATA</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>());
+}</pre></div>
+<p>Note that the variable that holds <code>Lazy</code> is declared as <code>static</code>, <em>not</em>
+<code>const</code>. This is important: using <code>const</code> instead compiles, but works wrong.</p>
+<h2 id="general-purpose-lazy-evaluation" class="section-header"><a href="#general-purpose-lazy-evaluation">General purpose lazy evaluation</a></h2>
+<p>Unlike <code>lazy_static!</code>, <code>Lazy</code> works with local variables.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">once_cell::unsync::Lazy</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+    <span class="kw">let</span> <span class="ident">thunk</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="op">|</span><span class="op">|</span> {
+        <span class="ident">ctx</span>.<span class="ident">iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>()
+    });
+    <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">thunk</span>, <span class="number">6</span>);
+}</pre></div>
+<p>If you need a lazy field in a struct, you probably should use <code>OnceCell</code>
+directly, because that will allow you to access <code>self</code> during initialization.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs</span>, <span class="ident">path::PathBuf</span>};
+
+<span class="kw">use</span> <span class="ident">once_cell::unsync::OnceCell</span>;
+
+<span class="kw">struct</span> <span class="ident">Ctx</span> {
+    <span class="ident">config_path</span>: <span class="ident">PathBuf</span>,
+    <span class="ident">config</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Ctx</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">std::io::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">config</span>.<span class="ident">get_or_try_init</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="ident">fs::read_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config_path</span>)
+        })<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">cfg</span>.<span class="ident">as_str</span>())
+    }
+}</pre></div>
+<h2 id="lazily-compiled-regex" class="section-header"><a href="#lazily-compiled-regex">Lazily Compiled Regex</a></h2>
+<p>This is a <code>regex!</code> macro which takes a string literal and returns an
+<em>expression</em> that evaluates to a <code>&amp;'static Regex</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="macro">macro_rules!</span> <span class="ident">regex</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">re</span>:<span class="ident">literal</span> $(,)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> {{
+        <span class="kw">static</span> <span class="ident">RE</span>: <span class="ident">once_cell::sync::OnceCell</span><span class="op">&lt;</span><span class="ident">regex::Regex</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">once_cell::sync::OnceCell::new</span>();
+        <span class="ident">RE</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">regex::Regex::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">re</span>).<span class="ident">unwrap</span>())
+    }};
+}</pre></div>
+<p>This macro can be useful to avoid the “compile regex on every loop iteration” problem.</p>
+<h2 id="runtime-include_bytes" class="section-header"><a href="#runtime-include_bytes">Runtime <code>include_bytes!</code></a></h2>
+<p>The <code>include_bytes</code> macro is useful to include test resources, but it slows
+down test compilation a lot. An alternative is to load the resources at
+runtime:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+
+<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestResource</span> {
+    <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="ident">cell</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">TestResource</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestResource</span> {
+        <span class="ident">TestResource</span> { <span class="ident">path</span>, <span class="ident">cell</span>: <span class="ident">OnceCell::new</span>() }
+    }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+        <span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">get_or_init</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">dir</span>.<span class="ident">as_str</span>()).<span class="ident">join</span>(<span class="self">self</span>.<span class="ident">path</span>);
+            <span class="ident">std::fs::read</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">_err</span><span class="op">|</span> {
+                <span class="macro">panic!</span>(<span class="string">&quot;failed to load test resource: {}&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>())
+            })
+        }).<span class="ident">as_slice</span>()
+    }
+}
+
+<span class="kw">static</span> <span class="ident">TEST_IMAGE</span>: <span class="ident">TestResource</span> <span class="op">=</span> <span class="ident">TestResource::new</span>(<span class="string">&quot;test_data/lena.png&quot;</span>);
+
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">test_sobel_filter</span>() {
+    <span class="kw">let</span> <span class="ident">rgb</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="ident">TEST_IMAGE</span>.<span class="ident">bytes</span>();
+    <span class="comment">// ...</span>
+}</pre></div>
+<h2 id="lateinit" class="section-header"><a href="#lateinit"><code>lateinit</code></a></h2>
+<p><code>LateInit</code> type for delayed initialization. It is reminiscent of Kotlin’s
+<code>lateinit</code> keyword and allows construction of cyclic data structures:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">once_cell::sync::OnceCell</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LateInit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> { <span class="ident">cell</span>: <span class="ident">OnceCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> }
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">LateInit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">value</span>).<span class="ident">is_ok</span>())
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">LateInit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> { <span class="ident">LateInit</span> { <span class="ident">cell</span>: <span class="ident">OnceCell::default</span>() } }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">std::ops::Deref</span> <span class="kw">for</span> <span class="ident">LateInit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">cell</span>.<span class="ident">get</span>().<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">A</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">b</span>: <span class="ident">LateInit</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">B</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">B</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>: <span class="ident">LateInit</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">A</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>
+}
+
+<span class="kw">fn</span> <span class="ident">build_cycle</span>() {
+    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">A::default</span>();
+    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">B::default</span>();
+    <span class="ident">a</span>.<span class="ident">b</span>.<span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
+    <span class="ident">b</span>.<span class="ident">a</span>.<span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">a</span>.<span class="ident">b</span>.<span class="ident">a</span>.<span class="ident">b</span>.<span class="ident">a</span>);
+}</pre></div>
+<h1 id="comparison-with-std" class="section-header"><a href="#comparison-with-std">Comparison with std</a></h1><table><thead><tr><th><code>!Sync</code> types</th><th>Access Mode</th><th>Drawbacks</th></tr></thead><tbody>
+<tr><td><code>Cell&lt;T&gt;</code></td><td><code>T</code></td><td>requires <code>T: Copy</code> for <code>get</code></td></tr>
+<tr><td><code>RefCell&lt;T&gt;</code></td><td><code>RefMut&lt;T&gt;</code> / <code>Ref&lt;T&gt;</code></td><td>may panic at runtime</td></tr>
+<tr><td><code>unsync::OnceCell&lt;T&gt;</code></td><td><code>&amp;T</code></td><td>assignable only once</td></tr>
+</tbody></table>
+<table><thead><tr><th><code>Sync</code> types</th><th>Access Mode</th><th>Drawbacks</th></tr></thead><tbody>
+<tr><td><code>AtomicT</code></td><td><code>T</code></td><td>works only with certain <code>Copy</code> types</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code></td><td><code>MutexGuard&lt;T&gt;</code></td><td>may deadlock at runtime, may block the thread</td></tr>
+<tr><td><code>sync::OnceCell&lt;T&gt;</code></td><td><code>&amp;T</code></td><td>assignable only once, may block the thread</td></tr>
+</tbody></table>
+<p>Technically, calling <code>get_or_init</code> will also cause a panic or a deadlock if it recursively calls
+itself. However, because the assignment can happen only once, such cases should be more rare than
+equivalents with <code>RefCell</code> and <code>Mutex</code>.</p>
+<h1 id="minimum-supported-rustc-version" class="section-header"><a href="#minimum-supported-rustc-version">Minimum Supported <code>rustc</code> Version</a></h1>
+<p>This crate’s minimum supported <code>rustc</code> version is <code>1.36.0</code>.</p>
+<p>If only the <code>std</code> feature is enabled, MSRV will be updated conservatively.
+When using other features, like <code>parking_lot</code>, MSRV might be updated more frequently, up to the latest stable.
+In both cases, increasing MSRV is <em>not</em> considered a semver-breaking change.</p>
+<h1 id="implementation-details" class="section-header"><a href="#implementation-details">Implementation details</a></h1>
+<p>The implementation is based on the <a href="https://github.com/rust-lang-nursery/lazy-static.rs/"><code>lazy_static</code></a>
+and <a href="https://github.com/indiv0/lazycell/"><code>lazy_cell</code></a> crates and <a href="https://doc.rust-lang.org/std/sync/struct.Once.html"><code>std::sync::Once</code></a>. In some sense,
+<code>once_cell</code> just streamlines and unifies those APIs.</p>
+<p>To implement a sync flavor of <code>OnceCell</code>, this crates uses either a custom
+re-implementation of <code>std::sync::Once</code> or <code>parking_lot::Mutex</code>. This is
+controlled by the <code>parking_lot</code> feature (disabled by default). Performance
+is the same for both cases, but the <code>parking_lot</code> based <code>OnceCell&lt;T&gt;</code> is
+smaller by up to 16 bytes.</p>
+<p>This crate uses <code>unsafe</code>.</p>
+<h1 id="faq" class="section-header"><a href="#faq">F.A.Q.</a></h1>
+<p><strong>Should I use lazy_static or once_cell?</strong></p>
+<p>To the first approximation, <code>once_cell</code> is both more flexible and more convenient than <code>lazy_static</code>
+and should be preferred.</p>
+<p>Unlike <code>once_cell</code>, <code>lazy_static</code> supports spinlock-based implementation of blocking which works with
+<code>#![no_std]</code>.</p>
+<p><code>lazy_static</code> has received significantly more real world testing, but <code>once_cell</code> is also a widely
+used crate.</p>
+<p><strong>Should I use the sync or unsync flavor?</strong></p>
+<p>Because Rust compiler checks thread safety for you, it’s impossible to accidentally use <code>unsync</code> where
+<code>sync</code> is required. So, use <code>unsync</code> in single-threaded code and <code>sync</code> in multi-threaded. It’s easy
+to switch between the two if code becomes multi-threaded later.</p>
+<p>At the moment, <code>unsync</code> has an additional benefit that reentrant initialization causes a panic, which
+might be easier to debug than a deadlock.</p>
+<h1 id="related-crates" class="section-header"><a href="#related-crates">Related crates</a></h1>
+<ul>
+<li><a href="https://github.com/niklasf/double-checked-cell">double-checked-cell</a></li>
+<li><a href="https://crates.io/crates/lazy-init">lazy-init</a></li>
+<li><a href="https://crates.io/crates/lazycell">lazycell</a></li>
+<li><a href="https://crates.io/crates/mitochondria">mitochondria</a></li>
+<li><a href="https://crates.io/crates/lazy_static">lazy_static</a></li>
+</ul>
+<p>Most of this crate’s functionality is available in <code>std</code> in nightly Rust.
+See the <a href="https://github.com/rust-lang/rust/issues/74465">tracking issue</a>.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="race/index.html" title="once_cell::race mod">race</a></div><div class="item-right docblock-short"><p>Thread-safe, non-blocking, “first one wins” flavor of <code>OnceCell</code>.</p>
+</div><div class="item-left module-item"><a class="mod" href="unsync/index.html" title="once_cell::unsync mod">unsync</a></div><div class="item-right docblock-short"><p>Single-threaded version of <code>OnceCell</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="once_cell" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

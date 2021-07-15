@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["hour","Extracts the hours of a given temporal array as an array of integers"],["minute","Extracts the minutes of a given temporal array as an array of integers"],["second","Extracts the seconds of a given temporal array as an array of integers"],["year","Extracts the years of a given temporal array as an array of integers"]]});

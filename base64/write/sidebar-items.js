@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["EncoderStringWriter","A `Write` implementation that base64-encodes data using the provided config and accumulates the resulting base64 in memory, which is then exposed as a String via `into_inner()`."],["EncoderWriter","A `Write` implementation that base64 encodes data before delegating to the wrapped writer."]]});

@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Fires off a task into the Rayon threadpool in the “static” or “global” scope.  Just like a standard thread, this task is not tied to the current stack frame, and hence it cannot hold any references other than those with `&#x27;static` lifetime. If you want to spawn a task that references stack data, use the `scope()` function to create a scope."><meta name="keywords" content="rust, rustlang, rust-lang, spawn"><title>spawn in rayon_core - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rayon_core/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">rayon_core</a></p><div id="sidebar-vars" data-name="spawn" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">rayon_core</a>::<wbr><a class="fn" href="#">spawn</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rayon_core/spawn/mod.rs.html#60-66" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn spawn&lt;F&gt;(func: F) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Fires off a task into the Rayon threadpool in the “static” or
+“global” scope.  Just like a standard thread, this task is not
+tied to the current stack frame, and hence it cannot hold any
+references other than those with <code>'static</code> lifetime. If you want
+to spawn a task that references stack data, use <a href="fn.scope.html">the <code>scope()</code>
+function</a> to create a scope.</p>
+<p>Since tasks spawned with this function cannot hold references into
+the enclosing stack frame, you almost certainly want to use a
+<code>move</code> closure as their argument (otherwise, the closure will
+typically hold references to any variables from the enclosing
+function that you happen to use).</p>
+<p>This API assumes that the closure is executed purely for its
+side-effects (i.e., it might send messages, modify data protected
+by a mutex, or some such thing).</p>
+<p>There is no guaranteed order of execution for spawns, given that
+other threads may steal tasks at any time. However, they are
+generally prioritized in a LIFO order on the thread from which
+they were spawned. Other threads always steal from the other end of
+the deque, like FIFO order.  The idea is that “recent” tasks are
+most likely to be fresh in the local CPU’s cache, while other
+threads can steal older “stale” tasks.  For an alternate approach,
+consider <a href="fn.spawn_fifo.html"><code>spawn_fifo()</code></a> instead.</p>
+<h1 id="panic-handling" class="section-header"><a href="#panic-handling">Panic handling</a></h1>
+<p>If this closure should panic, the resulting panic will be
+propagated to the panic handler registered in the <code>ThreadPoolBuilder</code>,
+if any.  See <a href="struct.ThreadPoolBuilder.html#method.panic_handler"><code>ThreadPoolBuilder::panic_handler()</code></a> for more
+details.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>This code creates a Rayon task that increments a global counter.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::sync::atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>, <span class="ident">ATOMIC_USIZE_INIT</span>};
+
+<span class="kw">static</span> <span class="ident">GLOBAL_COUNTER</span>: <span class="ident">AtomicUsize</span> <span class="op">=</span> <span class="ident">ATOMIC_USIZE_INIT</span>;
+
+<span class="ident">rayon::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+    <span class="ident">GLOBAL_COUNTER</span>.<span class="ident">fetch_add</span>(<span class="number">1</span>, <span class="ident">Ordering::SeqCst</span>);
+});</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rayon_core" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

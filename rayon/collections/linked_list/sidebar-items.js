@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IntoIter","Parallel iterator over a linked list"],["Iter","Parallel iterator over an immutable reference to a linked list"],["IterMut","Parallel iterator over a mutable reference to a linked list"]]});

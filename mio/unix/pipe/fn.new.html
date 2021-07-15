@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Create a new non-blocking Unix pipe."><meta name="keywords" content="rust, rustlang, rust-lang, new"><title>new in mio::unix::pipe - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../mio/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="../../index.html">mio</a>::<wbr><a href="../index.html">unix</a>::<wbr><a href="index.html">pipe</a></p><div id="sidebar-vars" data-name="new" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">mio</a>::<wbr><a href="../index.html">unix</a>::<wbr><a href="index.html">pipe</a>::<wbr><a class="fn" href="#">new</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/mio/sys/unix/pipe.rs.html#147-204" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn new() -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/std/io/error/type.Result.html" title="type std::io::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="struct" href="struct.Sender.html" title="struct mio::unix::pipe::Sender">Sender</a>, <a class="struct" href="struct.Receiver.html" title="struct mio::unix::pipe::Receiver">Receiver</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Create a new non-blocking Unix pipe.</p>
+<p>This is a wrapper around Unix’s <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html"><code>pipe(2)</code></a> system call and can be used as
+inter-process or thread communication channel.</p>
+<p>This channel may be created before forking the process and then one end used
+in each process, e.g. the parent process has the sending end to send command
+to the child process.</p>
+<h1 id="events" class="section-header"><a href="#events">Events</a></h1>
+<p>The <a href="struct.Sender.html" title="Sender"><code>Sender</code></a> can be registered with <a href="../../struct.Interest.html#associatedconstant.WRITABLE"><code>WRITABLE</code></a> interest to receive
+<a href="../../event/struct.Event.html#method.is_writable">writable events</a>, the <a href="struct.Receiver.html" title="Receiver"><code>Receiver</code></a> with <a href="../../struct.Interest.html#associatedconstant.READABLE"><code>READABLE</code></a> interest. Once data is
+written to the <code>Sender</code> the <code>Receiver</code> will receive an <a href="../../event/struct.Event.html#method.is_readable">readable event</a>.</p>
+<p>In addition to those events, events will also be generated if the other side
+is dropped. To check if the <code>Sender</code> is dropped you’ll need to check
+<a href="../../event/struct.Event.html#method.is_read_closed"><code>is_read_closed</code></a> on events for the <code>Receiver</code>, if it returns true the
+<code>Sender</code> is dropped. On the <code>Sender</code> end check <a href="../../event/struct.Event.html#method.is_write_closed"><code>is_write_closed</code></a>, if it
+returns true the <code>Receiver</code> was dropped. Also see the second example below.</p>
+<h1 id="deregistering" class="section-header"><a href="#deregistering">Deregistering</a></h1>
+<p>Both <code>Sender</code> and <code>Receiver</code> will deregister themselves when dropped,
+<strong>iff</strong> the file descriptors are not duplicated (via <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/dup.html"><code>dup(2)</code></a>).</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Simple example that writes data into the sending end and read it from the
+receiving end.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
+
+<span class="kw">use</span> <span class="ident">mio</span>::{<span class="ident">Poll</span>, <span class="ident">Events</span>, <span class="ident">Interest</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">mio::unix::pipe</span>;
+
+<span class="comment">// Unique tokens for the two ends of the channel.</span>
+<span class="kw">const</span> <span class="ident">PIPE_RECV</span>: <span class="ident">Token</span> <span class="op">=</span> <span class="ident">Token</span>(<span class="number">0</span>);
+<span class="kw">const</span> <span class="ident">PIPE_SEND</span>: <span class="ident">Token</span> <span class="op">=</span> <span class="ident">Token</span>(<span class="number">1</span>);
+
+<span class="comment">// Create our `Poll` instance and the `Events` container.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">poll</span> <span class="op">=</span> <span class="ident">Poll::new</span>()<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">events</span> <span class="op">=</span> <span class="ident">Events::with_capacity</span>(<span class="number">8</span>);
+
+<span class="comment">// Create a new pipe.</span>
+<span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">sender</span>, <span class="kw-2">mut</span> <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">pipe::new</span>()<span class="question-mark">?</span>;
+
+<span class="comment">// Register both ends of the channel.</span>
+<span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">receiver</span>, <span class="ident">PIPE_RECV</span>, <span class="ident">Interest::READABLE</span>)<span class="question-mark">?</span>;
+<span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sender</span>, <span class="ident">PIPE_SEND</span>, <span class="ident">Interest::WRITABLE</span>)<span class="question-mark">?</span>;
+
+<span class="kw">const</span> <span class="ident">MSG</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">11</span>] <span class="op">=</span> <span class="string">b&quot;Hello world&quot;</span>;
+
+<span class="kw">loop</span> {
+    <span class="ident">poll</span>.<span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">events</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">for</span> <span class="ident">event</span> <span class="kw">in</span> <span class="ident">events</span>.<span class="ident">iter</span>() {
+        <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">token</span>() {
+            <span class="ident">PIPE_SEND</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sender</span>.<span class="ident">write</span>(<span class="ident">MSG</span>)
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">n</span> <span class="op">!</span><span class="op">=</span> <span class="ident">MSG</span>.<span class="ident">len</span>() {
+                        <span class="comment">// We&#39;ll consider a short write an error in this</span>
+                        <span class="comment">// example. NOTE: we can&#39;t use `write_all` with</span>
+                        <span class="comment">// non-blocking I/O.</span>
+                        <span class="prelude-val">Err</span>(<span class="ident">io::ErrorKind::WriteZero</span>.<span class="ident">into</span>())
+                    } <span class="kw">else</span> {
+                        <span class="prelude-val">Ok</span>(())
+                    })<span class="question-mark">?</span>,
+            <span class="ident">PIPE_RECV</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">11</span>];
+                <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">receiver</span>.<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
+                <span class="macro">println!</span>(<span class="string">&quot;received: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="number">0</span>..<span class="ident">n</span>]);
+                <span class="macro">assert_eq!</span>(<span class="ident">n</span>, <span class="ident">MSG</span>.<span class="ident">len</span>());
+                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">MSG</span>);
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+            },
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        }
+    }
+}</pre></div>
+<p>Example that receives an event once the <code>Sender</code> is dropped.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// Same setup as in the example above.</span>
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">poll</span> <span class="op">=</span> <span class="ident">Poll::new</span>()<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">events</span> <span class="op">=</span> <span class="ident">Events::with_capacity</span>(<span class="number">8</span>);
+
+<span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">sender</span>, <span class="kw-2">mut</span> <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">pipe::new</span>()<span class="question-mark">?</span>;
+
+<span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">receiver</span>, <span class="ident">PIPE_RECV</span>, <span class="ident">Interest::READABLE</span>)<span class="question-mark">?</span>;
+<span class="ident">poll</span>.<span class="ident">registry</span>().<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sender</span>, <span class="ident">PIPE_SEND</span>, <span class="ident">Interest::WRITABLE</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// Drop the sender.</span>
+<span class="ident">drop</span>(<span class="ident">sender</span>);
+
+<span class="ident">poll</span>.<span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">events</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
+
+<span class="kw">for</span> <span class="ident">event</span> <span class="kw">in</span> <span class="ident">events</span>.<span class="ident">iter</span>() {
+    <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">token</span>() {
+        <span class="ident">PIPE_RECV</span> <span class="kw">if</span> <span class="ident">event</span>.<span class="ident">is_read_closed</span>() <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// Detected that the sender was dropped.</span>
+            <span class="macro">println!</span>(<span class="string">&quot;Sender dropped!&quot;</span>);
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        },
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+    }
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="mio" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script>
+</body></html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="`IndexMap` is a hash table where the iteration order of the key-value pairs is independent of the hash values of the keys."><meta name="keywords" content="rust, rustlang, rust-lang, indexmap"><title>indexmap - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../indexmap/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate indexmap</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.7.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all indexmap's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="indexmap" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">indexmap</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/indexmap/lib.rs.html#2-187" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="map/struct.IndexMap.html"><code>IndexMap</code></a> is a hash table where the iteration order of the key-value
+pairs is independent of the hash values of the keys.</p>
+<p><a href="set/struct.IndexSet.html"><code>IndexSet</code></a> is a corresponding hash set using the same implementation and
+with similar properties.</p>
+<h3 id="feature-highlights" class="section-header"><a href="#feature-highlights">Feature Highlights</a></h3>
+<p><a href="map/struct.IndexMap.html"><code>IndexMap</code></a> and <a href="set/struct.IndexSet.html"><code>IndexSet</code></a> are drop-in compatible with the std <code>HashMap</code>
+and <code>HashSet</code>, but they also have some features of note:</p>
+<ul>
+<li>The ordering semantics (see their documentation for details)</li>
+<li>Sorting methods and the <a href="map/struct.IndexMap.html#method.pop" title="IndexMap::pop"><code>.pop()</code></a> methods.</li>
+<li>The <a href="trait.Equivalent.html" title="Equivalent"><code>Equivalent</code></a> trait, which offers more flexible equality definitions
+between borrowed and owned versions of keys.</li>
+<li>The <a href="map/trait.MutableKeys.html" title="map::MutableKeys"><code>MutableKeys</code></a> trait, which gives opt-in mutable
+access to hash map keys.</li>
+</ul>
+<h3 id="alternate-hashers" class="section-header"><a href="#alternate-hashers">Alternate Hashers</a></h3>
+<p><a href="map/struct.IndexMap.html"><code>IndexMap</code></a> and <a href="set/struct.IndexSet.html"><code>IndexSet</code></a> have a default hasher type <code>S = RandomState</code>,
+just like the standard <code>HashMap</code> and <code>HashSet</code>, which is resistant to
+HashDoS attacks but not the most performant. Type aliases can make it easier
+to use alternate hashers:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">fnv::FnvBuildHasher</span>;
+<span class="kw">use</span> <span class="ident">fxhash::FxBuildHasher</span>;
+<span class="kw">use</span> <span class="ident">indexmap</span>::{<span class="ident">IndexMap</span>, <span class="ident">IndexSet</span>};
+
+<span class="kw">type</span> <span class="ident">FnvIndexMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">FnvBuildHasher</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">FnvIndexSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">FnvBuildHasher</span><span class="op">&gt;</span>;
+
+<span class="kw">type</span> <span class="ident">FxIndexMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">FxBuildHasher</span><span class="op">&gt;</span>;
+<span class="kw">type</span> <span class="ident">FxIndexSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">FxBuildHasher</span><span class="op">&gt;</span>;
+
+<span class="kw">let</span> <span class="ident">std</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">100</span>).<span class="ident">collect</span>();
+<span class="kw">let</span> <span class="ident">fnv</span>: <span class="ident">FnvIndexSet</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">100</span>).<span class="ident">collect</span>();
+<span class="kw">let</span> <span class="ident">fx</span>: <span class="ident">FxIndexSet</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">100</span>).<span class="ident">collect</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">std</span>, <span class="ident">fnv</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">std</span>, <span class="ident">fx</span>);</pre></div>
+<h3 id="rust-version" class="section-header"><a href="#rust-version">Rust Version</a></h3>
+<p>This version of indexmap requires Rust 1.49 or later.</p>
+<p>The indexmap 1.x release series will use a carefully considered version
+upgrade policy, where in a later 1.x version, we will raise the minimum
+required Rust version.</p>
+<h2 id="no-standard-library-targets" class="section-header"><a href="#no-standard-library-targets">No Standard Library Targets</a></h2>
+<p>This crate supports being built without <code>std</code>, requiring
+<code>alloc</code> instead. This is enabled automatically when it is detected that
+<code>std</code> is not available. There is no crate feature to enable/disable to
+trigger this. It can be tested by building for a std-less target.</p>
+<ul>
+<li>Creating maps and sets using <a href="map/struct.IndexMap.html#method.new" title="IndexMap::new"><code>new</code></a> and
+<a href="map/struct.IndexMap.html#method.with_capacity" title="IndexMap::with_capacity"><code>with_capacity</code></a> is unavailable without <code>std</code>.<br />
+Use methods <a href="map/struct.IndexMap.html#impl-Default"><code>IndexMap::default</code></a>,
+<a href="map/struct.IndexMap.html#method.with_hasher" title="IndexMap::with_hasher"><code>with_hasher</code></a>,
+<a href="map/struct.IndexMap.html#method.with_capacity_and_hasher" title="IndexMap::with_capacity_and_hasher"><code>with_capacity_and_hasher</code></a> instead.
+A no-std compatible hasher will be needed as well, for example
+from the crate <code>twox-hash</code>.</li>
+<li>Macros <a href="macro.indexmap.html" title="indexmap!"><code>indexmap!</code></a> and <a href="macro.indexset.html" title="indexset!"><code>indexset!</code></a> are unavailable without <code>std</code>.</li>
+</ul>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-left import-item"><code>pub use crate::map::<a class="struct" href="map/struct.IndexMap.html" title="struct indexmap::map::IndexMap">IndexMap</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use crate::set::<a class="struct" href="set/struct.IndexSet.html" title="struct indexmap::set::IndexSet">IndexSet</a>;</code></div><div class="item-right docblock-short"></div></div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="map/index.html" title="indexmap::map mod">map</a></div><div class="item-right docblock-short"><p><code>IndexMap</code> is a hash table where the iteration order of the key-value
+pairs is independent of the hash values of the keys.</p>
+</div><div class="item-left module-item"><a class="mod" href="set/index.html" title="indexmap::set mod">set</a></div><div class="item-right docblock-short"><p>A hash set implemented using <code>IndexMap</code></p>
+</div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.indexmap.html" title="indexmap::indexmap macro">indexmap</a></div><div class="item-right docblock-short"><p>Create an <code>IndexMap</code> from a list of key-value pairs</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.indexset.html" title="indexmap::indexset macro">indexset</a></div><div class="item-right docblock-short"><p>Create an <code>IndexSet</code> from a list of values</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Equivalent.html" title="indexmap::Equivalent trait">Equivalent</a></div><div class="item-right docblock-short"><p>Key equivalence trait.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="indexmap" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;parking_lot_core-0.8.3&#x2F;src&#x2F;lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../parking_lot_core/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2016 Amanieu d&#39;Antras</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0, &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://apache.org/licenses/LICENSE-2.0&gt; or the MIT license &lt;LICENSE-MIT or</span>
+<span class="comment">// http://opensource.org/licenses/MIT&gt;, at your option. This file may not be</span>
+<span class="comment">// copied, modified, or distributed except according to those terms.</span>
+
+<span class="doccomment">//! This library exposes a low-level API for creating your own efficient</span>
+<span class="doccomment">//! synchronization primitives.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # The parking lot</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To keep synchronization primitives small, all thread queuing and suspending</span>
+<span class="doccomment">//! functionality is offloaded to the *parking lot*. The idea behind this is based</span>
+<span class="doccomment">//! on the Webkit [`WTF::ParkingLot`](https://webkit.org/blog/6161/locking-in-webkit/)</span>
+<span class="doccomment">//! class, which essentially consists of a hash table mapping of lock addresses</span>
+<span class="doccomment">//! to queues of parked (sleeping) threads. The Webkit parking lot was itself</span>
+<span class="doccomment">//! inspired by Linux [futexes](http://man7.org/linux/man-pages/man2/futex.2.html),</span>
+<span class="doccomment">//! but it is more powerful since it allows invoking callbacks while holding a</span>
+<span class="doccomment">//! queue lock.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! There are two main operations that can be performed on the parking lot:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!  - *Parking* refers to suspending the thread while simultaneously enqueuing it</span>
+<span class="doccomment">//! on a queue keyed by some address.</span>
+<span class="doccomment">//! - *Unparking* refers to dequeuing a thread from a queue keyed by some address</span>
+<span class="doccomment">//! and resuming it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! See the documentation of the individual functions for more details.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Building custom synchronization primitives</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Building custom synchronization primitives is very simple since the parking</span>
+<span class="doccomment">//! lot takes care of all the hard parts for you. A simple example for a</span>
+<span class="doccomment">//! custom primitive would be to integrate a `Mutex` inside another data type.</span>
+<span class="doccomment">//! Since a mutex only requires 2 bits, it can share space with other data.</span>
+<span class="doccomment">//! For example, one could create an `ArcMutex` type that combines the atomic</span>
+<span class="doccomment">//! reference count and the two mutex bits in the same atomic word.</span>
+
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="attribute">#![<span class="ident">warn</span>(<span class="ident">rust_2018_idioms</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(
+    <span class="ident">all</span>(<span class="ident">target_env</span> <span class="op">=</span> <span class="string">&quot;sgx&quot;</span>, <span class="ident">target_vendor</span> <span class="op">=</span> <span class="string">&quot;fortanix&quot;</span>),
+    <span class="ident">feature</span>(<span class="ident">sgx_platform</span>)
+)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(
+    <span class="ident">all</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>,
+        <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>,
+        <span class="ident">target_feature</span> <span class="op">=</span> <span class="string">&quot;atomics&quot;</span>
+    ),
+    <span class="ident">feature</span>(<span class="ident">stdsimd</span>)
+)]</span>
+
+<span class="kw">mod</span> <span class="ident">parking_lot</span>;
+<span class="kw">mod</span> <span class="ident">spinwait</span>;
+<span class="kw">mod</span> <span class="ident">thread_parker</span>;
+<span class="kw">mod</span> <span class="ident">util</span>;
+<span class="kw">mod</span> <span class="ident">word_lock</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::parking_lot::deadlock</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::parking_lot</span>::{<span class="ident">park</span>, <span class="ident">unpark_all</span>, <span class="ident">unpark_filter</span>, <span class="ident">unpark_one</span>, <span class="ident">unpark_requeue</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::parking_lot</span>::{
+    <span class="ident">FilterOp</span>, <span class="ident">ParkResult</span>, <span class="ident">ParkToken</span>, <span class="ident">RequeueOp</span>, <span class="ident">UnparkResult</span>, <span class="ident">UnparkToken</span>,
+};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::parking_lot</span>::{<span class="ident">DEFAULT_PARK_TOKEN</span>, <span class="ident">DEFAULT_UNPARK_TOKEN</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::spinwait::SpinWait</span>;
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="parking_lot_core" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

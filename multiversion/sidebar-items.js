@@ -1,0 +1,1 @@
+initSidebarItems({"attr":[["multiversion","Provides function multiversioning."],["target","Provides a less verbose equivalent to the `target_arch` and `target_feature` attributes."]],"macro":[["are_cpu_features_detected","Detects CPU features."]]});

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Creates a “fork-join” scope `s` with FIFO order, and invokes the closure with a reference to `s`. This closure can then spawn asynchronous tasks into `s`. Those tasks may run asynchronously with respect to the closure; they may themselves spawn additional tasks into `s`. When the closure returns, it will block until all tasks that have been spawned into `s` complete."><meta name="keywords" content="rust, rustlang, rust-lang, scope_fifo"><title>scope_fifo in rayon - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rayon/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">rayon</a></p><div id="sidebar-vars" data-name="scope_fifo" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">rayon</a>::<wbr><a class="fn" href="#">scope_fifo</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rayon_core/scope/mod.rs.html#394-397" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn scope_fifo&lt;'scope, OP, R&gt;(op: OP) -&gt; R <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;OP: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(&amp;<a class="struct" href="struct.ScopeFifo.html" title="struct rayon::ScopeFifo">ScopeFifo</a>&lt;'scope&gt;) -&gt; R + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a “fork-join” scope <code>s</code> with FIFO order, and invokes the
+closure with a reference to <code>s</code>. This closure can then spawn
+asynchronous tasks into <code>s</code>. Those tasks may run asynchronously with
+respect to the closure; they may themselves spawn additional tasks
+into <code>s</code>. When the closure returns, it will block until all tasks
+that have been spawned into <code>s</code> complete.</p>
+<h1 id="task-execution" class="section-header"><a href="#task-execution">Task execution</a></h1>
+<p>Tasks in a <code>scope_fifo()</code> run similarly to <a href="fn.scope.html"><code>scope()</code></a>, but there’s a
+difference in the order of execution. Consider a similar example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// point start</span>
+<span class="ident">rayon::scope_fifo</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+    <span class="ident">s</span>.<span class="ident">spawn_fifo</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> { <span class="comment">// task s.1</span>
+        <span class="ident">s</span>.<span class="ident">spawn_fifo</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> { <span class="comment">// task s.1.1</span>
+            <span class="ident">rayon::scope_fifo</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
+                <span class="ident">t</span>.<span class="ident">spawn_fifo</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()); <span class="comment">// task t.1</span>
+                <span class="ident">t</span>.<span class="ident">spawn_fifo</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()); <span class="comment">// task t.2</span>
+            });
+        });
+    });
+    <span class="ident">s</span>.<span class="ident">spawn_fifo</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> { <span class="comment">// task s.2</span>
+    });
+    <span class="comment">// point mid</span>
+});
+<span class="comment">// point end</span></pre></div>
+<p>The various tasks that are run will execute roughly like so:</p>
+<pre><code class="language-notrust">| (start)
+|
+| (FIFO scope `s` created)
++--------------------+ (task s.1)
++-------+ (task s.2) |
+|       |            +---+ (task s.1.1)
+|       |            |   |
+|       |            |   | (FIFO scope `t` created)
+|       |            |   +----------------+ (task t.1)
+|       |            |   +---+ (task t.2) |
+| (mid) |            |   |   |            |
+:       |            |   + &lt;-+------------+ (scope `t` ends)
+:       |            |   |
+|&lt;------+------------+---+ (scope `s` ends)
+|
+| (end)
+</code></pre>
+<p>Under <code>scope_fifo()</code>, the spawns are prioritized in a FIFO order on
+the thread from which they were spawned, as opposed to <code>scope()</code>’s
+LIFO.  So in this example, we can expect <code>s.1</code> to execute before
+<code>s.2</code>, and <code>t.1</code> before <code>t.2</code>. Other threads also steal tasks in
+FIFO order, as usual. Overall, this has roughly the same order as
+the now-deprecated <a href="struct.ThreadPoolBuilder.html#method.breadth_first"><code>breadth_first</code></a> option, except the effect is
+isolated to a particular scope. If spawns are intermingled from any
+combination of <code>scope()</code> and <code>scope_fifo()</code>, or from different
+threads, their order is only specified with respect to spawns in the
+same scope and thread.</p>
+<p>For more details on this design, see Rayon <a href="https://github.com/rayon-rs/rfcs/blob/master/accepted/rfc0001-scope-scheduling.md">RFC #1</a>.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>If a panic occurs, either in the closure given to <code>scope_fifo()</code> or
+in any of the spawned jobs, that panic will be propagated and the
+call to <code>scope_fifo()</code> will panic. If multiple panics occurs, it is
+non-deterministic which of their panic values will propagate.
+Regardless, once a task is spawned using <code>scope.spawn_fifo()</code>, it
+will execute, even if the spawning task should later panic.
+<code>scope_fifo()</code> returns once all spawned jobs have completed, and any
+panics are propagated at that point.</p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rayon" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

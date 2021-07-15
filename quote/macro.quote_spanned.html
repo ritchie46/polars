@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Same as `quote!`, but applies a given span to all tokens originating within the macro invocation."><meta name="keywords" content="rust, rustlang, rust-lang, quote_spanned"><title>quote_spanned in quote - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../quote/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">quote</a></p><div id="sidebar-vars" data-name="quote_spanned" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">quote</a>::<wbr><a class="macro" href="#">quote_spanned</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/quote/lib.rs.html#586-597" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">quote_spanned</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span><span class="op">=</span><span class="op">&gt;</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">span</span>:<span class="ident">expr</span><span class="op">=</span><span class="op">&gt;</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Same as <code>quote!</code>, but applies a given span to all tokens originating within
+the macro invocation.</p>
+<br>
+<h1 id="syntax" class="section-header"><a href="#syntax">Syntax</a></h1>
+<p>A span expression of type <a href="https://docs.rs/proc-macro2/1.0/proc_macro2/struct.Span.html"><code>Span</code></a>, followed by <code>=&gt;</code>, followed by the tokens
+to quote. The span expression should be brief — use a variable for
+anything more than a few characters. There should be no space before the
+<code>=&gt;</code> token.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="comment">/* ... */</span>;
+
+<span class="comment">// On one line, use parentheses.</span>
+<span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span> <span class="ident">Box::into_raw</span>(<span class="ident">Box::new</span>(#<span class="ident">init</span>)));
+
+<span class="comment">// On multiple lines, place the span at the top and use braces.</span>
+<span class="kw">let</span> <span class="ident">tokens</span> <span class="op">=</span> <span class="macro">quote_spanned!</span> {<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span>
+    <span class="ident">Box::into_raw</span>(<span class="ident">Box::new</span>(#<span class="ident">init</span>))
+};</pre></div>
+<p>The lack of space before the <code>=&gt;</code> should look jarring to Rust programmers
+and this is intentional. The formatting is designed to be visibly
+off-balance and draw the eye a particular way, due to the span expression
+being evaluated in the context of the procedural macro and the remaining
+tokens being evaluated in the generated code.</p>
+<br>
+<h1 id="hygiene" class="section-header"><a href="#hygiene">Hygiene</a></h1>
+<p>Any interpolated tokens preserve the <code>Span</code> information provided by their
+<code>ToTokens</code> implementation. Tokens that originate within the <code>quote_spanned!</code>
+invocation are spanned with the given span argument.</p>
+<br>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>The following procedural macro code uses <code>quote_spanned!</code> to assert that a
+particular Rust type implements the <a href="https://doc.rust-lang.org/std/marker/trait.Sync.html"><code>Sync</code></a> trait so that references can be
+safely shared between threads.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">ty_span</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">span</span>();
+<span class="kw">let</span> <span class="ident">assert_sync</span> <span class="op">=</span> <span class="macro">quote_spanned!</span> {<span class="ident">ty_span</span><span class="op">=</span><span class="op">&gt;</span>
+    <span class="kw">struct</span> <span class="ident">_AssertSync</span> <span class="kw">where</span> #<span class="ident">ty</span>: <span class="ident">Sync</span>;
+};</pre></div>
+<p>If the assertion fails, the user will see an error like the following. The
+input span of their type is highlighted in the error.</p>
+<pre><code class="language-text">error[E0277]: the trait bound `*const (): std::marker::Sync` is not satisfied
+  --&gt; src/main.rs:10:21
+   |
+10 |     static ref PTR: *const () = &amp;();
+   |                     ^^^^^^^^^ `*const ()` cannot be shared between threads safely
+</code></pre>
+<p>In this example it is important for the where-clause to be spanned with the
+line/column information of the user’s input type so that error messages are
+placed appropriately by the compiler.</p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="quote" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

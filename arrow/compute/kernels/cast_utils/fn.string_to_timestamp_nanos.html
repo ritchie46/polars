@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Accepts a string in RFC3339 &#x2F; ISO8601 standard format and some variants and converts it to a nanosecond precision timestamp."><meta name="keywords" content="rust, rustlang, rust-lang, string_to_timestamp_nanos"><title>string_to_timestamp_nanos in arrow::compute::kernels::cast_utils - Rust</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../arrow/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="../../../index.html">arrow</a>::<wbr><a href="../../index.html">compute</a>::<wbr><a href="../index.html">kernels</a>::<wbr><a href="index.html">cast_utils</a></p><div id="sidebar-vars" data-name="string_to_timestamp_nanos" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../../index.html">arrow</a>::<wbr><a href="../../index.html">compute</a>::<wbr><a href="../index.html">kernels</a>::<wbr><a href="index.html">cast_utils</a>::<wbr><a class="fn" href="#">string_to_timestamp_nanos</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../../src/arrow/compute/kernels/cast_utils.rs.html#69-131" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn string_to_timestamp_nanos(s: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="type" href="../../../error/type.Result.html" title="type arrow::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>&gt;</pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Accepts a string in RFC3339 / ISO8601 standard format and some
+variants and converts it to a nanosecond precision timestamp.</p>
+<p>Implements the <code>to_timestamp</code> function to convert a string to a
+timestamp, following the model of spark SQL’s to_<code>timestamp</code>.</p>
+<p>In addition to RFC3339 / ISO8601 standard timestamps, it also
+accepts strings that use a space <code> </code> to separate the date and time
+as well as strings that have no explicit timezone offset.</p>
+<p>Examples of accepted inputs:</p>
+<ul>
+<li><code>1997-01-31T09:26:56.123Z</code>        # RCF3339</li>
+<li><code>1997-01-31T09:26:56.123-05:00</code>   # RCF3339</li>
+<li><code>1997-01-31 09:26:56.123-05:00</code>   # close to RCF3339 but with a space rather than T</li>
+<li><code>1997-01-31T09:26:56.123</code>         # close to RCF3339 but no timezone offset specified</li>
+<li><code>1997-01-31 09:26:56.123</code>         # close to RCF3339 but uses a space and no timezone offset</li>
+<li><code>1997-01-31 09:26:56</code>             # close to RCF3339, no fractional seconds
+Internally, this function uses the <code>chrono</code> library for the
+datetime parsing</li>
+</ul>
+<p>We hope to extend this function in the future with a second
+parameter to specifying the format string.</p>
+<h2 id="timestamp-precision" class="section-header"><a href="#timestamp-precision">Timestamp Precision</a></h2>
+<p>Function uses the maximum precision timestamps supported by
+Arrow (nanoseconds stored as a 64-bit integer) timestamps. This
+means the range of dates that timestamps can represent is ~1677 AD
+to 2262 AM</p>
+<h2 id="timezone--offset-handling" class="section-header"><a href="#timezone--offset-handling">Timezone / Offset Handling</a></h2>
+<p>Numerical values of timestamps are stored compared to offset UTC.</p>
+<p>This function intertprets strings without an explicit time zone as
+timestamps with offsets of the local time on the machine</p>
+<p>For example, <code>1997-01-31 09:26:56.123Z</code> is interpreted as UTC, as
+it has an explicit timezone specifier (“Z” for Zulu/UTC)</p>
+<p><code>1997-01-31T09:26:56.123</code> is interpreted as a local timestamp in
+the timezone of the machine. For example, if
+the system timezone is set to Americas/New_York (UTC-5) the
+timestamp will be interpreted as though it were
+<code>1997-01-31T09:26:56.123-05:00</code></p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="arrow" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
+    <script src="../../../../main.js"></script>
+</body></html>

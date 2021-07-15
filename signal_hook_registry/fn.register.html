@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Registers an arbitrary action for the given signal."><meta name="keywords" content="rust, rustlang, rust-lang, register"><title>register in signal_hook_registry - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../signal_hook_registry/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">signal_hook_registry</a></p><div id="sidebar-vars" data-name="register" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">signal_hook_registry</a>::<wbr><a class="fn" href="#">register</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/signal_hook_registry/lib.rs.html#494-499" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub unsafe fn register&lt;F&gt;(signal: <a class="type" href="../libc/unix/type.c_int.html" title="type libc::unix::c_int">c_int</a>, action: F) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.SigId.html" title="struct signal_hook_registry::SigId">SigId</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.Fn.html" title="trait core::ops::function::Fn">Fn</a>() + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Registers an arbitrary action for the given signal.</p>
+<p>This makes sure there’s a signal handler for the given signal. It then adds the action to the
+ones called each time the signal is delivered. If multiple actions are set for the same signal,
+all are called, in the order of registration.</p>
+<p>If there was a previous signal handler for the given signal, it is chained ‒ it will be called
+as part of this library’s signal handler, before any actions set through this function.</p>
+<p>On success, the function returns an ID that can be used to remove the action again with
+<a href="fn.unregister.html" title="unregister"><code>unregister</code></a>.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>If the signal is one of (see <a href="constant.FORBIDDEN.html" title="FORBIDDEN"><code>FORBIDDEN</code></a>):</p>
+<ul>
+<li><code>SIGKILL</code></li>
+<li><code>SIGSTOP</code></li>
+<li><code>SIGILL</code></li>
+<li><code>SIGFPE</code></li>
+<li><code>SIGSEGV</code></li>
+</ul>
+<p>The first two are not possible to override (and the underlying C functions simply ignore all
+requests to do so, which smells of possible bugs, or return errors). The rest can be set, but
+generally needs very special handling to do so correctly (direct manipulation of the
+application’s address space, <code>longjmp</code> and similar). Unless you know very well what you’re
+doing, you’ll shoot yourself into the foot and this library won’t help you with that.</p>
+<h1 id="errors" class="section-header"><a href="#errors">Errors</a></h1>
+<p>Since the library manipulates signals using the low-level C functions, all these can return
+errors. Generally, the errors mean something like the specified signal does not exist on the
+given platform ‒ after a program is debugged and tested on a given OS, it should never return
+an error.</p>
+<p>However, if an error <em>is</em> returned, there are no guarantees if the given action was registered
+or not.</p>
+<h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
+<p>This function is unsafe, because the <code>action</code> is run inside a signal handler. The set of
+functions allowed to be called from within is very limited (they are called async-signal-safe
+functions by POSIX). These specifically do <em>not</em> contain mutexes and memory
+allocation/deallocation. They <em>do</em> contain routines to terminate the program, to further
+manipulate signals (by the low-level functions, not by this library) and to read and write file
+descriptors. Calling program’s own functions consisting only of these is OK, as is manipulating
+program’s variables ‒ however, as the action can be called on any thread that does not have the
+given signal masked (by default no signal is masked on any thread), and mutexes are a no-go,
+this is harder than it looks like at first.</p>
+<p>As panicking from within a signal handler would be a panic across FFI boundary (which is
+undefined behavior), the passed handler must not panic.</p>
+<p>If you find these limitations hard to satisfy, choose from the helper functions in the
+<a href="https://docs.rs/signal-hook">signal-hook</a> crate ‒ these provide safe interface to use some
+common signal handling patters.</p>
+<h1 id="race-condition" class="section-header"><a href="#race-condition">Race condition</a></h1>
+<p>Upon registering the first hook for a given signal into this library, there’s a short race
+condition under the following circumstances:</p>
+<ul>
+<li>The program already has a signal handler installed for this particular signal (through some
+other library, possibly).</li>
+<li>Concurrently, some other thread installs a different signal handler while it is being
+installed by this library.</li>
+<li>At the same time, the signal is delivered.</li>
+</ul>
+<p>Under such conditions signal-hook might wrongly “chain” to the older signal handler for a short
+while (until the registration is fully complete).</p>
+<p>Note that the exact conditions of the race condition might change in future versions of the
+library. The recommended way to avoid it is to register signals before starting any additional
+threads, or at least not to register signals concurrently.</p>
+<p>Alternatively, make sure all signals are handled through this library.</p>
+<h1 id="performance" class="section-header"><a href="#performance">Performance</a></h1>
+<p>Even when it is possible to repeatedly install and remove actions during the lifetime of a
+program, the installation and removal is considered a slow operation and should not be done
+very often. Also, there’s limited (though huge) amount of distinct IDs (they are <code>u128</code>).</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">signal_hook_registry</span>;
+
+<span class="kw">use</span> <span class="ident">std::io::Error</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+        <span class="ident">signal_hook_registry::register</span>(<span class="ident">signal_hook::consts::SIGTERM</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">process::abort</span>())
+    }<span class="question-mark">?</span>;
+    <span class="comment">// Stuff here...</span>
+    <span class="ident">signal_hook_registry::unregister</span>(<span class="ident">signal</span>); <span class="comment">// Not really necessary.</span>
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="signal_hook_registry" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

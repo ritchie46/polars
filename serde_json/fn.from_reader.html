@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Deserialize an instance of type `T` from an IO stream of JSON."><meta name="keywords" content="rust, rustlang, rust-lang, from_reader"><title>from_reader in serde_json - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../serde_json/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">serde_json</a></p><div id="sidebar-vars" data-name="from_reader" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">serde_json</a>::<wbr><a class="fn" href="#">from_reader</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/serde_json/de.rs.html#2497-2503" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn from_reader&lt;R, T&gt;(rdr: R) -&gt; <a class="type" href="type.Result.html" title="type serde_json::Result">Result</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Deserialize an instance of type <code>T</code> from an IO stream of JSON.</p>
+<p>The content of the IO stream is deserialized directly from the stream
+without being buffered in memory by serde_json.</p>
+<p>When reading from a source against which short reads are not efficient, such
+as a <a href="https://doc.rust-lang.org/std/fs/struct.File.html"><code>File</code></a>, you will want to apply your own buffering because serde_json
+will not buffer the input. See <a href="https://doc.rust-lang.org/std/io/struct.BufReader.html"><code>std::io::BufReader</code></a>.</p>
+<p>It is expected that the input stream ends after the deserialized object.
+If the stream does not end, such as in the case of a persistent socket connection,
+this function will not return. It is possible instead to deserialize from a prefix of an input
+stream without looking for EOF by managing your own <a href="struct.Deserializer.html" title="Deserializer"><code>Deserializer</code></a>.</p>
+<p>Note that counter to intuition, this function is usually slower than
+reading a file completely into memory and then applying <a href="./fn.from_str.html"><code>from_str</code></a>
+or <a href="./fn.from_slice.html"><code>from_slice</code></a> on it. See <a href="https://github.com/serde-rs/json/issues/160">issue #160</a>.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>Reading the contents of a file.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
+<span class="kw">use</span> <span class="ident">std::io::BufReader</span>;
+<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">User</span> {
+    <span class="ident">fingerprint</span>: <span class="ident">String</span>,
+    <span class="ident">location</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">read_user_from_file</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">User</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// Open the file in read-only mode with buffer.</span>
+    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>);
+
+    <span class="comment">// Read the JSON contents of the file as an instance of `User`.</span>
+    <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">serde_json::from_reader</span>(<span class="ident">reader</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Return the `User`.</span>
+    <span class="prelude-val">Ok</span>(<span class="ident">u</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">read_user_from_file</span>(<span class="string">&quot;test.json&quot;</span>).<span class="ident">unwrap</span>();
+    <span class="macro">println!</span>(<span class="string">&quot;{:#?}&quot;</span>, <span class="ident">u</span>);
+}</pre></div>
+<p>Reading from a persistent socket connection.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::net</span>::{<span class="ident">TcpListener</span>, <span class="ident">TcpStream</span>};
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">User</span> {
+    <span class="ident">fingerprint</span>: <span class="ident">String</span>,
+    <span class="ident">location</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">read_user_from_stream</span>(<span class="ident">tcp_stream</span>: <span class="ident">TcpStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">User</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">serde_json::Deserializer::from_reader</span>(<span class="ident">tcp_stream</span>);
+    <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">User::deserialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">de</span>)<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">u</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">listener</span> <span class="op">=</span> <span class="ident">TcpListener::bind</span>(<span class="string">&quot;127.0.0.1:4000&quot;</span>).<span class="ident">unwrap</span>();
+
+    <span class="kw">for</span> <span class="ident">stream</span> <span class="kw">in</span> <span class="ident">listener</span>.<span class="ident">incoming</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;{:#?}&quot;</span>, <span class="ident">read_user_from_stream</span>(<span class="ident">stream</span>.<span class="ident">unwrap</span>()));
+    }
+}</pre></div>
+<h1 id="errors" class="section-header"><a href="#errors">Errors</a></h1>
+<p>This conversion can fail if the structure of the input does not match the
+structure expected by <code>T</code>, for example if <code>T</code> is a struct type but the input
+contains something other than a JSON map. It can also fail if the structure
+is correct but <code>T</code>’s implementation of <code>Deserialize</code> decides that something
+is wrong with the data, for example required struct fields are missing from
+the JSON map or some number is too big to fit in the expected primitive
+type.</p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde_json" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

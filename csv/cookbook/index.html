@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A cookbook of examples for CSV reading and writing."><meta name="keywords" content="rust, rustlang, rust-lang, cookbook"><title>csv::cookbook - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../csv/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module cookbook</p><div class="sidebar-elems"><div id="sidebar-vars" data-name="cookbook" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">csv</a>::<wbr><a class="mod" href="#">cookbook</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/csv/cookbook.rs.html#1-294" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A cookbook of examples for CSV reading and writing.</p>
+<h1 id="list-of-examples" class="section-header"><a href="#list-of-examples">List of examples</a></h1>
+<p>This is a list of examples that follow. Each of them can be found in the
+<code>examples</code> directory of the
+<a href="https://github.com/BurntSushi/rust-csv"><code>rust-csv</code></a>
+repository.</p>
+<p>For <strong>reading</strong> CSV:</p>
+<ol>
+<li><a href="#reading-basic">Basic</a></li>
+<li><a href="#reading-with-serde">With Serde</a></li>
+<li><a href="#reading-setting-a-different-delimiter">Setting a different delimiter</a></li>
+<li><a href="#reading-without-headers">Without headers</a></li>
+</ol>
+<p>For <strong>writing</strong> CSV:</p>
+<ol start="5">
+<li><a href="#writing-basic">Basic</a></li>
+<li><a href="#writing-with-serde">With Serde</a></li>
+</ol>
+<p>Please
+<a href="https://github.com/BurntSushi/rust-csv/pulls">submit a pull request</a>
+if you’re interested in adding an example to this list!</p>
+<h1 id="reading-basic" class="section-header"><a href="#reading-basic">Reading: basic</a></h1>
+<p>This example shows how to read CSV data from stdin and print each record to
+stdout.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// Build the CSV reader and iterate over each record.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">io::stdin</span>());
+    <span class="kw">for</span> <span class="ident">result</span> <span class="kw">in</span> <span class="ident">rdr</span>.<span class="ident">records</span>() {
+        <span class="comment">// The iterator yields Result&lt;StringRecord, Error&gt;, so we check the</span>
+        <span class="comment">// error here..</span>
+        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">record</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">read</span><span class="op">-</span><span class="ident">basic</span> <span class="op">&lt;</span> <span class="ident">examples</span><span class="op">/</span><span class="ident">data</span><span class="op">/</span><span class="ident">smallpop</span>.<span class="ident">csv</span></pre></div>
+<h1 id="reading-with-serde" class="section-header"><a href="#reading-with-serde">Reading: with Serde</a></h1>
+<p>This is like the previous example, except it shows how to deserialize each
+record into a struct type that you define.</p>
+<p>For more examples and details on how Serde deserialization works, see the
+<a href="../struct.Reader.html#method.deserialize"><code>Reader::deserialize</code></a>
+method.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+
+<span class="comment">// By default, struct field names are deserialized based on the position of</span>
+<span class="comment">// a corresponding field in the CSV data&#39;s header record.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Record</span> {
+    <span class="ident">city</span>: <span class="ident">String</span>,
+    <span class="ident">region</span>: <span class="ident">String</span>,
+    <span class="ident">country</span>: <span class="ident">String</span>,
+    <span class="ident">population</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">io::stdin</span>());
+    <span class="kw">for</span> <span class="ident">result</span> <span class="kw">in</span> <span class="ident">rdr</span>.<span class="ident">deserialize</span>() {
+        <span class="comment">// Notice that we need to provide a type hint for automatic</span>
+        <span class="comment">// deserialization.</span>
+        <span class="kw">let</span> <span class="ident">record</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">record</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">read</span><span class="op">-</span><span class="ident">serde</span> <span class="op">&lt;</span> <span class="ident">examples</span><span class="op">/</span><span class="ident">data</span><span class="op">/</span><span class="ident">smallpop</span>.<span class="ident">csv</span></pre></div>
+<h1 id="reading-setting-a-different-delimiter" class="section-header"><a href="#reading-setting-a-different-delimiter">Reading: setting a different delimiter</a></h1>
+<p>This example shows how to read CSV data from stdin where fields are separated
+by <code>:</code> instead of <code>,</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">csv::ReaderBuilder::new</span>()
+        .<span class="ident">delimiter</span>(<span class="string">b&#39;:&#39;</span>)
+        .<span class="ident">from_reader</span>(<span class="ident">io::stdin</span>());
+    <span class="kw">for</span> <span class="ident">result</span> <span class="kw">in</span> <span class="ident">rdr</span>.<span class="ident">records</span>() {
+        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">record</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">read</span><span class="op">-</span><span class="ident">colon</span> <span class="op">&lt;</span> <span class="ident">examples</span><span class="op">/</span><span class="ident">data</span><span class="op">/</span><span class="ident">smallpop</span><span class="op">-</span><span class="ident">colon</span>.<span class="ident">csv</span></pre></div>
+<h1 id="reading-without-headers" class="section-header"><a href="#reading-without-headers">Reading: without headers</a></h1>
+<p>The CSV reader in this crate assumes that CSV data has a header record by
+default, but the setting can be toggled. When enabled, the first record in
+CSV data in interpreted as the header record and is skipped. When disabled, the
+first record is not skipped. This example shows how to disable that setting.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rdr</span> <span class="op">=</span> <span class="ident">csv::ReaderBuilder::new</span>()
+        .<span class="ident">has_headers</span>(<span class="bool-val">false</span>)
+        .<span class="ident">from_reader</span>(<span class="ident">io::stdin</span>());
+    <span class="kw">for</span> <span class="ident">result</span> <span class="kw">in</span> <span class="ident">rdr</span>.<span class="ident">records</span>() {
+        <span class="kw">let</span> <span class="ident">record</span> <span class="op">=</span> <span class="ident">result</span><span class="question-mark">?</span>;
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">record</span>);
+    }
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">read</span><span class="op">-</span><span class="ident">no</span><span class="op">-</span><span class="ident">headers</span> <span class="op">&lt;</span> <span class="ident">examples</span><span class="op">/</span><span class="ident">data</span><span class="op">/</span><span class="ident">smallpop</span><span class="op">-</span><span class="ident">no</span><span class="op">-</span><span class="ident">headers</span>.<span class="ident">csv</span></pre></div>
+<h1 id="writing-basic" class="section-header"><a href="#writing-basic">Writing: basic</a></h1>
+<p>This example shows how to write CSV data to stdout.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="ident">csv::Writer::from_writer</span>(<span class="ident">io::stdout</span>());
+
+    <span class="comment">// When writing records without Serde, the header record is written just</span>
+    <span class="comment">// like any other record.</span>
+    <span class="ident">wtr</span>.<span class="ident">write_record</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;city&quot;</span>, <span class="string">&quot;region&quot;</span>, <span class="string">&quot;country&quot;</span>, <span class="string">&quot;population&quot;</span>])<span class="question-mark">?</span>;
+    <span class="ident">wtr</span>.<span class="ident">write_record</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;Southborough&quot;</span>, <span class="string">&quot;MA&quot;</span>, <span class="string">&quot;United States&quot;</span>, <span class="string">&quot;9686&quot;</span>])<span class="question-mark">?</span>;
+    <span class="ident">wtr</span>.<span class="ident">write_record</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;Northbridge&quot;</span>, <span class="string">&quot;MA&quot;</span>, <span class="string">&quot;United States&quot;</span>, <span class="string">&quot;14061&quot;</span>])<span class="question-mark">?</span>;
+    <span class="ident">wtr</span>.<span class="ident">flush</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">write</span><span class="op">-</span><span class="ident">basic</span> <span class="op">&gt;</span> <span class="op">/</span><span class="ident">tmp</span><span class="op">/</span><span class="ident">simplepop</span>.<span class="ident">csv</span></pre></div>
+<h1 id="writing-with-serde" class="section-header"><a href="#writing-with-serde">Writing: with Serde</a></h1>
+<p>This example shows how to write CSV data to stdout with Serde. Namely, we
+represent each record using a custom struct that we define. In this example,
+headers are written automatically.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::error::Error</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>;
+
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Record</span> {
+    <span class="ident">city</span>: <span class="ident">String</span>,
+    <span class="ident">region</span>: <span class="ident">String</span>,
+    <span class="ident">country</span>: <span class="ident">String</span>,
+    <span class="ident">population</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wtr</span> <span class="op">=</span> <span class="ident">csv::Writer::from_writer</span>(<span class="ident">io::stdout</span>());
+
+    <span class="comment">// When writing records with Serde using structs, the header row is written</span>
+    <span class="comment">// automatically.</span>
+    <span class="ident">wtr</span>.<span class="ident">serialize</span>(<span class="ident">Record</span> {
+        <span class="ident">city</span>: <span class="string">&quot;Southborough&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">region</span>: <span class="string">&quot;MA&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">country</span>: <span class="string">&quot;United States&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">population</span>: <span class="prelude-val">Some</span>(<span class="number">9686</span>),
+    })<span class="question-mark">?</span>;
+    <span class="ident">wtr</span>.<span class="ident">serialize</span>(<span class="ident">Record</span> {
+        <span class="ident">city</span>: <span class="string">&quot;Northbridge&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">region</span>: <span class="string">&quot;MA&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">country</span>: <span class="string">&quot;United States&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">population</span>: <span class="prelude-val">Some</span>(<span class="number">14061</span>),
+    })<span class="question-mark">?</span>;
+    <span class="ident">wtr</span>.<span class="ident">flush</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">example</span>() {
+        <span class="macro">println!</span>(<span class="string">&quot;error running example: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="ident">process::exit</span>(<span class="number">1</span>);
+    }
+}</pre></div>
+<p>The above example can be run like so:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+$ <span class="ident">git</span> <span class="ident">clone</span> <span class="ident">git</span>:<span class="comment">//github.com/BurntSushi/rust-csv</span>
+$ <span class="ident">cd</span> <span class="ident">rust</span><span class="op">-</span><span class="ident">csv</span>
+$ <span class="ident">cargo</span> <span class="ident">run</span> <span class="op">-</span><span class="op">-</span><span class="ident">example</span> <span class="ident">cookbook</span><span class="op">-</span><span class="ident">write</span><span class="op">-</span><span class="ident">serde</span> <span class="op">&gt;</span> <span class="op">/</span><span class="ident">tmp</span><span class="op">/</span><span class="ident">simplepop</span>.<span class="ident">csv</span></pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="csv" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

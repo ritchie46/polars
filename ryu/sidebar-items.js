@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["raw","Unsafe functions that mirror the API of the C implementation of Ryū."]],"struct":[["Buffer","Safe API for formatting floating point numbers to text."]],"trait":[["Float","A floating point number, f32 or f64, that can be written into a [`ryu::Buffer`][Buffer]."]]});

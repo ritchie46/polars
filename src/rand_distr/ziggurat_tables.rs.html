@@ -1,0 +1,571 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;rand_distr-0.3.0&#x2F;src&#x2F;ziggurat_tables.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ziggurat_tables.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rand_distr/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+</pre><pre class="rust">
+<span class="comment">// Copyright 2018 Developers of the Rand project.</span>
+<span class="comment">// Copyright 2013 The Rust Project Developers.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or https://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
+
+<span class="comment">// Tables for distributions which are sampled using the ziggurat</span>
+<span class="comment">// algorithm. Autogenerated by `ziggurat_tables.py`.</span>
+
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ZigTable</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">f64</span>; <span class="number">257</span>];
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZIG_NORM_R</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">3.654152885361008796</span>;
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ZIG_NORM_X</span>: [<span class="ident">f64</span>; <span class="number">257</span>] <span class="op">=</span>
+    [<span class="number">3.910757959537090045</span>, <span class="number">3.654152885361008796</span>, <span class="number">3.449278298560964462</span>, <span class="number">3.320244733839166074</span>,
+     <span class="number">3.224575052047029100</span>, <span class="number">3.147889289517149969</span>, <span class="number">3.083526132001233044</span>, <span class="number">3.027837791768635434</span>,
+     <span class="number">2.978603279880844834</span>, <span class="number">2.934366867207854224</span>, <span class="number">2.894121053612348060</span>, <span class="number">2.857138730872132548</span>,
+     <span class="number">2.822877396825325125</span>, <span class="number">2.790921174000785765</span>, <span class="number">2.760944005278822555</span>, <span class="number">2.732685359042827056</span>,
+     <span class="number">2.705933656121858100</span>, <span class="number">2.680514643284522158</span>, <span class="number">2.656283037575502437</span>, <span class="number">2.633116393630324570</span>,
+     <span class="number">2.610910518487548515</span>, <span class="number">2.589575986706995181</span>, <span class="number">2.569035452680536569</span>, <span class="number">2.549221550323460761</span>,
+     <span class="number">2.530075232158516929</span>, <span class="number">2.511544441625342294</span>, <span class="number">2.493583041269680667</span>, <span class="number">2.476149939669143318</span>,
+     <span class="number">2.459208374333311298</span>, <span class="number">2.442725318198956774</span>, <span class="number">2.426670984935725972</span>, <span class="number">2.411018413899685520</span>,
+     <span class="number">2.395743119780480601</span>, <span class="number">2.380822795170626005</span>, <span class="number">2.366237056715818632</span>, <span class="number">2.351967227377659952</span>,
+     <span class="number">2.337996148795031370</span>, <span class="number">2.324308018869623016</span>, <span class="number">2.310888250599850036</span>, <span class="number">2.297723348901329565</span>,
+     <span class="number">2.284800802722946056</span>, <span class="number">2.272108990226823888</span>, <span class="number">2.259637095172217780</span>, <span class="number">2.247375032945807760</span>,
+     <span class="number">2.235313384928327984</span>, <span class="number">2.223443340090905718</span>, <span class="number">2.211756642882544366</span>, <span class="number">2.200245546609647995</span>,
+     <span class="number">2.188902771624720689</span>, <span class="number">2.177721467738641614</span>, <span class="number">2.166695180352645966</span>, <span class="number">2.155817819875063268</span>,
+     <span class="number">2.145083634046203613</span>, <span class="number">2.134487182844320152</span>, <span class="number">2.124023315687815661</span>, <span class="number">2.113687150684933957</span>,
+     <span class="number">2.103474055713146829</span>, <span class="number">2.093379631137050279</span>, <span class="number">2.083399693996551783</span>, <span class="number">2.073530263516978778</span>,
+     <span class="number">2.063767547809956415</span>, <span class="number">2.054107931648864849</span>, <span class="number">2.044547965215732788</span>, <span class="number">2.035084353727808715</span>,
+     <span class="number">2.025713947862032960</span>, <span class="number">2.016433734904371722</span>, <span class="number">2.007240830558684852</span>, <span class="number">1.998132471356564244</span>,
+     <span class="number">1.989106007615571325</span>, <span class="number">1.980158896898598364</span>, <span class="number">1.971288697931769640</span>, <span class="number">1.962493064942461896</span>,
+     <span class="number">1.953769742382734043</span>, <span class="number">1.945116560006753925</span>, <span class="number">1.936531428273758904</span>, <span class="number">1.928012334050718257</span>,
+     <span class="number">1.919557336591228847</span>, <span class="number">1.911164563769282232</span>, <span class="number">1.902832208548446369</span>, <span class="number">1.894558525668710081</span>,
+     <span class="number">1.886341828534776388</span>, <span class="number">1.878180486290977669</span>, <span class="number">1.870072921069236838</span>, <span class="number">1.862017605397632281</span>,
+     <span class="number">1.854013059758148119</span>, <span class="number">1.846057850283119750</span>, <span class="number">1.838150586580728607</span>, <span class="number">1.830289919680666566</span>,
+     <span class="number">1.822474540091783224</span>, <span class="number">1.814703175964167636</span>, <span class="number">1.806974591348693426</span>, <span class="number">1.799287584547580199</span>,
+     <span class="number">1.791640986550010028</span>, <span class="number">1.784033659547276329</span>, <span class="number">1.776464495522344977</span>, <span class="number">1.768932414909077933</span>,
+     <span class="number">1.761436365316706665</span>, <span class="number">1.753975320315455111</span>, <span class="number">1.746548278279492994</span>, <span class="number">1.739154261283669012</span>,
+     <span class="number">1.731792314050707216</span>, <span class="number">1.724461502945775715</span>, <span class="number">1.717160915015540690</span>, <span class="number">1.709889657069006086</span>,
+     <span class="number">1.702646854797613907</span>, <span class="number">1.695431651932238548</span>, <span class="number">1.688243209434858727</span>, <span class="number">1.681080704722823338</span>,
+     <span class="number">1.673943330923760353</span>, <span class="number">1.666830296159286684</span>, <span class="number">1.659740822855789499</span>, <span class="number">1.652674147080648526</span>,
+     <span class="number">1.645629517902360339</span>, <span class="number">1.638606196773111146</span>, <span class="number">1.631603456932422036</span>, <span class="number">1.624620582830568427</span>,
+     <span class="number">1.617656869570534228</span>, <span class="number">1.610711622367333673</span>, <span class="number">1.603784156023583041</span>, <span class="number">1.596873794420261339</span>,
+     <span class="number">1.589979870021648534</span>, <span class="number">1.583101723393471438</span>, <span class="number">1.576238702733332886</span>, <span class="number">1.569390163412534456</span>,
+     <span class="number">1.562555467528439657</span>, <span class="number">1.555733983466554893</span>, <span class="number">1.548925085471535512</span>, <span class="number">1.542128153226347553</span>,
+     <span class="number">1.535342571438843118</span>, <span class="number">1.528567729435024614</span>, <span class="number">1.521803020758293101</span>, <span class="number">1.515047842773992404</span>,
+     <span class="number">1.508301596278571965</span>, <span class="number">1.501563685112706548</span>, <span class="number">1.494833515777718391</span>, <span class="number">1.488110497054654369</span>,
+     <span class="number">1.481394039625375747</span>, <span class="number">1.474683555695025516</span>, <span class="number">1.467978458615230908</span>, <span class="number">1.461278162507407830</span>,
+     <span class="number">1.454582081885523293</span>, <span class="number">1.447889631277669675</span>, <span class="number">1.441200224845798017</span>, <span class="number">1.434513276002946425</span>,
+     <span class="number">1.427828197027290358</span>, <span class="number">1.421144398672323117</span>, <span class="number">1.414461289772464658</span>, <span class="number">1.407778276843371534</span>,
+     <span class="number">1.401094763676202559</span>, <span class="number">1.394410150925071257</span>, <span class="number">1.387723835686884621</span>, <span class="number">1.381035211072741964</span>,
+     <span class="number">1.374343665770030531</span>, <span class="number">1.367648583594317957</span>, <span class="number">1.360949343030101844</span>, <span class="number">1.354245316759430606</span>,
+     <span class="number">1.347535871177359290</span>, <span class="number">1.340820365893152122</span>, <span class="number">1.334098153216083604</span>, <span class="number">1.327368577624624679</span>,
+     <span class="number">1.320630975217730096</span>, <span class="number">1.313884673146868964</span>, <span class="number">1.307128989027353860</span>, <span class="number">1.300363230327433728</span>,
+     <span class="number">1.293586693733517645</span>, <span class="number">1.286798664489786415</span>, <span class="number">1.279998415710333237</span>, <span class="number">1.273185207661843732</span>,
+     <span class="number">1.266358287014688333</span>, <span class="number">1.259516886060144225</span>, <span class="number">1.252660221891297887</span>, <span class="number">1.245787495544997903</span>,
+     <span class="number">1.238897891102027415</span>, <span class="number">1.231990574742445110</span>, <span class="number">1.225064693752808020</span>, <span class="number">1.218119375481726552</span>,
+     <span class="number">1.211153726239911244</span>, <span class="number">1.204166830140560140</span>, <span class="number">1.197157747875585931</span>, <span class="number">1.190125515422801650</span>,
+     <span class="number">1.183069142678760732</span>, <span class="number">1.175987612011489825</span>, <span class="number">1.168879876726833800</span>, <span class="number">1.161744859441574240</span>,
+     <span class="number">1.154581450355851802</span>, <span class="number">1.147388505416733873</span>, <span class="number">1.140164844363995789</span>, <span class="number">1.132909248648336975</span>,
+     <span class="number">1.125620459211294389</span>, <span class="number">1.118297174115062909</span>, <span class="number">1.110938046009249502</span>, <span class="number">1.103541679420268151</span>,
+     <span class="number">1.096106627847603487</span>, <span class="number">1.088631390649514197</span>, <span class="number">1.081114409698889389</span>, <span class="number">1.073554065787871714</span>,
+     <span class="number">1.065948674757506653</span>, <span class="number">1.058296483326006454</span>, <span class="number">1.050595664586207123</span>, <span class="number">1.042844313139370538</span>,
+     <span class="number">1.035040439828605274</span>, <span class="number">1.027181966030751292</span>, <span class="number">1.019266717460529215</span>, <span class="number">1.011292417434978441</span>,
+     <span class="number">1.003256679539591412</span>, <span class="number">0.995156999629943084</span>, <span class="number">0.986990747093846266</span>, <span class="number">0.978755155288937750</span>,
+     <span class="number">0.970447311058864615</span>, <span class="number">0.962064143217605250</span>, <span class="number">0.953602409875572654</span>, <span class="number">0.945058684462571130</span>,
+     <span class="number">0.936429340280896860</span>, <span class="number">0.927710533396234771</span>, <span class="number">0.918898183643734989</span>, <span class="number">0.909987953490768997</span>,
+     <span class="number">0.900975224455174528</span>, <span class="number">0.891855070726792376</span>, <span class="number">0.882622229578910122</span>, <span class="number">0.873271068082494550</span>,
+     <span class="number">0.863795545546826915</span>, <span class="number">0.854189171001560554</span>, <span class="number">0.844444954902423661</span>, <span class="number">0.834555354079518752</span>,
+     <span class="number">0.824512208745288633</span>, <span class="number">0.814306670128064347</span>, <span class="number">0.803929116982664893</span>, <span class="number">0.793369058833152785</span>,
+     <span class="number">0.782615023299588763</span>, <span class="number">0.771654424216739354</span>, <span class="number">0.760473406422083165</span>, <span class="number">0.749056662009581653</span>,
+     <span class="number">0.737387211425838629</span>, <span class="number">0.725446140901303549</span>, <span class="number">0.713212285182022732</span>, <span class="number">0.700661841097584448</span>,
+     <span class="number">0.687767892786257717</span>, <span class="number">0.674499822827436479</span>, <span class="number">0.660822574234205984</span>, <span class="number">0.646695714884388928</span>,
+     <span class="number">0.632072236375024632</span>, <span class="number">0.616896989996235545</span>, <span class="number">0.601104617743940417</span>, <span class="number">0.584616766093722262</span>,
+     <span class="number">0.567338257040473026</span>, <span class="number">0.549151702313026790</span>, <span class="number">0.529909720646495108</span>, <span class="number">0.509423329585933393</span>,
+     <span class="number">0.487443966121754335</span>, <span class="number">0.463634336771763245</span>, <span class="number">0.437518402186662658</span>, <span class="number">0.408389134588000746</span>,
+     <span class="number">0.375121332850465727</span>, <span class="number">0.335737519180459465</span>, <span class="number">0.286174591747260509</span>, <span class="number">0.215241895913273806</span>,
+     <span class="number">0.000000000000000000</span>];
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ZIG_NORM_F</span>: [<span class="ident">f64</span>; <span class="number">257</span>] <span class="op">=</span>
+    [<span class="number">0.000477467764586655</span>, <span class="number">0.001260285930498598</span>, <span class="number">0.002609072746106363</span>, <span class="number">0.004037972593371872</span>,
+     <span class="number">0.005522403299264754</span>, <span class="number">0.007050875471392110</span>, <span class="number">0.008616582769422917</span>, <span class="number">0.010214971439731100</span>,
+     <span class="number">0.011842757857943104</span>, <span class="number">0.013497450601780807</span>, <span class="number">0.015177088307982072</span>, <span class="number">0.016880083152595839</span>,
+     <span class="number">0.018605121275783350</span>, <span class="number">0.020351096230109354</span>, <span class="number">0.022117062707379922</span>, <span class="number">0.023902203305873237</span>,
+     <span class="number">0.025705804008632656</span>, <span class="number">0.027527235669693315</span>, <span class="number">0.029365939758230111</span>, <span class="number">0.031221417192023690</span>,
+     <span class="number">0.033093219458688698</span>, <span class="number">0.034980941461833073</span>, <span class="number">0.036884215688691151</span>, <span class="number">0.038802707404656918</span>,
+     <span class="number">0.040736110656078753</span>, <span class="number">0.042684144916619378</span>, <span class="number">0.044646552251446536</span>, <span class="number">0.046623094902089664</span>,
+     <span class="number">0.048613553216035145</span>, <span class="number">0.050617723861121788</span>, <span class="number">0.052635418276973649</span>, <span class="number">0.054666461325077916</span>,
+     <span class="number">0.056710690106399467</span>, <span class="number">0.058767952921137984</span>, <span class="number">0.060838108349751806</span>, <span class="number">0.062921024437977854</span>,
+     <span class="number">0.065016577971470438</span>, <span class="number">0.067124653828023989</span>, <span class="number">0.069245144397250269</span>, <span class="number">0.071377949059141965</span>,
+     <span class="number">0.073522973714240991</span>, <span class="number">0.075680130359194964</span>, <span class="number">0.077849336702372207</span>, <span class="number">0.080030515814947509</span>,
+     <span class="number">0.082223595813495684</span>, <span class="number">0.084428509570654661</span>, <span class="number">0.086645194450867782</span>, <span class="number">0.088873592068594229</span>,
+     <span class="number">0.091113648066700734</span>, <span class="number">0.093365311913026619</span>, <span class="number">0.095628536713353335</span>, <span class="number">0.097903279039215627</span>,
+     <span class="number">0.100189498769172020</span>, <span class="number">0.102487158942306270</span>, <span class="number">0.104796225622867056</span>, <span class="number">0.107116667775072880</span>,
+     <span class="number">0.109448457147210021</span>, <span class="number">0.111791568164245583</span>, <span class="number">0.114145977828255210</span>, <span class="number">0.116511665626037014</span>,
+     <span class="number">0.118888613443345698</span>, <span class="number">0.121276805485235437</span>, <span class="number">0.123676228202051403</span>, <span class="number">0.126086870220650349</span>,
+     <span class="number">0.128508722280473636</span>, <span class="number">0.130941777174128166</span>, <span class="number">0.133386029692162844</span>, <span class="number">0.135841476571757352</span>,
+     <span class="number">0.138308116449064322</span>, <span class="number">0.140785949814968309</span>, <span class="number">0.143274978974047118</span>, <span class="number">0.145775208006537926</span>,
+     <span class="number">0.148286642733128721</span>, <span class="number">0.150809290682410169</span>, <span class="number">0.153343161060837674</span>, <span class="number">0.155888264725064563</span>,
+     <span class="number">0.158444614156520225</span>, <span class="number">0.161012223438117663</span>, <span class="number">0.163591108232982951</span>, <span class="number">0.166181285765110071</span>,
+     <span class="number">0.168782774801850333</span>, <span class="number">0.171395595638155623</span>, <span class="number">0.174019770082499359</span>, <span class="number">0.176655321444406654</span>,
+     <span class="number">0.179302274523530397</span>, <span class="number">0.181960655600216487</span>, <span class="number">0.184630492427504539</span>, <span class="number">0.187311814224516926</span>,
+     <span class="number">0.190004651671193070</span>, <span class="number">0.192709036904328807</span>, <span class="number">0.195425003514885592</span>, <span class="number">0.198152586546538112</span>,
+     <span class="number">0.200891822495431333</span>, <span class="number">0.203642749311121501</span>, <span class="number">0.206405406398679298</span>, <span class="number">0.209179834621935651</span>,
+     <span class="number">0.211966076307852941</span>, <span class="number">0.214764175252008499</span>, <span class="number">0.217574176725178370</span>, <span class="number">0.220396127481011589</span>,
+     <span class="number">0.223230075764789593</span>, <span class="number">0.226076071323264877</span>, <span class="number">0.228934165415577484</span>, <span class="number">0.231804410825248525</span>,
+     <span class="number">0.234686861873252689</span>, <span class="number">0.237581574432173676</span>, <span class="number">0.240488605941449107</span>, <span class="number">0.243408015423711988</span>,
+     <span class="number">0.246339863502238771</span>, <span class="number">0.249284212419516704</span>, <span class="number">0.252241126056943765</span>, <span class="number">0.255210669955677150</span>,
+     <span class="number">0.258192911338648023</span>, <span class="number">0.261187919133763713</span>, <span class="number">0.264195763998317568</span>, <span class="number">0.267216518344631837</span>,
+     <span class="number">0.270250256366959984</span>, <span class="number">0.273297054069675804</span>, <span class="number">0.276356989296781264</span>, <span class="number">0.279430141762765316</span>,
+     <span class="number">0.282516593084849388</span>, <span class="number">0.285616426816658109</span>, <span class="number">0.288729728483353931</span>, <span class="number">0.291856585618280984</span>,
+     <span class="number">0.294997087801162572</span>, <span class="number">0.298151326697901342</span>, <span class="number">0.301319396102034120</span>, <span class="number">0.304501391977896274</span>,
+     <span class="number">0.307697412505553769</span>, <span class="number">0.310907558127563710</span>, <span class="number">0.314131931597630143</span>, <span class="number">0.317370638031222396</span>,
+     <span class="number">0.320623784958230129</span>, <span class="number">0.323891482377732021</span>, <span class="number">0.327173842814958593</span>, <span class="number">0.330470981380537099</span>,
+     <span class="number">0.333783015832108509</span>, <span class="number">0.337110066638412809</span>, <span class="number">0.340452257045945450</span>, <span class="number">0.343809713148291340</span>,
+     <span class="number">0.347182563958251478</span>, <span class="number">0.350570941482881204</span>, <span class="number">0.353974980801569250</span>, <span class="number">0.357394820147290515</span>,
+     <span class="number">0.360830600991175754</span>, <span class="number">0.364282468130549597</span>, <span class="number">0.367750569780596226</span>, <span class="number">0.371235057669821344</span>,
+     <span class="number">0.374736087139491414</span>, <span class="number">0.378253817247238111</span>, <span class="number">0.381788410875031348</span>, <span class="number">0.385340034841733958</span>,
+     <span class="number">0.388908860020464597</span>, <span class="number">0.392495061461010764</span>, <span class="number">0.396098818517547080</span>, <span class="number">0.399720314981931668</span>,
+     <span class="number">0.403359739222868885</span>, <span class="number">0.407017284331247953</span>, <span class="number">0.410693148271983222</span>, <span class="number">0.414387534042706784</span>,
+     <span class="number">0.418100649839684591</span>, <span class="number">0.421832709231353298</span>, <span class="number">0.425583931339900579</span>, <span class="number">0.429354541031341519</span>,
+     <span class="number">0.433144769114574058</span>, <span class="number">0.436954852549929273</span>, <span class="number">0.440785034667769915</span>, <span class="number">0.444635565397727750</span>,
+     <span class="number">0.448506701509214067</span>, <span class="number">0.452398706863882505</span>, <span class="number">0.456311852680773566</span>, <span class="number">0.460246417814923481</span>,
+     <span class="number">0.464202689050278838</span>, <span class="number">0.468180961407822172</span>, <span class="number">0.472181538469883255</span>, <span class="number">0.476204732721683788</span>,
+     <span class="number">0.480250865911249714</span>, <span class="number">0.484320269428911598</span>, <span class="number">0.488413284707712059</span>, <span class="number">0.492530263646148658</span>,
+     <span class="number">0.496671569054796314</span>, <span class="number">0.500837575128482149</span>, <span class="number">0.505028667945828791</span>, <span class="number">0.509245245998136142</span>,
+     <span class="number">0.513487720749743026</span>, <span class="number">0.517756517232200619</span>, <span class="number">0.522052074674794864</span>, <span class="number">0.526374847174186700</span>,
+     <span class="number">0.530725304406193921</span>, <span class="number">0.535103932383019565</span>, <span class="number">0.539511234259544614</span>, <span class="number">0.543947731192649941</span>,
+     <span class="number">0.548413963257921133</span>, <span class="number">0.552910490428519918</span>, <span class="number">0.557437893621486324</span>, <span class="number">0.561996775817277916</span>,
+     <span class="number">0.566587763258951771</span>, <span class="number">0.571211506738074970</span>, <span class="number">0.575868682975210544</span>, <span class="number">0.580559996103683473</span>,
+     <span class="number">0.585286179266300333</span>, <span class="number">0.590047996335791969</span>, <span class="number">0.594846243770991268</span>, <span class="number">0.599681752622167719</span>,
+     <span class="number">0.604555390700549533</span>, <span class="number">0.609468064928895381</span>, <span class="number">0.614420723892076803</span>, <span class="number">0.619414360609039205</span>,
+     <span class="number">0.624450015550274240</span>, <span class="number">0.629528779928128279</span>, <span class="number">0.634651799290960050</span>, <span class="number">0.639820277456438991</span>,
+     <span class="number">0.645035480824251883</span>, <span class="number">0.650298743114294586</span>, <span class="number">0.655611470583224665</span>, <span class="number">0.660975147780241357</span>,
+     <span class="number">0.666391343912380640</span>, <span class="number">0.671861719900766374</span>, <span class="number">0.677388036222513090</span>, <span class="number">0.682972161648791376</span>,
+     <span class="number">0.688616083008527058</span>, <span class="number">0.694321916130032579</span>, <span class="number">0.700091918140490099</span>, <span class="number">0.705928501336797409</span>,
+     <span class="number">0.711834248882358467</span>, <span class="number">0.717811932634901395</span>, <span class="number">0.723864533472881599</span>, <span class="number">0.729995264565802437</span>,
+     <span class="number">0.736207598131266683</span>, <span class="number">0.742505296344636245</span>, <span class="number">0.748892447223726720</span>, <span class="number">0.755373506511754500</span>,
+     <span class="number">0.761953346841546475</span>, <span class="number">0.768637315803334831</span>, <span class="number">0.775431304986138326</span>, <span class="number">0.782341832659861902</span>,
+     <span class="number">0.789376143571198563</span>, <span class="number">0.796542330428254619</span>, <span class="number">0.803849483176389490</span>, <span class="number">0.811307874318219935</span>,
+     <span class="number">0.818929191609414797</span>, <span class="number">0.826726833952094231</span>, <span class="number">0.834716292992930375</span>, <span class="number">0.842915653118441077</span>,
+     <span class="number">0.851346258465123684</span>, <span class="number">0.860033621203008636</span>, <span class="number">0.869008688043793165</span>, <span class="number">0.878309655816146839</span>,
+     <span class="number">0.887984660763399880</span>, <span class="number">0.898095921906304051</span>, <span class="number">0.908726440060562912</span>, <span class="number">0.919991505048360247</span>,
+     <span class="number">0.932060075968990209</span>, <span class="number">0.945198953453078028</span>, <span class="number">0.959879091812415930</span>, <span class="number">0.977101701282731328</span>,
+     <span class="number">1.000000000000000000</span>];
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZIG_EXP_R</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">7.697117470131050077</span>;
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ZIG_EXP_X</span>: [<span class="ident">f64</span>; <span class="number">257</span>] <span class="op">=</span>
+    [<span class="number">8.697117470131052741</span>, <span class="number">7.697117470131050077</span>, <span class="number">6.941033629377212577</span>, <span class="number">6.478378493832569696</span>,
+     <span class="number">6.144164665772472667</span>, <span class="number">5.882144315795399869</span>, <span class="number">5.666410167454033697</span>, <span class="number">5.482890627526062488</span>,
+     <span class="number">5.323090505754398016</span>, <span class="number">5.181487281301500047</span>, <span class="number">5.054288489981304089</span>, <span class="number">4.938777085901250530</span>,
+     <span class="number">4.832939741025112035</span>, <span class="number">4.735242996601741083</span>, <span class="number">4.644491885420085175</span>, <span class="number">4.559737061707351380</span>,
+     <span class="number">4.480211746528421912</span>, <span class="number">4.405287693473573185</span>, <span class="number">4.334443680317273007</span>, <span class="number">4.267242480277365857</span>,
+     <span class="number">4.203313713735184365</span>, <span class="number">4.142340865664051464</span>, <span class="number">4.084051310408297830</span>, <span class="number">4.028208544647936762</span>,
+     <span class="number">3.974606066673788796</span>, <span class="number">3.923062500135489739</span>, <span class="number">3.873417670399509127</span>, <span class="number">3.825529418522336744</span>,
+     <span class="number">3.779270992411667862</span>, <span class="number">3.734528894039797375</span>, <span class="number">3.691201090237418825</span>, <span class="number">3.649195515760853770</span>,
+     <span class="number">3.608428813128909507</span>, <span class="number">3.568825265648337020</span>, <span class="number">3.530315889129343354</span>, <span class="number">3.492837654774059608</span>,
+     <span class="number">3.456332821132760191</span>, <span class="number">3.420748357251119920</span>, <span class="number">3.386035442460300970</span>, <span class="number">3.352149030900109405</span>,
+     <span class="number">3.319047470970748037</span>, <span class="number">3.286692171599068679</span>, <span class="number">3.255047308570449882</span>, <span class="number">3.224079565286264160</span>,
+     <span class="number">3.193757903212240290</span>, <span class="number">3.164053358025972873</span>, <span class="number">3.134938858084440394</span>, <span class="number">3.106389062339824481</span>,
+     <span class="number">3.078380215254090224</span>, <span class="number">3.050890016615455114</span>, <span class="number">3.023897504455676621</span>, <span class="number">2.997382949516130601</span>,
+     <span class="number">2.971327759921089662</span>, <span class="number">2.945714394895045718</span>, <span class="number">2.920526286512740821</span>, <span class="number">2.895747768600141825</span>,
+     <span class="number">2.871364012015536371</span>, <span class="number">2.847360965635188812</span>, <span class="number">2.823725302450035279</span>, <span class="number">2.800444370250737780</span>,
+     <span class="number">2.777506146439756574</span>, <span class="number">2.754899196562344610</span>, <span class="number">2.732612636194700073</span>, <span class="number">2.710636095867928752</span>,
+     <span class="number">2.688959688741803689</span>, <span class="number">2.667573980773266573</span>, <span class="number">2.646469963151809157</span>, <span class="number">2.625639026797788489</span>,
+     <span class="number">2.605072938740835564</span>, <span class="number">2.584763820214140750</span>, <span class="number">2.564704126316905253</span>, <span class="number">2.544886627111869970</span>,
+     <span class="number">2.525304390037828028</span>, <span class="number">2.505950763528594027</span>, <span class="number">2.486819361740209455</span>, <span class="number">2.467904050297364815</span>,
+     <span class="number">2.449198932978249754</span>, <span class="number">2.430698339264419694</span>, <span class="number">2.412396812688870629</span>, <span class="number">2.394289099921457886</span>,
+     <span class="number">2.376370140536140596</span>, <span class="number">2.358635057409337321</span>, <span class="number">2.341079147703034380</span>, <span class="number">2.323697874390196372</span>,
+     <span class="number">2.306486858283579799</span>, <span class="number">2.289441870532269441</span>, <span class="number">2.272558825553154804</span>, <span class="number">2.255833774367219213</span>,
+     <span class="number">2.239262898312909034</span>, <span class="number">2.222842503111036816</span>, <span class="number">2.206569013257663858</span>, <span class="number">2.190438966723220027</span>,
+     <span class="number">2.174449009937774679</span>, <span class="number">2.158595893043885994</span>, <span class="number">2.142876465399842001</span>, <span class="number">2.127287671317368289</span>,
+     <span class="number">2.111826546019042183</span>, <span class="number">2.096490211801715020</span>, <span class="number">2.081275874393225145</span>, <span class="number">2.066180819490575526</span>,
+     <span class="number">2.051202409468584786</span>, <span class="number">2.036338080248769611</span>, <span class="number">2.021585338318926173</span>, <span class="number">2.006941757894518563</span>,
+     <span class="number">1.992404978213576650</span>, <span class="number">1.977972700957360441</span>, <span class="number">1.963642687789548313</span>, <span class="number">1.949412758007184943</span>,
+     <span class="number">1.935280786297051359</span>, <span class="number">1.921244700591528076</span>, <span class="number">1.907302480018387536</span>, <span class="number">1.893452152939308242</span>,
+     <span class="number">1.879691795072211180</span>, <span class="number">1.866019527692827973</span>, <span class="number">1.852433515911175554</span>, <span class="number">1.838931967018879954</span>,
+     <span class="number">1.825513128903519799</span>, <span class="number">1.812175288526390649</span>, <span class="number">1.798916770460290859</span>, <span class="number">1.785735935484126014</span>,
+     <span class="number">1.772631179231305643</span>, <span class="number">1.759600930889074766</span>, <span class="number">1.746643651946074405</span>, <span class="number">1.733757834985571566</span>,
+     <span class="number">1.720942002521935299</span>, <span class="number">1.708194705878057773</span>, <span class="number">1.695514524101537912</span>, <span class="number">1.682900062917553896</span>,
+     <span class="number">1.670349953716452118</span>, <span class="number">1.657862852574172763</span>, <span class="number">1.645437439303723659</span>, <span class="number">1.633072416535991334</span>,
+     <span class="number">1.620766508828257901</span>, <span class="number">1.608518461798858379</span>, <span class="number">1.596327041286483395</span>, <span class="number">1.584191032532688892</span>,
+     <span class="number">1.572109239386229707</span>, <span class="number">1.560080483527888084</span>, <span class="number">1.548103603714513499</span>, <span class="number">1.536177455041032092</span>,
+     <span class="number">1.524300908219226258</span>, <span class="number">1.512472848872117082</span>, <span class="number">1.500692176842816750</span>, <span class="number">1.488957805516746058</span>,
+     <span class="number">1.477268661156133867</span>, <span class="number">1.465623682245745352</span>, <span class="number">1.454021818848793446</span>, <span class="number">1.442462031972012504</span>,
+     <span class="number">1.430943292938879674</span>, <span class="number">1.419464582769983219</span>, <span class="number">1.408024891569535697</span>, <span class="number">1.396623217917042137</span>,
+     <span class="number">1.385258568263121992</span>, <span class="number">1.373929956328490576</span>, <span class="number">1.362636402505086775</span>, <span class="number">1.351376933258335189</span>,
+     <span class="number">1.340150580529504643</span>, <span class="number">1.328956381137116560</span>, <span class="number">1.317793376176324749</span>, <span class="number">1.306660610415174117</span>,
+     <span class="number">1.295557131686601027</span>, <span class="number">1.284481990275012642</span>, <span class="number">1.273434238296241139</span>, <span class="number">1.262412929069615330</span>,
+     <span class="number">1.251417116480852521</span>, <span class="number">1.240445854334406572</span>, <span class="number">1.229498195693849105</span>, <span class="number">1.218573192208790124</span>,
+     <span class="number">1.207669893426761121</span>, <span class="number">1.196787346088403092</span>, <span class="number">1.185924593404202199</span>, <span class="number">1.175080674310911677</span>,
+     <span class="number">1.164254622705678921</span>, <span class="number">1.153445466655774743</span>, <span class="number">1.142652227581672841</span>, <span class="number">1.131873919411078511</span>,
+     <span class="number">1.121109547701330200</span>, <span class="number">1.110358108727411031</span>, <span class="number">1.099618588532597308</span>, <span class="number">1.088889961938546813</span>,
+     <span class="number">1.078171191511372307</span>, <span class="number">1.067461226479967662</span>, <span class="number">1.056759001602551429</span>, <span class="number">1.046063435977044209</span>,
+     <span class="number">1.035373431790528542</span>, <span class="number">1.024687873002617211</span>, <span class="number">1.014005623957096480</span>, <span class="number">1.003325527915696735</span>,
+     <span class="number">0.992646405507275897</span>, <span class="number">0.981967053085062602</span>, <span class="number">0.971286240983903260</span>, <span class="number">0.960602711668666509</span>,
+     <span class="number">0.949915177764075969</span>, <span class="number">0.939222319955262286</span>, <span class="number">0.928522784747210395</span>, <span class="number">0.917815182070044311</span>,
+     <span class="number">0.907098082715690257</span>, <span class="number">0.896370015589889935</span>, <span class="number">0.885629464761751528</span>, <span class="number">0.874874866291025066</span>,
+     <span class="number">0.864104604811004484</span>, <span class="number">0.853317009842373353</span>, <span class="number">0.842510351810368485</span>, <span class="number">0.831682837734273206</span>,
+     <span class="number">0.820832606554411814</span>, <span class="number">0.809957724057418282</span>, <span class="number">0.799056177355487174</span>, <span class="number">0.788125868869492430</span>,
+     <span class="number">0.777164609759129710</span>, <span class="number">0.766170112735434672</span>, <span class="number">0.755139984181982249</span>, <span class="number">0.744071715500508102</span>,
+     <span class="number">0.732962673584365398</span>, <span class="number">0.721810090308756203</span>, <span class="number">0.710611050909655040</span>, <span class="number">0.699362481103231959</span>,
+     <span class="number">0.688061132773747808</span>, <span class="number">0.676703568029522584</span>, <span class="number">0.665286141392677943</span>, <span class="number">0.653804979847664947</span>,
+     <span class="number">0.642255960424536365</span>, <span class="number">0.630634684933490286</span>, <span class="number">0.618936451394876075</span>, <span class="number">0.607156221620300030</span>,
+     <span class="number">0.595288584291502887</span>, <span class="number">0.583327712748769489</span>, <span class="number">0.571267316532588332</span>, <span class="number">0.559100585511540626</span>,
+     <span class="number">0.546820125163310577</span>, <span class="number">0.534417881237165604</span>, <span class="number">0.521885051592135052</span>, <span class="number">0.509211982443654398</span>,
+     <span class="number">0.496388045518671162</span>, <span class="number">0.483401491653461857</span>, <span class="number">0.470239275082169006</span>, <span class="number">0.456886840931420235</span>,
+     <span class="number">0.443327866073552401</span>, <span class="number">0.429543940225410703</span>, <span class="number">0.415514169600356364</span>, <span class="number">0.401214678896277765</span>,
+     <span class="number">0.386617977941119573</span>, <span class="number">0.371692145329917234</span>, <span class="number">0.356399760258393816</span>, <span class="number">0.340696481064849122</span>,
+     <span class="number">0.324529117016909452</span>, <span class="number">0.307832954674932158</span>, <span class="number">0.290527955491230394</span>, <span class="number">0.272513185478464703</span>,
+     <span class="number">0.253658363385912022</span>, <span class="number">0.233790483059674731</span>, <span class="number">0.212671510630966620</span>, <span class="number">0.189958689622431842</span>,
+     <span class="number">0.165127622564187282</span>, <span class="number">0.137304980940012589</span>, <span class="number">0.104838507565818778</span>, <span class="number">0.063852163815001570</span>,
+     <span class="number">0.000000000000000000</span>];
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">ZIG_EXP_F</span>: [<span class="ident">f64</span>; <span class="number">257</span>] <span class="op">=</span>
+    [<span class="number">0.000167066692307963</span>, <span class="number">0.000454134353841497</span>, <span class="number">0.000967269282327174</span>, <span class="number">0.001536299780301573</span>,
+     <span class="number">0.002145967743718907</span>, <span class="number">0.002788798793574076</span>, <span class="number">0.003460264777836904</span>, <span class="number">0.004157295120833797</span>,
+     <span class="number">0.004877655983542396</span>, <span class="number">0.005619642207205489</span>, <span class="number">0.006381905937319183</span>, <span class="number">0.007163353183634991</span>,
+     <span class="number">0.007963077438017043</span>, <span class="number">0.008780314985808977</span>, <span class="number">0.009614413642502212</span>, <span class="number">0.010464810181029981</span>,
+     <span class="number">0.011331013597834600</span>, <span class="number">0.012212592426255378</span>, <span class="number">0.013109164931254991</span>, <span class="number">0.014020391403181943</span>,
+     <span class="number">0.014945968011691148</span>, <span class="number">0.015885621839973156</span>, <span class="number">0.016839106826039941</span>, <span class="number">0.017806200410911355</span>,
+     <span class="number">0.018786700744696024</span>, <span class="number">0.019780424338009740</span>, <span class="number">0.020787204072578114</span>, <span class="number">0.021806887504283581</span>,
+     <span class="number">0.022839335406385240</span>, <span class="number">0.023884420511558174</span>, <span class="number">0.024942026419731787</span>, <span class="number">0.026012046645134221</span>,
+     <span class="number">0.027094383780955803</span>, <span class="number">0.028188948763978646</span>, <span class="number">0.029295660224637411</span>, <span class="number">0.030414443910466622</span>,
+     <span class="number">0.031545232172893622</span>, <span class="number">0.032687963508959555</span>, <span class="number">0.033842582150874358</span>, <span class="number">0.035009037697397431</span>,
+     <span class="number">0.036187284781931443</span>, <span class="number">0.037377282772959382</span>, <span class="number">0.038578995503074871</span>, <span class="number">0.039792391023374139</span>,
+     <span class="number">0.041017441380414840</span>, <span class="number">0.042254122413316254</span>, <span class="number">0.043502413568888197</span>, <span class="number">0.044762297732943289</span>,
+     <span class="number">0.046033761076175184</span>, <span class="number">0.047316792913181561</span>, <span class="number">0.048611385573379504</span>, <span class="number">0.049917534282706379</span>,
+     <span class="number">0.051235237055126281</span>, <span class="number">0.052564494593071685</span>, <span class="number">0.053905310196046080</span>, <span class="number">0.055257689676697030</span>,
+     <span class="number">0.056621641283742870</span>, <span class="number">0.057997175631200659</span>, <span class="number">0.059384305633420280</span>, <span class="number">0.060783046445479660</span>,
+     <span class="number">0.062193415408541036</span>, <span class="number">0.063615431999807376</span>, <span class="number">0.065049117786753805</span>, <span class="number">0.066494496385339816</span>,
+     <span class="number">0.067951593421936643</span>, <span class="number">0.069420436498728783</span>, <span class="number">0.070901055162371843</span>, <span class="number">0.072393480875708752</span>,
+     <span class="number">0.073897746992364746</span>, <span class="number">0.075413888734058410</span>, <span class="number">0.076941943170480517</span>, <span class="number">0.078481949201606435</span>,
+     <span class="number">0.080033947542319905</span>, <span class="number">0.081597980709237419</span>, <span class="number">0.083174093009632397</span>, <span class="number">0.084762330532368146</span>,
+     <span class="number">0.086362741140756927</span>, <span class="number">0.087975374467270231</span>, <span class="number">0.089600281910032886</span>, <span class="number">0.091237516631040197</span>,
+     <span class="number">0.092887133556043569</span>, <span class="number">0.094549189376055873</span>, <span class="number">0.096223742550432825</span>, <span class="number">0.097910853311492213</span>,
+     <span class="number">0.099610583670637132</span>, <span class="number">0.101322997425953631</span>, <span class="number">0.103048160171257702</span>, <span class="number">0.104786139306570145</span>,
+     <span class="number">0.106537004050001632</span>, <span class="number">0.108300825451033755</span>, <span class="number">0.110077676405185357</span>, <span class="number">0.111867631670056283</span>,
+     <span class="number">0.113670767882744286</span>, <span class="number">0.115487163578633506</span>, <span class="number">0.117316899211555525</span>, <span class="number">0.119160057175327641</span>,
+     <span class="number">0.121016721826674792</span>, <span class="number">0.122886979509545108</span>, <span class="number">0.124770918580830933</span>, <span class="number">0.126668629437510671</span>,
+     <span class="number">0.128580204545228199</span>, <span class="number">0.130505738468330773</span>, <span class="number">0.132445327901387494</span>, <span class="number">0.134399071702213602</span>,
+     <span class="number">0.136367070926428829</span>, <span class="number">0.138349428863580176</span>, <span class="number">0.140346251074862399</span>, <span class="number">0.142357645432472146</span>,
+     <span class="number">0.144383722160634720</span>, <span class="number">0.146424593878344889</span>, <span class="number">0.148480375643866735</span>, <span class="number">0.150551185001039839</span>,
+     <span class="number">0.152637142027442801</span>, <span class="number">0.154738369384468027</span>, <span class="number">0.156854992369365148</span>, <span class="number">0.158987138969314129</span>,
+     <span class="number">0.161134939917591952</span>, <span class="number">0.163298528751901734</span>, <span class="number">0.165478041874935922</span>, <span class="number">0.167673618617250081</span>,
+     <span class="number">0.169885401302527550</span>, <span class="number">0.172113535315319977</span>, <span class="number">0.174358169171353411</span>, <span class="number">0.176619454590494829</span>,
+     <span class="number">0.178897546572478278</span>, <span class="number">0.181192603475496261</span>, <span class="number">0.183504787097767436</span>, <span class="number">0.185834262762197083</span>,
+     <span class="number">0.188181199404254262</span>, <span class="number">0.190545769663195363</span>, <span class="number">0.192928149976771296</span>, <span class="number">0.195328520679563189</span>,
+     <span class="number">0.197747066105098818</span>, <span class="number">0.200183974691911210</span>, <span class="number">0.202639439093708962</span>, <span class="number">0.205113656293837654</span>,
+     <span class="number">0.207606827724221982</span>, <span class="number">0.210119159388988230</span>, <span class="number">0.212650861992978224</span>, <span class="number">0.215202151075378628</span>,
+     <span class="number">0.217773247148700472</span>, <span class="number">0.220364375843359439</span>, <span class="number">0.222975768058120111</span>, <span class="number">0.225607660116683956</span>,
+     <span class="number">0.228260293930716618</span>, <span class="number">0.230933917169627356</span>, <span class="number">0.233628783437433291</span>, <span class="number">0.236345152457059560</span>,
+     <span class="number">0.239083290262449094</span>, <span class="number">0.241843469398877131</span>, <span class="number">0.244625969131892024</span>, <span class="number">0.247431075665327543</span>,
+     <span class="number">0.250259082368862240</span>, <span class="number">0.253110290015629402</span>, <span class="number">0.255985007030415324</span>, <span class="number">0.258883549749016173</span>,
+     <span class="number">0.261806242689362922</span>, <span class="number">0.264753418835062149</span>, <span class="number">0.267725419932044739</span>, <span class="number">0.270722596799059967</span>,
+     <span class="number">0.273745309652802915</span>, <span class="number">0.276793928448517301</span>, <span class="number">0.279868833236972869</span>, <span class="number">0.282970414538780746</span>,
+     <span class="number">0.286099073737076826</span>, <span class="number">0.289255223489677693</span>, <span class="number">0.292439288161892630</span>, <span class="number">0.295651704281261252</span>,
+     <span class="number">0.298892921015581847</span>, <span class="number">0.302163400675693528</span>, <span class="number">0.305463619244590256</span>, <span class="number">0.308794066934560185</span>,
+     <span class="number">0.312155248774179606</span>, <span class="number">0.315547685227128949</span>, <span class="number">0.318971912844957239</span>, <span class="number">0.322428484956089223</span>,
+     <span class="number">0.325917972393556354</span>, <span class="number">0.329440964264136438</span>, <span class="number">0.332998068761809096</span>, <span class="number">0.336589914028677717</span>,
+     <span class="number">0.340217149066780189</span>, <span class="number">0.343880444704502575</span>, <span class="number">0.347580494621637148</span>, <span class="number">0.351318016437483449</span>,
+     <span class="number">0.355093752866787626</span>, <span class="number">0.358908472948750001</span>, <span class="number">0.362762973354817997</span>, <span class="number">0.366658079781514379</span>,
+     <span class="number">0.370594648435146223</span>, <span class="number">0.374573567615902381</span>, <span class="number">0.378595759409581067</span>, <span class="number">0.382662181496010056</span>,
+     <span class="number">0.386773829084137932</span>, <span class="number">0.390931736984797384</span>, <span class="number">0.395136981833290435</span>, <span class="number">0.399390684475231350</span>,
+     <span class="number">0.403694012530530555</span>, <span class="number">0.408048183152032673</span>, <span class="number">0.412454465997161457</span>, <span class="number">0.416914186433003209</span>,
+     <span class="number">0.421428728997616908</span>, <span class="number">0.425999541143034677</span>, <span class="number">0.430628137288459167</span>, <span class="number">0.435316103215636907</span>,
+     <span class="number">0.440065100842354173</span>, <span class="number">0.444876873414548846</span>, <span class="number">0.449753251162755330</span>, <span class="number">0.454696157474615836</span>,
+     <span class="number">0.459707615642138023</span>, <span class="number">0.464789756250426511</span>, <span class="number">0.469944825283960310</span>, <span class="number">0.475175193037377708</span>,
+     <span class="number">0.480483363930454543</span>, <span class="number">0.485871987341885248</span>, <span class="number">0.491343869594032867</span>, <span class="number">0.496901987241549881</span>,
+     <span class="number">0.502549501841348056</span>, <span class="number">0.508289776410643213</span>, <span class="number">0.514126393814748894</span>, <span class="number">0.520063177368233931</span>,
+     <span class="number">0.526104213983620062</span>, <span class="number">0.532253880263043655</span>, <span class="number">0.538516872002862246</span>, <span class="number">0.544898237672440056</span>,
+     <span class="number">0.551403416540641733</span>, <span class="number">0.558038282262587892</span>, <span class="number">0.564809192912400615</span>, <span class="number">0.571723048664826150</span>,
+     <span class="number">0.578787358602845359</span>, <span class="number">0.586010318477268366</span>, <span class="number">0.593400901691733762</span>, <span class="number">0.600968966365232560</span>,
+     <span class="number">0.608725382079622346</span>, <span class="number">0.616682180915207878</span>, <span class="number">0.624852738703666200</span>, <span class="number">0.633251994214366398</span>,
+     <span class="number">0.641896716427266423</span>, <span class="number">0.650805833414571433</span>, <span class="number">0.660000841079000145</span>, <span class="number">0.669506316731925177</span>,
+     <span class="number">0.679350572264765806</span>, <span class="number">0.689566496117078431</span>, <span class="number">0.700192655082788606</span>, <span class="number">0.711274760805076456</span>,
+     <span class="number">0.722867659593572465</span>, <span class="number">0.735038092431424039</span>, <span class="number">0.747868621985195658</span>, <span class="number">0.761463388849896838</span>,
+     <span class="number">0.775956852040116218</span>, <span class="number">0.791527636972496285</span>, <span class="number">0.808421651523009044</span>, <span class="number">0.826993296643051101</span>,
+     <span class="number">0.847785500623990496</span>, <span class="number">0.871704332381204705</span>, <span class="number">0.900469929925747703</span>, <span class="number">0.938143680862176477</span>,
+     <span class="number">1.000000000000000000</span>];
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rand_distr" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

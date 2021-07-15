@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["c_void",""]],"fn":[["BroccoliConcatFinish",""],["BroccoliConcatFinished",""],["BroccoliConcatStream",""],["BroccoliConcatStreaming",""],["BroccoliCreateInstance",""],["BroccoliCreateInstanceWithWindowSize",""],["BroccoliDestroyInstance",""],["BroccoliNewBrotliFile",""]],"struct":[["BroccoliState",""]],"type":[["BroccoliResult",""]]});

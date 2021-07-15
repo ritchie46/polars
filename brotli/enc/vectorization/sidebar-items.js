@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["cast_f32_to_i32",""],["cast_i32_to_f32",""],["log2i",""],["sum8",""],["sum8i",""]],"type":[["Mem256f",""],["Mem256i",""],["v256",""],["v256i",""]]});

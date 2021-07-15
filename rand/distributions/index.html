@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generating random samples from probability distributions"><meta name="keywords" content="rust, rustlang, rust-lang, distributions"><title>rand::distributions - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../rand/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a><p class="location">Module distributions</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="distributions" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">rand</a>::<wbr><a class="mod" href="#">distributions</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/rand/distributions/mod.rs.html#10-218" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generating random samples from probability distributions</p>
+<p>This module is the home of the <a href="trait.Distribution.html" title="Distribution"><code>Distribution</code></a> trait and several of its
+implementations. It is the workhorse behind some of the convenient
+functionality of the <a href="../trait.Rng.html" title="Rng"><code>Rng</code></a> trait, e.g. <a href="../trait.Rng.html#method.gen" title="Rng::gen"><code>Rng::gen</code></a> and of course
+<a href="../trait.Rng.html#method.sample" title="Rng::sample"><code>Rng::sample</code></a>.</p>
+<p>Abstractly, a <a href="https://en.wikipedia.org/wiki/Probability_distribution">probability distribution</a> describes the probability of
+occurrence of each value in its sample space.</p>
+<p>More concretely, an implementation of <code>Distribution&lt;T&gt;</code> for type <code>X</code> is an
+algorithm for choosing values from the sample space (a subset of <code>T</code>)
+according to the distribution <code>X</code> represents, using an external source of
+randomness (an RNG supplied to the <code>sample</code> function).</p>
+<p>A type <code>X</code> may implement <code>Distribution&lt;T&gt;</code> for multiple types <code>T</code>.
+Any type implementing <a href="trait.Distribution.html" title="Distribution"><code>Distribution</code></a> is stateless (i.e. immutable),
+but it may have internal parameters set at construction time (for example,
+<a href="struct.Uniform.html" title="Uniform"><code>Uniform</code></a> allows specification of its sample space as a range within <code>T</code>).</p>
+<h1 id="the-standard-distribution" class="section-header"><a href="#the-standard-distribution">The <code>Standard</code> distribution</a></h1>
+<p>The <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> distribution is important to mention. This is the
+distribution used by <a href="../trait.Rng.html#method.gen" title="Rng::gen"><code>Rng::gen</code></a> and represents the “default” way to
+produce a random value for many different types, including most primitive
+types, tuples, arrays, and a few derived types. See the documentation of
+<a href="struct.Standard.html" title="Standard"><code>Standard</code></a> for more details.</p>
+<p>Implementing <code>Distribution&lt;T&gt;</code> for <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> for user types <code>T</code> makes it
+possible to generate type <code>T</code> with <a href="../trait.Rng.html#method.gen" title="Rng::gen"><code>Rng::gen</code></a>, and by extension also
+with the <a href="../fn.random.html"><code>random</code></a> function.</p>
+<h2 id="random-characters" class="section-header"><a href="#random-characters">Random characters</a></h2>
+<p><a href="struct.Alphanumeric.html" title="Alphanumeric"><code>Alphanumeric</code></a> is a simple distribution to sample random letters and
+numbers of the <code>char</code> type; in contrast <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> may sample any valid
+<code>char</code>.</p>
+<h1 id="uniform-numeric-ranges" class="section-header"><a href="#uniform-numeric-ranges">Uniform numeric ranges</a></h1>
+<p>The <a href="struct.Uniform.html" title="Uniform"><code>Uniform</code></a> distribution is more flexible than <a href="struct.Standard.html" title="Standard"><code>Standard</code></a>, but also
+more specialised: it supports fewer target types, but allows the sample
+space to be specified as an arbitrary range within its target type <code>T</code>.
+Both <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> and <a href="struct.Uniform.html" title="Uniform"><code>Uniform</code></a> are in some sense uniform distributions.</p>
+<p>Values may be sampled from this distribution using [<code>Rng::sample(Range)</code>] or
+by creating a distribution object with <a href="struct.Uniform.html#method.new" title="Uniform::new"><code>Uniform::new</code></a>,
+<a href="struct.Uniform.html#method.new_inclusive" title="Uniform::new_inclusive"><code>Uniform::new_inclusive</code></a> or <code>From&lt;Range&gt;</code>. When the range limits are not
+known at compile time it is typically faster to reuse an existing
+<code>Uniform</code> object than to call [<code>Rng::sample(Range)</code>].</p>
+<p>User types <code>T</code> may also implement <code>Distribution&lt;T&gt;</code> for <a href="struct.Uniform.html" title="Uniform"><code>Uniform</code></a>,
+although this is less straightforward than for <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> (see the
+documentation in the <a href="uniform/index.html" title="uniform"><code>uniform</code></a> module). Doing so enables generation of
+values of type <code>T</code> with  [<code>Rng::sample(Range)</code>].</p>
+<h2 id="open-and-half-open-ranges" class="section-header"><a href="#open-and-half-open-ranges">Open and half-open ranges</a></h2>
+<p>There are surprisingly many ways to uniformly generate random floats. A
+range between 0 and 1 is standard, but the exact bounds (open vs closed)
+and accuracy differ. In addition to the <a href="struct.Standard.html" title="Standard"><code>Standard</code></a> distribution Rand offers
+<a href="struct.Open01.html" title="Open01"><code>Open01</code></a> and <a href="struct.OpenClosed01.html" title="OpenClosed01"><code>OpenClosed01</code></a>. See “Floating point implementation” section of
+<a href="struct.Standard.html" title="Standard"><code>Standard</code></a> documentation for more details.</p>
+<h1 id="non-uniform-sampling" class="section-header"><a href="#non-uniform-sampling">Non-uniform sampling</a></h1>
+<p>Sampling a simple true/false outcome with a given probability has a name:
+the <a href="struct.Bernoulli.html" title="Bernoulli"><code>Bernoulli</code></a> distribution (this is used by <a href="../trait.Rng.html#method.gen_bool" title="Rng::gen_bool"><code>Rng::gen_bool</code></a>).</p>
+<p>For weighted sampling from a sequence of discrete values, use the
+<a href="weighted/struct.WeightedIndex.html" title="WeightedIndex"><code>WeightedIndex</code></a> distribution.</p>
+<p>This crate no longer includes other non-uniform distributions; instead
+it is recommended that you use either <a href="https://crates.io/crates/rand_distr"><code>rand_distr</code></a> or <a href="https://crates.io/crates/statrs"><code>statrs</code></a>.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="uniform/index.html" title="rand::distributions::uniform mod">uniform</a></div><div class="item-right docblock-short"><p>A distribution uniformly sampling numbers within a given range.</p>
+</div><div class="item-left module-item"><a class="mod" href="weighted/index.html" title="rand::distributions::weighted mod">weighted</a><span class="stab deprecated" title="">Deprecated</span></div><div class="item-right docblock-short"><p>Weighted index sampling</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Alphanumeric.html" title="rand::distributions::Alphanumeric struct">Alphanumeric</a></div><div class="item-right docblock-short"><p>Sample a <code>u8</code>, uniformly distributed over ASCII letters and numbers:
+a-z, A-Z and 0-9.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Bernoulli.html" title="rand::distributions::Bernoulli struct">Bernoulli</a></div><div class="item-right docblock-short"><p>The Bernoulli distribution.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DistIter.html" title="rand::distributions::DistIter struct">DistIter</a></div><div class="item-right docblock-short"><p>An iterator that generates random values of <code>T</code> with distribution <code>D</code>,
+using <code>R</code> as the source of randomness.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DistMap.html" title="rand::distributions::DistMap struct">DistMap</a></div><div class="item-right docblock-short"><p>A distribution of values of type <code>S</code> derived from the distribution <code>D</code>
+by mapping its output of type <code>T</code> through the closure <code>F</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Open01.html" title="rand::distributions::Open01 struct">Open01</a></div><div class="item-right docblock-short"><p>A distribution to sample floating point numbers uniformly in the open
+interval <code>(0, 1)</code>, i.e. not including either endpoint.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.OpenClosed01.html" title="rand::distributions::OpenClosed01 struct">OpenClosed01</a></div><div class="item-right docblock-short"><p>A distribution to sample floating point numbers uniformly in the half-open
+interval <code>(0, 1]</code>, i.e. including 1 but not 0.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Slice.html" title="rand::distributions::Slice struct">Slice</a></div><div class="item-right docblock-short"><p>A distribution to sample items uniformly from a slice.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Standard.html" title="rand::distributions::Standard struct">Standard</a></div><div class="item-right docblock-short"><p>A generic random value distribution, implemented for many primitive types.
+Usually generates values with a numerically uniform distribution, and with a
+range appropriate to the type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Uniform.html" title="rand::distributions::Uniform struct">Uniform</a></div><div class="item-right docblock-short"><p>Sample values uniformly between two bounds.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.WeightedIndex.html" title="rand::distributions::WeightedIndex struct">WeightedIndex</a></div><div class="item-right docblock-short"><p>A distribution using weighted sampling of discrete items</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.BernoulliError.html" title="rand::distributions::BernoulliError enum">BernoulliError</a></div><div class="item-right docblock-short"><p>Error type returned from <code>Bernoulli::new</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.WeightedError.html" title="rand::distributions::WeightedError enum">WeightedError</a></div><div class="item-right docblock-short"><p>Error type returned from <code>WeightedIndex::new</code>.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.DistString.html" title="rand::distributions::DistString trait">DistString</a></div><div class="item-right docblock-short"><p><code>String</code> sampler</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Distribution.html" title="rand::distributions::Distribution trait">Distribution</a></div><div class="item-right docblock-short"><p>Types (distributions) that can be used to create a random instance of <code>T</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rand" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["parse_metadata","Layout of Parquet file +—————————+—–+—+ |      Rest of file         |  B  | A | +—————————+—–+—+ where A: parquet footer, B: parquet metadata."]]});

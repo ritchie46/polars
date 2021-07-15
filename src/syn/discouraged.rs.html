@@ -1,0 +1,393 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;syn-1.0.73&#x2F;src&#x2F;discouraged.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>discouraged.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+</pre><pre class="rust">
+<span class="doccomment">//! Extensions to the parsing API with niche applicability.</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+<span class="doccomment">/// Extensions to the `ParseStream` API to support speculative parsing.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Speculative</span> {
+    <span class="doccomment">/// Advance this parse stream to the position of a forked parse stream.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is the opposite operation to [`ParseStream::fork`]. You can fork a</span>
+    <span class="doccomment">/// parse stream, perform some speculative parsing, then join the original</span>
+    <span class="doccomment">/// stream to the fork to &quot;commit&quot; the parsing from the fork to the main</span>
+    <span class="doccomment">/// stream.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you can avoid doing this, you should, as it limits the ability to</span>
+    <span class="doccomment">/// generate useful errors. That said, it is often the only way to parse</span>
+    <span class="doccomment">/// syntax of the form `A* B*` for arbitrary syntax `A` and `B`. The problem</span>
+    <span class="doccomment">/// is that when the fork fails to parse an `A`, it&#39;s impossible to tell</span>
+    <span class="doccomment">/// whether that was because of a syntax error and the user meant to provide</span>
+    <span class="doccomment">/// an `A`, or that the `A`s are finished and it&#39;s time to start parsing</span>
+    <span class="doccomment">/// `B`s. Use with care.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Also note that if `A` is a subset of `B`, `A* B*` can be parsed by</span>
+    <span class="doccomment">/// parsing `B*` and removing the leading members of `A` from the</span>
+    <span class="doccomment">/// repetition, bypassing the need to involve the downsides associated with</span>
+    <span class="doccomment">/// speculative parsing.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`ParseStream::fork`]: ParseBuffer::fork</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// There has been chatter about the possibility of making the colons in the</span>
+    <span class="doccomment">/// turbofish syntax like `path::to::&lt;T&gt;` no longer required by accepting</span>
+    <span class="doccomment">/// `path::to&lt;T&gt;` in expression position. Specifically, according to [RFC</span>
+    <span class="doccomment">/// 2544], [`PathSegment`] parsing should always try to consume a following</span>
+    <span class="doccomment">/// `&lt;` token as the start of generic arguments, and reset to the `&lt;` if</span>
+    <span class="doccomment">/// that fails (e.g. the token is acting as a less-than operator).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is the exact kind of parsing behavior which requires the &quot;fork,</span>
+    <span class="doccomment">/// try, commit&quot; behavior that [`ParseStream::fork`] discourages. With</span>
+    <span class="doccomment">/// `advance_to`, we can avoid having to parse the speculatively parsed</span>
+    <span class="doccomment">/// content a second time.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This change in behavior can be implemented in syn by replacing just the</span>
+    <span class="doccomment">/// `Parse` implementation for `PathSegment`:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use syn::ext::IdentExt;</span>
+    <span class="doccomment">/// use syn::parse::discouraged::Speculative;</span>
+    <span class="doccomment">/// # use syn::parse::{Parse, ParseStream};</span>
+    <span class="doccomment">/// # use syn::{Ident, PathArguments, Result, Token};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// pub struct PathSegment {</span>
+    <span class="doccomment">///     pub ident: Ident,</span>
+    <span class="doccomment">///     pub arguments: PathArguments,</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// # impl&lt;T&gt; From&lt;T&gt; for PathSegment</span>
+    <span class="doccomment">/// # where</span>
+    <span class="doccomment">/// #     T: Into&lt;Ident&gt;,</span>
+    <span class="doccomment">/// # {</span>
+    <span class="doccomment">/// #     fn from(ident: T) -&gt; Self {</span>
+    <span class="doccomment">/// #         PathSegment {</span>
+    <span class="doccomment">/// #             ident: ident.into(),</span>
+    <span class="doccomment">/// #             arguments: PathArguments::None,</span>
+    <span class="doccomment">/// #         }</span>
+    <span class="doccomment">/// #     }</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// impl Parse for PathSegment {</span>
+    <span class="doccomment">///     fn parse(input: ParseStream) -&gt; Result&lt;Self&gt; {</span>
+    <span class="doccomment">///         if input.peek(Token![super])</span>
+    <span class="doccomment">///             || input.peek(Token![self])</span>
+    <span class="doccomment">///             || input.peek(Token![Self])</span>
+    <span class="doccomment">///             || input.peek(Token![crate])</span>
+    <span class="doccomment">///         {</span>
+    <span class="doccomment">///             let ident = input.call(Ident::parse_any)?;</span>
+    <span class="doccomment">///             return Ok(PathSegment::from(ident));</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         let ident = input.parse()?;</span>
+    <span class="doccomment">///         if input.peek(Token![::]) &amp;&amp; input.peek3(Token![&lt;]) {</span>
+    <span class="doccomment">///             return Ok(PathSegment {</span>
+    <span class="doccomment">///                 ident,</span>
+    <span class="doccomment">///                 arguments: PathArguments::AngleBracketed(input.parse()?),</span>
+    <span class="doccomment">///             });</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///         if input.peek(Token![&lt;]) &amp;&amp; !input.peek(Token![&lt;=]) {</span>
+    <span class="doccomment">///             let fork = input.fork();</span>
+    <span class="doccomment">///             if let Ok(arguments) = fork.parse() {</span>
+    <span class="doccomment">///                 input.advance_to(&amp;fork);</span>
+    <span class="doccomment">///                 return Ok(PathSegment {</span>
+    <span class="doccomment">///                     ident,</span>
+    <span class="doccomment">///                     arguments: PathArguments::AngleBracketed(arguments),</span>
+    <span class="doccomment">///                 });</span>
+    <span class="doccomment">///             }</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///         Ok(PathSegment::from(ident))</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # syn::parse_str::&lt;PathSegment&gt;(&quot;a&lt;b,c&gt;&quot;).unwrap();</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Drawbacks</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The main drawback of this style of speculative parsing is in error</span>
+    <span class="doccomment">/// presentation. Even if the lookahead is the &quot;correct&quot; parse, the error</span>
+    <span class="doccomment">/// that is shown is that of the &quot;fallback&quot; parse. To use the same example</span>
+    <span class="doccomment">/// as the turbofish above, take the following unfinished &quot;turbofish&quot;:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```text</span>
+    <span class="doccomment">/// let _ = f&lt;&amp;&#39;a fn(), for&lt;&#39;a&gt; serde::&gt;();</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this is parsed as generic arguments, we can provide the error message</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```text</span>
+    <span class="doccomment">/// error: expected identifier</span>
+    <span class="doccomment">///  --&gt; src.rs:L:C</span>
+    <span class="doccomment">///   |</span>
+    <span class="doccomment">/// L | let _ = f&lt;&amp;&#39;a fn(), for&lt;&#39;a&gt; serde::&gt;();</span>
+    <span class="doccomment">///   |                                    ^</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// but if parsed using the above speculative parsing, it falls back to</span>
+    <span class="doccomment">/// assuming that the `&lt;` is a less-than when it fails to parse the generic</span>
+    <span class="doccomment">/// arguments, and tries to interpret the `&amp;&#39;a` as the start of a labelled</span>
+    <span class="doccomment">/// loop, resulting in the much less helpful error</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```text</span>
+    <span class="doccomment">/// error: expected `:`</span>
+    <span class="doccomment">///  --&gt; src.rs:L:C</span>
+    <span class="doccomment">///   |</span>
+    <span class="doccomment">/// L | let _ = f&lt;&amp;&#39;a fn(), for&lt;&#39;a&gt; serde::&gt;();</span>
+    <span class="doccomment">///   |               ^^</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can be mitigated with various heuristics (two examples: show both</span>
+    <span class="doccomment">/// forks&#39; parse errors, or show the one that consumed more tokens), but</span>
+    <span class="doccomment">/// when you can control the grammar, sticking to something that can be</span>
+    <span class="doccomment">/// parsed LL(3) and without the LL(*) speculative parsing this makes</span>
+    <span class="doccomment">/// possible, displaying reasonable errors becomes much more simple.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [RFC 2544]: https://github.com/rust-lang/rfcs/pull/2544</span>
+    <span class="doccomment">/// [`PathSegment`]: crate::PathSegment</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Performance</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method performs a cheap fixed amount of work that does not depend</span>
+    <span class="doccomment">/// on how far apart the two streams are positioned.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The forked stream in the argument of `advance_to` must have been</span>
+    <span class="doccomment">/// obtained by forking `self`. Attempting to advance to any other stream</span>
+    <span class="doccomment">/// will cause a panic.</span>
+    <span class="kw">fn</span> <span class="ident">advance_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fork</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>);
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Speculative</span> <span class="kw">for</span> <span class="ident">ParseBuffer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">advance_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fork</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="kw">crate</span><span class="ident">::buffer::same_scope</span>(<span class="self">self</span>.<span class="ident">cursor</span>(), <span class="ident">fork</span>.<span class="ident">cursor</span>()) {
+            <span class="macro">panic!</span>(<span class="string">&quot;Fork was not derived from the advancing parse stream&quot;</span>);
+        }
+
+        <span class="kw">let</span> (<span class="ident">self_unexp</span>, <span class="ident">self_sp</span>) <span class="op">=</span> <span class="ident">inner_unexpected</span>(<span class="self">self</span>);
+        <span class="kw">let</span> (<span class="ident">fork_unexp</span>, <span class="ident">fork_sp</span>) <span class="op">=</span> <span class="ident">inner_unexpected</span>(<span class="ident">fork</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">Rc::ptr_eq</span>(<span class="kw-2">&amp;</span><span class="ident">self_unexp</span>, <span class="kw-2">&amp;</span><span class="ident">fork_unexp</span>) {
+            <span class="kw">match</span> (<span class="ident">fork_sp</span>, <span class="ident">self_sp</span>) {
+                <span class="comment">// Unexpected set on the fork, but not on `self`, copy it over.</span>
+                (<span class="prelude-val">Some</span>(<span class="ident">span</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">self_unexp</span>.<span class="ident">set</span>(<span class="ident">Unexpected::Some</span>(<span class="ident">span</span>));
+                }
+                <span class="comment">// Unexpected unset. Use chain to propagate errors from fork.</span>
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">fork_unexp</span>.<span class="ident">set</span>(<span class="ident">Unexpected::Chain</span>(<span class="ident">self_unexp</span>));
+
+                    <span class="comment">// Ensure toplevel &#39;unexpected&#39; tokens from the fork don&#39;t</span>
+                    <span class="comment">// bubble up the chain by replacing the root `unexpected`</span>
+                    <span class="comment">// pointer, only &#39;unexpected&#39; tokens from existing group</span>
+                    <span class="comment">// parsers should bubble.</span>
+                    <span class="ident">fork</span>.<span class="ident">unexpected</span>
+                        .<span class="ident">set</span>(<span class="prelude-val">Some</span>(<span class="ident">Rc::new</span>(<span class="ident">Cell::new</span>(<span class="ident">Unexpected::None</span>))));
+                }
+                <span class="comment">// Unexpected has been set on `self`. No changes needed.</span>
+                (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {}
+            }
+        }
+
+        <span class="comment">// See comment on `cell` in the struct definition.</span>
+        <span class="self">self</span>.<span class="ident">cell</span>
+            .<span class="ident">set</span>(<span class="kw">unsafe</span> { <span class="ident">mem::transmute</span>::<span class="op">&lt;</span><span class="ident">Cursor</span>, <span class="ident">Cursor</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">fork</span>.<span class="ident">cursor</span>()) });
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

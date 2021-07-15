@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["buffer_and",""],["buffer_or",""],["combine_null_buffers","Combine the validity by doing a bitand operation."]],"struct":[["TrustMyLength",""]],"trait":[["CustomIterTools",""],["CustomIterToolsSized",""],["FromTrustedLenIterator",""]]});

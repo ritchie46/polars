@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["implementations",""]],"struct":[["Series","Series"]],"trait":[["IntoSeries",""],["NamedFrom",""],["SeriesTrait",""]]});

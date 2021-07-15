@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["cleanup_raw","Resets the signal handler to the default one."],["cleanup_signal","Resets the signal handler to the default one and removes all its hooks."],["register","Register a cleanup after receiving a signal."]]});

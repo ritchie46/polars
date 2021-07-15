@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;chrono-0.4.19&#x2F;src&#x2F;offset&#x2F;utc.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utc.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../chrono/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+</pre><pre class="rust">
+<span class="comment">// This is a part of Chrono.</span>
+<span class="comment">// See README.md and LICENSE.txt for details.</span>
+
+<span class="doccomment">//! The UTC (Coordinated Universal Time) time zone.</span>
+
+<span class="kw">use</span> <span class="ident">core::fmt</span>;
+
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">FixedOffset</span>, <span class="ident">LocalResult</span>, <span class="ident">Offset</span>, <span class="ident">TimeZone</span>};
+<span class="kw">use</span> <span class="ident">naive</span>::{<span class="ident">NaiveDate</span>, <span class="ident">NaiveDateTime</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;clock&quot;</span>,
+    <span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasmbind&quot;</span>))
+))]</span>
+<span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">SystemTime</span>, <span class="ident">UNIX_EPOCH</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;clock&quot;</span>)]</span>
+<span class="kw">use</span> {<span class="ident">Date</span>, <span class="ident">DateTime</span>};
+
+<span class="doccomment">/// The UTC time zone. This is the most efficient time zone when you don&#39;t need the local time.</span>
+<span class="doccomment">/// It is also used as an offset (which is also a dummy type).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Using the [`TimeZone`](./trait.TimeZone.html) methods</span>
+<span class="doccomment">/// on the UTC struct is the preferred way to construct `DateTime&lt;Utc&gt;`</span>
+<span class="doccomment">/// instances.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ~~~~</span>
+<span class="doccomment">/// use chrono::{DateTime, TimeZone, NaiveDateTime, Utc};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let dt = DateTime::&lt;Utc&gt;::from_utc(NaiveDateTime::from_timestamp(61, 0), Utc);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(Utc.timestamp(61, 0), dt);</span>
+<span class="doccomment">/// assert_eq!(Utc.ymd(1970, 1, 1).and_hms(0, 1, 1), dt);</span>
+<span class="doccomment">/// ~~~~</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Utc</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;clock&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">Utc</span> {
+    <span class="doccomment">/// Returns a `Date` which corresponds to the current date.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">today</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Date</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+        <span class="ident">Utc::now</span>().<span class="ident">date</span>()
+    }
+
+    <span class="doccomment">/// Returns a `DateTime` which corresponds to the current date.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasmbind&quot;</span>)))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span>
+            <span class="ident">SystemTime::now</span>().<span class="ident">duration_since</span>(<span class="ident">UNIX_EPOCH</span>).<span class="ident">expect</span>(<span class="string">&quot;system time before Unix epoch&quot;</span>);
+        <span class="kw">let</span> <span class="ident">naive</span> <span class="op">=</span> <span class="ident">NaiveDateTime::from_timestamp</span>(<span class="ident">now</span>.<span class="ident">as_secs</span>() <span class="kw">as</span> <span class="ident">i64</span>, <span class="ident">now</span>.<span class="ident">subsec_nanos</span>() <span class="kw">as</span> <span class="ident">u32</span>);
+        <span class="ident">DateTime::from_utc</span>(<span class="ident">naive</span>, <span class="ident">Utc</span>)
+    }
+
+    <span class="doccomment">/// Returns a `DateTime` which corresponds to the current date.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>, <span class="ident">not</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;wasi&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasmbind&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">now</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">js_sys::Date::new_0</span>();
+        <span class="ident">DateTime</span>::<span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="ident">now</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TimeZone</span> <span class="kw">for</span> <span class="ident">Utc</span> {
+    <span class="kw">type</span> <span class="ident">Offset</span> <span class="op">=</span> <span class="ident">Utc</span>;
+
+    <span class="kw">fn</span> <span class="ident">from_offset</span>(<span class="ident">_state</span>: <span class="kw-2">&amp;</span><span class="ident">Utc</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Utc</span> {
+        <span class="ident">Utc</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">offset_from_local_date</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_local</span>: <span class="kw-2">&amp;</span><span class="ident">NaiveDate</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LocalResult</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+        <span class="ident">LocalResult::Single</span>(<span class="ident">Utc</span>)
+    }
+    <span class="kw">fn</span> <span class="ident">offset_from_local_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_local</span>: <span class="kw-2">&amp;</span><span class="ident">NaiveDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LocalResult</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+        <span class="ident">LocalResult::Single</span>(<span class="ident">Utc</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">offset_from_utc_date</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_utc</span>: <span class="kw-2">&amp;</span><span class="ident">NaiveDate</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Utc</span> {
+        <span class="ident">Utc</span>
+    }
+    <span class="kw">fn</span> <span class="ident">offset_from_utc_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_utc</span>: <span class="kw-2">&amp;</span><span class="ident">NaiveDateTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Utc</span> {
+        <span class="ident">Utc</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Offset</span> <span class="kw">for</span> <span class="ident">Utc</span> {
+    <span class="kw">fn</span> <span class="ident">fix</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FixedOffset</span> {
+        <span class="ident">FixedOffset::east</span>(<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Utc</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Z&quot;</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Utc</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UTC&quot;</span>)
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="chrono" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

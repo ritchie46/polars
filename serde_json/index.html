@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Serde JSON"><meta name="keywords" content="rust, rustlang, rust-lang, serde_json"><title>serde_json - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../serde_json/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate serde_json</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.64</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all serde_json's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="serde_json" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">serde_json</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/serde_json/lib.rs.html#1-472" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="serde-json" class="section-header"><a href="#serde-json">Serde JSON</a></h1>
+<p>JSON is a ubiquitous open-standard format that uses human-readable text to
+transmit data objects consisting of key-value pairs.</p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;John Doe&quot;,
+    &quot;age&quot;: 43,
+    &quot;address&quot;: {
+        &quot;street&quot;: &quot;10 Downing Street&quot;,
+        &quot;city&quot;: &quot;London&quot;
+    },
+    &quot;phones&quot;: [
+        &quot;+44 1234567&quot;,
+        &quot;+44 2345678&quot;
+    ]
+}
+</code></pre>
+<p>There are three common ways that you might find yourself needing to work
+with JSON data in Rust.</p>
+<ul>
+<li><strong>As text data.</strong> An unprocessed string of JSON data that you receive on
+an HTTP endpoint, read from a file, or prepare to send to a remote
+server.</li>
+<li><strong>As an untyped or loosely typed representation.</strong> Maybe you want to
+check that some JSON data is valid before passing it on, but without
+knowing the structure of what it contains. Or you want to do very basic
+manipulations like insert a key in a particular spot.</li>
+<li><strong>As a strongly typed Rust data structure.</strong> When you expect all or most
+of your data to conform to a particular structure and want to get real
+work done without JSON’s loosey-goosey nature tripping you up.</li>
+</ul>
+<p>Serde JSON provides efficient, flexible, safe ways of converting data
+between each of these representations.</p>
+<h1 id="operating-on-untyped-json-values" class="section-header"><a href="#operating-on-untyped-json-values">Operating on untyped JSON values</a></h1>
+<p>Any valid JSON data can be manipulated in the following recursive enum
+representation. This data structure is <a href="https://docs.serde.rs/serde_json/value/enum.Value.html"><code>serde_json::Value</code></a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">enum</span> <span class="ident">Value</span> {
+    <span class="ident">Null</span>,
+    <span class="ident">Bool</span>(<span class="ident">bool</span>),
+    <span class="ident">Number</span>(<span class="ident">Number</span>),
+    <span class="ident">String</span>(<span class="ident">String</span>),
+    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>),
+    <span class="ident">Object</span>(<span class="ident">Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>),
+}</pre></div>
+<p>A string of JSON data can be parsed into a <code>serde_json::Value</code> by the
+<a href="https://docs.serde.rs/serde_json/de/fn.from_str.html"><code>serde_json::from_str</code></a> function. There is also
+<a href="https://docs.serde.rs/serde_json/de/fn.from_slice.html"><code>from_slice</code></a> for parsing from a byte slice &amp;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="u8">u8</a> and
+<a href="https://docs.serde.rs/serde_json/de/fn.from_reader.html"><code>from_reader</code></a> for parsing from any <code>io::Read</code> like a File or
+a TCP stream.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="prelude-ty">Result</span>, <span class="ident">Value</span>};
+
+<span class="kw">fn</span> <span class="ident">untyped_example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// Some JSON input data as a &amp;str. Maybe this comes from the user.</span>
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="string">r#&quot;
+        {
+            &quot;name&quot;: &quot;John Doe&quot;,
+            &quot;age&quot;: 43,
+            &quot;phones&quot;: [
+                &quot;+44 1234567&quot;,
+                &quot;+44 2345678&quot;
+            ]
+        }&quot;#</span>;
+
+    <span class="comment">// Parse the string of data into serde_json::Value.</span>
+    <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">Value</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Access parts of the data by indexing with square brackets.</span>
+    <span class="macro">println!</span>(<span class="string">&quot;Please call {} at the number {}&quot;</span>, <span class="ident">v</span>[<span class="string">&quot;name&quot;</span>], <span class="ident">v</span>[<span class="string">&quot;phones&quot;</span>][<span class="number">0</span>]);
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<p>The result of square bracket indexing like <code>v[&quot;name&quot;]</code> is a borrow of the
+data at that index, so the type is <code>&amp;Value</code>. A JSON map can be indexed with
+string keys, while a JSON array can be indexed with integer keys. If the
+type of the data is not right for the type with which it is being indexed,
+or if a map does not contain the key being indexed, or if the index into a
+vector is out of bounds, the returned element is <code>Value::Null</code>.</p>
+<p>When a <code>Value</code> is printed, it is printed as a JSON string. So in the code
+above, the output looks like <code>Please call &quot;John Doe&quot; at the number &quot;+44 1234567&quot;</code>. The quotation marks appear because <code>v[&quot;name&quot;]</code> is a <code>&amp;Value</code>
+containing a JSON string and its JSON representation is <code>&quot;John Doe&quot;</code>.
+Printing as a plain string without quotation marks involves converting from
+a JSON string to a Rust string with <a href="https://docs.serde.rs/serde_json/enum.Value.html#method.as_str"><code>as_str()</code></a> or avoiding the use of
+<code>Value</code> as described in the following section.</p>
+<p>The <code>Value</code> representation is sufficient for very basic tasks but can be
+tedious to work with for anything more significant. Error handling is
+verbose to implement correctly, for example imagine trying to detect the
+presence of unrecognized fields in the input data. The compiler is powerless
+to help you when you make a mistake, for example imagine typoing <code>v[&quot;name&quot;]</code>
+as <code>v[&quot;nmae&quot;]</code> in one of the dozens of places it is used in your code.</p>
+<h1 id="parsing-json-as-strongly-typed-data-structures" class="section-header"><a href="#parsing-json-as-strongly-typed-data-structures">Parsing JSON as strongly typed data structures</a></h1>
+<p>Serde provides a powerful way of mapping JSON data into Rust data structures
+largely automatically.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">serde_json::Result</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Person</span> {
+    <span class="ident">name</span>: <span class="ident">String</span>,
+    <span class="ident">age</span>: <span class="ident">u8</span>,
+    <span class="ident">phones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">typed_example</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// Some JSON input data as a &amp;str. Maybe this comes from the user.</span>
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="string">r#&quot;
+        {
+            &quot;name&quot;: &quot;John Doe&quot;,
+            &quot;age&quot;: 43,
+            &quot;phones&quot;: [
+                &quot;+44 1234567&quot;,
+                &quot;+44 2345678&quot;
+            ]
+        }&quot;#</span>;
+
+    <span class="comment">// Parse the string of data into a Person object. This is exactly the</span>
+    <span class="comment">// same function as the one that produced serde_json::Value above, but</span>
+    <span class="comment">// now we are asking it for a Person as output.</span>
+    <span class="kw">let</span> <span class="ident">p</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Do things just like with any other Rust data structure.</span>
+    <span class="macro">println!</span>(<span class="string">&quot;Please call {} at the number {}&quot;</span>, <span class="ident">p</span>.<span class="ident">name</span>, <span class="ident">p</span>.<span class="ident">phones</span>[<span class="number">0</span>]);
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<p>This is the same <code>serde_json::from_str</code> function as before, but this time we
+assign the return value to a variable of type <code>Person</code> so Serde will
+automatically interpret the input data as a <code>Person</code> and produce informative
+error messages if the layout does not conform to what a <code>Person</code> is expected
+to look like.</p>
+<p>Any type that implements Serde’s <code>Deserialize</code> trait can be deserialized
+this way. This includes built-in Rust standard library types like <code>Vec&lt;T&gt;</code>
+and <code>HashMap&lt;K, V&gt;</code>, as well as any structs or enums annotated with
+<code>#[derive(Deserialize)]</code>.</p>
+<p>Once we have <code>p</code> of type <code>Person</code>, our IDE and the Rust compiler can help us
+use it correctly like they do for any other Rust code. The IDE can
+autocomplete field names to prevent typos, which was impossible in the
+<code>serde_json::Value</code> representation. And the Rust compiler can check that
+when we write <code>p.phones[0]</code>, then <code>p.phones</code> is guaranteed to be a
+<code>Vec&lt;String&gt;</code> so indexing into it makes sense and produces a <code>String</code>.</p>
+<h1 id="constructing-json-values" class="section-header"><a href="#constructing-json-values">Constructing JSON values</a></h1>
+<p>Serde JSON provides a <a href="https://docs.serde.rs/serde_json/macro.json.html"><code>json!</code> macro</a> to build <code>serde_json::Value</code>
+objects with very natural JSON syntax.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde_json::json</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="comment">// The type of `john` is `serde_json::Value`</span>
+    <span class="kw">let</span> <span class="ident">john</span> <span class="op">=</span> <span class="macro">json!</span>({
+        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;John Doe&quot;</span>,
+        <span class="string">&quot;age&quot;</span>: <span class="number">43</span>,
+        <span class="string">&quot;phones&quot;</span>: [
+            <span class="string">&quot;+44 1234567&quot;</span>,
+            <span class="string">&quot;+44 2345678&quot;</span>
+        ]
+    });
+
+    <span class="macro">println!</span>(<span class="string">&quot;first phone number: {}&quot;</span>, <span class="ident">john</span>[<span class="string">&quot;phones&quot;</span>][<span class="number">0</span>]);
+
+    <span class="comment">// Convert to a string of JSON and print it out</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">john</span>.<span class="ident">to_string</span>());
+}</pre></div>
+<p>The <code>Value::to_string()</code> function converts a <code>serde_json::Value</code> into a
+<code>String</code> of JSON text.</p>
+<p>One neat thing about the <code>json!</code> macro is that variables and expressions can
+be interpolated directly into the JSON value as you are building it. Serde
+will check at compile time that the value you are interpolating is able to
+be represented as JSON.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">full_name</span> <span class="op">=</span> <span class="string">&quot;John Doe&quot;</span>;
+<span class="kw">let</span> <span class="ident">age_last_year</span> <span class="op">=</span> <span class="number">42</span>;
+
+<span class="comment">// The type of `john` is `serde_json::Value`</span>
+<span class="kw">let</span> <span class="ident">john</span> <span class="op">=</span> <span class="macro">json!</span>({
+    <span class="string">&quot;name&quot;</span>: <span class="ident">full_name</span>,
+    <span class="string">&quot;age&quot;</span>: <span class="ident">age_last_year</span> <span class="op">+</span> <span class="number">1</span>,
+    <span class="string">&quot;phones&quot;</span>: [
+        <span class="macro">format!</span>(<span class="string">&quot;+44 {}&quot;</span>, <span class="ident">random_phone</span>())
+    ]
+});</pre></div>
+<p>This is amazingly convenient but we have the problem we had before with
+<code>Value</code> which is that the IDE and Rust compiler cannot help us if we get it
+wrong. Serde JSON provides a better way of serializing strongly-typed data
+structures into JSON text.</p>
+<h1 id="creating-json-by-serializing-data-structures" class="section-header"><a href="#creating-json-by-serializing-data-structures">Creating JSON by serializing data structures</a></h1>
+<p>A data structure can be converted to a JSON string by
+<a href="https://docs.serde.rs/serde_json/ser/fn.to_string.html"><code>serde_json::to_string</code></a>. There is also
+<a href="https://docs.serde.rs/serde_json/ser/fn.to_vec.html"><code>serde_json::to_vec</code></a> which serializes to a <code>Vec&lt;u8&gt;</code> and
+<a href="https://docs.serde.rs/serde_json/ser/fn.to_writer.html"><code>serde_json::to_writer</code></a> which serializes to any <code>io::Write</code>
+such as a File or a TCP stream.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">serde_json::Result</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Address</span> {
+    <span class="ident">street</span>: <span class="ident">String</span>,
+    <span class="ident">city</span>: <span class="ident">String</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">print_an_address</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// Some data structure.</span>
+    <span class="kw">let</span> <span class="ident">address</span> <span class="op">=</span> <span class="ident">Address</span> {
+        <span class="ident">street</span>: <span class="string">&quot;10 Downing Street&quot;</span>.<span class="ident">to_owned</span>(),
+        <span class="ident">city</span>: <span class="string">&quot;London&quot;</span>.<span class="ident">to_owned</span>(),
+    };
+
+    <span class="comment">// Serialize it to a JSON string.</span>
+    <span class="kw">let</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">address</span>)<span class="question-mark">?</span>;
+
+    <span class="comment">// Print, write to a file, or send to an HTTP server.</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">j</span>);
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<p>Any type that implements Serde’s <code>Serialize</code> trait can be serialized this
+way. This includes built-in Rust standard library types like <code>Vec&lt;T&gt;</code> and
+<code>HashMap&lt;K, V&gt;</code>, as well as any structs or enums annotated with
+<code>#[derive(Serialize)]</code>.</p>
+<h1 id="no-std-support" class="section-header"><a href="#no-std-support">No-std support</a></h1>
+<p>As long as there is a memory allocator, it is possible to use serde_json
+without the rest of the Rust standard library. This is supported on Rust
+1.36+. Disable the default “std” feature and enable the “alloc” feature:</p>
+<pre><code class="language-toml">[dependencies]
+serde_json = { version = &quot;1.0&quot;, default-features = false, features = [&quot;alloc&quot;] }
+</code></pre>
+<p>For JSON support in Serde without a memory allocator, please see the
+<a href="https://japaric.github.io/serde-json-core/serde_json_core/"><code>serde-json-core</code></a> crate.</p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="de/index.html" title="serde_json::de mod">de</a></div><div class="item-right docblock-short"><p>Deserialize JSON data to a Rust data structure.</p>
+</div><div class="item-left module-item"><a class="mod" href="error/index.html" title="serde_json::error mod">error</a></div><div class="item-right docblock-short"><p>When serializing or deserializing JSON goes wrong.</p>
+</div><div class="item-left module-item"><a class="mod" href="map/index.html" title="serde_json::map mod">map</a></div><div class="item-right docblock-short"><p>A map of String to serde_json::Value.</p>
+</div><div class="item-left module-item"><a class="mod" href="ser/index.html" title="serde_json::ser mod">ser</a></div><div class="item-right docblock-short"><p>Serialize a Rust data structure into JSON data.</p>
+</div><div class="item-left module-item"><a class="mod" href="value/index.html" title="serde_json::value mod">value</a></div><div class="item-right docblock-short"><p>The Value enum, a loosely typed way of representing any valid JSON value.</p>
+</div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.json.html" title="serde_json::json macro">json</a></div><div class="item-right docblock-short"><p>Construct a <code>serde_json::Value</code> from a JSON literal.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Deserializer.html" title="serde_json::Deserializer struct">Deserializer</a></div><div class="item-right docblock-short"><p>A structure that deserializes JSON into Rust values.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="serde_json::Error struct">Error</a></div><div class="item-right docblock-short"><p>This type represents all possible errors that can occur when serializing or
+deserializing JSON data.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Map.html" title="serde_json::Map struct">Map</a></div><div class="item-right docblock-short"><p>Represents a JSON key/value type.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Number.html" title="serde_json::Number struct">Number</a></div><div class="item-right docblock-short"><p>Represents a JSON number, whether integer or floating point.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Serializer.html" title="serde_json::Serializer struct">Serializer</a></div><div class="item-right docblock-short"><p>A structure for serializing Rust values into JSON.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.StreamDeserializer.html" title="serde_json::StreamDeserializer struct">StreamDeserializer</a></div><div class="item-right docblock-short"><p>Iterator that deserializes a stream into multiple JSON values.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Value.html" title="serde_json::Value enum">Value</a></div><div class="item-right docblock-short"><p>Represents any valid JSON value.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.from_reader.html" title="serde_json::from_reader fn">from_reader</a></div><div class="item-right docblock-short"><p>Deserialize an instance of type <code>T</code> from an IO stream of JSON.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.from_slice.html" title="serde_json::from_slice fn">from_slice</a></div><div class="item-right docblock-short"><p>Deserialize an instance of type <code>T</code> from bytes of JSON text.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.from_str.html" title="serde_json::from_str fn">from_str</a></div><div class="item-right docblock-short"><p>Deserialize an instance of type <code>T</code> from a string of JSON text.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.from_value.html" title="serde_json::from_value fn">from_value</a></div><div class="item-right docblock-short"><p>Interpret a <code>serde_json::Value</code> as an instance of type <code>T</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_string.html" title="serde_json::to_string fn">to_string</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as a String of JSON.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_string_pretty.html" title="serde_json::to_string_pretty fn">to_string_pretty</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as a pretty-printed String of JSON.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_value.html" title="serde_json::to_value fn">to_value</a></div><div class="item-right docblock-short"><p>Convert a <code>T</code> into <code>serde_json::Value</code> which is an enum that can represent
+any valid JSON data.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_vec.html" title="serde_json::to_vec fn">to_vec</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as a JSON byte vector.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_vec_pretty.html" title="serde_json::to_vec_pretty fn">to_vec_pretty</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as a pretty-printed JSON byte vector.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_writer.html" title="serde_json::to_writer fn">to_writer</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as JSON into the IO stream.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.to_writer_pretty.html" title="serde_json::to_writer_pretty fn">to_writer_pretty</a></div><div class="item-right docblock-short"><p>Serialize the given data structure as pretty-printed JSON into the IO
+stream.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.Result.html" title="serde_json::Result type">Result</a></div><div class="item-right docblock-short"><p>Alias for a <code>Result</code> with the error type <code>serde_json::Error</code>.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="serde_json" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

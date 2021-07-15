@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;git&#x2F;checkouts&#x2F;arrow-rs-3b86e19e889d5acc&#x2F;a1aace8&#x2F;arrow&#x2F;src&#x2F;compute&#x2F;kernels&#x2F;arity.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arity.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../arrow/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+</pre><pre class="rust">
+<span class="comment">// Licensed to the Apache Software Foundation (ASF) under one</span>
+<span class="comment">// or more contributor license agreements.  See the NOTICE file</span>
+<span class="comment">// distributed with this work for additional information</span>
+<span class="comment">// regarding copyright ownership.  The ASF licenses this file</span>
+<span class="comment">// to you under the Apache License, Version 2.0 (the</span>
+<span class="comment">// &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="comment">// with the License.  You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing,</span>
+<span class="comment">// software distributed under the License is distributed on an</span>
+<span class="comment">// &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="comment">// KIND, either express or implied.  See the License for the</span>
+<span class="comment">// specific language governing permissions and limitations</span>
+<span class="comment">// under the License.</span>
+
+<span class="doccomment">//! Defines kernels suitable to perform operations to primitive arrays.</span>
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::array</span>::{<span class="ident">Array</span>, <span class="ident">ArrayData</span>, <span class="ident">PrimitiveArray</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::buffer::Buffer</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::datatypes::ArrowPrimitiveType</span>;
+
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">fn</span> <span class="ident">into_primitive_array_data</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">ArrowPrimitiveType</span>, <span class="ident">O</span>: <span class="ident">ArrowPrimitiveType</span><span class="op">&gt;</span>(
+    <span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="ident">PrimitiveArray</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
+    <span class="ident">buffer</span>: <span class="ident">Buffer</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ArrayData</span> {
+    <span class="ident">ArrayData::new</span>(
+        <span class="ident">O::DATA_TYPE</span>,
+        <span class="ident">array</span>.<span class="ident">len</span>(),
+        <span class="prelude-val">None</span>,
+        <span class="ident">array</span>.<span class="ident">data_ref</span>().<span class="ident">null_buffer</span>().<span class="ident">cloned</span>(),
+        <span class="number">0</span>,
+        <span class="macro">vec!</span>[<span class="ident">buffer</span>],
+        <span class="macro">vec!</span>[],
+    )
+}
+
+<span class="doccomment">/// Applies an unary and infalible function to a primitive array.</span>
+<span class="doccomment">/// This is the fastest way to perform an operation on a primitive array when</span>
+<span class="doccomment">/// the benefits of a vectorized operation outweights the cost of branching nulls and non-nulls.</span>
+<span class="doccomment">/// # Implementation</span>
+<span class="doccomment">/// This will apply the function for all values, including those on null slots.</span>
+<span class="doccomment">/// This implies that the operation must be infalible for any value of the corresponding type</span>
+<span class="doccomment">/// or this function may panic.</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # use arrow::array::Int32Array;</span>
+<span class="doccomment">/// # use arrow::datatypes::Int32Type;</span>
+<span class="doccomment">/// # use arrow::compute::kernels::arity::unary;</span>
+<span class="doccomment">/// # fn main() {</span>
+<span class="doccomment">/// let array = Int32Array::from(vec![Some(5), Some(7), None]);</span>
+<span class="doccomment">/// let c = unary::&lt;_, _, Int32Type&gt;(&amp;array, |x| x * 2 + 1);</span>
+<span class="doccomment">/// assert_eq!(c, Int32Array::from(vec![Some(11), Some(15), None]));</span>
+<span class="doccomment">/// # }</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unary</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">F</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="ident">array</span>: <span class="kw-2">&amp;</span><span class="ident">PrimitiveArray</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>, <span class="ident">op</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrimitiveArray</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">I</span>: <span class="ident">ArrowPrimitiveType</span>,
+    <span class="ident">O</span>: <span class="ident">ArrowPrimitiveType</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I::Native</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O::Native</span>,
+{
+    <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">array</span>.<span class="ident">values</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">op</span>(<span class="kw-2">*</span><span class="ident">v</span>));
+    <span class="comment">// JUSTIFICATION</span>
+    <span class="comment">//  Benefit</span>
+    <span class="comment">//      ~60% speedup</span>
+    <span class="comment">//  Soundness</span>
+    <span class="comment">//      `values` is an iterator with a known size because arrays are sized.</span>
+    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Buffer::from_trusted_len_iter</span>(<span class="ident">values</span>) };
+
+    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">into_primitive_array_data</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="ident">array</span>, <span class="ident">buffer</span>);
+    <span class="ident">PrimitiveArray</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="ident">data</span>)
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="arrow" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
+    <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
+</body></html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `polars&#x2F;polars-core&#x2F;src&#x2F;doc&#x2F;changelog&#x2F;v0_10_0_11.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v0_10_0_11.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../polars_core/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+</pre><pre class="rust">
+<span class="doccomment">//! # Changelog v0.10 / v0.11</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * CSV Read IO</span>
+<span class="doccomment">//!     - Parallel csv reader</span>
+<span class="doccomment">//! * Sample DataFrames/ Series</span>
+<span class="doccomment">//! * Performance increase in take kernel</span>
+<span class="doccomment">//! * Performance increase in ChunkedArray builders</span>
+<span class="doccomment">//! * Join operation on multiple columns.</span>
+<span class="doccomment">//! * ~3.5 x performance increase in groupby operations (measured on db-benchmark),</span>
+<span class="doccomment">//!   due to embarrassingly parallel grouping and better branch prediction (tight loops).</span>
+<span class="doccomment">//! * Performance increase on join operation due to better branch prediction.</span>
+<span class="doccomment">//! * Categorical datatype and global string cache (BETA).</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! * Lazy</span>
+<span class="doccomment">//!     - Lot&#39;s of bug fixes in optimizer.</span>
+<span class="doccomment">//!     - Parallel execution of Physical plan</span>
+<span class="doccomment">//!     - Partition window function</span>
+<span class="doccomment">//!     - More simplify expression optimizations.</span>
+<span class="doccomment">//!     - Caching</span>
+<span class="doccomment">//!     - Alpha release of Aggregate pushdown optimization.</span>
+<span class="doccomment">//! * Start of general Object type in ChunkedArray/DataFrames/Series</span>
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="polars_core" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
+    <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script>
+</body></html>

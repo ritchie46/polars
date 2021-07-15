@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Tensor","Tensor of primitive types"]],"type":[["BooleanTensor",""],["Float32Tensor",""],["Float64Tensor",""],["Int16Tensor",""],["Int32Tensor",""],["Int64Tensor",""],["Int8Tensor",""],["UInt16Tensor",""],["UInt32Tensor",""],["UInt64Tensor",""],["UInt8Tensor",""]]});

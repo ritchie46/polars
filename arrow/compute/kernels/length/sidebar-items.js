@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["bit_length","Returns an array of Int32/Int64 denoting the number of bits in each string in the array."],["length","Returns an array of Int32/Int64 denoting the number of bytes in each string in the array."]]});

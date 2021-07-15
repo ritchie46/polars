@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A lower level API for packed multiple substring search, principally for a small number of patterns."><meta name="keywords" content="rust, rustlang, rust-lang, packed"><title>aho_corasick::packed - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../aho_corasick/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module packed</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><div id="sidebar-vars" data-name="packed" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">aho_corasick</a>::<wbr><a class="mod" href="#">packed</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/aho_corasick/packed/mod.rs.html#1-117" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A lower level API for packed multiple substring search, principally for a small
+number of patterns.</p>
+<p>This sub-module provides vectorized routines for quickly finding matches of a
+small number of patterns. In general, users of this crate shouldn’t need to
+interface with this module directory, as the primary
+<a href="../struct.AhoCorasick.html"><code>AhoCorasick</code></a>
+searcher will use these routines automatically as a prefilter when applicable.
+However, in some cases, callers may want to bypass the Aho-Corasick machinery
+entirely and use this vectorized searcher directly.</p>
+<h1 id="overview" class="section-header"><a href="#overview">Overview</a></h1>
+<p>The primary types in this sub-module are:</p>
+<ul>
+<li><a href="struct.Searcher.html"><code>Searcher</code></a> executes the actual search algorithm to
+report matches in a haystack.</li>
+<li><a href="struct.Builder.html"><code>Builder</code></a> accumulates patterns incrementally and can
+construct a <code>Searcher</code>.</li>
+<li><a href="struct.Config.html"><code>Config</code></a> permits tuning the searcher, and itself will
+produce a <code>Builder</code> (which can then be used to build a <code>Searcher</code>).
+Currently, the only tuneable knob are the match semantics, but this may be
+expanded in the future.</li>
+</ul>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>This example shows how to create a searcher from an iterator of patterns.
+By default, leftmost-first match semantics are used. (See the top-level
+<a href="../enum.MatchKind.html"><code>MatchKind</code></a> type for more details about match
+semantics, which apply similarly to packed substring search.)</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">aho_corasick::packed</span>::{<span class="ident">MatchKind</span>, <span class="ident">Searcher</span>};
+
+<span class="kw">let</span> <span class="ident">searcher</span> <span class="op">=</span> <span class="ident">Searcher::new</span>([<span class="string">&quot;foobar&quot;</span>, <span class="string">&quot;foo&quot;</span>].<span class="ident">iter</span>().<span class="ident">cloned</span>())<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">matches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">searcher</span>
+    .<span class="ident">find_iter</span>(<span class="string">&quot;foobar&quot;</span>)
+    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mat</span><span class="op">|</span> <span class="ident">mat</span>.<span class="ident">pattern</span>())
+    .<span class="ident">collect</span>();
+<span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">0</span>], <span class="ident">matches</span>);</pre></div>
+<p>This example shows how to use <a href="struct.Config.html"><code>Config</code></a> to change the
+match semantics to leftmost-longest:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">aho_corasick::packed</span>::{<span class="ident">Config</span>, <span class="ident">MatchKind</span>};
+
+<span class="kw">let</span> <span class="ident">searcher</span> <span class="op">=</span> <span class="ident">Config::new</span>()
+    .<span class="ident">match_kind</span>(<span class="ident">MatchKind::LeftmostLongest</span>)
+    .<span class="ident">builder</span>()
+    .<span class="ident">add</span>(<span class="string">&quot;foo&quot;</span>)
+    .<span class="ident">add</span>(<span class="string">&quot;foobar&quot;</span>)
+    .<span class="ident">build</span>()<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">matches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">searcher</span>
+    .<span class="ident">find_iter</span>(<span class="string">&quot;foobar&quot;</span>)
+    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mat</span><span class="op">|</span> <span class="ident">mat</span>.<span class="ident">pattern</span>())
+    .<span class="ident">collect</span>();
+<span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="number">1</span>], <span class="ident">matches</span>);</pre></div>
+<h1 id="packed-substring-searching" class="section-header"><a href="#packed-substring-searching">Packed substring searching</a></h1>
+<p>Packed substring searching refers to the use of SIMD (Single Instruction,
+Multiple Data) to accelerate the detection of matches in a haystack. Unlike
+conventional algorithms, such as Aho-Corasick, SIMD algorithms for substring
+search tend to do better with a small number of patterns, where as Aho-Corasick
+generally maintains reasonably consistent performance regardless of the number
+of patterns you give it. Because of this, the vectorized searcher in this
+sub-module cannot be used as a general purpose searcher, since building the
+searcher may fail. However, in exchange, when searching for a small number of
+patterns, searching can be quite a bit faster than Aho-Corasick (sometimes by
+an order of magnitude).</p>
+<p>The key take away here is that constructing a searcher from a list of patterns
+is a fallible operation. While the precise conditions under which building a
+searcher can fail is specifically an implementation detail, here are some
+common reasons:</p>
+<ul>
+<li>Too many patterns were given. Typically, the limit is on the order of 100 or
+so, but this limit may fluctuate based on available CPU features.</li>
+<li>The available packed algorithms require CPU features that aren’t available.
+For example, currently, this crate only provides packed algorithms for
+<code>x86_64</code>. Therefore, constructing a packed searcher on any other target
+(e.g., ARM) will always fail.</li>
+<li>Zero patterns were given, or one of the patterns given was empty. Packed
+searchers require at least one pattern and that all patterns are non-empty.</li>
+<li>Something else about the nature of the patterns (typically based on
+heuristics) suggests that a packed searcher would perform very poorly, so
+no searcher is built.</li>
+</ul>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Builder.html" title="aho_corasick::packed::Builder struct">Builder</a></div><div class="item-right docblock-short"><p>A builder for constructing a packed searcher from a collection of patterns.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Config.html" title="aho_corasick::packed::Config struct">Config</a></div><div class="item-right docblock-short"><p>The configuration for a packed multiple pattern searcher.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.FindIter.html" title="aho_corasick::packed::FindIter struct">FindIter</a></div><div class="item-right docblock-short"><p>An iterator over non-overlapping matches from a packed searcher.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Searcher.html" title="aho_corasick::packed::Searcher struct">Searcher</a></div><div class="item-right docblock-short"><p>A packed searcher for quickly finding occurrences of multiple patterns.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.MatchKind.html" title="aho_corasick::packed::MatchKind enum">MatchKind</a></div><div class="item-right docblock-short"><p>A knob for controlling the match semantics of a packed multiple string
+searcher.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aho_corasick" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

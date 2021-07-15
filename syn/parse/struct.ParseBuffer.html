@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Cursor position within a buffered token stream."><meta name="keywords" content="rust, rustlang, rust-lang, ParseBuffer"><title>ParseBuffer in syn::parse - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc struct"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../syn/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Struct ParseBuffer</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#implementations">Methods</a><div class="sidebar-links"><a href="#method.call">call</a><a href="#method.cursor">cursor</a><a href="#method.error">error</a><a href="#method.fork">fork</a><a href="#method.is_empty">is_empty</a><a href="#method.lookahead1">lookahead1</a><a href="#method.parse">parse</a><a href="#method.parse_terminated">parse_terminated</a><a href="#method.peek">peek</a><a href="#method.peek2">peek2</a><a href="#method.peek3">peek3</a><a href="#method.span">span</a><a href="#method.step">step</a></div><a class="sidebar-title" href="#trait-implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Display">Display</a><a href="#impl-Drop">Drop</a><a href="#impl-Speculative">Speculative</a></div><a class="sidebar-title" href="#synthetic-implementations">Auto Trait Implementations</a><div class="sidebar-links"><a href="#impl-RefUnwindSafe">!RefUnwindSafe</a><a href="#impl-Send">!Send</a><a href="#impl-Sync">!Sync</a><a href="#impl-Unpin">Unpin</a><a href="#impl-UnwindSafe">!UnwindSafe</a></div><a class="sidebar-title" href="#blanket-implementations">Blanket Implementations</a><div class="sidebar-links"><a href="#impl-Any">Any</a><a href="#impl-Borrow%3CT%3E">Borrow&lt;T&gt;</a><a href="#impl-BorrowMut%3CT%3E">BorrowMut&lt;T&gt;</a><a href="#impl-From%3CT%3E">From&lt;T&gt;</a><a href="#impl-Into%3CU%3E">Into&lt;U&gt;</a><a href="#impl-ToString">ToString</a><a href="#impl-TryFrom%3CU%3E">TryFrom&lt;U&gt;</a><a href="#impl-TryInto%3CU%3E">TryInto&lt;U&gt;</a></div></div><p class="location">Other items in<br><a href="../index.html">syn</a>::<wbr><a href="index.html">parse</a></p><div id="sidebar-vars" data-name="ParseBuffer" data-ty="struct" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Struct <a href="../index.html">syn</a>::<wbr><a href="index.html">parse</a>::<wbr><a class="struct" href="#">ParseBuffer</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/syn/parse.rs.html#249-265" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><pre class="rust struct">pub struct ParseBuffer&lt;'a&gt; { /* fields omitted */ }</pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Cursor position within a buffered token stream.</p>
+<p>This type is more commonly used through the type alias <a href="type.ParseStream.html" title="ParseStream"><code>ParseStream</code></a> which
+is an alias for <code>&amp;ParseBuffer</code>.</p>
+<p><code>ParseStream</code> is the input type for all parser functions in Syn. They have
+the signature <code>fn(ParseStream) -&gt; Result&lt;T&gt;</code>.</p>
+<h2 id="calling-a-parser-function" class="section-header"><a href="#calling-a-parser-function">Calling a parser function</a></h2>
+<p>There is no public way to construct a <code>ParseBuffer</code>. Instead, if you are
+looking to invoke a parser function that requires <code>ParseStream</code> as input,
+you will need to go through one of the public parsing entry points.</p>
+<ul>
+<li>The <a href="../macro.parse_macro_input.html" title="parse_macro_input!"><code>parse_macro_input!</code></a> macro if parsing input of a procedural macro;</li>
+<li>One of <a href="index.html#the-synparse-functions">the <code>syn::parse*</code> functions</a>; or</li>
+<li>A method of the <a href="trait.Parser.html" title="Parser"><code>Parser</code></a> trait.</li>
+</ul>
+</div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#461-1060" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.parse" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#464-466" title="goto source code">[src]</a></div><a href="#method.parse" class="anchor"></a><code>pub fn <a href="#method.parse" class="fnname">parse</a>&lt;T:&nbsp;<a class="trait" href="trait.Parse.html" title="trait syn::parse::Parse">Parse</a>&gt;(&amp;self) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;T&gt;</code></div></summary><div class="docblock"><p>Parses a syntax tree node of type <code>T</code>, advancing the position of our
+parse stream past it.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.call" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#504-506" title="goto source code">[src]</a></div><a href="#method.call" class="anchor"></a><code>pub fn <a href="#method.call" class="fnname">call</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;function: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="type" href="type.ParseStream.html" title="type syn::parse::ParseStream">ParseStream</a>&lt;'_&gt;) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;T&gt;<br>) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;T&gt;</code></div></summary><div class="docblock"><p>Calls the given parser function to parse a syntax tree node of type <code>T</code>
+from this stream.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>The parser below invokes <a href="../struct.Attribute.html#method.parse_outer"><code>Attribute::parse_outer</code></a> to parse a vector of
+zero or more outer attributes.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Attribute</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// Parses a unit struct with attributes.</span>
+<span class="comment">//</span>
+<span class="comment">//     #[path = &quot;s.tmpl&quot;]</span>
+<span class="comment">//     struct S;</span>
+<span class="kw">struct</span> <span class="ident">UnitStruct</span> {
+    <span class="ident">attrs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">struct_token</span>: <span class="macro">Token!</span>[<span class="kw">struct</span>],
+    <span class="ident">name</span>: <span class="ident">Ident</span>,
+    <span class="ident">semi_token</span>: <span class="macro">Token!</span>[;],
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">UnitStruct</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">UnitStruct</span> {
+            <span class="ident">attrs</span>: <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident">Attribute::parse_outer</span>)<span class="question-mark">?</span>,
+            <span class="ident">struct_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">semi_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+        })
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.peek" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#580-583" title="goto source code">[src]</a></div><a href="#method.peek" class="anchor"></a><code>pub fn <a href="#method.peek" class="fnname">peek</a>&lt;T:&nbsp;<a class="trait" href="trait.Peek.html" title="trait syn::parse::Peek">Peek</a>&gt;(&amp;self, token: T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Looks at the next token in the parse stream to determine whether it
+matches the requested type of token.</p>
+<p>Does not advance the position of the parse stream.</p>
+<h1 id="syntax" class="section-header"><a href="#syntax">Syntax</a></h1>
+<p>Note that this method does not use turbofish syntax. Pass the peek type
+inside of parentheses.</p>
+<ul>
+<li><code>input.peek(Token![struct])</code></li>
+<li><code>input.peek(Token![==])</code></li>
+<li><code>input.peek(Ident)</code> <em>(does not accept keywords)</em></li>
+<li><code>input.peek(Ident::peek_any)</code></li>
+<li><code>input.peek(Lifetime)</code></li>
+<li><code>input.peek(token::Brace)</code></li>
+</ul>
+<h1 id="example-1" class="section-header"><a href="#example-1">Example</a></h1>
+<p>In this example we finish parsing the list of supertraits when the next
+token in the input is either <code>where</code> or an opening curly brace.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">braced</span>, <span class="ident">token</span>, <span class="ident">Generics</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>, <span class="ident">TypeParamBound</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
+
+<span class="comment">// Parses a trait definition containing no associated items.</span>
+<span class="comment">//</span>
+<span class="comment">//     trait Marker&lt;&#39;de, T&gt;: A + B&lt;&#39;de&gt; where Box&lt;T&gt;: Clone {}</span>
+<span class="kw">struct</span> <span class="ident">MarkerTrait</span> {
+    <span class="ident">trait_token</span>: <span class="macro">Token!</span>[<span class="kw">trait</span>],
+    <span class="ident">ident</span>: <span class="ident">Ident</span>,
+    <span class="ident">generics</span>: <span class="ident">Generics</span>,
+    <span class="ident">colon_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[:]<span class="op">&gt;</span>,
+    <span class="ident">supertraits</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">TypeParamBound</span>, <span class="macro">Token!</span>[<span class="op">+</span>]<span class="op">&gt;</span>,
+    <span class="ident">brace_token</span>: <span class="ident">token::Brace</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">MarkerTrait</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">trait_token</span>: <span class="macro">Token!</span>[<span class="kw">trait</span>] <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">ident</span>: <span class="ident">Ident</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span>: <span class="ident">Generics</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">colon_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[:]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">supertraits</span> <span class="op">=</span> <span class="ident">Punctuated::new</span>();
+        <span class="kw">if</span> <span class="ident">colon_token</span>.<span class="ident">is_some</span>() {
+            <span class="kw">loop</span> {
+                <span class="ident">supertraits</span>.<span class="ident">push_value</span>(<span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
+                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">where</span>]) <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="ident">token::Brace</span>) {
+                    <span class="kw">break</span>;
+                }
+                <span class="ident">supertraits</span>.<span class="ident">push_punct</span>(<span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
+            }
+        }
+
+        <span class="ident">generics</span>.<span class="ident">where_clause</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">content</span>;
+        <span class="kw">let</span> <span class="ident">empty_brace_token</span> <span class="op">=</span> <span class="macro">braced!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
+
+        <span class="prelude-val">Ok</span>(<span class="ident">MarkerTrait</span> {
+            <span class="ident">trait_token</span>,
+            <span class="ident">ident</span>,
+            <span class="ident">generics</span>,
+            <span class="ident">colon_token</span>,
+            <span class="ident">supertraits</span>,
+            <span class="ident">brace_token</span>: <span class="ident">empty_brace_token</span>,
+        })
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.peek2" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#619-631" title="goto source code">[src]</a></div><a href="#method.peek2" class="anchor"></a><code>pub fn <a href="#method.peek2" class="fnname">peek2</a>&lt;T:&nbsp;<a class="trait" href="trait.Peek.html" title="trait syn::parse::Peek">Peek</a>&gt;(&amp;self, token: T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Looks at the second-next token in the parse stream.</p>
+<p>This is commonly useful as a way to implement contextual keywords.</p>
+<h1 id="example-2" class="section-header"><a href="#example-2">Example</a></h1>
+<p>This example needs to use <code>peek2</code> because the symbol <code>union</code> is not a
+keyword in Rust. We can’t use just <code>peek</code> and decide to parse a union if
+the very next token is <code>union</code>, because someone is free to write a <code>mod union</code> and a macro invocation that looks like <code>union::some_macro! { ... }</code>. In other words <code>union</code> is a contextual keyword.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Ident</span>, <span class="ident">ItemUnion</span>, <span class="ident">Macro</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// Parses either a union or a macro invocation.</span>
+<span class="kw">enum</span> <span class="ident">UnionOrMacro</span> {
+    <span class="comment">// union MaybeUninit&lt;T&gt; { uninit: (), value: T }</span>
+    <span class="ident">Union</span>(<span class="ident">ItemUnion</span>),
+    <span class="comment">// lazy_static! { ... }</span>
+    <span class="ident">Macro</span>(<span class="ident">Macro</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">UnionOrMacro</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="ident">union</span>]) <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">peek2</span>(<span class="ident">Ident</span>) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">UnionOrMacro::Union</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">UnionOrMacro::Macro</span>)
+        }
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.peek3" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#634-650" title="goto source code">[src]</a></div><a href="#method.peek3" class="anchor"></a><code>pub fn <a href="#method.peek3" class="fnname">peek3</a>&lt;T:&nbsp;<a class="trait" href="trait.Peek.html" title="trait syn::parse::Peek">Peek</a>&gt;(&amp;self, token: T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Looks at the third-next token in the parse stream.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.parse_terminated" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#696-701" title="goto source code">[src]</a></div><a href="#method.parse_terminated" class="anchor"></a><code>pub fn <a href="#method.parse_terminated" class="fnname">parse_terminated</a>&lt;T, P:&nbsp;<a class="trait" href="trait.Parse.html" title="trait syn::parse::Parse">Parse</a>&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;parser: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="type" href="type.ParseStream.html" title="type syn::parse::ParseStream">ParseStream</a>&lt;'_&gt;) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;T&gt;<br>) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;<a class="struct" href="../punctuated/struct.Punctuated.html" title="struct syn::punctuated::Punctuated">Punctuated</a>&lt;T, P&gt;&gt;</code></div></summary><div class="docblock"><p>Parses zero or more occurrences of <code>T</code> separated by punctuation of type
+<code>P</code>, with optional trailing punctuation.</p>
+<p>Parsing continues until the end of this parse stream. The entire content
+of this parse stream must consist of <code>T</code> and <code>P</code>.</p>
+<h1 id="example-3" class="section-header"><a href="#example-3">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parenthesized</span>, <span class="ident">token</span>, <span class="ident">Ident</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+<span class="kw">use</span> <span class="ident">syn::punctuated::Punctuated</span>;
+
+<span class="comment">// Parse a simplified tuple struct syntax like:</span>
+<span class="comment">//</span>
+<span class="comment">//     struct S(A, B);</span>
+<span class="kw">struct</span> <span class="ident">TupleStruct</span> {
+    <span class="ident">struct_token</span>: <span class="macro">Token!</span>[<span class="kw">struct</span>],
+    <span class="ident">ident</span>: <span class="ident">Ident</span>,
+    <span class="ident">paren_token</span>: <span class="ident">token::Paren</span>,
+    <span class="ident">fields</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">Type</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span>,
+    <span class="ident">semi_token</span>: <span class="macro">Token!</span>[;],
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">TupleStruct</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">content</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">TupleStruct</span> {
+            <span class="ident">struct_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">ident</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">paren_token</span>: <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>),
+            <span class="ident">fields</span>: <span class="ident">content</span>.<span class="ident">parse_terminated</span>(<span class="ident">Type::parse</span>)<span class="question-mark">?</span>,
+            <span class="ident">semi_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+        })
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_empty" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#740-742" title="goto source code">[src]</a></div><a href="#method.is_empty" class="anchor"></a><code>pub fn <a href="#method.is_empty" class="fnname">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns whether there are tokens remaining in this stream.</p>
+<p>This method returns true at the end of the content of a set of
+delimiters, as well as at the very end of the complete macro input.</p>
+<h1 id="example-4" class="section-header"><a href="#example-4">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">braced</span>, <span class="ident">token</span>, <span class="ident">Ident</span>, <span class="ident">Item</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// Parses a Rust `mod m { ... }` containing zero or more items.</span>
+<span class="kw">struct</span> <span class="ident">Mod</span> {
+    <span class="ident">mod_token</span>: <span class="macro">Token!</span>[<span class="kw">mod</span>],
+    <span class="ident">name</span>: <span class="ident">Ident</span>,
+    <span class="ident">brace_token</span>: <span class="ident">token::Brace</span>,
+    <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Mod</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">content</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">Mod</span> {
+            <span class="ident">mod_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">brace_token</span>: <span class="macro">braced!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>),
+            <span class="ident">items</span>: {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                <span class="kw">while</span> <span class="op">!</span><span class="ident">content</span>.<span class="ident">is_empty</span>() {
+                    <span class="ident">items</span>.<span class="ident">push</span>(<span class="ident">content</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>);
+                }
+                <span class="ident">items</span>
+            },
+        })
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.lookahead1" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#785-787" title="goto source code">[src]</a></div><a href="#method.lookahead1" class="anchor"></a><code>pub fn <a href="#method.lookahead1" class="fnname">lookahead1</a>(&amp;self) -&gt; <a class="struct" href="struct.Lookahead1.html" title="struct syn::parse::Lookahead1">Lookahead1</a>&lt;'a&gt;</code></div></summary><div class="docblock"><p>Constructs a helper for peeking at the next token in this stream and
+building an error message if it is not one of a set of expected tokens.</p>
+<h1 id="example-5" class="section-header"><a href="#example-5">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">ConstParam</span>, <span class="ident">Ident</span>, <span class="ident">Lifetime</span>, <span class="ident">LifetimeDef</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>, <span class="ident">TypeParam</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// A generic parameter, a single one of the comma-separated elements inside</span>
+<span class="comment">// angle brackets in:</span>
+<span class="comment">//</span>
+<span class="comment">//     fn f&lt;T: Clone, &#39;a, &#39;b: &#39;a, const N: usize&gt;() { ... }</span>
+<span class="comment">//</span>
+<span class="comment">// On invalid input, lookahead gives us a reasonable error message.</span>
+<span class="comment">//</span>
+<span class="comment">//     error: expected one of: identifier, lifetime, `const`</span>
+<span class="comment">//       |</span>
+<span class="comment">//     5 |     fn f&lt;!Sized&gt;() {}</span>
+<span class="comment">//       |          ^</span>
+<span class="kw">enum</span> <span class="ident">GenericParam</span> {
+    <span class="ident">Type</span>(<span class="ident">TypeParam</span>),
+    <span class="ident">Lifetime</span>(<span class="ident">LifetimeDef</span>),
+    <span class="ident">Const</span>(<span class="ident">ConstParam</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">GenericParam</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
+        <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">Ident</span>) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">GenericParam::Type</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">Lifetime</span>) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">GenericParam::Lifetime</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">const</span>]) {
+            <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map</span>(<span class="ident">GenericParam::Const</span>)
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">lookahead</span>.<span class="ident">error</span>())
+        }
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.fork" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#915-924" title="goto source code">[src]</a></div><a href="#method.fork" class="anchor"></a><code>pub fn <a href="#method.fork" class="fnname">fork</a>(&amp;self) -&gt; Self</code></div></summary><div class="docblock"><p>Forks a parse stream so that parsing tokens out of either the original
+or the fork does not advance the position of the other.</p>
+<h1 id="performance" class="section-header"><a href="#performance">Performance</a></h1>
+<p>Forking a parse stream is a cheap fixed amount of work and does not
+involve copying token buffers. Where you might hit performance problems
+is if your macro ends up parsing a large amount of content more than
+once.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// Do not do this.</span>
+<span class="kw">if</span> <span class="ident">input</span>.<span class="ident">fork</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>().<span class="ident">is_ok</span>() {
+    <span class="kw">return</span> <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Expr</span><span class="op">&gt;</span>();
+}</pre></div>
+<p>As a rule, avoid parsing an unbounded amount of tokens out of a forked
+parse stream. Only use a fork when the amount of work performed against
+the fork is small and bounded.</p>
+<p>When complex speculative parsing against the forked stream is
+unavoidable, use <a href="discouraged/trait.Speculative.html"><code>parse::discouraged::Speculative</code></a> to advance the
+original stream once the fork’s parse is determined to have been
+successful.</p>
+<p>For a lower level way to perform speculative parsing at the token level,
+consider using <a href="struct.ParseBuffer.html#method.step"><code>ParseStream::step</code></a> instead.</p>
+<h1 id="example-6" class="section-header"><a href="#example-6">Example</a></h1>
+<p>The parse implementation shown here parses possibly restricted <code>pub</code>
+visibilities.</p>
+<ul>
+<li><code>pub</code></li>
+<li><code>pub(crate)</code></li>
+<li><code>pub(self)</code></li>
+<li><code>pub(super)</code></li>
+<li><code>pub(in some::path)</code></li>
+</ul>
+<p>To handle the case of visibilities inside of tuple structs, the parser
+needs to distinguish parentheses that specify visibility restrictions
+from parentheses that form part of a tuple type.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">struct</span> <span class="ident">S</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">A</span>, <span class="kw">pub</span> (<span class="ident">B</span>, <span class="ident">C</span>));</pre></div>
+<p>In this example input the first tuple struct element of <code>S</code> has
+<code>pub(crate)</code> visibility while the second tuple struct element has <code>pub</code>
+visibility; the parentheses around <code>(B, C)</code> are part of the type rather
+than part of a visibility restriction.</p>
+<p>The parser uses a forked parse stream to check the first token inside of
+parentheses after the <code>pub</code> keyword. This is a small bounded amount of
+work performed against the forked parse stream.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">parenthesized</span>, <span class="ident">token</span>, <span class="ident">Ident</span>, <span class="ident">Path</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::ext::IdentExt</span>;
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="kw">struct</span> <span class="ident">PubVisibility</span> {
+    <span class="ident">pub_token</span>: <span class="macro">Token!</span>[<span class="kw">pub</span>],
+    <span class="ident">restricted</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Restricted</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">struct</span> <span class="ident">Restricted</span> {
+    <span class="ident">paren_token</span>: <span class="ident">token::Paren</span>,
+    <span class="ident">in_token</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro">Token!</span>[<span class="kw">in</span>]<span class="op">&gt;</span>,
+    <span class="ident">path</span>: <span class="ident">Path</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">PubVisibility</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">pub_token</span>: <span class="macro">Token!</span>[<span class="kw">pub</span>] <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="ident">token::Paren</span>) {
+            <span class="kw">let</span> <span class="ident">ahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fork</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span>;
+            <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">ahead</span>);
+
+            <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">crate</span>])
+                <span class="op">|</span><span class="op">|</span> <span class="ident">content</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="self">self</span>])
+                <span class="op">|</span><span class="op">|</span> <span class="ident">content</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">super</span>])
+            {
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PubVisibility</span> {
+                    <span class="ident">pub_token</span>,
+                    <span class="ident">restricted</span>: <span class="prelude-val">Some</span>(<span class="ident">Restricted</span> {
+                        <span class="ident">paren_token</span>: <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>),
+                        <span class="ident">in_token</span>: <span class="prelude-val">None</span>,
+                        <span class="ident">path</span>: <span class="ident">Path::from</span>(<span class="ident">content</span>.<span class="ident">call</span>(<span class="ident">Ident::parse_any</span>)<span class="question-mark">?</span>),
+                    }),
+                });
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">in</span>]) {
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PubVisibility</span> {
+                    <span class="ident">pub_token</span>,
+                    <span class="ident">restricted</span>: <span class="prelude-val">Some</span>(<span class="ident">Restricted</span> {
+                        <span class="ident">paren_token</span>: <span class="macro">parenthesized!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>),
+                        <span class="ident">in_token</span>: <span class="prelude-val">Some</span>(<span class="ident">content</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>),
+                        <span class="ident">path</span>: <span class="ident">content</span>.<span class="ident">call</span>(<span class="ident">Path::parse_mod_style</span>)<span class="question-mark">?</span>,
+                    }),
+                });
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="ident">PubVisibility</span> {
+            <span class="ident">pub_token</span>,
+            <span class="ident">restricted</span>: <span class="prelude-val">None</span>,
+        })
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.error" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#954-956" title="goto source code">[src]</a></div><a href="#method.error" class="anchor"></a><code>pub fn <a href="#method.error" class="fnname">error</a>&lt;T:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a>&gt;(&amp;self, message: T) -&gt; <a class="struct" href="struct.Error.html" title="struct syn::parse::Error">Error</a></code></div></summary><div class="docblock"><p>Triggers an error at the current position of the parse stream.</p>
+<h1 id="example-7" class="section-header"><a href="#example-7">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">Expr</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="comment">// Some kind of loop: `while` or `for` or `loop`.</span>
+<span class="kw">struct</span> <span class="ident">Loop</span> {
+    <span class="ident">expr</span>: <span class="ident">Expr</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Loop</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">while</span>])
+            <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">for</span>])
+            <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">Token!</span>[<span class="kw">loop</span>])
+        {
+            <span class="prelude-val">Ok</span>(<span class="ident">Loop</span> {
+                <span class="ident">expr</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            })
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;expected some kind of loop&quot;</span>))
+        }
+    }
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.step" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#1003-1031" title="goto source code">[src]</a></div><a href="#method.step" class="anchor"></a><code>pub fn <a href="#method.step" class="fnname">step</a>&lt;F, R&gt;(&amp;self, function: F) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;R&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: for&lt;'c&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(<a class="struct" href="struct.StepCursor.html" title="struct syn::parse::StepCursor">StepCursor</a>&lt;'c, 'a&gt;) -&gt; <a class="type" href="type.Result.html" title="type syn::parse::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>R, <a class="struct" href="../buffer/struct.Cursor.html" title="struct syn::buffer::Cursor">Cursor</a>&lt;'c&gt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;,&nbsp;</span></code></div></summary><div class="docblock"><p>Speculatively parses tokens from this parse stream, advancing the
+position of this stream only if parsing succeeds.</p>
+<p>This is a powerful low-level API used for defining the <code>Parse</code> impls of
+the basic built-in token types. It is not something that will be used
+widely outside of the Syn codebase.</p>
+<h1 id="example-8" class="section-header"><a href="#example-8">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenTree</span>;
+<span class="kw">use</span> <span class="ident">syn::Result</span>;
+<span class="kw">use</span> <span class="ident">syn::parse::ParseStream</span>;
+
+<span class="comment">// This function advances the stream past the next occurrence of `@`. If</span>
+<span class="comment">// no `@` is present in the stream, the stream position is unchanged and</span>
+<span class="comment">// an error is returned.</span>
+<span class="kw">fn</span> <span class="ident">skip_past_next_at</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="ident">input</span>.<span class="ident">step</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rest</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cursor</span>;
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">tt</span>, <span class="ident">next</span>)) <span class="op">=</span> <span class="ident">rest</span>.<span class="ident">token_tree</span>() {
+            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">tt</span> {
+                <span class="ident">TokenTree::Punct</span>(<span class="ident">punct</span>) <span class="kw">if</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&#39;@&#39;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(((), <span class="ident">next</span>));
+                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rest</span> <span class="op">=</span> <span class="ident">next</span>,
+            }
+        }
+        <span class="prelude-val">Err</span>(<span class="ident">cursor</span>.<span class="ident">error</span>(<span class="string">&quot;no `@` was found after this point&quot;</span>))
+    })
+}</pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.span" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#1036-1043" title="goto source code">[src]</a></div><a href="#method.span" class="anchor"></a><code>pub fn <a href="#method.span" class="fnname">span</a>(&amp;self) -&gt; <a class="struct" href="../../proc_macro2/struct.Span.html" title="struct proc_macro2::Span">Span</a></code></div></summary><div class="docblock"><p>Returns the <code>Span</code> of the next token in the parse stream, or
+<code>Span::call_site()</code> if this parse stream has completely exhausted its
+input <code>TokenStream</code>.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.cursor" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#1050-1052" title="goto source code">[src]</a></div><a href="#method.cursor" class="anchor"></a><code>pub fn <a href="#method.cursor" class="fnname">cursor</a>(&amp;self) -&gt; <a class="struct" href="../buffer/struct.Cursor.html" title="struct syn::buffer::Cursor">Cursor</a>&lt;'a&gt;</code></div></summary><div class="docblock"><p>Provides low-level access to the token representation underlying this
+parse stream.</p>
+<p>Cursors are immutable so no operations you perform against the cursor
+will affect the state of this parse stream.</p>
+</div></details></div></details><h2 id="trait-implementations" class="small-section-header">Trait Implementations<a href="#trait-implementations" class="anchor"></a></h2><div id="trait-implementations-list"><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Debug" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#284-288" title="goto source code">[src]</a></div><a href="#impl-Debug" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.fmt" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#285-287" title="goto source code">[src]</a></div><a href="#method.fmt" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt" class="fnname">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></div></summary><div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Display" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#278-282" title="goto source code">[src]</a></div><a href="#impl-Display" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.fmt-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#279-281" title="goto source code">[src]</a></div><a href="#method.fmt-1" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt" class="fnname">fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>&lt;'_&gt;) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></div></summary><div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Drop" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#267-276" title="goto source code">[src]</a></div><a href="#impl-Drop" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html" title="trait core::ops::drop::Drop">Drop</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.drop" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/parse.rs.html#268-275" title="goto source code">[src]</a></div><a href="#method.drop" class="anchor"></a><code>fn <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop" class="fnname">drop</a>(&amp;mut self)</code></div></summary><div class='docblock'><p>Executes the destructor for this type. <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Speculative" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/discouraged.rs.html#160-194" title="goto source code">[src]</a></div><a href="#impl-Speculative" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="trait" href="discouraged/trait.Speculative.html" title="trait syn::parse::discouraged::Speculative">Speculative</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.advance_to" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/syn/discouraged.rs.html#161-193" title="goto source code">[src]</a></div><a href="#method.advance_to" class="anchor"></a><code>fn <a href="discouraged/trait.Speculative.html#tymethod.advance_to" class="fnname">advance_to</a>(&amp;self, fork: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></div></summary><div class='docblock'><p>Advance this parse stream to the position of a forked parse stream. <a href="discouraged/trait.Speculative.html#tymethod.advance_to">Read more</a></p>
+</div></details></div></details></div><h2 id="synthetic-implementations" class="small-section-header">Auto Trait Implementations<a href="#synthetic-implementations" class="anchor"></a></h2><div id="synthetic-implementations-list"><div id="impl-RefUnwindSafe" class="impl has-srclink"><div class="rightside"></div><a href="#impl-RefUnwindSafe" class="anchor"></a><code class="in-band">impl&lt;'a&gt; !<a class="trait" href="https://doc.rust-lang.org/nightly/std/panic/trait.RefUnwindSafe.html" title="trait std::panic::RefUnwindSafe">RefUnwindSafe</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div><div id="impl-Send" class="impl has-srclink"><div class="rightside"></div><a href="#impl-Send" class="anchor"></a><code class="in-band">impl&lt;'a&gt; !<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div><div id="impl-Sync" class="impl has-srclink"><div class="rightside"></div><a href="#impl-Sync" class="anchor"></a><code class="in-band">impl&lt;'a&gt; !<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div><div id="impl-Unpin" class="impl has-srclink"><div class="rightside"></div><a href="#impl-Unpin" class="anchor"></a><code class="in-band">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Unpin.html" title="trait core::marker::Unpin">Unpin</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div><div id="impl-UnwindSafe" class="impl has-srclink"><div class="rightside"></div><a href="#impl-UnwindSafe" class="anchor"></a><code class="in-band">impl&lt;'a&gt; !<a class="trait" href="https://doc.rust-lang.org/nightly/std/panic/trait.UnwindSafe.html" title="trait std::panic::UnwindSafe">UnwindSafe</a> for <a class="struct" href="struct.ParseBuffer.html" title="struct syn::parse::ParseBuffer">ParseBuffer</a>&lt;'a&gt;</code></div></div><h2 id="blanket-implementations" class="small-section-header">Blanket Implementations<a href="#blanket-implementations" class="anchor"></a></h2><div id="blanket-implementations-list"><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Any" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/any.rs.html#131-135" title="goto source code">[src]</a></div><a href="#impl-Any" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: 'static + ?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.type_id" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/any.rs.html#132" title="goto source code">[src]</a></div><a href="#method.type_id" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html#tymethod.type_id" class="fnname">type_id</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/core/any/struct.TypeId.html" title="struct core::any::TypeId">TypeId</a></code></div></summary><div class='docblock'><p>Gets the <code>TypeId</code> of <code>self</code>. <a href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html#tymethod.type_id">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Borrow%3CT%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/borrow.rs.html#208-213" title="goto source code">[src]</a></div><a href="#impl-Borrow%3CT%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/borrow/trait.Borrow.html" title="trait core::borrow::Borrow">Borrow</a>&lt;T&gt; for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: ?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.borrow" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/borrow.rs.html#210" title="goto source code">[src]</a></div><a href="#method.borrow" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/borrow/trait.Borrow.html#tymethod.borrow" class="fnname">borrow</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T</code></div></summary><div class='docblock'><p>Immutably borrows from an owned value. <a href="https://doc.rust-lang.org/nightly/core/borrow/trait.Borrow.html#tymethod.borrow">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-BorrowMut%3CT%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/borrow.rs.html#216-220" title="goto source code">[src]</a></div><a href="#impl-BorrowMut%3CT%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/borrow/trait.BorrowMut.html" title="trait core::borrow::BorrowMut">BorrowMut</a>&lt;T&gt; for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: ?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.borrow_mut" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/borrow.rs.html#217" title="goto source code">[src]</a></div><a href="#method.borrow_mut" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut" class="fnname">borrow_mut</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>T</code></div></summary><div class='docblock'><p>Mutably borrows from an owned value. <a href="https://doc.rust-lang.org/nightly/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-From%3CT%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#544-548" title="goto source code">[src]</a></div><a href="#impl-From%3CT%3E" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for T</code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.from" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#545" title="goto source code">[src]</a></div><a href="#method.from" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from" class="fnname">from</a>(t: T) -&gt; T</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-Into%3CU%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#533-540" title="goto source code">[src]</a></div><a href="#impl-Into%3CU%3E" class="anchor"></a><code class="in-band">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;U&gt; for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt;,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#537" title="goto source code">[src]</a></div><a href="#method.into" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html#tymethod.into" class="fnname">into</a>(self) -&gt; U</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-ToString" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/string.rs.html#2372-2386" title="goto source code">[src]</a></div><a href="#impl-ToString" class="anchor"></a><code class="in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html" title="trait alloc::string::ToString">ToString</a> for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> + ?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.to_string" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/string.rs.html#2378" title="goto source code">[src]</a></div><a href="#method.to_string" class="anchor"></a><code>pub default fn <a href="https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html#tymethod.to_string" class="fnname">to_string</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></div></summary><div class='docblock'><p>Converts the given value to a <code>String</code>. <a href="https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html#tymethod.to_string">Read more</a></p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-TryFrom%3CU%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#581-590" title="goto source code">[src]</a></div><a href="#impl-TryFrom%3CU%3E" class="anchor"></a><code class="in-band">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt; for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;T&gt;,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle" open><summary><div id="associatedtype.Error" class="type trait-impl has-srclink"><a href="#associatedtype.Error" class="anchor"></a><code>type <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#associatedtype.Error" class="type">Error</a> = <a class="enum" href="https://doc.rust-lang.org/nightly/core/convert/enum.Infallible.html" title="enum core::convert::Infallible">Infallible</a></code></div></summary><div class='docblock'><p>The type returned in the event of a conversion error.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.try_from" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#587" title="goto source code">[src]</a></div><a href="#method.try_from" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#tymethod.try_from" class="fnname">try_from</a>(value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T, &lt;T as <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt;&gt;::<a class="type" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-TryInto%3CU%3E" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#567-576" title="goto source code">[src]</a></div><a href="#impl-TryInto%3CU%3E" class="anchor"></a><code class="in-band">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryInto.html" title="trait core::convert::TryInto">TryInto</a>&lt;U&gt; for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;,&nbsp;</span></code></div></summary><div class="impl-items"><details class="rustdoc-toggle" open><summary><div id="associatedtype.Error-1" class="type trait-impl has-srclink"><a href="#associatedtype.Error-1" class="anchor"></a><code>type <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryInto.html#associatedtype.Error" class="type">Error</a> = &lt;U as <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="type" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a></code></div></summary><div class='docblock'><p>The type returned in the event of a conversion error.</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.try_into" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/convert/mod.rs.html#573" title="goto source code">[src]</a></div><a href="#method.try_into" class="anchor"></a><code>pub fn <a href="https://doc.rust-lang.org/nightly/core/convert/trait.TryInto.html#tymethod.try_into" class="fnname">try_into</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, &lt;U as <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="type" href="https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</code></div></summary><div class='docblock'><p>Performs the conversion.</p>
+</div></details></div></details></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="syn" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

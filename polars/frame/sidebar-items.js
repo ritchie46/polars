@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["explode",""],["groupby",""],["hash_join",""],["row",""],["select",""]],"struct":[["DataFrame",""],["RecordBatchIter",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Printer","A printer for a regular expression abstract syntax tree."]]});

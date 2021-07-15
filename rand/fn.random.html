@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generates a random value using the thread-local random number generator."><meta name="keywords" content="rust, rustlang, rust-lang, random"><title>random in rand - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rand/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">rand</a></p><div id="sidebar-vars" data-name="random" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">rand</a>::<wbr><a class="fn" href="#">random</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rand/lib.rs.html#184-187" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn random&lt;T&gt;() -&gt; T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="struct" href="distributions/struct.Standard.html" title="struct rand::distributions::Standard">Standard</a>: <a class="trait" href="distributions/trait.Distribution.html" title="trait rand::distributions::Distribution">Distribution</a>&lt;T&gt;,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generates a random value using the thread-local random number generator.</p>
+<p>This is simply a shortcut for <code>thread_rng().gen()</code>. See <a href="fn.thread_rng.html" title="thread_rng"><code>thread_rng</code></a> for
+documentation of the entropy source and <a href="distributions/struct.Standard.html"><code>Standard</code></a> for documentation of
+distributions and type-specific generation.</p>
+<h1 id="provided-implementations" class="section-header"><a href="#provided-implementations">Provided implementations</a></h1>
+<p>The following types have provided implementations that
+generate values with the following ranges and distributions:</p>
+<ul>
+<li>Integers (<code>i32</code>, <code>u32</code>, <code>isize</code>, <code>usize</code>, etc.): Uniformly distributed
+over all values of the type.</li>
+<li><code>char</code>: Uniformly distributed over all Unicode scalar values, i.e. all
+code points in the range <code>0...0x10_FFFF</code>, except for the range
+<code>0xD800...0xDFFF</code> (the surrogate code points). This includes
+unassigned/reserved code points.</li>
+<li><code>bool</code>: Generates <code>false</code> or <code>true</code>, each with probability 0.5.</li>
+<li>Floating point types (<code>f32</code> and <code>f64</code>): Uniformly distributed in the
+half-open range <code>[0, 1)</code>. See notes below.</li>
+<li>Wrapping integers (<code>Wrapping&lt;T&gt;</code>), besides the type identical to their
+normal integer variants.</li>
+</ul>
+<p>Also supported is the generation of the following
+compound types where all component types are supported:</p>
+<ul>
+<li>Tuples (up to 12 elements): each element is generated sequentially.</li>
+<li>Arrays (up to 32 elements): each element is generated sequentially;
+see also <a href="trait.Rng.html#method.fill" title="Rng::fill"><code>Rng::fill</code></a> which supports arbitrary array length for integer
+types and tends to be faster for <code>u32</code> and smaller types.</li>
+<li><code>Option&lt;T&gt;</code> first generates a <code>bool</code>, and if true generates and returns
+<code>Some(value)</code> where <code>value: T</code>, otherwise returning <code>None</code>.</li>
+</ul>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">rand::random</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>();
+<span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>);
+
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">rand::random</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>();
+<span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">y</span>);
+
+<span class="kw">if</span> <span class="ident">rand::random</span>() { <span class="comment">// generates a boolean</span>
+    <span class="macro">println!</span>(<span class="string">&quot;Better lucky than good!&quot;</span>);
+}</pre></div>
+<p>If you’re calling <code>random()</code> in a loop, caching the generator as in the
+following example can increase performance.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rand::Rng</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+
+<span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">v</span>.<span class="ident">iter_mut</span>() {
+    <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="ident">rand::random</span>()
+}
+
+<span class="comment">// can be made faster by caching thread_rng</span>
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
+
+<span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">v</span>.<span class="ident">iter_mut</span>() {
+    <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rand" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

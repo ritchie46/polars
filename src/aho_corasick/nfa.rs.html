@@ -1,0 +1,2759 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;aho-corasick-0.7.18&#x2F;src&#x2F;nfa.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>nfa.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../aho_corasick/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<span id="2">   2</span>
+<span id="3">   3</span>
+<span id="4">   4</span>
+<span id="5">   5</span>
+<span id="6">   6</span>
+<span id="7">   7</span>
+<span id="8">   8</span>
+<span id="9">   9</span>
+<span id="10">  10</span>
+<span id="11">  11</span>
+<span id="12">  12</span>
+<span id="13">  13</span>
+<span id="14">  14</span>
+<span id="15">  15</span>
+<span id="16">  16</span>
+<span id="17">  17</span>
+<span id="18">  18</span>
+<span id="19">  19</span>
+<span id="20">  20</span>
+<span id="21">  21</span>
+<span id="22">  22</span>
+<span id="23">  23</span>
+<span id="24">  24</span>
+<span id="25">  25</span>
+<span id="26">  26</span>
+<span id="27">  27</span>
+<span id="28">  28</span>
+<span id="29">  29</span>
+<span id="30">  30</span>
+<span id="31">  31</span>
+<span id="32">  32</span>
+<span id="33">  33</span>
+<span id="34">  34</span>
+<span id="35">  35</span>
+<span id="36">  36</span>
+<span id="37">  37</span>
+<span id="38">  38</span>
+<span id="39">  39</span>
+<span id="40">  40</span>
+<span id="41">  41</span>
+<span id="42">  42</span>
+<span id="43">  43</span>
+<span id="44">  44</span>
+<span id="45">  45</span>
+<span id="46">  46</span>
+<span id="47">  47</span>
+<span id="48">  48</span>
+<span id="49">  49</span>
+<span id="50">  50</span>
+<span id="51">  51</span>
+<span id="52">  52</span>
+<span id="53">  53</span>
+<span id="54">  54</span>
+<span id="55">  55</span>
+<span id="56">  56</span>
+<span id="57">  57</span>
+<span id="58">  58</span>
+<span id="59">  59</span>
+<span id="60">  60</span>
+<span id="61">  61</span>
+<span id="62">  62</span>
+<span id="63">  63</span>
+<span id="64">  64</span>
+<span id="65">  65</span>
+<span id="66">  66</span>
+<span id="67">  67</span>
+<span id="68">  68</span>
+<span id="69">  69</span>
+<span id="70">  70</span>
+<span id="71">  71</span>
+<span id="72">  72</span>
+<span id="73">  73</span>
+<span id="74">  74</span>
+<span id="75">  75</span>
+<span id="76">  76</span>
+<span id="77">  77</span>
+<span id="78">  78</span>
+<span id="79">  79</span>
+<span id="80">  80</span>
+<span id="81">  81</span>
+<span id="82">  82</span>
+<span id="83">  83</span>
+<span id="84">  84</span>
+<span id="85">  85</span>
+<span id="86">  86</span>
+<span id="87">  87</span>
+<span id="88">  88</span>
+<span id="89">  89</span>
+<span id="90">  90</span>
+<span id="91">  91</span>
+<span id="92">  92</span>
+<span id="93">  93</span>
+<span id="94">  94</span>
+<span id="95">  95</span>
+<span id="96">  96</span>
+<span id="97">  97</span>
+<span id="98">  98</span>
+<span id="99">  99</span>
+<span id="100"> 100</span>
+<span id="101"> 101</span>
+<span id="102"> 102</span>
+<span id="103"> 103</span>
+<span id="104"> 104</span>
+<span id="105"> 105</span>
+<span id="106"> 106</span>
+<span id="107"> 107</span>
+<span id="108"> 108</span>
+<span id="109"> 109</span>
+<span id="110"> 110</span>
+<span id="111"> 111</span>
+<span id="112"> 112</span>
+<span id="113"> 113</span>
+<span id="114"> 114</span>
+<span id="115"> 115</span>
+<span id="116"> 116</span>
+<span id="117"> 117</span>
+<span id="118"> 118</span>
+<span id="119"> 119</span>
+<span id="120"> 120</span>
+<span id="121"> 121</span>
+<span id="122"> 122</span>
+<span id="123"> 123</span>
+<span id="124"> 124</span>
+<span id="125"> 125</span>
+<span id="126"> 126</span>
+<span id="127"> 127</span>
+<span id="128"> 128</span>
+<span id="129"> 129</span>
+<span id="130"> 130</span>
+<span id="131"> 131</span>
+<span id="132"> 132</span>
+<span id="133"> 133</span>
+<span id="134"> 134</span>
+<span id="135"> 135</span>
+<span id="136"> 136</span>
+<span id="137"> 137</span>
+<span id="138"> 138</span>
+<span id="139"> 139</span>
+<span id="140"> 140</span>
+<span id="141"> 141</span>
+<span id="142"> 142</span>
+<span id="143"> 143</span>
+<span id="144"> 144</span>
+<span id="145"> 145</span>
+<span id="146"> 146</span>
+<span id="147"> 147</span>
+<span id="148"> 148</span>
+<span id="149"> 149</span>
+<span id="150"> 150</span>
+<span id="151"> 151</span>
+<span id="152"> 152</span>
+<span id="153"> 153</span>
+<span id="154"> 154</span>
+<span id="155"> 155</span>
+<span id="156"> 156</span>
+<span id="157"> 157</span>
+<span id="158"> 158</span>
+<span id="159"> 159</span>
+<span id="160"> 160</span>
+<span id="161"> 161</span>
+<span id="162"> 162</span>
+<span id="163"> 163</span>
+<span id="164"> 164</span>
+<span id="165"> 165</span>
+<span id="166"> 166</span>
+<span id="167"> 167</span>
+<span id="168"> 168</span>
+<span id="169"> 169</span>
+<span id="170"> 170</span>
+<span id="171"> 171</span>
+<span id="172"> 172</span>
+<span id="173"> 173</span>
+<span id="174"> 174</span>
+<span id="175"> 175</span>
+<span id="176"> 176</span>
+<span id="177"> 177</span>
+<span id="178"> 178</span>
+<span id="179"> 179</span>
+<span id="180"> 180</span>
+<span id="181"> 181</span>
+<span id="182"> 182</span>
+<span id="183"> 183</span>
+<span id="184"> 184</span>
+<span id="185"> 185</span>
+<span id="186"> 186</span>
+<span id="187"> 187</span>
+<span id="188"> 188</span>
+<span id="189"> 189</span>
+<span id="190"> 190</span>
+<span id="191"> 191</span>
+<span id="192"> 192</span>
+<span id="193"> 193</span>
+<span id="194"> 194</span>
+<span id="195"> 195</span>
+<span id="196"> 196</span>
+<span id="197"> 197</span>
+<span id="198"> 198</span>
+<span id="199"> 199</span>
+<span id="200"> 200</span>
+<span id="201"> 201</span>
+<span id="202"> 202</span>
+<span id="203"> 203</span>
+<span id="204"> 204</span>
+<span id="205"> 205</span>
+<span id="206"> 206</span>
+<span id="207"> 207</span>
+<span id="208"> 208</span>
+<span id="209"> 209</span>
+<span id="210"> 210</span>
+<span id="211"> 211</span>
+<span id="212"> 212</span>
+<span id="213"> 213</span>
+<span id="214"> 214</span>
+<span id="215"> 215</span>
+<span id="216"> 216</span>
+<span id="217"> 217</span>
+<span id="218"> 218</span>
+<span id="219"> 219</span>
+<span id="220"> 220</span>
+<span id="221"> 221</span>
+<span id="222"> 222</span>
+<span id="223"> 223</span>
+<span id="224"> 224</span>
+<span id="225"> 225</span>
+<span id="226"> 226</span>
+<span id="227"> 227</span>
+<span id="228"> 228</span>
+<span id="229"> 229</span>
+<span id="230"> 230</span>
+<span id="231"> 231</span>
+<span id="232"> 232</span>
+<span id="233"> 233</span>
+<span id="234"> 234</span>
+<span id="235"> 235</span>
+<span id="236"> 236</span>
+<span id="237"> 237</span>
+<span id="238"> 238</span>
+<span id="239"> 239</span>
+<span id="240"> 240</span>
+<span id="241"> 241</span>
+<span id="242"> 242</span>
+<span id="243"> 243</span>
+<span id="244"> 244</span>
+<span id="245"> 245</span>
+<span id="246"> 246</span>
+<span id="247"> 247</span>
+<span id="248"> 248</span>
+<span id="249"> 249</span>
+<span id="250"> 250</span>
+<span id="251"> 251</span>
+<span id="252"> 252</span>
+<span id="253"> 253</span>
+<span id="254"> 254</span>
+<span id="255"> 255</span>
+<span id="256"> 256</span>
+<span id="257"> 257</span>
+<span id="258"> 258</span>
+<span id="259"> 259</span>
+<span id="260"> 260</span>
+<span id="261"> 261</span>
+<span id="262"> 262</span>
+<span id="263"> 263</span>
+<span id="264"> 264</span>
+<span id="265"> 265</span>
+<span id="266"> 266</span>
+<span id="267"> 267</span>
+<span id="268"> 268</span>
+<span id="269"> 269</span>
+<span id="270"> 270</span>
+<span id="271"> 271</span>
+<span id="272"> 272</span>
+<span id="273"> 273</span>
+<span id="274"> 274</span>
+<span id="275"> 275</span>
+<span id="276"> 276</span>
+<span id="277"> 277</span>
+<span id="278"> 278</span>
+<span id="279"> 279</span>
+<span id="280"> 280</span>
+<span id="281"> 281</span>
+<span id="282"> 282</span>
+<span id="283"> 283</span>
+<span id="284"> 284</span>
+<span id="285"> 285</span>
+<span id="286"> 286</span>
+<span id="287"> 287</span>
+<span id="288"> 288</span>
+<span id="289"> 289</span>
+<span id="290"> 290</span>
+<span id="291"> 291</span>
+<span id="292"> 292</span>
+<span id="293"> 293</span>
+<span id="294"> 294</span>
+<span id="295"> 295</span>
+<span id="296"> 296</span>
+<span id="297"> 297</span>
+<span id="298"> 298</span>
+<span id="299"> 299</span>
+<span id="300"> 300</span>
+<span id="301"> 301</span>
+<span id="302"> 302</span>
+<span id="303"> 303</span>
+<span id="304"> 304</span>
+<span id="305"> 305</span>
+<span id="306"> 306</span>
+<span id="307"> 307</span>
+<span id="308"> 308</span>
+<span id="309"> 309</span>
+<span id="310"> 310</span>
+<span id="311"> 311</span>
+<span id="312"> 312</span>
+<span id="313"> 313</span>
+<span id="314"> 314</span>
+<span id="315"> 315</span>
+<span id="316"> 316</span>
+<span id="317"> 317</span>
+<span id="318"> 318</span>
+<span id="319"> 319</span>
+<span id="320"> 320</span>
+<span id="321"> 321</span>
+<span id="322"> 322</span>
+<span id="323"> 323</span>
+<span id="324"> 324</span>
+<span id="325"> 325</span>
+<span id="326"> 326</span>
+<span id="327"> 327</span>
+<span id="328"> 328</span>
+<span id="329"> 329</span>
+<span id="330"> 330</span>
+<span id="331"> 331</span>
+<span id="332"> 332</span>
+<span id="333"> 333</span>
+<span id="334"> 334</span>
+<span id="335"> 335</span>
+<span id="336"> 336</span>
+<span id="337"> 337</span>
+<span id="338"> 338</span>
+<span id="339"> 339</span>
+<span id="340"> 340</span>
+<span id="341"> 341</span>
+<span id="342"> 342</span>
+<span id="343"> 343</span>
+<span id="344"> 344</span>
+<span id="345"> 345</span>
+<span id="346"> 346</span>
+<span id="347"> 347</span>
+<span id="348"> 348</span>
+<span id="349"> 349</span>
+<span id="350"> 350</span>
+<span id="351"> 351</span>
+<span id="352"> 352</span>
+<span id="353"> 353</span>
+<span id="354"> 354</span>
+<span id="355"> 355</span>
+<span id="356"> 356</span>
+<span id="357"> 357</span>
+<span id="358"> 358</span>
+<span id="359"> 359</span>
+<span id="360"> 360</span>
+<span id="361"> 361</span>
+<span id="362"> 362</span>
+<span id="363"> 363</span>
+<span id="364"> 364</span>
+<span id="365"> 365</span>
+<span id="366"> 366</span>
+<span id="367"> 367</span>
+<span id="368"> 368</span>
+<span id="369"> 369</span>
+<span id="370"> 370</span>
+<span id="371"> 371</span>
+<span id="372"> 372</span>
+<span id="373"> 373</span>
+<span id="374"> 374</span>
+<span id="375"> 375</span>
+<span id="376"> 376</span>
+<span id="377"> 377</span>
+<span id="378"> 378</span>
+<span id="379"> 379</span>
+<span id="380"> 380</span>
+<span id="381"> 381</span>
+<span id="382"> 382</span>
+<span id="383"> 383</span>
+<span id="384"> 384</span>
+<span id="385"> 385</span>
+<span id="386"> 386</span>
+<span id="387"> 387</span>
+<span id="388"> 388</span>
+<span id="389"> 389</span>
+<span id="390"> 390</span>
+<span id="391"> 391</span>
+<span id="392"> 392</span>
+<span id="393"> 393</span>
+<span id="394"> 394</span>
+<span id="395"> 395</span>
+<span id="396"> 396</span>
+<span id="397"> 397</span>
+<span id="398"> 398</span>
+<span id="399"> 399</span>
+<span id="400"> 400</span>
+<span id="401"> 401</span>
+<span id="402"> 402</span>
+<span id="403"> 403</span>
+<span id="404"> 404</span>
+<span id="405"> 405</span>
+<span id="406"> 406</span>
+<span id="407"> 407</span>
+<span id="408"> 408</span>
+<span id="409"> 409</span>
+<span id="410"> 410</span>
+<span id="411"> 411</span>
+<span id="412"> 412</span>
+<span id="413"> 413</span>
+<span id="414"> 414</span>
+<span id="415"> 415</span>
+<span id="416"> 416</span>
+<span id="417"> 417</span>
+<span id="418"> 418</span>
+<span id="419"> 419</span>
+<span id="420"> 420</span>
+<span id="421"> 421</span>
+<span id="422"> 422</span>
+<span id="423"> 423</span>
+<span id="424"> 424</span>
+<span id="425"> 425</span>
+<span id="426"> 426</span>
+<span id="427"> 427</span>
+<span id="428"> 428</span>
+<span id="429"> 429</span>
+<span id="430"> 430</span>
+<span id="431"> 431</span>
+<span id="432"> 432</span>
+<span id="433"> 433</span>
+<span id="434"> 434</span>
+<span id="435"> 435</span>
+<span id="436"> 436</span>
+<span id="437"> 437</span>
+<span id="438"> 438</span>
+<span id="439"> 439</span>
+<span id="440"> 440</span>
+<span id="441"> 441</span>
+<span id="442"> 442</span>
+<span id="443"> 443</span>
+<span id="444"> 444</span>
+<span id="445"> 445</span>
+<span id="446"> 446</span>
+<span id="447"> 447</span>
+<span id="448"> 448</span>
+<span id="449"> 449</span>
+<span id="450"> 450</span>
+<span id="451"> 451</span>
+<span id="452"> 452</span>
+<span id="453"> 453</span>
+<span id="454"> 454</span>
+<span id="455"> 455</span>
+<span id="456"> 456</span>
+<span id="457"> 457</span>
+<span id="458"> 458</span>
+<span id="459"> 459</span>
+<span id="460"> 460</span>
+<span id="461"> 461</span>
+<span id="462"> 462</span>
+<span id="463"> 463</span>
+<span id="464"> 464</span>
+<span id="465"> 465</span>
+<span id="466"> 466</span>
+<span id="467"> 467</span>
+<span id="468"> 468</span>
+<span id="469"> 469</span>
+<span id="470"> 470</span>
+<span id="471"> 471</span>
+<span id="472"> 472</span>
+<span id="473"> 473</span>
+<span id="474"> 474</span>
+<span id="475"> 475</span>
+<span id="476"> 476</span>
+<span id="477"> 477</span>
+<span id="478"> 478</span>
+<span id="479"> 479</span>
+<span id="480"> 480</span>
+<span id="481"> 481</span>
+<span id="482"> 482</span>
+<span id="483"> 483</span>
+<span id="484"> 484</span>
+<span id="485"> 485</span>
+<span id="486"> 486</span>
+<span id="487"> 487</span>
+<span id="488"> 488</span>
+<span id="489"> 489</span>
+<span id="490"> 490</span>
+<span id="491"> 491</span>
+<span id="492"> 492</span>
+<span id="493"> 493</span>
+<span id="494"> 494</span>
+<span id="495"> 495</span>
+<span id="496"> 496</span>
+<span id="497"> 497</span>
+<span id="498"> 498</span>
+<span id="499"> 499</span>
+<span id="500"> 500</span>
+<span id="501"> 501</span>
+<span id="502"> 502</span>
+<span id="503"> 503</span>
+<span id="504"> 504</span>
+<span id="505"> 505</span>
+<span id="506"> 506</span>
+<span id="507"> 507</span>
+<span id="508"> 508</span>
+<span id="509"> 509</span>
+<span id="510"> 510</span>
+<span id="511"> 511</span>
+<span id="512"> 512</span>
+<span id="513"> 513</span>
+<span id="514"> 514</span>
+<span id="515"> 515</span>
+<span id="516"> 516</span>
+<span id="517"> 517</span>
+<span id="518"> 518</span>
+<span id="519"> 519</span>
+<span id="520"> 520</span>
+<span id="521"> 521</span>
+<span id="522"> 522</span>
+<span id="523"> 523</span>
+<span id="524"> 524</span>
+<span id="525"> 525</span>
+<span id="526"> 526</span>
+<span id="527"> 527</span>
+<span id="528"> 528</span>
+<span id="529"> 529</span>
+<span id="530"> 530</span>
+<span id="531"> 531</span>
+<span id="532"> 532</span>
+<span id="533"> 533</span>
+<span id="534"> 534</span>
+<span id="535"> 535</span>
+<span id="536"> 536</span>
+<span id="537"> 537</span>
+<span id="538"> 538</span>
+<span id="539"> 539</span>
+<span id="540"> 540</span>
+<span id="541"> 541</span>
+<span id="542"> 542</span>
+<span id="543"> 543</span>
+<span id="544"> 544</span>
+<span id="545"> 545</span>
+<span id="546"> 546</span>
+<span id="547"> 547</span>
+<span id="548"> 548</span>
+<span id="549"> 549</span>
+<span id="550"> 550</span>
+<span id="551"> 551</span>
+<span id="552"> 552</span>
+<span id="553"> 553</span>
+<span id="554"> 554</span>
+<span id="555"> 555</span>
+<span id="556"> 556</span>
+<span id="557"> 557</span>
+<span id="558"> 558</span>
+<span id="559"> 559</span>
+<span id="560"> 560</span>
+<span id="561"> 561</span>
+<span id="562"> 562</span>
+<span id="563"> 563</span>
+<span id="564"> 564</span>
+<span id="565"> 565</span>
+<span id="566"> 566</span>
+<span id="567"> 567</span>
+<span id="568"> 568</span>
+<span id="569"> 569</span>
+<span id="570"> 570</span>
+<span id="571"> 571</span>
+<span id="572"> 572</span>
+<span id="573"> 573</span>
+<span id="574"> 574</span>
+<span id="575"> 575</span>
+<span id="576"> 576</span>
+<span id="577"> 577</span>
+<span id="578"> 578</span>
+<span id="579"> 579</span>
+<span id="580"> 580</span>
+<span id="581"> 581</span>
+<span id="582"> 582</span>
+<span id="583"> 583</span>
+<span id="584"> 584</span>
+<span id="585"> 585</span>
+<span id="586"> 586</span>
+<span id="587"> 587</span>
+<span id="588"> 588</span>
+<span id="589"> 589</span>
+<span id="590"> 590</span>
+<span id="591"> 591</span>
+<span id="592"> 592</span>
+<span id="593"> 593</span>
+<span id="594"> 594</span>
+<span id="595"> 595</span>
+<span id="596"> 596</span>
+<span id="597"> 597</span>
+<span id="598"> 598</span>
+<span id="599"> 599</span>
+<span id="600"> 600</span>
+<span id="601"> 601</span>
+<span id="602"> 602</span>
+<span id="603"> 603</span>
+<span id="604"> 604</span>
+<span id="605"> 605</span>
+<span id="606"> 606</span>
+<span id="607"> 607</span>
+<span id="608"> 608</span>
+<span id="609"> 609</span>
+<span id="610"> 610</span>
+<span id="611"> 611</span>
+<span id="612"> 612</span>
+<span id="613"> 613</span>
+<span id="614"> 614</span>
+<span id="615"> 615</span>
+<span id="616"> 616</span>
+<span id="617"> 617</span>
+<span id="618"> 618</span>
+<span id="619"> 619</span>
+<span id="620"> 620</span>
+<span id="621"> 621</span>
+<span id="622"> 622</span>
+<span id="623"> 623</span>
+<span id="624"> 624</span>
+<span id="625"> 625</span>
+<span id="626"> 626</span>
+<span id="627"> 627</span>
+<span id="628"> 628</span>
+<span id="629"> 629</span>
+<span id="630"> 630</span>
+<span id="631"> 631</span>
+<span id="632"> 632</span>
+<span id="633"> 633</span>
+<span id="634"> 634</span>
+<span id="635"> 635</span>
+<span id="636"> 636</span>
+<span id="637"> 637</span>
+<span id="638"> 638</span>
+<span id="639"> 639</span>
+<span id="640"> 640</span>
+<span id="641"> 641</span>
+<span id="642"> 642</span>
+<span id="643"> 643</span>
+<span id="644"> 644</span>
+<span id="645"> 645</span>
+<span id="646"> 646</span>
+<span id="647"> 647</span>
+<span id="648"> 648</span>
+<span id="649"> 649</span>
+<span id="650"> 650</span>
+<span id="651"> 651</span>
+<span id="652"> 652</span>
+<span id="653"> 653</span>
+<span id="654"> 654</span>
+<span id="655"> 655</span>
+<span id="656"> 656</span>
+<span id="657"> 657</span>
+<span id="658"> 658</span>
+<span id="659"> 659</span>
+<span id="660"> 660</span>
+<span id="661"> 661</span>
+<span id="662"> 662</span>
+<span id="663"> 663</span>
+<span id="664"> 664</span>
+<span id="665"> 665</span>
+<span id="666"> 666</span>
+<span id="667"> 667</span>
+<span id="668"> 668</span>
+<span id="669"> 669</span>
+<span id="670"> 670</span>
+<span id="671"> 671</span>
+<span id="672"> 672</span>
+<span id="673"> 673</span>
+<span id="674"> 674</span>
+<span id="675"> 675</span>
+<span id="676"> 676</span>
+<span id="677"> 677</span>
+<span id="678"> 678</span>
+<span id="679"> 679</span>
+<span id="680"> 680</span>
+<span id="681"> 681</span>
+<span id="682"> 682</span>
+<span id="683"> 683</span>
+<span id="684"> 684</span>
+<span id="685"> 685</span>
+<span id="686"> 686</span>
+<span id="687"> 687</span>
+<span id="688"> 688</span>
+<span id="689"> 689</span>
+<span id="690"> 690</span>
+<span id="691"> 691</span>
+<span id="692"> 692</span>
+<span id="693"> 693</span>
+<span id="694"> 694</span>
+<span id="695"> 695</span>
+<span id="696"> 696</span>
+<span id="697"> 697</span>
+<span id="698"> 698</span>
+<span id="699"> 699</span>
+<span id="700"> 700</span>
+<span id="701"> 701</span>
+<span id="702"> 702</span>
+<span id="703"> 703</span>
+<span id="704"> 704</span>
+<span id="705"> 705</span>
+<span id="706"> 706</span>
+<span id="707"> 707</span>
+<span id="708"> 708</span>
+<span id="709"> 709</span>
+<span id="710"> 710</span>
+<span id="711"> 711</span>
+<span id="712"> 712</span>
+<span id="713"> 713</span>
+<span id="714"> 714</span>
+<span id="715"> 715</span>
+<span id="716"> 716</span>
+<span id="717"> 717</span>
+<span id="718"> 718</span>
+<span id="719"> 719</span>
+<span id="720"> 720</span>
+<span id="721"> 721</span>
+<span id="722"> 722</span>
+<span id="723"> 723</span>
+<span id="724"> 724</span>
+<span id="725"> 725</span>
+<span id="726"> 726</span>
+<span id="727"> 727</span>
+<span id="728"> 728</span>
+<span id="729"> 729</span>
+<span id="730"> 730</span>
+<span id="731"> 731</span>
+<span id="732"> 732</span>
+<span id="733"> 733</span>
+<span id="734"> 734</span>
+<span id="735"> 735</span>
+<span id="736"> 736</span>
+<span id="737"> 737</span>
+<span id="738"> 738</span>
+<span id="739"> 739</span>
+<span id="740"> 740</span>
+<span id="741"> 741</span>
+<span id="742"> 742</span>
+<span id="743"> 743</span>
+<span id="744"> 744</span>
+<span id="745"> 745</span>
+<span id="746"> 746</span>
+<span id="747"> 747</span>
+<span id="748"> 748</span>
+<span id="749"> 749</span>
+<span id="750"> 750</span>
+<span id="751"> 751</span>
+<span id="752"> 752</span>
+<span id="753"> 753</span>
+<span id="754"> 754</span>
+<span id="755"> 755</span>
+<span id="756"> 756</span>
+<span id="757"> 757</span>
+<span id="758"> 758</span>
+<span id="759"> 759</span>
+<span id="760"> 760</span>
+<span id="761"> 761</span>
+<span id="762"> 762</span>
+<span id="763"> 763</span>
+<span id="764"> 764</span>
+<span id="765"> 765</span>
+<span id="766"> 766</span>
+<span id="767"> 767</span>
+<span id="768"> 768</span>
+<span id="769"> 769</span>
+<span id="770"> 770</span>
+<span id="771"> 771</span>
+<span id="772"> 772</span>
+<span id="773"> 773</span>
+<span id="774"> 774</span>
+<span id="775"> 775</span>
+<span id="776"> 776</span>
+<span id="777"> 777</span>
+<span id="778"> 778</span>
+<span id="779"> 779</span>
+<span id="780"> 780</span>
+<span id="781"> 781</span>
+<span id="782"> 782</span>
+<span id="783"> 783</span>
+<span id="784"> 784</span>
+<span id="785"> 785</span>
+<span id="786"> 786</span>
+<span id="787"> 787</span>
+<span id="788"> 788</span>
+<span id="789"> 789</span>
+<span id="790"> 790</span>
+<span id="791"> 791</span>
+<span id="792"> 792</span>
+<span id="793"> 793</span>
+<span id="794"> 794</span>
+<span id="795"> 795</span>
+<span id="796"> 796</span>
+<span id="797"> 797</span>
+<span id="798"> 798</span>
+<span id="799"> 799</span>
+<span id="800"> 800</span>
+<span id="801"> 801</span>
+<span id="802"> 802</span>
+<span id="803"> 803</span>
+<span id="804"> 804</span>
+<span id="805"> 805</span>
+<span id="806"> 806</span>
+<span id="807"> 807</span>
+<span id="808"> 808</span>
+<span id="809"> 809</span>
+<span id="810"> 810</span>
+<span id="811"> 811</span>
+<span id="812"> 812</span>
+<span id="813"> 813</span>
+<span id="814"> 814</span>
+<span id="815"> 815</span>
+<span id="816"> 816</span>
+<span id="817"> 817</span>
+<span id="818"> 818</span>
+<span id="819"> 819</span>
+<span id="820"> 820</span>
+<span id="821"> 821</span>
+<span id="822"> 822</span>
+<span id="823"> 823</span>
+<span id="824"> 824</span>
+<span id="825"> 825</span>
+<span id="826"> 826</span>
+<span id="827"> 827</span>
+<span id="828"> 828</span>
+<span id="829"> 829</span>
+<span id="830"> 830</span>
+<span id="831"> 831</span>
+<span id="832"> 832</span>
+<span id="833"> 833</span>
+<span id="834"> 834</span>
+<span id="835"> 835</span>
+<span id="836"> 836</span>
+<span id="837"> 837</span>
+<span id="838"> 838</span>
+<span id="839"> 839</span>
+<span id="840"> 840</span>
+<span id="841"> 841</span>
+<span id="842"> 842</span>
+<span id="843"> 843</span>
+<span id="844"> 844</span>
+<span id="845"> 845</span>
+<span id="846"> 846</span>
+<span id="847"> 847</span>
+<span id="848"> 848</span>
+<span id="849"> 849</span>
+<span id="850"> 850</span>
+<span id="851"> 851</span>
+<span id="852"> 852</span>
+<span id="853"> 853</span>
+<span id="854"> 854</span>
+<span id="855"> 855</span>
+<span id="856"> 856</span>
+<span id="857"> 857</span>
+<span id="858"> 858</span>
+<span id="859"> 859</span>
+<span id="860"> 860</span>
+<span id="861"> 861</span>
+<span id="862"> 862</span>
+<span id="863"> 863</span>
+<span id="864"> 864</span>
+<span id="865"> 865</span>
+<span id="866"> 866</span>
+<span id="867"> 867</span>
+<span id="868"> 868</span>
+<span id="869"> 869</span>
+<span id="870"> 870</span>
+<span id="871"> 871</span>
+<span id="872"> 872</span>
+<span id="873"> 873</span>
+<span id="874"> 874</span>
+<span id="875"> 875</span>
+<span id="876"> 876</span>
+<span id="877"> 877</span>
+<span id="878"> 878</span>
+<span id="879"> 879</span>
+<span id="880"> 880</span>
+<span id="881"> 881</span>
+<span id="882"> 882</span>
+<span id="883"> 883</span>
+<span id="884"> 884</span>
+<span id="885"> 885</span>
+<span id="886"> 886</span>
+<span id="887"> 887</span>
+<span id="888"> 888</span>
+<span id="889"> 889</span>
+<span id="890"> 890</span>
+<span id="891"> 891</span>
+<span id="892"> 892</span>
+<span id="893"> 893</span>
+<span id="894"> 894</span>
+<span id="895"> 895</span>
+<span id="896"> 896</span>
+<span id="897"> 897</span>
+<span id="898"> 898</span>
+<span id="899"> 899</span>
+<span id="900"> 900</span>
+<span id="901"> 901</span>
+<span id="902"> 902</span>
+<span id="903"> 903</span>
+<span id="904"> 904</span>
+<span id="905"> 905</span>
+<span id="906"> 906</span>
+<span id="907"> 907</span>
+<span id="908"> 908</span>
+<span id="909"> 909</span>
+<span id="910"> 910</span>
+<span id="911"> 911</span>
+<span id="912"> 912</span>
+<span id="913"> 913</span>
+<span id="914"> 914</span>
+<span id="915"> 915</span>
+<span id="916"> 916</span>
+<span id="917"> 917</span>
+<span id="918"> 918</span>
+<span id="919"> 919</span>
+<span id="920"> 920</span>
+<span id="921"> 921</span>
+<span id="922"> 922</span>
+<span id="923"> 923</span>
+<span id="924"> 924</span>
+<span id="925"> 925</span>
+<span id="926"> 926</span>
+<span id="927"> 927</span>
+<span id="928"> 928</span>
+<span id="929"> 929</span>
+<span id="930"> 930</span>
+<span id="931"> 931</span>
+<span id="932"> 932</span>
+<span id="933"> 933</span>
+<span id="934"> 934</span>
+<span id="935"> 935</span>
+<span id="936"> 936</span>
+<span id="937"> 937</span>
+<span id="938"> 938</span>
+<span id="939"> 939</span>
+<span id="940"> 940</span>
+<span id="941"> 941</span>
+<span id="942"> 942</span>
+<span id="943"> 943</span>
+<span id="944"> 944</span>
+<span id="945"> 945</span>
+<span id="946"> 946</span>
+<span id="947"> 947</span>
+<span id="948"> 948</span>
+<span id="949"> 949</span>
+<span id="950"> 950</span>
+<span id="951"> 951</span>
+<span id="952"> 952</span>
+<span id="953"> 953</span>
+<span id="954"> 954</span>
+<span id="955"> 955</span>
+<span id="956"> 956</span>
+<span id="957"> 957</span>
+<span id="958"> 958</span>
+<span id="959"> 959</span>
+<span id="960"> 960</span>
+<span id="961"> 961</span>
+<span id="962"> 962</span>
+<span id="963"> 963</span>
+<span id="964"> 964</span>
+<span id="965"> 965</span>
+<span id="966"> 966</span>
+<span id="967"> 967</span>
+<span id="968"> 968</span>
+<span id="969"> 969</span>
+<span id="970"> 970</span>
+<span id="971"> 971</span>
+<span id="972"> 972</span>
+<span id="973"> 973</span>
+<span id="974"> 974</span>
+<span id="975"> 975</span>
+<span id="976"> 976</span>
+<span id="977"> 977</span>
+<span id="978"> 978</span>
+<span id="979"> 979</span>
+<span id="980"> 980</span>
+<span id="981"> 981</span>
+<span id="982"> 982</span>
+<span id="983"> 983</span>
+<span id="984"> 984</span>
+<span id="985"> 985</span>
+<span id="986"> 986</span>
+<span id="987"> 987</span>
+<span id="988"> 988</span>
+<span id="989"> 989</span>
+<span id="990"> 990</span>
+<span id="991"> 991</span>
+<span id="992"> 992</span>
+<span id="993"> 993</span>
+<span id="994"> 994</span>
+<span id="995"> 995</span>
+<span id="996"> 996</span>
+<span id="997"> 997</span>
+<span id="998"> 998</span>
+<span id="999"> 999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
+<span id="1173">1173</span>
+<span id="1174">1174</span>
+<span id="1175">1175</span>
+<span id="1176">1176</span>
+<span id="1177">1177</span>
+<span id="1178">1178</span>
+<span id="1179">1179</span>
+<span id="1180">1180</span>
+<span id="1181">1181</span>
+<span id="1182">1182</span>
+<span id="1183">1183</span>
+<span id="1184">1184</span>
+<span id="1185">1185</span>
+<span id="1186">1186</span>
+<span id="1187">1187</span>
+<span id="1188">1188</span>
+<span id="1189">1189</span>
+<span id="1190">1190</span>
+<span id="1191">1191</span>
+<span id="1192">1192</span>
+<span id="1193">1193</span>
+<span id="1194">1194</span>
+<span id="1195">1195</span>
+<span id="1196">1196</span>
+<span id="1197">1197</span>
+<span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
+<span id="1217">1217</span>
+<span id="1218">1218</span>
+<span id="1219">1219</span>
+<span id="1220">1220</span>
+<span id="1221">1221</span>
+<span id="1222">1222</span>
+<span id="1223">1223</span>
+<span id="1224">1224</span>
+<span id="1225">1225</span>
+<span id="1226">1226</span>
+<span id="1227">1227</span>
+<span id="1228">1228</span>
+<span id="1229">1229</span>
+<span id="1230">1230</span>
+<span id="1231">1231</span>
+<span id="1232">1232</span>
+<span id="1233">1233</span>
+<span id="1234">1234</span>
+<span id="1235">1235</span>
+<span id="1236">1236</span>
+<span id="1237">1237</span>
+<span id="1238">1238</span>
+<span id="1239">1239</span>
+<span id="1240">1240</span>
+<span id="1241">1241</span>
+<span id="1242">1242</span>
+<span id="1243">1243</span>
+<span id="1244">1244</span>
+<span id="1245">1245</span>
+<span id="1246">1246</span>
+<span id="1247">1247</span>
+<span id="1248">1248</span>
+<span id="1249">1249</span>
+<span id="1250">1250</span>
+<span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
+<span id="1291">1291</span>
+<span id="1292">1292</span>
+<span id="1293">1293</span>
+<span id="1294">1294</span>
+<span id="1295">1295</span>
+<span id="1296">1296</span>
+<span id="1297">1297</span>
+<span id="1298">1298</span>
+<span id="1299">1299</span>
+<span id="1300">1300</span>
+<span id="1301">1301</span>
+<span id="1302">1302</span>
+<span id="1303">1303</span>
+<span id="1304">1304</span>
+<span id="1305">1305</span>
+<span id="1306">1306</span>
+<span id="1307">1307</span>
+<span id="1308">1308</span>
+<span id="1309">1309</span>
+<span id="1310">1310</span>
+<span id="1311">1311</span>
+<span id="1312">1312</span>
+<span id="1313">1313</span>
+<span id="1314">1314</span>
+<span id="1315">1315</span>
+<span id="1316">1316</span>
+<span id="1317">1317</span>
+<span id="1318">1318</span>
+<span id="1319">1319</span>
+<span id="1320">1320</span>
+<span id="1321">1321</span>
+<span id="1322">1322</span>
+<span id="1323">1323</span>
+<span id="1324">1324</span>
+<span id="1325">1325</span>
+<span id="1326">1326</span>
+<span id="1327">1327</span>
+<span id="1328">1328</span>
+<span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
+<span id="1359">1359</span>
+<span id="1360">1360</span>
+<span id="1361">1361</span>
+<span id="1362">1362</span>
+<span id="1363">1363</span>
+<span id="1364">1364</span>
+<span id="1365">1365</span>
+<span id="1366">1366</span>
+<span id="1367">1367</span>
+<span id="1368">1368</span>
+<span id="1369">1369</span>
+<span id="1370">1370</span>
+<span id="1371">1371</span>
+<span id="1372">1372</span>
+<span id="1373">1373</span>
+<span id="1374">1374</span>
+<span id="1375">1375</span>
+<span id="1376">1376</span>
+<span id="1377">1377</span>
+</pre><pre class="rust">
+<span class="kw">use</span> <span class="ident">std::cmp</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use</span> <span class="ident">std::mem::size_of</span>;
+<span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>};
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ahocorasick::MatchKind</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::automaton::Automaton</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::classes</span>::{<span class="ident">ByteClassBuilder</span>, <span class="ident">ByteClasses</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::Result</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prefilter</span>::{<span class="self">self</span>, <span class="ident">opposite_ascii_case</span>, <span class="ident">Prefilter</span>, <span class="ident">PrefilterObj</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::state_id</span>::{<span class="ident">dead_id</span>, <span class="ident">fail_id</span>, <span class="ident">usize_to_state_id</span>, <span class="ident">StateID</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Match</span>;
+
+<span class="doccomment">/// The identifier for a pattern, which is simply the position of the pattern</span>
+<span class="doccomment">/// in the sequence of patterns given by the caller.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PatternID</span> <span class="op">=</span> <span class="ident">usize</span>;
+
+<span class="doccomment">/// The length of a pattern, in bytes.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PatternLength</span> <span class="op">=</span> <span class="ident">usize</span>;
+
+<span class="doccomment">/// An Aho-Corasick automaton, represented as an NFA.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is the classical formulation of Aho-Corasick, which involves building</span>
+<span class="doccomment">/// up a prefix trie of a given set of patterns, and then wiring up failure</span>
+<span class="doccomment">/// transitions between states in order to guarantee linear time matching. The</span>
+<span class="doccomment">/// standard formulation is, technically, an NFA because of these failure</span>
+<span class="doccomment">/// transitions. That is, one can see them as enabling the automaton to be in</span>
+<span class="doccomment">/// multiple states at once. Indeed, during search, it is possible to check</span>
+<span class="doccomment">/// the transitions on multiple states for a single input byte.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This particular implementation not only supports the standard style of</span>
+<span class="doccomment">/// matching, but also provides a mode for choosing leftmost-first or</span>
+<span class="doccomment">/// leftmost-longest match semantics. When a leftmost mode is chosen, some</span>
+<span class="doccomment">/// failure transitions that would otherwise be added are elided. See</span>
+<span class="doccomment">/// the documentation of `MatchKind` for more details and examples on how the</span>
+<span class="doccomment">/// match semantics may differ.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If one wants a DFA, then it is necessary to first build an NFA and convert</span>
+<span class="doccomment">/// it into a DFA. Note, however, that because we&#39;ve constrained ourselves to</span>
+<span class="doccomment">/// matching literal patterns, this does not need to use subset construction</span>
+<span class="doccomment">/// for determinization. Instead, the DFA has at most a number of states</span>
+<span class="doccomment">/// equivalent to the number of NFA states. The only real difference between</span>
+<span class="doccomment">/// them is that all failure transitions are followed and pre-computed. This</span>
+<span class="doccomment">/// uses much more memory, but also executes searches more quickly.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The match semantics built into this NFA.</span>
+    <span class="ident">match_kind</span>: <span class="ident">MatchKind</span>,
+    <span class="doccomment">/// The start state id as an index into `states`.</span>
+    <span class="ident">start_id</span>: <span class="ident">S</span>,
+    <span class="doccomment">/// The length, in bytes, of the longest pattern in this automaton. This</span>
+    <span class="doccomment">/// information is useful for keeping correct buffer sizes when searching</span>
+    <span class="doccomment">/// on streams.</span>
+    <span class="ident">max_pattern_len</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// The total number of patterns added to this automaton, including</span>
+    <span class="doccomment">/// patterns that may never be matched.</span>
+    <span class="ident">pattern_count</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// The number of bytes of heap used by this NFA&#39;s transition table.</span>
+    <span class="ident">heap_bytes</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// A prefilter for quickly skipping to candidate matches, if pertinent.</span>
+    <span class="ident">prefilter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PrefilterObj</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Whether this automaton anchors all matches to the start of input.</span>
+    <span class="ident">anchored</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// A set of equivalence classes in terms of bytes. We compute this while</span>
+    <span class="doccomment">/// building the NFA, but don&#39;t use it in the NFA&#39;s states. Instead, we</span>
+    <span class="doccomment">/// use this for building the DFA. We store it on the NFA since it&#39;s easy</span>
+    <span class="doccomment">/// to compute while visiting the the patterns.</span>
+    <span class="ident">byte_classes</span>: <span class="ident">ByteClasses</span>,
+    <span class="doccomment">/// A set of states. Each state defines its own transitions, a fail</span>
+    <span class="doccomment">/// transition and a set of indices corresponding to matches.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The first state is always the fail state, which is used only as a</span>
+    <span class="doccomment">/// sentinel. Namely, in the final NFA, no transition into the fail state</span>
+    <span class="doccomment">/// exists. (Well, they do, but they aren&#39;t followed. Instead, the state&#39;s</span>
+    <span class="doccomment">/// failure transition is followed.)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The second state (index 1) is always the dead state. Dead states are</span>
+    <span class="doccomment">/// in every automaton, but only used when leftmost-{first,longest} match</span>
+    <span class="doccomment">/// semantics are enabled. Specifically, they instruct search to stop</span>
+    <span class="doccomment">/// at specific points in order to report the correct match location. In</span>
+    <span class="doccomment">/// the standard Aho-Corasick construction, there are no transitions to</span>
+    <span class="doccomment">/// the dead state.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The third state (index 2) is generally intended to be the starting or</span>
+    <span class="doccomment">/// &quot;root&quot; state.</span>
+    <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns the equivalence classes of bytes found while constructing</span>
+    <span class="doccomment">/// this NFA.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that the NFA doesn&#39;t actually make use of these equivalence</span>
+    <span class="doccomment">/// classes. Instead, these are useful for building the DFA when desired.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">byte_classes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ByteClasses</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">byte_classes</span>
+    }
+
+    <span class="doccomment">/// Returns a prefilter, if one exists.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefilter_obj</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PrefilterObj</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">prefilter</span>.<span class="ident">as_ref</span>()
+    }
+
+    <span class="doccomment">/// Returns the total number of heap bytes used by this NFA&#39;s transition</span>
+    <span class="doccomment">/// table.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">heap_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">heap_bytes</span>
+            <span class="op">+</span> <span class="self">self</span>.<span class="ident">prefilter</span>.<span class="ident">as_ref</span>().<span class="ident">map_or</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">as_ref</span>().<span class="ident">heap_bytes</span>())
+    }
+
+    <span class="doccomment">/// Return the length of the longest pattern in this automaton.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_pattern_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">max_pattern_len</span>
+    }
+
+    <span class="doccomment">/// Return the total number of patterns added to this automaton.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pattern_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">pattern_count</span>
+    }
+
+    <span class="doccomment">/// Returns the total number of states in this NFA.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">state_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>()
+    }
+
+    <span class="doccomment">/// Returns the matches for the given state.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[(<span class="ident">PatternID</span>, <span class="ident">PatternLength</span>)] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()].<span class="ident">matches</span>
+    }
+
+    <span class="doccomment">/// Returns an iterator over all transitions in the given state according</span>
+    <span class="doccomment">/// to the given equivalence classes, including transitions to `fail_id()`.</span>
+    <span class="doccomment">/// The number of transitions returned is always equivalent to the number</span>
+    <span class="doccomment">/// of equivalence classes.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_all_transitions</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">byte_classes</span>: <span class="kw-2">&amp;</span><span class="ident">ByteClasses</span>,
+        <span class="ident">id</span>: <span class="ident">S</span>,
+        <span class="ident">f</span>: <span class="ident">F</span>,
+    ) {
+        <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()].<span class="ident">trans</span>.<span class="ident">iter_all</span>(<span class="ident">byte_classes</span>, <span class="ident">f</span>);
+    }
+
+    <span class="doccomment">/// Returns the failure transition for the given state.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">failure_transition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()].<span class="ident">fail</span>
+    }
+
+    <span class="doccomment">/// Returns the next state for the given state and input byte.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that this does not follow failure transitions. As such, the id</span>
+    <span class="doccomment">/// returned may be `fail_id`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="ident">S</span>, <span class="ident">input</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">current</span>.<span class="ident">to_usize</span>()].<span class="ident">next_state</span>(<span class="ident">input</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()]
+    }
+
+    <span class="kw">fn</span> <span class="ident">state_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()]
+    }
+
+    <span class="kw">fn</span> <span class="ident">start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">state</span>(<span class="self">self</span>.<span class="ident">start_id</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">start_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start_id</span>;
+        <span class="self">self</span>.<span class="ident">state_mut</span>(<span class="ident">id</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">iter_transitions_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterTransitionsMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="ident">IterTransitionsMut::new</span>(<span class="self">self</span>, <span class="ident">id</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">copy_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">src</span>: <span class="ident">S</span>, <span class="ident">dst</span>: <span class="ident">S</span>) {
+        <span class="kw">let</span> (<span class="ident">src</span>, <span class="ident">dst</span>) <span class="op">=</span>
+            <span class="ident">get_two_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">states</span>, <span class="ident">src</span>.<span class="ident">to_usize</span>(), <span class="ident">dst</span>.<span class="ident">to_usize</span>());
+        <span class="ident">dst</span>.<span class="ident">matches</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>.<span class="ident">matches</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">copy_empty_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dst</span>: <span class="ident">S</span>) {
+        <span class="kw">let</span> <span class="ident">start_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start_id</span>;
+        <span class="self">self</span>.<span class="ident">copy_matches</span>(<span class="ident">start_id</span>, <span class="ident">dst</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">add_dense_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Transitions::Dense</span>(<span class="ident">Dense::new</span>());
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">usize_to_state_id</span>(<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>())<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span> {
+            <span class="ident">trans</span>,
+            <span class="comment">// Anchored automatons do not have any failure transitions.</span>
+            <span class="ident">fail</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">anchored</span> { <span class="ident">dead_id</span>() } <span class="kw">else</span> { <span class="self">self</span>.<span class="ident">start_id</span> },
+            <span class="ident">depth</span>,
+            <span class="ident">matches</span>: <span class="macro">vec!</span>[],
+        });
+        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">add_sparse_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="ident">Transitions::Sparse</span>(<span class="macro">vec!</span>[]);
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">usize_to_state_id</span>(<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>())<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">State</span> {
+            <span class="ident">trans</span>,
+            <span class="comment">// Anchored automatons do not have any failure transitions.</span>
+            <span class="ident">fail</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">anchored</span> { <span class="ident">dead_id</span>() } <span class="kw">else</span> { <span class="self">self</span>.<span class="ident">start_id</span> },
+            <span class="ident">depth</span>,
+            <span class="ident">matches</span>: <span class="macro">vec!</span>[],
+        });
+        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">Automaton</span> <span class="kw">for</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">ID</span> <span class="op">=</span> <span class="ident">S</span>;
+
+    <span class="kw">fn</span> <span class="ident">match_kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MatchKind</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">match_kind</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">anchored</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">anchored</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">prefilter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Prefilter</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">prefilter</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">as_ref</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">start_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="self">self</span>.<span class="ident">start_id</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">id</span>.<span class="ident">to_usize</span>() <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">is_match_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()].<span class="ident">is_match</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_match</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">id</span>: <span class="ident">S</span>,
+        <span class="ident">match_index</span>: <span class="ident">usize</span>,
+        <span class="ident">end</span>: <span class="ident">usize</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Match</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="ident">to_usize</span>()) {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">state</span>,
+        };
+        <span class="ident">state</span>.<span class="ident">matches</span>.<span class="ident">get</span>(<span class="ident">match_index</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">id</span>, <span class="ident">len</span>)<span class="op">|</span> <span class="ident">Match</span> {
+            <span class="ident">pattern</span>: <span class="ident">id</span>,
+            <span class="ident">len</span>,
+            <span class="ident">end</span>,
+        })
+    }
+
+    <span class="kw">fn</span> <span class="ident">match_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">states</span>[<span class="ident">id</span>.<span class="ident">to_usize</span>()].<span class="ident">matches</span>.<span class="ident">len</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">next_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">current</span>: <span class="ident">S</span>, <span class="ident">input</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="comment">// This terminates since:</span>
+        <span class="comment">//</span>
+        <span class="comment">// 1. `State.fail` never points to fail_id().</span>
+        <span class="comment">// 2. All `State.fail` values point to a state closer to `start`.</span>
+        <span class="comment">// 3. The start state has no transitions to fail_id().</span>
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">states</span>[<span class="ident">current</span>.<span class="ident">to_usize</span>()];
+            <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">next_state</span>(<span class="ident">input</span>);
+            <span class="kw">if</span> <span class="ident">next</span> <span class="op">!</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                <span class="kw">return</span> <span class="ident">next</span>;
+            }
+            <span class="ident">current</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">fail</span>;
+        }
+    }
+}
+
+<span class="doccomment">/// A representation of an NFA state for an Aho-Corasick automaton.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It contains the transitions to the next state, a failure transition for</span>
+<span class="doccomment">/// cases where there exists no other transition for the current input byte,</span>
+<span class="doccomment">/// the matches implied by visiting this state (if any) and the depth of this</span>
+<span class="doccomment">/// state. The depth of a state is simply the distance from it to the start</span>
+<span class="doccomment">/// state in the automaton, where the depth of the start state is 0.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="ident">trans</span>: <span class="ident">Transitions</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">fail</span>: <span class="ident">S</span>,
+    <span class="ident">matches</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PatternID</span>, <span class="ident">PatternLength</span>)<span class="op">&gt;</span>,
+    <span class="comment">// TODO: Strictly speaking, this isn&#39;t needed for searching. It&#39;s only</span>
+    <span class="comment">// used when building an NFA that supports leftmost match semantics. We</span>
+    <span class="comment">// could drop this from the state and dynamically build a map only when</span>
+    <span class="comment">// computing failure transitions, but it&#39;s not clear which is better.</span>
+    <span class="comment">// Benchmark this.</span>
+    <span class="ident">depth</span>: <span class="ident">usize</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">heap_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">trans</span>.<span class="ident">heap_bytes</span>()
+            <span class="op">+</span> (<span class="self">self</span>.<span class="ident">matches</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">size_of</span>::<span class="op">&lt;</span>(<span class="ident">PatternID</span>, <span class="ident">PatternLength</span>)<span class="op">&gt;</span>())
+    }
+
+    <span class="kw">fn</span> <span class="ident">add_match</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">PatternID</span>, <span class="ident">len</span>: <span class="ident">PatternLength</span>) {
+        <span class="self">self</span>.<span class="ident">matches</span>.<span class="ident">push</span>((<span class="ident">i</span>, <span class="ident">len</span>));
+    }
+
+    <span class="kw">fn</span> <span class="ident">is_match</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="op">!</span><span class="self">self</span>.<span class="ident">matches</span>.<span class="ident">is_empty</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_longest_match_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="comment">// Why is this true? Because the first match in any matching state</span>
+        <span class="comment">// will always correspond to the match added to it during trie</span>
+        <span class="comment">// construction (since when we copy matches due to failure transitions,</span>
+        <span class="comment">// we always append them). Therefore, it follows that the first match</span>
+        <span class="comment">// must always be longest since any subsequent match must be from a</span>
+        <span class="comment">// failure transition, and a failure transition by construction points</span>
+        <span class="comment">// to a proper suffix. A proper suffix is, by definition, smaller.</span>
+        <span class="self">self</span>.<span class="ident">matches</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="kw">_</span>, <span class="ident">len</span>)<span class="op">|</span> <span class="ident">len</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">next_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="self">self</span>.<span class="ident">trans</span>.<span class="ident">next_state</span>(<span class="ident">input</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">set_next_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">u8</span>, <span class="ident">next</span>: <span class="ident">S</span>) {
+        <span class="self">self</span>.<span class="ident">trans</span>.<span class="ident">set_next_state</span>(<span class="ident">input</span>, <span class="ident">next</span>);
+    }
+}
+
+<span class="doccomment">/// Represents the transitions for a single dense state.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The primary purpose here is to encapsulate index access. Namely, since a</span>
+<span class="doccomment">/// dense representation always contains 256 elements, all values of `u8` are</span>
+<span class="doccomment">/// valid indices.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Dense</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Dense</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">StateID</span>,
+{
+    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Dense</span>(<span class="macro">vec!</span>[<span class="ident">fail_id</span>(); <span class="number">256</span>])
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Index</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dense</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">S</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">S</span> {
+        <span class="comment">// SAFETY: This is safe because all dense transitions have</span>
+        <span class="comment">// exactly 256 elements, so all u8 values are valid indices.</span>
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>]
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dense</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">S</span> {
+        <span class="comment">// SAFETY: This is safe because all dense transitions have</span>
+        <span class="comment">// exactly 256 elements, so all u8 values are valid indices.</span>
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>[<span class="ident">i</span> <span class="kw">as</span> <span class="ident">usize</span>]
+    }
+}
+
+<span class="doccomment">/// A representation of transitions in an NFA.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Transitions have either a sparse representation, which is slower for</span>
+<span class="doccomment">/// lookups but uses less memory, or a dense representation, which is faster</span>
+<span class="doccomment">/// for lookups but uses more memory. In the sparse representation, the absence</span>
+<span class="doccomment">/// of a state implies a transition to `fail_id()`. Transitions to `dead_id()`</span>
+<span class="doccomment">/// are still explicitly represented.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For the NFA, by default, we use a dense representation for transitions for</span>
+<span class="doccomment">/// states close to the start state because it&#39;s likely these are the states</span>
+<span class="doccomment">/// that will be most frequently visited.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">Transitions</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="ident">Sparse</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>),
+    <span class="ident">Dense</span>(<span class="ident">Dense</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>),
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">Transitions</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">heap_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">sparse</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">size_of</span>::<span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>()
+            }
+            <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dense</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(),
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">next_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">b</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">sparse</span> {
+                    <span class="kw">if</span> <span class="ident">b</span> <span class="op">=</span><span class="op">=</span> <span class="ident">input</span> {
+                        <span class="kw">return</span> <span class="ident">id</span>;
+                    }
+                }
+                <span class="ident">fail_id</span>()
+            }
+            <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dense</span>[<span class="ident">input</span>],
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">set_next_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">u8</span>, <span class="ident">next</span>: <span class="ident">S</span>) {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">match</span> <span class="ident">sparse</span>.<span class="ident">binary_search_by_key</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sparse</span>[<span class="ident">i</span>] <span class="op">=</span> (<span class="ident">input</span>, <span class="ident">next</span>),
+                    <span class="prelude-val">Err</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sparse</span>.<span class="ident">insert</span>(<span class="ident">i</span>, (<span class="ident">input</span>, <span class="ident">next</span>)),
+                }
+            }
+            <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">dense</span>[<span class="ident">input</span>] <span class="op">=</span> <span class="ident">next</span>;
+            }
+        }
+    }
+
+    <span class="doccomment">/// Iterate over transitions in this state while skipping over transitions</span>
+    <span class="doccomment">/// to `fail_id()`.</span>
+    <span class="kw">fn</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">b</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">sparse</span> {
+                    <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">id</span>);
+                }
+            }
+            <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">dense</span>[<span class="ident">b</span>];
+                    <span class="kw">if</span> <span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                        <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">id</span>);
+                    }
+                }
+            }
+        }
+    }
+
+    <span class="doccomment">/// Iterate over all transitions in this state according to the given</span>
+    <span class="doccomment">/// equivalence classes, including transitions to `fail_id()`.</span>
+    <span class="kw">fn</span> <span class="ident">iter_all</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">classes</span>: <span class="kw-2">&amp;</span><span class="ident">ByteClasses</span>, <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) {
+        <span class="kw">if</span> <span class="ident">classes</span>.<span class="ident">is_singleton</span>() {
+            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+                <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">sparse_iter</span>(<span class="ident">sparse</span>, <span class="ident">f</span>);
+                }
+                <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+                        <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">dense</span>[<span class="ident">b</span>]);
+                    }
+                }
+            }
+        } <span class="kw">else</span> {
+            <span class="comment">// In this case, we only want to yield a single byte for each</span>
+            <span class="comment">// equivalence class.</span>
+            <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+                <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_class</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    <span class="ident">sparse_iter</span>(<span class="ident">sparse</span>, <span class="op">|</span><span class="ident">b</span>, <span class="ident">next</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">class</span> <span class="op">=</span> <span class="ident">classes</span>.<span class="ident">get</span>(<span class="ident">b</span>);
+                        <span class="kw">if</span> <span class="ident">last_class</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">class</span>) {
+                            <span class="ident">last_class</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">class</span>);
+                            <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">next</span>);
+                        }
+                    })
+                }
+                <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">classes</span>.<span class="ident">representatives</span>() {
+                        <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">dense</span>[<span class="ident">b</span>]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+<span class="doccomment">/// Iterator over transitions in a state, skipping transitions to `fail_id()`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This abstracts over the representation of NFA transitions, which may be</span>
+<span class="doccomment">/// either in a sparse or dense representation.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This somewhat idiosyncratically borrows the NFA mutably, so that when one</span>
+<span class="doccomment">/// is iterating over transitions, the caller can still mutate the NFA. This</span>
+<span class="doccomment">/// is useful when creating failure transitions.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">IterTransitionsMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> {
+    <span class="ident">nfa</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">state_id</span>: <span class="ident">S</span>,
+    <span class="ident">cur</span>: <span class="ident">usize</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">IterTransitionsMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">nfa</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>, <span class="ident">state_id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterTransitionsMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="ident">IterTransitionsMut</span> { <span class="ident">nfa</span>, <span class="ident">state_id</span>, <span class="ident">cur</span>: <span class="number">0</span> }
+    }
+
+    <span class="kw">fn</span> <span class="ident">nfa</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">nfa</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterTransitionsMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">u8</span>, <span class="ident">S</span>);
+
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">state_id</span>.<span class="ident">to_usize</span>()].<span class="ident">trans</span> {
+            <span class="ident">Transitions::Sparse</span>(<span class="kw-2">ref</span> <span class="ident">sparse</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cur</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">sparse</span>.<span class="ident">len</span>() {
+                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                }
+                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur</span>;
+                <span class="self">self</span>.<span class="ident">cur</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="prelude-val">Some</span>(<span class="ident">sparse</span>[<span class="ident">i</span>])
+            }
+            <span class="ident">Transitions::Dense</span>(<span class="kw-2">ref</span> <span class="ident">dense</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">while</span> <span class="self">self</span>.<span class="ident">cur</span> <span class="op">&lt;</span> <span class="ident">dense</span>.<span class="ident">len</span>() {
+                    <span class="comment">// There are always exactly 255 transitions in dense repr.</span>
+                    <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">cur</span> <span class="op">&lt;</span> <span class="number">256</span>);
+
+                    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cur</span> <span class="kw">as</span> <span class="ident">u8</span>;
+                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">dense</span>[<span class="ident">b</span>];
+                    <span class="self">self</span>.<span class="ident">cur</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="kw">if</span> <span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">id</span>));
+                    }
+                }
+                <span class="prelude-val">None</span>
+            }
+        }
+    }
+}
+
+<span class="doccomment">/// A simple builder for configuring the NFA construction of Aho-Corasick.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Builder</span> {
+    <span class="ident">dense_depth</span>: <span class="ident">usize</span>,
+    <span class="ident">match_kind</span>: <span class="ident">MatchKind</span>,
+    <span class="ident">prefilter</span>: <span class="ident">bool</span>,
+    <span class="ident">anchored</span>: <span class="ident">bool</span>,
+    <span class="ident">ascii_case_insensitive</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Builder</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Builder</span> {
+        <span class="ident">Builder</span> {
+            <span class="ident">dense_depth</span>: <span class="number">2</span>,
+            <span class="ident">match_kind</span>: <span class="ident">MatchKind::default</span>(),
+            <span class="ident">prefilter</span>: <span class="bool-val">true</span>,
+            <span class="ident">anchored</span>: <span class="bool-val">false</span>,
+            <span class="ident">ascii_case_insensitive</span>: <span class="bool-val">false</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Builder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Builder</span> {
+        <span class="ident">Builder::default</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">P</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">patterns</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span>,
+        <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+    {
+        <span class="ident">Compiler::new</span>(<span class="self">self</span>)<span class="question-mark">?</span>.<span class="ident">compile</span>(<span class="ident">patterns</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_kind</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">MatchKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Builder</span> {
+        <span class="self">self</span>.<span class="ident">match_kind</span> <span class="op">=</span> <span class="ident">kind</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dense_depth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Builder</span> {
+        <span class="self">self</span>.<span class="ident">dense_depth</span> <span class="op">=</span> <span class="ident">depth</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prefilter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Builder</span> {
+        <span class="self">self</span>.<span class="ident">prefilter</span> <span class="op">=</span> <span class="ident">yes</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">anchored</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Builder</span> {
+        <span class="self">self</span>.<span class="ident">anchored</span> <span class="op">=</span> <span class="ident">yes</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ascii_case_insensitive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">yes</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Builder</span> {
+        <span class="self">self</span>.<span class="ident">ascii_case_insensitive</span> <span class="op">=</span> <span class="ident">yes</span>;
+        <span class="self">self</span>
+    }
+}
+
+<span class="doccomment">/// A compiler uses a builder configuration and builds up the NFA formulation</span>
+<span class="doccomment">/// of an Aho-Corasick automaton. This roughly corresponds to the standard</span>
+<span class="doccomment">/// formulation described in textbooks.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">Compiler</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> {
+    <span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Builder</span>,
+    <span class="ident">prefilter</span>: <span class="ident">prefilter::Builder</span>,
+    <span class="ident">nfa</span>: <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">byte_classes</span>: <span class="ident">ByteClassBuilder</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">Compiler</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">builder</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Builder</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Compiler</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Compiler</span> {
+            <span class="ident">builder</span>,
+            <span class="ident">prefilter</span>: <span class="ident">prefilter::Builder::new</span>(<span class="ident">builder</span>.<span class="ident">match_kind</span>)
+                .<span class="ident">ascii_case_insensitive</span>(<span class="ident">builder</span>.<span class="ident">ascii_case_insensitive</span>),
+            <span class="ident">nfa</span>: <span class="ident">NFA</span> {
+                <span class="ident">match_kind</span>: <span class="ident">builder</span>.<span class="ident">match_kind</span>,
+                <span class="ident">start_id</span>: <span class="ident">usize_to_state_id</span>(<span class="number">2</span>)<span class="question-mark">?</span>,
+                <span class="ident">max_pattern_len</span>: <span class="number">0</span>,
+                <span class="ident">pattern_count</span>: <span class="number">0</span>,
+                <span class="ident">heap_bytes</span>: <span class="number">0</span>,
+                <span class="ident">prefilter</span>: <span class="prelude-val">None</span>,
+                <span class="ident">anchored</span>: <span class="ident">builder</span>.<span class="ident">anchored</span>,
+                <span class="ident">byte_classes</span>: <span class="ident">ByteClasses::singletons</span>(),
+                <span class="ident">states</span>: <span class="macro">vec!</span>[],
+            },
+            <span class="ident">byte_classes</span>: <span class="ident">ByteClassBuilder::new</span>(),
+        })
+    }
+
+    <span class="kw">fn</span> <span class="ident">compile</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">patterns</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span>,
+        <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">add_state</span>(<span class="number">0</span>)<span class="question-mark">?</span>; <span class="comment">// the fail state, which is never entered</span>
+        <span class="self">self</span>.<span class="ident">add_state</span>(<span class="number">0</span>)<span class="question-mark">?</span>; <span class="comment">// the dead state, only used for leftmost</span>
+        <span class="self">self</span>.<span class="ident">add_state</span>(<span class="number">0</span>)<span class="question-mark">?</span>; <span class="comment">// the start state</span>
+        <span class="self">self</span>.<span class="ident">build_trie</span>(<span class="ident">patterns</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">add_start_state_loop</span>();
+        <span class="self">self</span>.<span class="ident">add_dead_state_loop</span>();
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">anchored</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">match_kind</span>().<span class="ident">is_leftmost</span>() {
+                <span class="self">self</span>.<span class="ident">fill_failure_transitions_leftmost</span>();
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">fill_failure_transitions_standard</span>();
+            }
+        }
+        <span class="self">self</span>.<span class="ident">close_start_state_loop</span>();
+        <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">byte_classes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">byte_classes</span>.<span class="ident">build</span>();
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">anchored</span> {
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">prefilter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prefilter</span>.<span class="ident">build</span>();
+        }
+        <span class="self">self</span>.<span class="ident">calculate_size</span>();
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">nfa</span>)
+    }
+
+    <span class="doccomment">/// This sets up the initial prefix trie that makes up the Aho-Corasick</span>
+    <span class="doccomment">/// automaton. Effectively, it creates the basic structure of the</span>
+    <span class="doccomment">/// automaton, where every pattern given has a path from the start state to</span>
+    <span class="doccomment">/// the end of the pattern.</span>
+    <span class="kw">fn</span> <span class="ident">build_trie</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">patterns</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span>,
+        <span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+    {
+        <span class="lifetime">&#39;PATTERNS</span>: <span class="kw">for</span> (<span class="ident">pati</span>, <span class="ident">pat</span>) <span class="kw">in</span> <span class="ident">patterns</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="ident">pat</span> <span class="op">=</span> <span class="ident">pat</span>.<span class="ident">as_ref</span>();
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">max_pattern_len</span> <span class="op">=</span>
+                <span class="ident">cmp::max</span>(<span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">max_pattern_len</span>, <span class="ident">pat</span>.<span class="ident">len</span>());
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">pattern_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_id</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">saw_match</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">for</span> (<span class="ident">depth</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>) <span class="kw">in</span> <span class="ident">pat</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                <span class="comment">// When leftmost-first match semantics are requested, we</span>
+                <span class="comment">// specifically stop adding patterns when a previously added</span>
+                <span class="comment">// pattern is a prefix of it. We avoid adding it because</span>
+                <span class="comment">// leftmost-first semantics imply that the pattern can never</span>
+                <span class="comment">// match. This is not just an optimization to save space! It</span>
+                <span class="comment">// is necessary for correctness. In fact, this is the only</span>
+                <span class="comment">// difference in the automaton between the implementations for</span>
+                <span class="comment">// leftmost-first and leftmost-longest.</span>
+                <span class="ident">saw_match</span> <span class="op">=</span> <span class="ident">saw_match</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">prev</span>).<span class="ident">is_match</span>();
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">match_kind</span>.<span class="ident">is_leftmost_first</span>() <span class="op">&amp;&amp;</span> <span class="ident">saw_match</span> {
+                    <span class="comment">// Skip to the next pattern immediately. This avoids</span>
+                    <span class="comment">// incorrectly adding a match after this loop terminates.</span>
+                    <span class="kw">continue</span> <span class="lifetime">&#39;PATTERNS</span>;
+                }
+
+                <span class="comment">// Add this byte to our equivalence classes. We don&#39;t use these</span>
+                <span class="comment">// for NFA construction. These are instead used only if we&#39;re</span>
+                <span class="comment">// building a DFA. They would technically be useful for the</span>
+                <span class="comment">// NFA, but it would require a second pass over the patterns.</span>
+                <span class="self">self</span>.<span class="ident">byte_classes</span>.<span class="ident">set_range</span>(<span class="ident">b</span>, <span class="ident">b</span>);
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">ascii_case_insensitive</span> {
+                    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">opposite_ascii_case</span>(<span class="ident">b</span>);
+                    <span class="self">self</span>.<span class="ident">byte_classes</span>.<span class="ident">set_range</span>(<span class="ident">b</span>, <span class="ident">b</span>);
+                }
+
+                <span class="comment">// If the transition from prev using the current byte already</span>
+                <span class="comment">// exists, then just move through it. Otherwise, add a new</span>
+                <span class="comment">// state. We track the depth here so that we can determine</span>
+                <span class="comment">// how to represent transitions. States near the start state</span>
+                <span class="comment">// use a dense representation that uses more memory but is</span>
+                <span class="comment">// faster. Other states use a sparse representation that uses</span>
+                <span class="comment">// less memory but is slower.</span>
+                <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">prev</span>).<span class="ident">next_state</span>(<span class="ident">b</span>);
+                <span class="kw">if</span> <span class="ident">next</span> <span class="op">!</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                    <span class="ident">prev</span> <span class="op">=</span> <span class="ident">next</span>;
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">add_state</span>(<span class="ident">depth</span> <span class="op">+</span> <span class="number">1</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state_mut</span>(<span class="ident">prev</span>).<span class="ident">set_next_state</span>(<span class="ident">b</span>, <span class="ident">next</span>);
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">ascii_case_insensitive</span> {
+                        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">opposite_ascii_case</span>(<span class="ident">b</span>);
+                        <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state_mut</span>(<span class="ident">prev</span>).<span class="ident">set_next_state</span>(<span class="ident">b</span>, <span class="ident">next</span>);
+                    }
+                    <span class="ident">prev</span> <span class="op">=</span> <span class="ident">next</span>;
+                }
+            }
+            <span class="comment">// Once the pattern has been added, log the match in the final</span>
+            <span class="comment">// state that it reached.</span>
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state_mut</span>(<span class="ident">prev</span>).<span class="ident">add_match</span>(<span class="ident">pati</span>, <span class="ident">pat</span>.<span class="ident">len</span>());
+            <span class="comment">// ... and hand it to the prefilter builder, if applicable.</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">prefilter</span> {
+                <span class="self">self</span>.<span class="ident">prefilter</span>.<span class="ident">add</span>(<span class="ident">pat</span>);
+            }
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// This routine creates failure transitions according to the standard</span>
+    <span class="doccomment">/// textbook formulation of the Aho-Corasick algorithm.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Building failure transitions is the most interesting part of building</span>
+    <span class="doccomment">/// the Aho-Corasick automaton, because they are what allow searches to</span>
+    <span class="doccomment">/// be performed in linear time. Specifically, a failure transition is</span>
+    <span class="doccomment">/// a single transition associated with each state that points back to</span>
+    <span class="doccomment">/// the longest proper suffix of the pattern being searched. The failure</span>
+    <span class="doccomment">/// transition is followed whenever there exists no transition on the</span>
+    <span class="doccomment">/// current state for the current input byte. If there is no other proper</span>
+    <span class="doccomment">/// suffix, then the failure transition points back to the starting state.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example, let&#39;s say we built an Aho-Corasick automaton with the</span>
+    <span class="doccomment">/// following patterns: &#39;abcd&#39; and &#39;cef&#39;. The trie looks like this:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">///          a - S1 - b - S2 - c - S3 - d - S4*</span>
+    <span class="doccomment">///         /</span>
+    <span class="doccomment">///     S0 - c - S5 - e - S6 - f - S7*</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// At this point, it should be fairly straight-forward to see how this</span>
+    <span class="doccomment">/// trie can be used in a simplistic way. At any given position in the</span>
+    <span class="doccomment">/// text we&#39;re searching (called the &quot;subject&quot; string), all we need to do</span>
+    <span class="doccomment">/// is follow the transitions in the trie by consuming one transition for</span>
+    <span class="doccomment">/// each byte in the subject string. If we reach a match state, then we can</span>
+    <span class="doccomment">/// report that location as a match.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The trick comes when searching a subject string like &#39;abcef&#39;. We&#39;ll</span>
+    <span class="doccomment">/// initially follow the transition from S0 to S1 and wind up in S3 after</span>
+    <span class="doccomment">/// observng the &#39;c&#39; byte. At this point, the next byte is &#39;e&#39; but state</span>
+    <span class="doccomment">/// S3 has no transition for &#39;e&#39;, so the search fails. We then would need</span>
+    <span class="doccomment">/// to restart the search at the next position in &#39;abcef&#39;, which</span>
+    <span class="doccomment">/// corresponds to &#39;b&#39;. The match would fail, but the next search starting</span>
+    <span class="doccomment">/// at &#39;c&#39; would finally succeed. The problem with this approach is that</span>
+    <span class="doccomment">/// we wind up searching the subject string potentially many times. In</span>
+    <span class="doccomment">/// effect, this makes the algorithm have worst case `O(n * m)` complexity,</span>
+    <span class="doccomment">/// where `n ~ len(subject)` and `m ~ len(all patterns)`. We would instead</span>
+    <span class="doccomment">/// like to achieve a `O(n + m)` worst case complexity.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is where failure transitions come in. Instead of dying at S3 in</span>
+    <span class="doccomment">/// the first search, the automaton can instruct the search to move to</span>
+    <span class="doccomment">/// another part of the automaton that corresponds to a suffix of what</span>
+    <span class="doccomment">/// we&#39;ve seen so far. Recall that we&#39;ve seen &#39;abc&#39; in the subject string,</span>
+    <span class="doccomment">/// and the automaton does indeed have a non-empty suffix, &#39;c&#39;, that could</span>
+    <span class="doccomment">/// potentially lead to another match. Thus, the actual Aho-Corasick</span>
+    <span class="doccomment">/// automaton for our patterns in this case looks like this:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">///          a - S1 - b - S2 - c - S3 - d - S4*</span>
+    <span class="doccomment">///         /                      /</span>
+    <span class="doccomment">///        /       ----------------</span>
+    <span class="doccomment">///       /       /</span>
+    <span class="doccomment">///     S0 - c - S5 - e - S6 - f - S7*</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// That is, we have a failure transition from S3 to S5, which is followed</span>
+    <span class="doccomment">/// exactly in cases when we are in state S3 but see any byte other than</span>
+    <span class="doccomment">/// &#39;d&#39; (that is, we&#39;ve &quot;failed&quot; to find a match in this portion of our</span>
+    <span class="doccomment">/// trie). We know we can transition back to S5 because we&#39;ve already seen</span>
+    <span class="doccomment">/// a &#39;c&#39; byte, so we don&#39;t need to re-scan it. We can then pick back up</span>
+    <span class="doccomment">/// with the search starting at S5 and complete our match.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Adding failure transitions to a trie is fairly simple, but subtle. The</span>
+    <span class="doccomment">/// key issue is that you might have multiple failure transition that you</span>
+    <span class="doccomment">/// need to follow. For example, look at the trie for the patterns</span>
+    <span class="doccomment">/// &#39;abcd&#39;, &#39;b&#39;, &#39;bcd&#39; and &#39;cd&#39;:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">///        - a - S1 - b - S2 - c - S3 - d - S4*</span>
+    <span class="doccomment">///       /</span>
+    <span class="doccomment">///     S0 - b - S5* - c - S6 - d - S7*</span>
+    <span class="doccomment">///       \</span>
+    <span class="doccomment">///        - c - S8 - d - S9*</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The failure transitions for this trie are defined from S2 to S5,</span>
+    <span class="doccomment">/// S3 to S6 and S6 to S8. Moreover, state S2 needs to track that it</span>
+    <span class="doccomment">/// corresponds to a match, since its failure transition to S5 is itself</span>
+    <span class="doccomment">/// a match state.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Perhaps simplest way to think about adding these failure transitions</span>
+    <span class="doccomment">/// is recursively. That is, if you know the failure transitions for every</span>
+    <span class="doccomment">/// possible previous state that could be visited (e.g., when computing the</span>
+    <span class="doccomment">/// failure transition for S3, you already know the failure transitions</span>
+    <span class="doccomment">/// for S0, S1 and S2), then you can simply follow the failure transition</span>
+    <span class="doccomment">/// of the previous state and check whether the incoming transition is</span>
+    <span class="doccomment">/// defined after following the failure transition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example, when determining the failure state for S3, by our</span>
+    <span class="doccomment">/// assumptions, we already know that there is a failure transition from</span>
+    <span class="doccomment">/// S2 (the previous state) to S5. So we follow that transition and check</span>
+    <span class="doccomment">/// whether the transition connecting S2 to S3 is defined. Indeed, it is,</span>
+    <span class="doccomment">/// as there is a transition from S5 to S6 for the byte &#39;c&#39;. If no such</span>
+    <span class="doccomment">/// transition existed, we could keep following the failure transitions</span>
+    <span class="doccomment">/// until we reach the start state, which is the failure transition for</span>
+    <span class="doccomment">/// every state that has no corresponding proper suffix.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// We don&#39;t actually use recursion to implement this, but instead, use a</span>
+    <span class="doccomment">/// breadth first search of the automaton. Our base case is the start</span>
+    <span class="doccomment">/// state, whose failure transition is just a transition to itself.</span>
+    <span class="kw">fn</span> <span class="ident">fill_failure_transitions_standard</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="comment">// Initialize the queue for breadth first search with all transitions</span>
+        <span class="comment">// out of the start state. We handle the start state specially because</span>
+        <span class="comment">// we only want to follow non-self transitions. If we followed self</span>
+        <span class="comment">// transitions, then this would never terminate.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queued_set</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+            <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start</span>().<span class="ident">next_state</span>(<span class="ident">b</span>);
+            <span class="kw">if</span> <span class="ident">next</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_id</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">seen</span>.<span class="ident">contains</span>(<span class="ident">next</span>) {
+                    <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">next</span>);
+                    <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">next</span>);
+                }
+            }
+        }
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop_front</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">iter_transitions_mut</span>(<span class="ident">id</span>);
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">next</span>)) <span class="op">=</span> <span class="ident">it</span>.<span class="ident">next</span>() {
+                <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="ident">next</span>) {
+                    <span class="comment">// The only way to visit a duplicate state in a transition</span>
+                    <span class="comment">// list is when ASCII case insensitivity is enabled. In</span>
+                    <span class="comment">// this case, we want to skip it since it&#39;s redundant work.</span>
+                    <span class="comment">// But it would also end up duplicating matches, which</span>
+                    <span class="comment">// results in reporting duplicate matches in some cases.</span>
+                    <span class="comment">// See the &#39;acasei010&#39; regression test.</span>
+                    <span class="kw">continue</span>;
+                }
+                <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">next</span>);
+                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">next</span>);
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">id</span>).<span class="ident">fail</span>;
+                <span class="kw">while</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">next_state</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                    <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">fail</span>;
+                }
+                <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">next_state</span>(<span class="ident">b</span>);
+                <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state_mut</span>(<span class="ident">next</span>).<span class="ident">fail</span> <span class="op">=</span> <span class="ident">fail</span>;
+                <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">copy_matches</span>(<span class="ident">fail</span>, <span class="ident">next</span>);
+            }
+            <span class="comment">// If the start state is a match state, then this automaton can</span>
+            <span class="comment">// match the empty string. This implies all states are match states</span>
+            <span class="comment">// since every position matches the empty string, so copy the</span>
+            <span class="comment">// matches from the start state to every state. Strictly speaking,</span>
+            <span class="comment">// this is only necessary for overlapping matches since each</span>
+            <span class="comment">// non-empty non-start match state needs to report empty matches</span>
+            <span class="comment">// in addition to its own. For the non-overlapping case, such</span>
+            <span class="comment">// states only report the first match, which is never empty since</span>
+            <span class="comment">// it isn&#39;t a start state.</span>
+            <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">copy_empty_matches</span>(<span class="ident">id</span>);
+        }
+    }
+
+    <span class="doccomment">/// This routine is just like fill_failure_transitions_standard, except</span>
+    <span class="doccomment">/// it adds failure transitions in a way that preserves leftmost match</span>
+    <span class="doccomment">/// semantics (for both leftmost-first and leftmost-longest).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The algorithms are so similar that it would be possible to write it</span>
+    <span class="doccomment">/// generically. But doing so without overhead would require a bit of</span>
+    <span class="doccomment">/// ceremony, so we just copy it and add in the extra leftmost logic.</span>
+    <span class="doccomment">/// Moreover, the standard algorithm above is so simple that it feels like</span>
+    <span class="doccomment">/// a crime to disturb it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In effect, this proceeds just like the standard approach, but we</span>
+    <span class="doccomment">/// specifically add only a subset of all failure transitions. Namely, we</span>
+    <span class="doccomment">/// only add failure transitions that either do not occur after a match</span>
+    <span class="doccomment">/// or failure transitions that do occur after a match but preserve the</span>
+    <span class="doccomment">/// match. The comments in the implementation below should help.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// N.B. The only differences in the automaton between leftmost-first and</span>
+    <span class="doccomment">/// leftmost-longest are in trie construction. Otherwise, both have exactly</span>
+    <span class="doccomment">/// the same set of failure transitions. leftmost-longest adds everything</span>
+    <span class="doccomment">/// to the trie, where as leftmost-first skips any patterns for which there</span>
+    <span class="doccomment">/// exists a prefix of it that was added earlier.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// N.B. I came up with this algorithm on my own, and after scouring all of</span>
+    <span class="doccomment">/// the other AC implementations I know of (Perl, Snort, many on GitHub).</span>
+    <span class="doccomment">/// I couldn&#39;t find any that implement leftmost semantics like this.</span>
+    <span class="doccomment">/// Perl of course needs leftmost-first semantics, but they implement it</span>
+    <span class="doccomment">/// with a seeming hack at *search* time instead of encoding it into the</span>
+    <span class="doccomment">/// automaton. There are also a couple Java libraries that support leftmost</span>
+    <span class="doccomment">/// longest semantics, but they do it by building a queue of matches at</span>
+    <span class="doccomment">/// search time, which is even worse than what Perl is doing. ---AG</span>
+    <span class="kw">fn</span> <span class="ident">fill_failure_transitions_leftmost</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="doccomment">/// Represents an item in our queue of states to process.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Fundamentally, this queue serves the same purpose as the queue</span>
+        <span class="doccomment">/// for filling failure transitions using the standard formulation.</span>
+        <span class="doccomment">/// In the leftmost case, though, we need to track a bit more</span>
+        <span class="doccomment">/// information. See comments below.</span>
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">QueuedState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+            <span class="doccomment">/// The id of the state to visit.</span>
+            <span class="ident">id</span>: <span class="ident">S</span>,
+            <span class="doccomment">/// The depth at which the first match was observed in the path</span>
+            <span class="doccomment">/// to this state. Note that this corresponds to the depth at</span>
+            <span class="doccomment">/// which the beginning of the match was detected. If no match</span>
+            <span class="doccomment">/// has been seen, then this is None.</span>
+            <span class="ident">match_at_depth</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+        }
+
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">QueuedState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+            <span class="doccomment">/// Create a queued state corresponding to the given NFA&#39;s start</span>
+            <span class="doccomment">/// state.</span>
+            <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">nfa</span>: <span class="kw-2">&amp;</span><span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueuedState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">match_at_depth</span> <span class="op">=</span>
+                    <span class="kw">if</span> <span class="ident">nfa</span>.<span class="ident">start</span>().<span class="ident">is_match</span>() { <span class="prelude-val">Some</span>(<span class="number">0</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
+                <span class="ident">QueuedState</span> { <span class="ident">id</span>: <span class="ident">nfa</span>.<span class="ident">start_id</span>, <span class="ident">match_at_depth</span> }
+            }
+
+            <span class="doccomment">/// Return the next state to queue up. The given id must be a state</span>
+            <span class="doccomment">/// corresponding to a single transition from this queued state.</span>
+            <span class="kw">fn</span> <span class="ident">next_queued_state</span>(
+                <span class="kw-2">&amp;</span><span class="self">self</span>,
+                <span class="ident">nfa</span>: <span class="kw-2">&amp;</span><span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+                <span class="ident">id</span>: <span class="ident">S</span>,
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueuedState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">match_at_depth</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_match_at_depth</span>(<span class="ident">nfa</span>, <span class="ident">id</span>);
+                <span class="ident">QueuedState</span> { <span class="ident">id</span>, <span class="ident">match_at_depth</span> }
+            }
+
+            <span class="doccomment">/// Return the earliest depth at which a match has occurred for</span>
+            <span class="doccomment">/// the given state. The given state must correspond to a single</span>
+            <span class="doccomment">/// transition from this queued state.</span>
+            <span class="kw">fn</span> <span class="ident">next_match_at_depth</span>(
+                <span class="kw-2">&amp;</span><span class="self">self</span>,
+                <span class="ident">nfa</span>: <span class="kw-2">&amp;</span><span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+                <span class="ident">next</span>: <span class="ident">S</span>,
+            ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+                <span class="comment">// This is a little tricky. If the previous state has already</span>
+                <span class="comment">// seen a match or if `next` isn&#39;t a match state, then nothing</span>
+                <span class="comment">// needs to change since a later state cannot find an earlier</span>
+                <span class="comment">// match.</span>
+                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">match_at_depth</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>),
+                    <span class="prelude-val">None</span> <span class="kw">if</span> <span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">next</span>).<span class="ident">is_match</span>() <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+                }
+                <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">next</span>).<span class="ident">depth</span>
+                    <span class="op">-</span> <span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">next</span>).<span class="ident">get_longest_match_len</span>().<span class="ident">unwrap</span>()
+                    <span class="op">+</span> <span class="number">1</span>;
+                <span class="prelude-val">Some</span>(<span class="ident">depth</span>)
+            }
+        }
+
+        <span class="comment">// Initialize the queue for breadth first search with all transitions</span>
+        <span class="comment">// out of the start state. We handle the start state specially because</span>
+        <span class="comment">// we only want to follow non-self transitions. If we followed self</span>
+        <span class="comment">// transitions, then this would never terminate.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">QueuedState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queued_set</span>();
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">QueuedState::start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nfa</span>);
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+            <span class="kw">let</span> <span class="ident">next_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start</span>().<span class="ident">next_state</span>(<span class="ident">b</span>);
+            <span class="kw">if</span> <span class="ident">next_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">start</span>.<span class="ident">id</span> {
+                <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">next_queued_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nfa</span>, <span class="ident">next_id</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">seen</span>.<span class="ident">contains</span>(<span class="ident">next</span>.<span class="ident">id</span>) {
+                    <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">next</span>);
+                    <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">next</span>.<span class="ident">id</span>);
+                }
+                <span class="comment">// If a state immediately following the start state is a match</span>
+                <span class="comment">// state, then we never want to follow its failure transition</span>
+                <span class="comment">// since the failure transition necessarily leads back to the</span>
+                <span class="comment">// start state, which we never want to do for leftmost matching</span>
+                <span class="comment">// after a match has been found.</span>
+                <span class="comment">//</span>
+                <span class="comment">// N.B. This is a special case of the more general handling</span>
+                <span class="comment">// found below.</span>
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state</span>(<span class="ident">next_id</span>).<span class="ident">is_match</span>() {
+                    <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state_mut</span>(<span class="ident">next_id</span>).<span class="ident">fail</span> <span class="op">=</span> <span class="ident">dead_id</span>();
+                }
+            }
+        }
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop_front</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_trans</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">it</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">iter_transitions_mut</span>(<span class="ident">item</span>.<span class="ident">id</span>);
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">b</span>, <span class="ident">next_id</span>)) <span class="op">=</span> <span class="ident">it</span>.<span class="ident">next</span>() {
+                <span class="ident">any_trans</span> <span class="op">=</span> <span class="bool-val">true</span>;
+
+                <span class="comment">// Queue up the next state.</span>
+                <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">next_queued_state</span>(<span class="ident">it</span>.<span class="ident">nfa</span>(), <span class="ident">next_id</span>);
+                <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="ident">next</span>.<span class="ident">id</span>) {
+                    <span class="comment">// The only way to visit a duplicate state in a transition</span>
+                    <span class="comment">// list is when ASCII case insensitivity is enabled. In</span>
+                    <span class="comment">// this case, we want to skip it since it&#39;s redundant work.</span>
+                    <span class="comment">// But it would also end up duplicating matches, which</span>
+                    <span class="comment">// results in reporting duplicate matches in some cases.</span>
+                    <span class="comment">// See the &#39;acasei010&#39; regression test.</span>
+                    <span class="kw">continue</span>;
+                }
+                <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">next</span>);
+                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">next</span>.<span class="ident">id</span>);
+
+                <span class="comment">// Find the failure state for next. Same as standard.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">item</span>.<span class="ident">id</span>).<span class="ident">fail</span>;
+                <span class="kw">while</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">next_state</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                    <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">fail</span>;
+                }
+                <span class="ident">fail</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">next_state</span>(<span class="ident">b</span>);
+
+                <span class="comment">// This is the key difference from the standard formulation.</span>
+                <span class="comment">// Namely, if we&#39;ve seen a match, then we only want a failure</span>
+                <span class="comment">// transition if the failure transition preserves the match</span>
+                <span class="comment">// we&#39;ve seen. In general, this is not true of all failure</span>
+                <span class="comment">// transitions since they can point back to any suffix of what</span>
+                <span class="comment">// we&#39;ve seen so far. Instead, we only want to point back to</span>
+                <span class="comment">// suffixes that contain any match we&#39;ve seen.</span>
+                <span class="comment">//</span>
+                <span class="comment">// We achieve this by comparing the depth of the failure</span>
+                <span class="comment">// transition with the number of states between this state</span>
+                <span class="comment">// and the beginning of the earliest match detected. If the</span>
+                <span class="comment">// depth of the failure state is smaller than this difference,</span>
+                <span class="comment">// then it cannot contain the match. If it&#39;s bigger or equal</span>
+                <span class="comment">// to the difference, then it necessarily includes the match</span>
+                <span class="comment">// we&#39;ve seen since all failure transitions correspond to a</span>
+                <span class="comment">// suffix.</span>
+                <span class="comment">//</span>
+                <span class="comment">// If we&#39;ve determined that we don&#39;t want the failure</span>
+                <span class="comment">// transition, then we set this state&#39;s failure transition to</span>
+                <span class="comment">// the dead state. In other words, when a search hits this</span>
+                <span class="comment">// state, it will not continue and correctly stop. (N.B. A</span>
+                <span class="comment">// dead state is different than a fail state. A dead state</span>
+                <span class="comment">// MUST be preceded by a match and acts as a sentinel to search</span>
+                <span class="comment">// routines to terminate.)</span>
+                <span class="comment">//</span>
+                <span class="comment">// Understanding this is tricky, and it took me several days</span>
+                <span class="comment">// to think through this and get it right. If you want to grok</span>
+                <span class="comment">// it, then I&#39;d recommend: 1) switch the implementation to</span>
+                <span class="comment">// always use the standard algorithm for filling in failure</span>
+                <span class="comment">// transitions, 2) run the test suite and 3) examine the test</span>
+                <span class="comment">// failures. Write out the automatons for them and try to work</span>
+                <span class="comment">// backwards by figuring out which failure transitions should</span>
+                <span class="comment">// be removed. You should arrive at the same rule used below.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">match_depth</span>) <span class="op">=</span> <span class="ident">next</span>.<span class="ident">match_at_depth</span> {
+                    <span class="kw">let</span> <span class="ident">fail_depth</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">fail</span>).<span class="ident">depth</span>;
+                    <span class="kw">let</span> <span class="ident">next_depth</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">next</span>.<span class="ident">id</span>).<span class="ident">depth</span>;
+                    <span class="kw">if</span> <span class="ident">next_depth</span> <span class="op">-</span> <span class="ident">match_depth</span> <span class="op">+</span> <span class="number">1</span> <span class="op">&gt;</span> <span class="ident">fail_depth</span> {
+                        <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state_mut</span>(<span class="ident">next</span>.<span class="ident">id</span>).<span class="ident">fail</span> <span class="op">=</span> <span class="ident">dead_id</span>();
+                        <span class="kw">continue</span>;
+                    }
+                    <span class="macro">assert_ne!</span>(
+                        <span class="ident">start</span>.<span class="ident">id</span>,
+                        <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">next</span>.<span class="ident">id</span>).<span class="ident">fail</span>,
+                        <span class="string">&quot;states that are match states or follow match \
+                         states should never have a failure transition \
+                         back to the start state in leftmost searching&quot;</span>,
+                    );
+                }
+                <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state_mut</span>(<span class="ident">next</span>.<span class="ident">id</span>).<span class="ident">fail</span> <span class="op">=</span> <span class="ident">fail</span>;
+                <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">copy_matches</span>(<span class="ident">fail</span>, <span class="ident">next</span>.<span class="ident">id</span>);
+            }
+            <span class="comment">// If there are no transitions for this state and if it&#39;s a match</span>
+            <span class="comment">// state, then we must set its failure transition to the dead</span>
+            <span class="comment">// state since we never want it to restart the search.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">any_trans</span> <span class="op">&amp;&amp;</span> <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state</span>(<span class="ident">item</span>.<span class="ident">id</span>).<span class="ident">is_match</span>() {
+                <span class="ident">it</span>.<span class="ident">nfa</span>().<span class="ident">state_mut</span>(<span class="ident">item</span>.<span class="ident">id</span>).<span class="ident">fail</span> <span class="op">=</span> <span class="ident">dead_id</span>();
+            }
+            <span class="comment">// We don&#39;t need to copy empty matches from the start state here</span>
+            <span class="comment">// because that&#39;s only necessary for overlapping matches and</span>
+            <span class="comment">// leftmost match kinds don&#39;t support overlapping matches.</span>
+        }
+    }
+
+    <span class="doccomment">/// Returns a set that tracked queued states.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is only necessary when ASCII case insensitivity is enabled, since</span>
+    <span class="doccomment">/// it is the only way to visit the same state twice. Otherwise, this</span>
+    <span class="doccomment">/// returns an inert set that nevers adds anything and always reports</span>
+    <span class="doccomment">/// `false` for every member test.</span>
+    <span class="kw">fn</span> <span class="ident">queued_set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueuedSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">ascii_case_insensitive</span> {
+            <span class="ident">QueuedSet::active</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">QueuedSet::inert</span>()
+        }
+    }
+
+    <span class="doccomment">/// Set the failure transitions on the start state to loop back to the</span>
+    <span class="doccomment">/// start state. This effectively permits the Aho-Corasick automaton to</span>
+    <span class="doccomment">/// match at any position. This is also required for finding the next</span>
+    <span class="doccomment">/// state to terminate, namely, finding the next state should never return</span>
+    <span class="doccomment">/// a fail_id.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This must be done after building the initial trie, since trie</span>
+    <span class="doccomment">/// construction depends on transitions to `fail_id` to determine whether a</span>
+    <span class="doccomment">/// state already exists or not.</span>
+    <span class="kw">fn</span> <span class="ident">add_start_state_loop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">start_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_id</span>;
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_mut</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+            <span class="kw">if</span> <span class="ident">start</span>.<span class="ident">next_state</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">fail_id</span>() {
+                <span class="ident">start</span>.<span class="ident">set_next_state</span>(<span class="ident">b</span>, <span class="ident">start_id</span>);
+            }
+        }
+    }
+
+    <span class="doccomment">/// Remove the start state loop by rewriting any transitions on the start</span>
+    <span class="doccomment">/// state back to the start state with transitions to the dead state.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The loop is only closed when two conditions are met: the start state</span>
+    <span class="doccomment">/// is a match state and the match kind is leftmost-first or</span>
+    <span class="doccomment">/// leftmost-longest. (Alternatively, if this is an anchored automaton,</span>
+    <span class="doccomment">/// then the start state is always closed, regardless of aforementioned</span>
+    <span class="doccomment">/// conditions.)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The reason for this is that under leftmost semantics, a start state</span>
+    <span class="doccomment">/// that is also a match implies that we should never restart the search</span>
+    <span class="doccomment">/// process. We allow normal transitions out of the start state, but if</span>
+    <span class="doccomment">/// none exist, we transition to the dead state, which signals that</span>
+    <span class="doccomment">/// searching should stop.</span>
+    <span class="kw">fn</span> <span class="ident">close_start_state_loop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">anchored</span>
+            <span class="op">|</span><span class="op">|</span> (<span class="self">self</span>.<span class="ident">match_kind</span>().<span class="ident">is_leftmost</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start</span>().<span class="ident">is_match</span>())
+        {
+            <span class="kw">let</span> <span class="ident">start_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_id</span>;
+            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">start_mut</span>();
+            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+                <span class="kw">if</span> <span class="ident">start</span>.<span class="ident">next_state</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">start_id</span> {
+                    <span class="ident">start</span>.<span class="ident">set_next_state</span>(<span class="ident">b</span>, <span class="ident">dead_id</span>());
+                }
+            }
+        }
+    }
+
+    <span class="doccomment">/// Sets all transitions on the dead state to point back to the dead state.</span>
+    <span class="doccomment">/// Normally, missing transitions map back to the failure state, but the</span>
+    <span class="doccomment">/// point of the dead state is to act as a sink that can never be escaped.</span>
+    <span class="kw">fn</span> <span class="ident">add_dead_state_loop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">dead</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">state_mut</span>(<span class="ident">dead_id</span>());
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">AllBytesIter::new</span>() {
+            <span class="ident">dead</span>.<span class="ident">set_next_state</span>(<span class="ident">b</span>, <span class="ident">dead_id</span>());
+        }
+    }
+
+    <span class="doccomment">/// Computes the total amount of heap used by this NFA in bytes.</span>
+    <span class="kw">fn</span> <span class="ident">calculate_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">size</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">state</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">states</span> {
+            <span class="ident">size</span> <span class="op">+</span><span class="op">=</span> <span class="ident">state</span>.<span class="ident">heap_bytes</span>();
+        }
+        <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">heap_bytes</span> <span class="op">=</span> <span class="ident">size</span>;
+    }
+
+    <span class="doccomment">/// Add a new state to the underlying NFA with the given depth. The depth</span>
+    <span class="doccomment">/// is used to determine how to represent the transitions.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If adding the new state would overflow the chosen state ID</span>
+    <span class="doccomment">/// representation, then this returns an error.</span>
+    <span class="kw">fn</span> <span class="ident">add_state</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">depth</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">depth</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">dense_depth</span> {
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">add_dense_state</span>(<span class="ident">depth</span>)
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">nfa</span>.<span class="ident">add_sparse_state</span>(<span class="ident">depth</span>)
+        }
+    }
+
+    <span class="doccomment">/// Returns the match kind configured on the underlying builder.</span>
+    <span class="kw">fn</span> <span class="ident">match_kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MatchKind</span> {
+        <span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">match_kind</span>
+    }
+}
+
+<span class="doccomment">/// A set of state identifiers used to avoid revisiting the same state multiple</span>
+<span class="doccomment">/// times when filling in failure transitions.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This set has an &quot;inert&quot; and an &quot;active&quot; mode. When inert, the set never</span>
+<span class="doccomment">/// stores anything and always returns `false` for every member test. This is</span>
+<span class="doccomment">/// useful to avoid the performance and memory overhead of maintaining this</span>
+<span class="doccomment">/// set when it is not needed.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">QueuedSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="ident">set</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">QueuedSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Return an inert set that returns `false` for every state ID membership</span>
+    <span class="doccomment">/// test.</span>
+    <span class="kw">fn</span> <span class="ident">inert</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueuedSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="ident">QueuedSet</span> { <span class="ident">set</span>: <span class="prelude-val">None</span> }
+    }
+
+    <span class="doccomment">/// Return an active set that tracks state ID membership.</span>
+    <span class="kw">fn</span> <span class="ident">active</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueuedSet</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+        <span class="ident">QueuedSet</span> { <span class="ident">set</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet::new</span>()) }
+    }
+
+    <span class="doccomment">/// Inserts the given state ID into this set. (If the set is inert, then</span>
+    <span class="doccomment">/// this is a no-op.)</span>
+    <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state_id</span>: <span class="ident">S</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">set</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">set</span> {
+            <span class="ident">set</span>.<span class="ident">insert</span>(<span class="ident">state_id</span>);
+        }
+    }
+
+    <span class="doccomment">/// Returns true if and only if the given state ID is in this set. If the</span>
+    <span class="doccomment">/// set is inert, this always returns false.</span>
+    <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state_id</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">set</span> {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">set</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">set</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">state_id</span>),
+        }
+    }
+}
+
+<span class="doccomment">/// An iterator over every byte value.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// We use this instead of (0..256).map(|b| b as u8) because this optimizes</span>
+<span class="doccomment">/// better in debug builds.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// We also use this instead of 0..=255 because we&#39;re targeting Rust 1.24 and</span>
+<span class="doccomment">/// inclusive range syntax was stabilized in Rust 1.26. We can get rid of this</span>
+<span class="doccomment">/// once our MSRV is Rust 1.26 or newer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">AllBytesIter</span>(<span class="ident">u16</span>);
+
+<span class="kw">impl</span> <span class="ident">AllBytesIter</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AllBytesIter</span> {
+        <span class="ident">AllBytesIter</span>(<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">AllBytesIter</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">u8</span>;
+
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">256</span> {
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u8</span>;
+            <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="prelude-val">Some</span>(<span class="ident">b</span>)
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;NFA(&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;match_kind: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">match_kind</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;prefilter: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">prefilter</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;-&quot;</span>.<span class="ident">repeat</span>(<span class="number">79</span>))<span class="question-mark">?</span>;
+        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+            <span class="ident">s</span>.<span class="ident">trans</span>.<span class="ident">iter</span>(<span class="op">|</span><span class="ident">byte</span>, <span class="ident">next</span><span class="op">|</span> {
+                <span class="comment">// The start state has a bunch of uninteresting transitions</span>
+                <span class="comment">// back into itself. It&#39;s questionable to hide them since they</span>
+                <span class="comment">// are critical to understanding the automaton, but they are</span>
+                <span class="comment">// very noisy without better formatting for contiugous ranges</span>
+                <span class="comment">// to the same state.</span>
+                <span class="kw">if</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">start_id</span>.<span class="ident">to_usize</span>() <span class="op">&amp;&amp;</span> <span class="ident">next</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">start_id</span> {
+                    <span class="kw">return</span>;
+                }
+                <span class="comment">// Similarly, the dead state has a bunch of uninteresting</span>
+                <span class="comment">// transitions too.</span>
+                <span class="kw">if</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dead_id</span>() {
+                    <span class="kw">return</span>;
+                }
+                <span class="ident">trans</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} =&gt; {}&quot;</span>, <span class="ident">escape</span>(<span class="ident">byte</span>), <span class="ident">next</span>.<span class="ident">to_usize</span>()));
+            });
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{:04}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">trans</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))<span class="question-mark">?</span>;
+
+            <span class="kw">let</span> <span class="ident">matches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">s</span>
+                .<span class="ident">matches</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="ident">pattern_id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">pattern_id</span>.<span class="ident">to_string</span>())
+                .<span class="ident">collect</span>();
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  matches: {}&quot;</span>, <span class="ident">matches</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;     fail: {}&quot;</span>, <span class="ident">s</span>.<span class="ident">fail</span>.<span class="ident">to_usize</span>())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;    depth: {}&quot;</span>, <span class="ident">s</span>.<span class="ident">depth</span>)<span class="question-mark">?</span>;
+        }
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;-&quot;</span>.<span class="ident">repeat</span>(<span class="number">79</span>))<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="doccomment">/// Iterate over all possible byte transitions given a sparse set.</span>
+<span class="kw">fn</span> <span class="ident">sparse_iter</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">StateID</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">u8</span>, <span class="ident">S</span>)<span class="op">&gt;</span>(<span class="ident">trans</span>: <span class="kw-2">&amp;</span>[(<span class="ident">u8</span>, <span class="ident">S</span>)], <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="ident">F</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">byte</span> <span class="op">=</span> <span class="number">0u16</span>;
+    <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">b</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">trans</span> {
+        <span class="kw">while</span> <span class="ident">byte</span> <span class="op">&lt;</span> (<span class="ident">b</span> <span class="kw">as</span> <span class="ident">u16</span>) {
+            <span class="ident">f</span>(<span class="ident">byte</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">fail_id</span>());
+            <span class="ident">byte</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+        <span class="ident">f</span>(<span class="ident">b</span>, <span class="ident">id</span>);
+        <span class="ident">byte</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    }
+    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">byte</span>..<span class="number">256</span> {
+        <span class="ident">f</span>(<span class="ident">b</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">fail_id</span>());
+    }
+}
+
+<span class="doccomment">/// Safely return two mutable borrows to two different locations in the given</span>
+<span class="doccomment">/// slice.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This panics if i == j.</span>
+<span class="kw">fn</span> <span class="ident">get_two_mut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">xs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>], <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">j</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">j</span>, <span class="string">&quot;{} must not be equal to {}&quot;</span>, <span class="ident">i</span>, <span class="ident">j</span>);
+    <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">j</span> {
+        <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>) <span class="op">=</span> <span class="ident">xs</span>.<span class="ident">split_at_mut</span>(<span class="ident">j</span>);
+        (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">before</span>[<span class="ident">i</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">after</span>[<span class="number">0</span>])
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>) <span class="op">=</span> <span class="ident">xs</span>.<span class="ident">split_at_mut</span>(<span class="ident">i</span>);
+        (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">after</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">before</span>[<span class="ident">j</span>])
+    }
+}
+
+<span class="doccomment">/// Return the given byte as its escaped string form.</span>
+<span class="kw">fn</span> <span class="ident">escape</span>(<span class="ident">b</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">use</span> <span class="ident">std::ascii</span>;
+
+    <span class="ident">String::from_utf8</span>(<span class="ident">ascii::escape_default</span>(<span class="ident">b</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()).<span class="ident">unwrap</span>()
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">scratch</span>() {
+        <span class="kw">let</span> <span class="ident">nfa</span>: <span class="ident">NFA</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Builder::new</span>()
+            .<span class="ident">dense_depth</span>(<span class="number">0</span>)
+            <span class="comment">// .match_kind(MatchKind::LeftmostShortest)</span>
+            <span class="comment">// .match_kind(MatchKind::LeftmostLongest)</span>
+            .<span class="ident">match_kind</span>(<span class="ident">MatchKind::LeftmostFirst</span>)
+            <span class="comment">// .build(&amp;[&quot;abcd&quot;, &quot;ce&quot;, &quot;b&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;ab&quot;, &quot;bc&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;b&quot;, &quot;bcd&quot;, &quot;ce&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;abc&quot;, &quot;bx&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;abc&quot;, &quot;bd&quot;, &quot;ab&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;abcdefghi&quot;, &quot;hz&quot;, &quot;abcdefgh&quot;])</span>
+            <span class="comment">// .build(&amp;[&quot;abcd&quot;, &quot;bce&quot;, &quot;b&quot;])</span>
+            .<span class="ident">build</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;abcdefg&quot;</span>, <span class="string">&quot;bcde&quot;</span>, <span class="string">&quot;bcdef&quot;</span>])
+            .<span class="ident">unwrap</span>();
+        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">nfa</span>);
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="aho_corasick" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

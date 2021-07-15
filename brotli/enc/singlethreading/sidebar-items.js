@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["compress_multi",""],["compress_worker_pool",""],["new_work_pool",""]],"struct":[["SingleThreadedJoinable",""],["SingleThreadedOwnedRetriever",""],["SingleThreadedSpawner",""],["WorkerPool",""]]});

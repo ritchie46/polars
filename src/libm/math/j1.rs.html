@@ -1,0 +1,833 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;libm-0.2.1&#x2F;src&#x2F;math&#x2F;j1.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>j1.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../libm/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+</pre><pre class="rust">
+<span class="comment">/* origin: FreeBSD /usr/src/lib/msun/src/e_j1.c */</span>
+<span class="comment">/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */</span>
+<span class="comment">/* j1(x), y1(x)
+ * Bessel function of the first and second kinds of order zero.
+ * Method -- j1(x):
+ *      1. For tiny x, we use j1(x) = x/2 - x^3/16 + x^5/384 - ...
+ *      2. Reduce x to |x| since j1(x)=-j1(-x),  and
+ *         for x in (0,2)
+ *              j1(x) = x/2 + x*z*R0/S0,  where z = x*x;
+ *         (precision:  |j1/x - 1/2 - R0/S0 |&lt;2**-61.51 )
+ *         for x in (2,inf)
+ *              j1(x) = sqrt(2/(pi*x))*(p1(x)*cos(x1)-q1(x)*sin(x1))
+ *              y1(x) = sqrt(2/(pi*x))*(p1(x)*sin(x1)+q1(x)*cos(x1))
+ *         where x1 = x-3*pi/4. It is better to compute sin(x1),cos(x1)
+ *         as follow:
+ *              cos(x1) =  cos(x)cos(3pi/4)+sin(x)sin(3pi/4)
+ *                      =  1/sqrt(2) * (sin(x) - cos(x))
+ *              sin(x1) =  sin(x)cos(3pi/4)-cos(x)sin(3pi/4)
+ *                      = -1/sqrt(2) * (sin(x) + cos(x))
+ *         (To avoid cancellation, use
+ *              sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
+ *          to compute the worse one.)
+ *
+ *      3 Special cases
+ *              j1(nan)= nan
+ *              j1(0) = 0
+ *              j1(inf) = 0
+ *
+ * Method -- y1(x):
+ *      1. screen out x&lt;=0 cases: y1(0)=-inf, y1(x&lt;0)=NaN
+ *      2. For x&lt;2.
+ *         Since
+ *              y1(x) = 2/pi*(j1(x)*(ln(x/2)+Euler)-1/x-x/2+5/64*x^3-...)
+ *         therefore y1(x)-2/pi*j1(x)*ln(x)-1/x is an odd function.
+ *         We use the following function to approximate y1,
+ *              y1(x) = x*U(z)/V(z) + (2/pi)*(j1(x)*ln(x)-1/x), z= x^2
+ *         where for x in [0,2] (abs err less than 2**-65.89)
+ *              U(z) = U0[0] + U0[1]*z + ... + U0[4]*z^4
+ *              V(z) = 1  + v0[0]*z + ... + v0[4]*z^5
+ *         Note: For tiny x, 1/x dominate y1 and hence
+ *              y1(tiny) = -2/pi/tiny, (choose tiny&lt;2**-54)
+ *      3. For x&gt;=2.
+ *              y1(x) = sqrt(2/(pi*x))*(p1(x)*sin(x1)+q1(x)*cos(x1))
+ *         where x1 = x-3*pi/4. It is better to compute sin(x1),cos(x1)
+ *         by method mentioned above.
+ */</span>
+
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">cos</span>, <span class="ident">fabs</span>, <span class="ident">get_high_word</span>, <span class="ident">get_low_word</span>, <span class="ident">log</span>, <span class="ident">sin</span>, <span class="ident">sqrt</span>};
+
+<span class="kw">const</span> <span class="ident">INVSQRTPI</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">5.64189583547756279280e-01</span>; <span class="comment">/* 0x3FE20DD7, 0x50429B6D */</span>
+<span class="kw">const</span> <span class="ident">TPI</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">6.36619772367581382433e-01</span>; <span class="comment">/* 0x3FE45F30, 0x6DC9C883 */</span>
+
+<span class="kw">fn</span> <span class="ident">common</span>(<span class="ident">ix</span>: <span class="ident">u32</span>, <span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y1</span>: <span class="ident">bool</span>, <span class="ident">sign</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">c</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ss</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cc</span>: <span class="ident">f64</span>;
+
+    <span class="comment">/*
+     * j1(x) = sqrt(2/(pi*x))*(p1(x)*cos(x-3pi/4)-q1(x)*sin(x-3pi/4))
+     * y1(x) = sqrt(2/(pi*x))*(p1(x)*sin(x-3pi/4)+q1(x)*cos(x-3pi/4))
+     *
+     * sin(x-3pi/4) = -(sin(x) + cos(x))/sqrt(2)
+     * cos(x-3pi/4) = (sin(x) - cos(x))/sqrt(2)
+     * sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
+     */</span>
+    <span class="ident">s</span> <span class="op">=</span> <span class="ident">sin</span>(<span class="ident">x</span>);
+    <span class="kw">if</span> <span class="ident">y1</span> {
+        <span class="ident">s</span> <span class="op">=</span> <span class="op">-</span><span class="ident">s</span>;
+    }
+    <span class="ident">c</span> <span class="op">=</span> <span class="ident">cos</span>(<span class="ident">x</span>);
+    <span class="ident">cc</span> <span class="op">=</span> <span class="ident">s</span> <span class="op">-</span> <span class="ident">c</span>;
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span> <span class="number">0x7fe00000</span> {
+        <span class="comment">/* avoid overflow in 2*x */</span>
+        <span class="ident">ss</span> <span class="op">=</span> <span class="op">-</span><span class="ident">s</span> <span class="op">-</span> <span class="ident">c</span>;
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">cos</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">x</span>);
+        <span class="kw">if</span> <span class="ident">s</span> <span class="op">*</span> <span class="ident">c</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
+            <span class="ident">cc</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">/</span> <span class="ident">ss</span>;
+        } <span class="kw">else</span> {
+            <span class="ident">ss</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">/</span> <span class="ident">cc</span>;
+        }
+        <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span> <span class="number">0x48000000</span> {
+            <span class="kw">if</span> <span class="ident">y1</span> {
+                <span class="ident">ss</span> <span class="op">=</span> <span class="op">-</span><span class="ident">ss</span>;
+            }
+            <span class="ident">cc</span> <span class="op">=</span> <span class="ident">pone</span>(<span class="ident">x</span>) <span class="op">*</span> <span class="ident">cc</span> <span class="op">-</span> <span class="ident">qone</span>(<span class="ident">x</span>) <span class="op">*</span> <span class="ident">ss</span>;
+        }
+    }
+    <span class="kw">if</span> <span class="ident">sign</span> {
+        <span class="ident">cc</span> <span class="op">=</span> <span class="op">-</span><span class="ident">cc</span>;
+    }
+    <span class="kw">return</span> <span class="ident">INVSQRTPI</span> <span class="op">*</span> <span class="ident">cc</span> <span class="op">/</span> <span class="ident">sqrt</span>(<span class="ident">x</span>);
+}
+
+<span class="comment">/* R0/S0 on [0,2] */</span>
+<span class="kw">const</span> <span class="ident">R00</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">6.25000000000000000000e-02</span>; <span class="comment">/* 0xBFB00000, 0x00000000 */</span>
+<span class="kw">const</span> <span class="ident">R01</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.40705666955189706048e-03</span>; <span class="comment">/* 0x3F570D9F, 0x98472C61 */</span>
+<span class="kw">const</span> <span class="ident">R02</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.59955631084035597520e-05</span>; <span class="comment">/* 0xBEF0C5C6, 0xBA169668 */</span>
+<span class="kw">const</span> <span class="ident">R03</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">4.96727999609584448412e-08</span>; <span class="comment">/* 0x3E6AAAFA, 0x46CA0BD9 */</span>
+<span class="kw">const</span> <span class="ident">S01</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.91537599538363460805e-02</span>; <span class="comment">/* 0x3F939D0B, 0x12637E53 */</span>
+<span class="kw">const</span> <span class="ident">S02</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.85946785588630915560e-04</span>; <span class="comment">/* 0x3F285F56, 0xB9CDF664 */</span>
+<span class="kw">const</span> <span class="ident">S03</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.17718464042623683263e-06</span>; <span class="comment">/* 0x3EB3BFF8, 0x333F8498 */</span>
+<span class="kw">const</span> <span class="ident">S04</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">5.04636257076217042715e-09</span>; <span class="comment">/* 0x3E35AC88, 0xC97DFF2C */</span>
+<span class="kw">const</span> <span class="ident">S05</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.23542274426137913908e-11</span>; <span class="comment">/* 0x3DAB2ACF, 0xCFB97ED8 */</span>
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">j1</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ix</span>: <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">sign</span>: <span class="ident">bool</span>;
+
+    <span class="ident">ix</span> <span class="op">=</span> <span class="ident">get_high_word</span>(<span class="ident">x</span>);
+    <span class="ident">sign</span> <span class="op">=</span> (<span class="ident">ix</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">31</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
+    <span class="ident">ix</span> <span class="op">&amp;=</span> <span class="number">0x7fffffff</span>;
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x7ff00000</span> {
+        <span class="kw">return</span> <span class="number">1.0</span> <span class="op">/</span> (<span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>);
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40000000</span> {
+        <span class="comment">/* |x| &gt;= 2 */</span>
+        <span class="kw">return</span> <span class="ident">common</span>(<span class="ident">ix</span>, <span class="ident">fabs</span>(<span class="ident">x</span>), <span class="bool-val">false</span>, <span class="ident">sign</span>);
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x38000000</span> {
+        <span class="comment">/* |x| &gt;= 2**-127 */</span>
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+        <span class="ident">r</span> <span class="op">=</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">R00</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">R01</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">R02</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">R03</span>)));
+        <span class="ident">s</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">S01</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">S02</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">S03</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">S04</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">S05</span>))));
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">/</span> <span class="ident">s</span>;
+    } <span class="kw">else</span> {
+        <span class="comment">/* avoid underflow, raise inexact if x!=0 */</span>
+        <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span>;
+    }
+    <span class="kw">return</span> (<span class="number">0.5</span> <span class="op">+</span> <span class="ident">z</span>) <span class="op">*</span> <span class="ident">x</span>;
+}
+
+<span class="kw">const</span> <span class="ident">U0</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="op">-</span><span class="number">1.96057090646238940668e-01</span>, <span class="comment">/* 0xBFC91866, 0x143CBC8A */</span>
+    <span class="number">5.04438716639811282616e-02</span>,  <span class="comment">/* 0x3FA9D3C7, 0x76292CD1 */</span>
+    <span class="op">-</span><span class="number">1.91256895875763547298e-03</span>, <span class="comment">/* 0xBF5F55E5, 0x4844F50F */</span>
+    <span class="number">2.35252600561610495928e-05</span>,  <span class="comment">/* 0x3EF8AB03, 0x8FA6B88E */</span>
+    <span class="op">-</span><span class="number">9.19099158039878874504e-08</span>, <span class="comment">/* 0xBE78AC00, 0x569105B8 */</span>
+];
+<span class="kw">const</span> <span class="ident">V0</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="number">1.99167318236649903973e-02</span>, <span class="comment">/* 0x3F94650D, 0x3F4DA9F0 */</span>
+    <span class="number">2.02552581025135171496e-04</span>, <span class="comment">/* 0x3F2A8C89, 0x6C257764 */</span>
+    <span class="number">1.35608801097516229404e-06</span>, <span class="comment">/* 0x3EB6C05A, 0x894E8CA6 */</span>
+    <span class="number">6.22741452364621501295e-09</span>, <span class="comment">/* 0x3E3ABF1D, 0x5BA69A86 */</span>
+    <span class="number">1.66559246207992079114e-11</span>, <span class="comment">/* 0x3DB25039, 0xDACA772A */</span>
+];
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y1</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">u</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">ix</span>: <span class="ident">u32</span>;
+    <span class="kw">let</span> <span class="ident">lx</span>: <span class="ident">u32</span>;
+
+    <span class="ident">ix</span> <span class="op">=</span> <span class="ident">get_high_word</span>(<span class="ident">x</span>);
+    <span class="ident">lx</span> <span class="op">=</span> <span class="ident">get_low_word</span>(<span class="ident">x</span>);
+
+    <span class="comment">/* y1(nan)=nan, y1(&lt;0)=nan, y1(0)=-inf, y1(inf)=0 */</span>
+    <span class="kw">if</span> (<span class="ident">ix</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span> <span class="op">|</span> <span class="ident">lx</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> <span class="op">-</span><span class="number">1.0</span> <span class="op">/</span> <span class="number">0.0</span>;
+    }
+    <span class="kw">if</span> (<span class="ident">ix</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">31</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> <span class="number">0.0</span> <span class="op">/</span> <span class="number">0.0</span>;
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x7ff00000</span> {
+        <span class="kw">return</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">x</span>;
+    }
+
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40000000</span> {
+        <span class="comment">/* x &gt;= 2 */</span>
+        <span class="kw">return</span> <span class="ident">common</span>(<span class="ident">ix</span>, <span class="ident">x</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>);
+    }
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&lt;</span> <span class="number">0x3c900000</span> {
+        <span class="comment">/* x &lt; 2**-54 */</span>
+        <span class="kw">return</span> <span class="op">-</span><span class="ident">TPI</span> <span class="op">/</span> <span class="ident">x</span>;
+    }
+    <span class="ident">z</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+    <span class="ident">u</span> <span class="op">=</span> <span class="ident">U0</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">U0</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">U0</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">U0</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">U0</span>[<span class="number">4</span>])));
+    <span class="ident">v</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">V0</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">V0</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">V0</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">V0</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">V0</span>[<span class="number">4</span>]))));
+    <span class="kw">return</span> <span class="ident">x</span> <span class="op">*</span> (<span class="ident">u</span> <span class="op">/</span> <span class="ident">v</span>) <span class="op">+</span> <span class="ident">TPI</span> <span class="op">*</span> (<span class="ident">j1</span>(<span class="ident">x</span>) <span class="op">*</span> <span class="ident">log</span>(<span class="ident">x</span>) <span class="op">-</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">x</span>);
+}
+
+<span class="comment">/* For x &gt;= 8, the asymptotic expansions of pone is
+ *      1 + 15/128 s^2 - 4725/2^15 s^4 - ...,   where s = 1/x.
+ * We approximate pone by
+ *      pone(x) = 1 + (R/S)
+ * where  R = pr0 + pr1*s^2 + pr2*s^4 + ... + pr5*s^10
+ *        S = 1 + ps0*s^2 + ... + ps4*s^10
+ * and
+ *      | pone(x)-1-R/S | &lt;= 2  ** ( -60.06)
+ */</span>
+
+<span class="kw">const</span> <span class="ident">PR8</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [inf, 8]=1/[0,0.125] */</span>
+    <span class="number">0.00000000000000000000e+00</span>, <span class="comment">/* 0x00000000, 0x00000000 */</span>
+    <span class="number">1.17187499999988647970e-01</span>, <span class="comment">/* 0x3FBDFFFF, 0xFFFFFCCE */</span>
+    <span class="number">1.32394806593073575129e+01</span>, <span class="comment">/* 0x402A7A9D, 0x357F7FCE */</span>
+    <span class="number">4.12051854307378562225e+02</span>, <span class="comment">/* 0x4079C0D4, 0x652EA590 */</span>
+    <span class="number">3.87474538913960532227e+03</span>, <span class="comment">/* 0x40AE457D, 0xA3A532CC */</span>
+    <span class="number">7.91447954031891731574e+03</span>, <span class="comment">/* 0x40BEEA7A, 0xC32782DD */</span>
+];
+<span class="kw">const</span> <span class="ident">PS8</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="number">1.14207370375678408436e+02</span>, <span class="comment">/* 0x405C8D45, 0x8E656CAC */</span>
+    <span class="number">3.65093083420853463394e+03</span>, <span class="comment">/* 0x40AC85DC, 0x964D274F */</span>
+    <span class="number">3.69562060269033463555e+04</span>, <span class="comment">/* 0x40E20B86, 0x97C5BB7F */</span>
+    <span class="number">9.76027935934950801311e+04</span>, <span class="comment">/* 0x40F7D42C, 0xB28F17BB */</span>
+    <span class="number">3.08042720627888811578e+04</span>, <span class="comment">/* 0x40DE1511, 0x697A0B2D */</span>
+];
+
+<span class="kw">const</span> <span class="ident">PR5</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [8,4.5454]=1/[0.125,0.22001] */</span>
+    <span class="number">1.31990519556243522749e-11</span>, <span class="comment">/* 0x3DAD0667, 0xDAE1CA7D */</span>
+    <span class="number">1.17187493190614097638e-01</span>, <span class="comment">/* 0x3FBDFFFF, 0xE2C10043 */</span>
+    <span class="number">6.80275127868432871736e+00</span>, <span class="comment">/* 0x401B3604, 0x6E6315E3 */</span>
+    <span class="number">1.08308182990189109773e+02</span>, <span class="comment">/* 0x405B13B9, 0x452602ED */</span>
+    <span class="number">5.17636139533199752805e+02</span>, <span class="comment">/* 0x40802D16, 0xD052D649 */</span>
+    <span class="number">5.28715201363337541807e+02</span>, <span class="comment">/* 0x408085B8, 0xBB7E0CB7 */</span>
+];
+<span class="kw">const</span> <span class="ident">PS5</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="number">5.92805987221131331921e+01</span>, <span class="comment">/* 0x404DA3EA, 0xA8AF633D */</span>
+    <span class="number">9.91401418733614377743e+02</span>, <span class="comment">/* 0x408EFB36, 0x1B066701 */</span>
+    <span class="number">5.35326695291487976647e+03</span>, <span class="comment">/* 0x40B4E944, 0x5706B6FB */</span>
+    <span class="number">7.84469031749551231769e+03</span>, <span class="comment">/* 0x40BEA4B0, 0xB8A5BB15 */</span>
+    <span class="number">1.50404688810361062679e+03</span>, <span class="comment">/* 0x40978030, 0x036F5E51 */</span>
+];
+
+<span class="kw">const</span> <span class="ident">PR3</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="number">3.02503916137373618024e-09</span>, <span class="comment">/* 0x3E29FC21, 0xA7AD9EDD */</span>
+    <span class="number">1.17186865567253592491e-01</span>, <span class="comment">/* 0x3FBDFFF5, 0x5B21D17B */</span>
+    <span class="number">3.93297750033315640650e+00</span>, <span class="comment">/* 0x400F76BC, 0xE85EAD8A */</span>
+    <span class="number">3.51194035591636932736e+01</span>, <span class="comment">/* 0x40418F48, 0x9DA6D129 */</span>
+    <span class="number">9.10550110750781271918e+01</span>, <span class="comment">/* 0x4056C385, 0x4D2C1837 */</span>
+    <span class="number">4.85590685197364919645e+01</span>, <span class="comment">/* 0x4048478F, 0x8EA83EE5 */</span>
+];
+<span class="kw">const</span> <span class="ident">PS3</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="number">3.47913095001251519989e+01</span>, <span class="comment">/* 0x40416549, 0xA134069C */</span>
+    <span class="number">3.36762458747825746741e+02</span>, <span class="comment">/* 0x40750C33, 0x07F1A75F */</span>
+    <span class="number">1.04687139975775130551e+03</span>, <span class="comment">/* 0x40905B7C, 0x5037D523 */</span>
+    <span class="number">8.90811346398256432622e+02</span>, <span class="comment">/* 0x408BD67D, 0xA32E31E9 */</span>
+    <span class="number">1.03787932439639277504e+02</span>, <span class="comment">/* 0x4059F26D, 0x7C2EED53 */</span>
+];
+
+<span class="kw">const</span> <span class="ident">PR2</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [2.8570,2]=1/[0.3499,0.5] */</span>
+    <span class="number">1.07710830106873743082e-07</span>, <span class="comment">/* 0x3E7CE9D4, 0xF65544F4 */</span>
+    <span class="number">1.17176219462683348094e-01</span>, <span class="comment">/* 0x3FBDFF42, 0xBE760D83 */</span>
+    <span class="number">2.36851496667608785174e+00</span>, <span class="comment">/* 0x4002F2B7, 0xF98FAEC0 */</span>
+    <span class="number">1.22426109148261232917e+01</span>, <span class="comment">/* 0x40287C37, 0x7F71A964 */</span>
+    <span class="number">1.76939711271687727390e+01</span>, <span class="comment">/* 0x4031B1A8, 0x177F8EE2 */</span>
+    <span class="number">5.07352312588818499250e+00</span>, <span class="comment">/* 0x40144B49, 0xA574C1FE */</span>
+];
+<span class="kw">const</span> <span class="ident">PS2</span>: [<span class="ident">f64</span>; <span class="number">5</span>] <span class="op">=</span> [
+    <span class="number">2.14364859363821409488e+01</span>, <span class="comment">/* 0x40356FBD, 0x8AD5ECDC */</span>
+    <span class="number">1.25290227168402751090e+02</span>, <span class="comment">/* 0x405F5293, 0x14F92CD5 */</span>
+    <span class="number">2.32276469057162813669e+02</span>, <span class="comment">/* 0x406D08D8, 0xD5A2DBD9 */</span>
+    <span class="number">1.17679373287147100768e+02</span>, <span class="comment">/* 0x405D6B7A, 0xDA1884A9 */</span>
+    <span class="number">8.36463893371618283368e+00</span>, <span class="comment">/* 0x4020BAB1, 0xF44E5192 */</span>
+];
+
+<span class="kw">fn</span> <span class="ident">pone</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span>[<span class="ident">f64</span>; <span class="number">6</span>];
+    <span class="kw">let</span> <span class="ident">q</span>: <span class="kw-2">&amp;</span>[<span class="ident">f64</span>; <span class="number">5</span>];
+    <span class="kw">let</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ix</span>: <span class="ident">u32</span>;
+
+    <span class="ident">ix</span> <span class="op">=</span> <span class="ident">get_high_word</span>(<span class="ident">x</span>);
+    <span class="ident">ix</span> <span class="op">&amp;=</span> <span class="number">0x7fffffff</span>;
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40200000</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PR8</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PS8</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40122E8B</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PR5</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PS5</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x4006DB6D</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PR3</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PS3</span>;
+    } <span class="kw">else</span>
+    <span class="comment">/*ix &gt;= 0x40000000*/</span>
+    {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PR2</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PS2</span>;
+    }
+    <span class="ident">z</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> (<span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>);
+    <span class="ident">r</span> <span class="op">=</span> <span class="ident">p</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">4</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">p</span>[<span class="number">5</span>]))));
+    <span class="ident">s</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">q</span>[<span class="number">4</span>]))));
+    <span class="kw">return</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">r</span> <span class="op">/</span> <span class="ident">s</span>;
+}
+
+<span class="comment">/* For x &gt;= 8, the asymptotic expansions of qone is
+ *      3/8 s - 105/1024 s^3 - ..., where s = 1/x.
+ * We approximate pone by
+ *      qone(x) = s*(0.375 + (R/S))
+ * where  R = qr1*s^2 + qr2*s^4 + ... + qr5*s^10
+ *        S = 1 + qs1*s^2 + ... + qs6*s^12
+ * and
+ *      | qone(x)/s -0.375-R/S | &lt;= 2  ** ( -61.13)
+ */</span>
+
+<span class="kw">const</span> <span class="ident">QR8</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [inf, 8]=1/[0,0.125] */</span>
+    <span class="number">0.00000000000000000000e+00</span>,  <span class="comment">/* 0x00000000, 0x00000000 */</span>
+    <span class="op">-</span><span class="number">1.02539062499992714161e-01</span>, <span class="comment">/* 0xBFBA3FFF, 0xFFFFFDF3 */</span>
+    <span class="op">-</span><span class="number">1.62717534544589987888e+01</span>, <span class="comment">/* 0xC0304591, 0xA26779F7 */</span>
+    <span class="op">-</span><span class="number">7.59601722513950107896e+02</span>, <span class="comment">/* 0xC087BCD0, 0x53E4B576 */</span>
+    <span class="op">-</span><span class="number">1.18498066702429587167e+04</span>, <span class="comment">/* 0xC0C724E7, 0x40F87415 */</span>
+    <span class="op">-</span><span class="number">4.84385124285750353010e+04</span>, <span class="comment">/* 0xC0E7A6D0, 0x65D09C6A */</span>
+];
+<span class="kw">const</span> <span class="ident">QS8</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="number">1.61395369700722909556e+02</span>,  <span class="comment">/* 0x40642CA6, 0xDE5BCDE5 */</span>
+    <span class="number">7.82538599923348465381e+03</span>,  <span class="comment">/* 0x40BE9162, 0xD0D88419 */</span>
+    <span class="number">1.33875336287249578163e+05</span>,  <span class="comment">/* 0x4100579A, 0xB0B75E98 */</span>
+    <span class="number">7.19657723683240939863e+05</span>,  <span class="comment">/* 0x4125F653, 0x72869C19 */</span>
+    <span class="number">6.66601232617776375264e+05</span>,  <span class="comment">/* 0x412457D2, 0x7719AD5C */</span>
+    <span class="op">-</span><span class="number">2.94490264303834643215e+05</span>, <span class="comment">/* 0xC111F969, 0x0EA5AA18 */</span>
+];
+
+<span class="kw">const</span> <span class="ident">QR5</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [8,4.5454]=1/[0.125,0.22001] */</span>
+    <span class="op">-</span><span class="number">2.08979931141764104297e-11</span>, <span class="comment">/* 0xBDB6FA43, 0x1AA1A098 */</span>
+    <span class="op">-</span><span class="number">1.02539050241375426231e-01</span>, <span class="comment">/* 0xBFBA3FFF, 0xCB597FEF */</span>
+    <span class="op">-</span><span class="number">8.05644828123936029840e+00</span>, <span class="comment">/* 0xC0201CE6, 0xCA03AD4B */</span>
+    <span class="op">-</span><span class="number">1.83669607474888380239e+02</span>, <span class="comment">/* 0xC066F56D, 0x6CA7B9B0 */</span>
+    <span class="op">-</span><span class="number">1.37319376065508163265e+03</span>, <span class="comment">/* 0xC09574C6, 0x6931734F */</span>
+    <span class="op">-</span><span class="number">2.61244440453215656817e+03</span>, <span class="comment">/* 0xC0A468E3, 0x88FDA79D */</span>
+];
+<span class="kw">const</span> <span class="ident">QS5</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="number">8.12765501384335777857e+01</span>,  <span class="comment">/* 0x405451B2, 0xFF5A11B2 */</span>
+    <span class="number">1.99179873460485964642e+03</span>,  <span class="comment">/* 0x409F1F31, 0xE77BF839 */</span>
+    <span class="number">1.74684851924908907677e+04</span>,  <span class="comment">/* 0x40D10F1F, 0x0D64CE29 */</span>
+    <span class="number">4.98514270910352279316e+04</span>,  <span class="comment">/* 0x40E8576D, 0xAABAD197 */</span>
+    <span class="number">2.79480751638918118260e+04</span>,  <span class="comment">/* 0x40DB4B04, 0xCF7C364B */</span>
+    <span class="op">-</span><span class="number">4.71918354795128470869e+03</span>, <span class="comment">/* 0xC0B26F2E, 0xFCFFA004 */</span>
+];
+
+<span class="kw">const</span> <span class="ident">QR3</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="op">-</span><span class="number">5.07831226461766561369e-09</span>, <span class="comment">/* 0xBE35CFA9, 0xD38FC84F */</span>
+    <span class="op">-</span><span class="number">1.02537829820837089745e-01</span>, <span class="comment">/* 0xBFBA3FEB, 0x51AEED54 */</span>
+    <span class="op">-</span><span class="number">4.61011581139473403113e+00</span>, <span class="comment">/* 0xC01270C2, 0x3302D9FF */</span>
+    <span class="op">-</span><span class="number">5.78472216562783643212e+01</span>, <span class="comment">/* 0xC04CEC71, 0xC25D16DA */</span>
+    <span class="op">-</span><span class="number">2.28244540737631695038e+02</span>, <span class="comment">/* 0xC06C87D3, 0x4718D55F */</span>
+    <span class="op">-</span><span class="number">2.19210128478909325622e+02</span>, <span class="comment">/* 0xC06B66B9, 0x5F5C1BF6 */</span>
+];
+<span class="kw">const</span> <span class="ident">QS3</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="number">4.76651550323729509273e+01</span>,  <span class="comment">/* 0x4047D523, 0xCCD367E4 */</span>
+    <span class="number">6.73865112676699709482e+02</span>,  <span class="comment">/* 0x40850EEB, 0xC031EE3E */</span>
+    <span class="number">3.38015286679526343505e+03</span>,  <span class="comment">/* 0x40AA684E, 0x448E7C9A */</span>
+    <span class="number">5.54772909720722782367e+03</span>,  <span class="comment">/* 0x40B5ABBA, 0xA61D54A6 */</span>
+    <span class="number">1.90311919338810798763e+03</span>,  <span class="comment">/* 0x409DBC7A, 0x0DD4DF4B */</span>
+    <span class="op">-</span><span class="number">1.35201191444307340817e+02</span>, <span class="comment">/* 0xC060E670, 0x290A311F */</span>
+];
+
+<span class="kw">const</span> <span class="ident">QR2</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="comment">/* for x in [2.8570,2]=1/[0.3499,0.5] */</span>
+    <span class="op">-</span><span class="number">1.78381727510958865572e-07</span>, <span class="comment">/* 0xBE87F126, 0x44C626D2 */</span>
+    <span class="op">-</span><span class="number">1.02517042607985553460e-01</span>, <span class="comment">/* 0xBFBA3E8E, 0x9148B010 */</span>
+    <span class="op">-</span><span class="number">2.75220568278187460720e+00</span>, <span class="comment">/* 0xC0060484, 0x69BB4EDA */</span>
+    <span class="op">-</span><span class="number">1.96636162643703720221e+01</span>, <span class="comment">/* 0xC033A9E2, 0xC168907F */</span>
+    <span class="op">-</span><span class="number">4.23253133372830490089e+01</span>, <span class="comment">/* 0xC04529A3, 0xDE104AAA */</span>
+    <span class="op">-</span><span class="number">2.13719211703704061733e+01</span>, <span class="comment">/* 0xC0355F36, 0x39CF6E52 */</span>
+];
+<span class="kw">const</span> <span class="ident">QS2</span>: [<span class="ident">f64</span>; <span class="number">6</span>] <span class="op">=</span> [
+    <span class="number">2.95333629060523854548e+01</span>,  <span class="comment">/* 0x403D888A, 0x78AE64FF */</span>
+    <span class="number">2.52981549982190529136e+02</span>,  <span class="comment">/* 0x406F9F68, 0xDB821CBA */</span>
+    <span class="number">7.57502834868645436472e+02</span>,  <span class="comment">/* 0x4087AC05, 0xCE49A0F7 */</span>
+    <span class="number">7.39393205320467245656e+02</span>,  <span class="comment">/* 0x40871B25, 0x48D4C029 */</span>
+    <span class="number">1.55949003336666123687e+02</span>,  <span class="comment">/* 0x40637E5E, 0x3C3ED8D4 */</span>
+    <span class="op">-</span><span class="number">4.95949898822628210127e+00</span>, <span class="comment">/* 0xC013D686, 0xE71BE86B */</span>
+];
+
+<span class="kw">fn</span> <span class="ident">qone</span>(<span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">let</span> <span class="ident">p</span>: <span class="kw-2">&amp;</span>[<span class="ident">f64</span>; <span class="number">6</span>];
+    <span class="kw">let</span> <span class="ident">q</span>: <span class="kw-2">&amp;</span>[<span class="ident">f64</span>; <span class="number">6</span>];
+    <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="ident">z</span>: <span class="ident">f64</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ix</span>: <span class="ident">u32</span>;
+
+    <span class="ident">ix</span> <span class="op">=</span> <span class="ident">get_high_word</span>(<span class="ident">x</span>);
+    <span class="ident">ix</span> <span class="op">&amp;=</span> <span class="number">0x7fffffff</span>;
+    <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40200000</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QR8</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QS8</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x40122E8B</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QR5</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QS5</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ix</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0x4006DB6D</span> {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QR3</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QS3</span>;
+    } <span class="kw">else</span>
+    <span class="comment">/*ix &gt;= 0x40000000*/</span>
+    {
+        <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QR2</span>;
+        <span class="ident">q</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">QS2</span>;
+    }
+    <span class="ident">z</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> (<span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>);
+    <span class="ident">r</span> <span class="op">=</span> <span class="ident">p</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">p</span>[<span class="number">4</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">p</span>[<span class="number">5</span>]))));
+    <span class="ident">s</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">0</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">2</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">3</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> (<span class="ident">q</span>[<span class="number">4</span>] <span class="op">+</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">q</span>[<span class="number">5</span>])))));
+    <span class="kw">return</span> (<span class="number">0.375</span> <span class="op">+</span> <span class="ident">r</span> <span class="op">/</span> <span class="ident">s</span>) <span class="op">/</span> <span class="ident">x</span>;
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="libm" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
+</body></html>

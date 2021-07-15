@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["executors",""],["expressions",""],["planner",""]],"trait":[["Executor","Executors will evaluate physical expressions and collect them in a DataFrame."],["PhysicalPlanner","A type that implements this transforms a LogicalPlan to a physical plan."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["scope","Creates a new scope for spawning threads."]],"struct":[["Scope","A scope for spawning threads."],["ScopedJoinHandle","A handle that can be used to join its scoped thread."],["ScopedThreadBuilder","Configures the properties of a new thread."]]});

@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Banner"><meta name="keywords" content="rust, rustlang, rust-lang, static_assertions"><title>static_assertions - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../static_assertions/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;nvzqz&#x2F;static-assertions-rs&#x2F;assets&#x2F;Icon.png' alt='logo'></div></a><p class="location">Crate static_assertions</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.1.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all static_assertions's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li></ul></div><div id="sidebar-vars" data-name="static_assertions" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">static_assertions</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/static_assertions/lib.rs.html#1-97" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/nvzqz/static-assertions-rs"><img src="https://raw.githubusercontent.com/nvzqz/static-assertions-rs/assets/Banner.png" alt="Banner" /></a></p>
+<div align="center">
+    <a href="https://crates.io/crates/static_assertions">
+        <img src="https://img.shields.io/crates/d/static_assertions.svg" alt="Downloads">
+    </a>
+    <a href="https://travis-ci.org/nvzqz/static-assertions-rs">
+        <img src="https://travis-ci.org/nvzqz/static-assertions-rs.svg?branch=master" alt="Build Status">
+    </a>
+    <img src="https://img.shields.io/badge/rustc-^1.37.0-blue.svg" alt="rustc ^1.37.0">
+    <br><br>
+</div>
+<p>Assertions to ensure correct assumptions about constants, types, and more.</p>
+<p><em>All</em> checks provided by this crate are performed at <a href="https://en.wikipedia.org/wiki/Compile_time">compile-time</a>. This
+allows for finding errors quickly and early when it comes to ensuring
+certain features or aspects of a codebase. These macros are especially
+important when exposing a public API that requires types to be the same size
+or implement certain traits.</p>
+<h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
+<p>This crate is available <a href="https://crates.io/crates/static_assertions">on crates.io</a> and can be used by adding the
+following to your project’s <a href="https://doc.rust-lang.org/cargo/reference/manifest.html"><code>Cargo.toml</code></a>:</p>
+<pre><code class="language-toml">[dependencies]
+static_assertions = &quot;1.1.0&quot;
+</code></pre>
+<p>and this to your crate root (<code>main.rs</code> or <code>lib.rs</code>):</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">static_assertions</span>;</pre></div>
+<p>When using <a href="https://blog.rust-lang.org/2018/12/06/Rust-1.31-and-rust-2018.html#rust-2018">Rust 2018 edition</a>, the following shorthand can help if
+having <code>#[macro_use]</code> is undesirable.</p>
+
+<div class='information'><div class='tooltip edition' data-edition="2018">ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered edition">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">static_assertions</span> <span class="kw">as</span> <span class="ident">sa</span>;
+
+<span class="macro">sa::const_assert!</span>(<span class="bool-val">true</span>);</pre></div>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Very thorough examples are provided in the docs for
+<a href="#macros">each individual macro</a>. Failure case examples are also documented.</p>
+<h1 id="changes" class="section-header"><a href="#changes">Changes</a></h1>
+<p>See <a href="https://github.com/nvzqz/static-assertions-rs/blob/master/CHANGELOG.md"><code>CHANGELOG.md</code></a>
+for an exhaustive list of what has changed from one version to another.</p>
+<h1 id="donate" class="section-header"><a href="#donate">Donate</a></h1>
+<p>This project is made freely available (as in free beer), but unfortunately
+not all beer is free! So, if you would like to buy me a beer (or coffee or
+<em>more</em>), then consider supporting my work that’s benefited your project
+and thousands of others.</p>
+<a href="https://www.patreon.com/nvzqz">
+    <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" height="35">
+</a>
+<a href="https://www.paypal.me/nvzqz">
+    <img src="https://buymecoffee.intm.org/img/button-paypal-white.png" alt="Buy me a coffee" height="35">
+</a>
+</div></details><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.assert_cfg.html" title="static_assertions::assert_cfg macro">assert_cfg</a></div><div class="item-right docblock-short"><p>Asserts that a given configuration is set.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_eq_align.html" title="static_assertions::assert_eq_align macro">assert_eq_align</a></div><div class="item-right docblock-short"><p>Asserts that types are equal in alignment.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_eq_size.html" title="static_assertions::assert_eq_size macro">assert_eq_size</a></div><div class="item-right docblock-short"><p>Asserts that types are equal in size.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_eq_size_ptr.html" title="static_assertions::assert_eq_size_ptr macro">assert_eq_size_ptr</a></div><div class="item-right docblock-short"><p>Asserts that values pointed to are equal in size.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_eq_size_val.html" title="static_assertions::assert_eq_size_val macro">assert_eq_size_val</a></div><div class="item-right docblock-short"><p>Asserts that values are equal in size.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_fields.html" title="static_assertions::assert_fields macro">assert_fields</a></div><div class="item-right docblock-short"><p>Asserts that the type has the given fields.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_impl_all.html" title="static_assertions::assert_impl_all macro">assert_impl_all</a></div><div class="item-right docblock-short"><p>Asserts that the type implements <em>all</em> of the given traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_impl_any.html" title="static_assertions::assert_impl_any macro">assert_impl_any</a></div><div class="item-right docblock-short"><p>Asserts that the type implements <em>any</em> of the given traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_impl_one.html" title="static_assertions::assert_impl_one macro">assert_impl_one</a></div><div class="item-right docblock-short"><p>Asserts that the type implements exactly one in a set of traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_not_impl_all.html" title="static_assertions::assert_not_impl_all macro">assert_not_impl_all</a></div><div class="item-right docblock-short"><p>Asserts that the type does <strong>not</strong> implement <em>all</em> of the given traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_not_impl_any.html" title="static_assertions::assert_not_impl_any macro">assert_not_impl_any</a></div><div class="item-right docblock-short"><p>Asserts that the type does <strong>not</strong> implement <em>any</em> of the given traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_obj_safe.html" title="static_assertions::assert_obj_safe macro">assert_obj_safe</a></div><div class="item-right docblock-short"><p>Asserts that the traits support dynamic dispatch
+(<a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html#object-safety-is-required-for-trait-objects">object-safety</a>).</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_trait_sub_all.html" title="static_assertions::assert_trait_sub_all macro">assert_trait_sub_all</a></div><div class="item-right docblock-short"><p>Asserts that the trait is a child of all of the other traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_trait_super_all.html" title="static_assertions::assert_trait_super_all macro">assert_trait_super_all</a></div><div class="item-right docblock-short"><p>Asserts that the trait is a parent of all of the other traits.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_type_eq_all.html" title="static_assertions::assert_type_eq_all macro">assert_type_eq_all</a></div><div class="item-right docblock-short"><p>Asserts that <em>all</em> types in a list are equal to each other.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.assert_type_ne_all.html" title="static_assertions::assert_type_ne_all macro">assert_type_ne_all</a></div><div class="item-right docblock-short"><p>Asserts that <em>all</em> types are <strong>not</strong> equal to each other.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.const_assert.html" title="static_assertions::const_assert macro">const_assert</a></div><div class="item-right docblock-short"><p>Asserts that constant expressions evaluate to <code>true</code>.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.const_assert_eq.html" title="static_assertions::const_assert_eq macro">const_assert_eq</a></div><div class="item-right docblock-short"><p>Asserts that constants are equal in value.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.const_assert_ne.html" title="static_assertions::const_assert_ne macro">const_assert_ne</a></div><div class="item-right docblock-short"><p>Asserts that constants are <strong>not</strong> equal in value.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="static_assertions" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

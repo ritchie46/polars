@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FrameEncoder","A writer for compressing a Snappy stream."],["IntoInnerError","`IntoInnerError` occurs when consuming an encoder fails."]]});

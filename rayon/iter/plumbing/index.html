@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Traits and functions used to implement parallel iteration.  These are low-level details – users of parallel iterators should not need to interact with them directly.  See the `plumbing` README for a general overview."><meta name="keywords" content="rust, rustlang, rust-lang, plumbing"><title>rayon::iter::plumbing - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../rayon/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module plumbing</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="plumbing" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">rayon</a>::<wbr><a href="../index.html">iter</a>::<wbr><a class="mod" href="#">plumbing</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/rayon/iter/plumbing/mod.rs.html#1-484" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Traits and functions used to implement parallel iteration.  These are
+low-level details – users of parallel iterators should not need to
+interact with them directly.  See <a href="https://github.com/rayon-rs/rayon/blob/master/src/iter/plumbing/README.md">the <code>plumbing</code> README</a> for a general overview.</p>
+</div></details><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Consumer.html" title="rayon::iter::plumbing::Consumer trait">Consumer</a></div><div class="item-right docblock-short"><p>A consumer is effectively a <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.fold">generalized “fold” operation</a>,
+and in fact each consumer will eventually be converted into a
+<a href="trait.Folder.html"><code>Folder</code></a>. What makes a consumer special is that, like a
+<a href="trait.Producer.html"><code>Producer</code></a>, it can be <strong>split</strong> into multiple consumers using
+the <code>split_at</code> method. When a consumer is split, it produces two
+consumers, as well as a <strong>reducer</strong>. The two consumers can be fed
+items independently, and when they are done the reducer is used to
+combine their two results into one. See <a href="https://github.com/rayon-rs/rayon/blob/master/src/iter/plumbing/README.md">the <code>plumbing</code>
+README</a> for further details.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Folder.html" title="rayon::iter::plumbing::Folder trait">Folder</a></div><div class="item-right docblock-short"><p>The <code>Folder</code> trait encapsulates <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.fold">the standard fold
+operation</a>.  It can be fed many items using the <code>consume</code>
+method. At the end, once all items have been consumed, it can then
+be converted (using <code>complete</code>) into a final value.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Producer.html" title="rayon::iter::plumbing::Producer trait">Producer</a></div><div class="item-right docblock-short"><p>A <code>Producer</code> is effectively a “splittable <code>IntoIterator</code>”. That
+is, a producer is a value which can be converted into an iterator
+at any time: at that point, it simply produces items on demand,
+like any iterator. But what makes a <code>Producer</code> special is that,
+<em>before</em> we convert to an iterator, we can also <strong>split</strong> it at a
+particular point using the <code>split_at</code> method. This will yield up
+two producers, one producing the items before that point, and one
+producing the items after that point (these two producers can then
+independently be split further, or be converted into iterators).
+In Rayon, this splitting is used to divide between threads.
+See <a href="https://github.com/rayon-rs/rayon/blob/master/src/iter/plumbing/README.md">the <code>plumbing</code> README</a> for further details.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.ProducerCallback.html" title="rayon::iter::plumbing::ProducerCallback trait">ProducerCallback</a></div><div class="item-right docblock-short"><p>The <code>ProducerCallback</code> trait is a kind of generic closure,
+<a href="https://doc.rust-lang.org/std/ops/trait.FnOnce.html">analogous to <code>FnOnce</code></a>. See <a href="https://github.com/rayon-rs/rayon/blob/master/src/iter/plumbing/README.md#producer-callback">the corresponding section in
+the plumbing README</a> for more details.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Reducer.html" title="rayon::iter::plumbing::Reducer trait">Reducer</a></div><div class="item-right docblock-short"><p>The reducer is the final step of a <code>Consumer</code> – after a consumer
+has been split into two parts, and each of those parts has been
+fully processed, we are left with two results. The reducer is then
+used to combine those two results into one. See <a href="https://github.com/rayon-rs/rayon/blob/master/src/iter/plumbing/README.md">the <code>plumbing</code>
+README</a> for further details.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.UnindexedConsumer.html" title="rayon::iter::plumbing::UnindexedConsumer trait">UnindexedConsumer</a></div><div class="item-right docblock-short"><p>A stateless consumer can be freely copied. These consumers can be
+used like regular consumers, but they also support a
+<code>split_off_left</code> method that does not take an index to split, but
+simply splits at some arbitrary point (<code>for_each</code>, for example,
+produces an unindexed consumer).</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.UnindexedProducer.html" title="rayon::iter::plumbing::UnindexedProducer trait">UnindexedProducer</a></div><div class="item-right docblock-short"><p>A variant on <code>Producer</code> which does not know its exact length or
+cannot represent it in a <code>usize</code>. These producers act like
+ordinary producers except that they cannot be told to split at a
+particular point. Instead, you just ask them to split ‘somewhere’.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.bridge.html" title="rayon::iter::plumbing::bridge fn">bridge</a></div><div class="item-right docblock-short"><p>This helper function is used to “connect” a parallel iterator to a
+consumer. It will convert the <code>par_iter</code> into a producer P and
+then pull items from P and feed them to <code>consumer</code>, splitting and
+creating parallel threads as needed.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.bridge_producer_consumer.html" title="rayon::iter::plumbing::bridge_producer_consumer fn">bridge_producer_consumer</a></div><div class="item-right docblock-short"><p>This helper function is used to “connect” a producer and a
+consumer. You may prefer to call <a href="fn.bridge.html"><code>bridge</code></a>, which wraps this
+function. This function will draw items from <code>producer</code> and feed
+them to <code>consumer</code>, splitting and creating parallel tasks when
+needed.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.bridge_unindexed.html" title="rayon::iter::plumbing::bridge_unindexed fn">bridge_unindexed</a></div><div class="item-right docblock-short"><p>A variant of <a href="fn.bridge_producer_consumer.html"><code>bridge_producer_consumer</code></a> where the producer is an unindexed producer.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rayon" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script>
+</body></html>

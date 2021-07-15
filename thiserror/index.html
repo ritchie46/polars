@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="github crates-io docs-rs"><meta name="keywords" content="rust, rustlang, rust-lang, thiserror"><title>thiserror - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../thiserror/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate thiserror</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.26</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all thiserror's items</p></a><div id="sidebar-vars" data-name="thiserror" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">thiserror</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/thiserror/lib.rs.html#1-204" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/dtolnay/thiserror"><img src="https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github" alt="github" /></a> <a href="https://crates.io/crates/thiserror"><img src="https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust" alt="crates-io" /></a> <a href="https://docs.rs/thiserror"><img src="https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K" alt="docs-rs" /></a></p>
+<br>
+<p>This library provides a convenient derive macro for the standard library’s
+<a href="https://doc.rust-lang.org/std/error/trait.Error.html"><code>std::error::Error</code></a> trait.</p>
+<br>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DataStoreError</span> {
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;data store disconnected&quot;</span>)]</span>
+    <span class="ident">Disconnect</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">io::Error</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;the data for key `{0}` is not available&quot;</span>)]</span>
+    <span class="ident">Redaction</span>(<span class="ident">String</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;invalid header (expected {expected:?}, found {found:?})&quot;</span>)]</span>
+    <span class="ident">InvalidHeader</span> {
+        <span class="ident">expected</span>: <span class="ident">String</span>,
+        <span class="ident">found</span>: <span class="ident">String</span>,
+    },
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;unknown data store error&quot;</span>)]</span>
+    <span class="ident">Unknown</span>,
+}</pre></div>
+<br>
+<h1 id="details" class="section-header"><a href="#details">Details</a></h1>
+<ul>
+<li>
+<p>Thiserror deliberately does not appear in your public API. You get the
+same thing as if you had written an implementation of <code>std::error::Error</code>
+by hand, and switching from handwritten impls to thiserror or vice versa
+is not a breaking change.</p>
+</li>
+<li>
+<p>Errors may be enums, structs with named fields, tuple structs, or unit
+structs.</p>
+</li>
+<li>
+<p>A <code>Display</code> impl is generated for your error if you provide
+<code>#[error(&quot;...&quot;)]</code> messages on the struct or each variant of your enum, as
+shown above in the example.</p>
+<p>The messages support a shorthand for interpolating fields from the error.</p>
+<ul>
+<li><code>#[error(&quot;{var}&quot;)]</code> ⟶ <code>write!(&quot;{}&quot;, self.var)</code></li>
+<li><code>#[error(&quot;{0}&quot;)]</code> ⟶ <code>write!(&quot;{}&quot;, self.0)</code></li>
+<li><code>#[error(&quot;{var:?}&quot;)]</code> ⟶ <code>write!(&quot;{:?}&quot;, self.var)</code></li>
+<li><code>#[error(&quot;{0:?}&quot;)]</code> ⟶ <code>write!(&quot;{:?}&quot;, self.0)</code></li>
+</ul>
+<p>These shorthands can be used together with any additional format args,
+which may be arbitrary expressions. For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;invalid rdo_lookahead_frames {0} (expected &lt; {})&quot;</span>, <span class="ident">i32::MAX</span>)]</span>
+    <span class="ident">InvalidLookahead</span>(<span class="ident">u32</span>),
+}</pre></div>
+<p>If one of the additional expression arguments needs to refer to a field of
+the struct or enum, then refer to named fields as <code>.var</code> and tuple fields
+as <code>.0</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;first letter must be lowercase but was {:?}&quot;</span>, <span class="ident">first_char</span>(.<span class="number">0</span>))]</span>
+    <span class="ident">WrongCase</span>(<span class="ident">String</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;invalid index {idx}, expected at least {} and at most {}&quot;</span>, .<span class="ident">limits</span>.<span class="ident">lo</span>, .<span class="ident">limits</span>.<span class="ident">hi</span>)]</span>
+    <span class="ident">OutOfBounds</span> { <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">limits</span>: <span class="ident">Limits</span> },
+}</pre></div>
+</li>
+<li>
+<p>A <code>From</code> impl is generated for each variant containing a <code>#[from]</code>
+attribute.</p>
+<p>Note that the variant must not contain any other fields beyond the source
+error and possibly a backtrace. A backtrace is captured from within the
+<code>From</code> impl if there is a field for it.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MyError</span> {
+    <span class="ident">Io</span> {
+        <span class="attribute">#[<span class="ident">from</span>]</span>
+        <span class="ident">source</span>: <span class="ident">io::Error</span>,
+        <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
+    },
+}</pre></div>
+</li>
+<li>
+<p>The Error trait’s <code>source()</code> method is implemented to return whichever
+field has a <code>#[source]</code> attribute or is named <code>source</code>, if any. This is
+for identifying the underlying lower level error that caused your error.</p>
+<p>The <code>#[from]</code> attribute always implies that the same field is <code>#[source]</code>,
+so you don’t ever need to specify both attributes.</p>
+<p>Any error type that implements <code>std::error::Error</code> or dereferences to <code>dyn std::error::Error</code> will work as a source.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyError</span> {
+    <span class="ident">msg</span>: <span class="ident">String</span>,
+    <span class="attribute">#[<span class="ident">source</span>]</span>  <span class="comment">// optional if field name is `source`</span>
+    <span class="ident">source</span>: <span class="ident">anyhow::Error</span>,
+}</pre></div>
+</li>
+<li>
+<p>The Error trait’s <code>backtrace()</code> method is implemented to return whichever
+field has a type named <code>Backtrace</code>, if any.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std::backtrace::Backtrace</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyError</span> {
+    <span class="ident">msg</span>: <span class="ident">String</span>,
+    <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,  <span class="comment">// automatically detected</span>
+}</pre></div>
+</li>
+<li>
+<p>Errors may use <code>error(transparent)</code> to forward the source and Display
+methods straight through to an underlying error without adding an
+additional message. This would be appropriate for enums that need an
+“anything else” variant.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MyError</span> {
+    ...
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="ident">transparent</span>)]</span>
+    <span class="ident">Other</span>(<span class="attribute">#[<span class="ident">from</span>]</span> <span class="ident">anyhow::Error</span>),  <span class="comment">// source and Display delegate to anyhow::Error</span>
+}</pre></div>
+</li>
+<li>
+<p>See also the <a href="https://github.com/dtolnay/anyhow"><code>anyhow</code></a> library for a convenient single error type to use
+in application code.</p>
+</li>
+</ul>
+</div></details><h2 id="derives" class="section-header"><a href="#derives">Derive Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="derive" href="derive.Error.html" title="thiserror::Error derive">Error</a></div><div class="item-right docblock-short"></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="thiserror" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

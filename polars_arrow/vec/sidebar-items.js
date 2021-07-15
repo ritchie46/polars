@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AlignedVec","A `Vec` wrapper with a memory alignment equal to Arrow’s primitive arrays. Can be useful in creating a new ChunkedArray or Arrow Primitive array without copying."]]});

@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;home&#x2F;runner&#x2F;.cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;serde-1.0.126&#x2F;src&#x2F;integer128.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>integer128.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../serde/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+</pre><pre class="rust">
+<span class="doccomment">/// Conditional compilation depending on whether Serde is built with support for</span>
+<span class="doccomment">/// 128-bit integers.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Data formats that wish to support Rust compiler versions older than 1.26</span>
+<span class="doccomment">/// (or targets that lack 128-bit integers) may place the i128 / u128 methods</span>
+<span class="doccomment">/// of their Serializer and Deserializer behind this macro.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Data formats that require a minimum Rust compiler version of at least 1.26,</span>
+<span class="doccomment">/// or do not target platforms that lack 128-bit integers, do not need to</span>
+<span class="doccomment">/// bother with this macro and may assume support for 128-bit integers.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```edition2018</span>
+<span class="doccomment">/// # use serde::__private::doc::Error;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// # struct MySerializer;</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// use serde::{serde_if_integer128, Serializer};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// impl Serializer for MySerializer {</span>
+<span class="doccomment">///     type Ok = ();</span>
+<span class="doccomment">///     type Error = Error;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     fn serialize_i64(self, v: i64) -&gt; Result&lt;Self::Ok, Self::Error&gt; {</span>
+<span class="doccomment">///         /* ... */</span>
+<span class="doccomment">/// #         unimplemented!()</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     /* ... */</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     serde_if_integer128! {</span>
+<span class="doccomment">///         fn serialize_i128(self, v: i128) -&gt; Result&lt;Self::Ok, Self::Error&gt; {</span>
+<span class="doccomment">///             /* ... */</span>
+<span class="doccomment">/// #             unimplemented!()</span>
+<span class="doccomment">///         }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///         fn serialize_u128(self, v: u128) -&gt; Result&lt;Self::Ok, Self::Error&gt; {</span>
+<span class="doccomment">///             /* ... */</span>
+<span class="doccomment">/// #             unimplemented!()</span>
+<span class="doccomment">///         }</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// #</span>
+<span class="doccomment">/// #     serde::__serialize_unimplemented! {</span>
+<span class="doccomment">/// #         bool i8 i16 i32 u8 u16 u32 u64 f32 f64 char str bytes none some</span>
+<span class="doccomment">/// #         unit unit_struct unit_variant newtype_struct newtype_variant seq</span>
+<span class="doccomment">/// #         tuple tuple_struct tuple_variant map struct struct_variant</span>
+<span class="doccomment">/// #     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// When Serde is built with support for 128-bit integers, this macro expands</span>
+<span class="doccomment">/// transparently into just the input tokens.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```edition2018</span>
+<span class="doccomment">/// macro_rules! serde_if_integer128 {</span>
+<span class="doccomment">///     ($($tt:tt)*) =&gt; {</span>
+<span class="doccomment">///         $($tt)*</span>
+<span class="doccomment">///     };</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// When built without support for 128-bit integers, this macro expands to</span>
+<span class="doccomment">/// nothing.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```edition2018</span>
+<span class="doccomment">/// macro_rules! serde_if_integer128 {</span>
+<span class="doccomment">///     ($($tt:tt)*) =&gt; {};</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">integer128</span>)]</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">serde_if_integer128</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>)<span class="op">*</span>
+    };
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">integer128</span>))]</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="macro">macro_rules!</span> <span class="ident">serde_if_integer128</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {};
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="serde" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</body></html>

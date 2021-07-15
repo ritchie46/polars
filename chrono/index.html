@@ -1,0 +1,385 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Chrono: Date and Time for Rust"><meta name="keywords" content="rust, rustlang, rust-lang, chrono"><title>chrono - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../chrono/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate chrono</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.4.19</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all chrono's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="chrono" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">chrono</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/chrono/lib.rs.html#4-1535" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="chrono-date-and-time-for-rust" class="section-header"><a href="#chrono-date-and-time-for-rust">Chrono: Date and Time for Rust</a></h1>
+<p>It aims to be a feature-complete superset of
+the <a href="https://github.com/rust-lang-deprecated/time">time</a> library.
+In particular,</p>
+<ul>
+<li>Chrono strictly adheres to ISO 8601.</li>
+<li>Chrono is timezone-aware by default, with separate timezone-naive types.</li>
+<li>Chrono is space-optimal and (while not being the primary goal) reasonably efficient.</li>
+</ul>
+<p>There were several previous attempts to bring a good date and time library to Rust,
+which Chrono builds upon and should acknowledge:</p>
+<ul>
+<li><a href="https://github.com/rust-lang/rust-wiki-backup/blob/master/Lib-datetime.md">Initial research on
+the wiki</a></li>
+<li>Dietrich Epp’s <a href="https://github.com/depp/datetime-rs">datetime-rs</a></li>
+<li>Luis de Bethencourt’s <a href="https://github.com/luisbg/rust-datetime">rust-datetime</a></li>
+</ul>
+<p>Any significant changes to Chrono are documented in
+the <a href="https://github.com/chronotope/chrono/blob/main/CHANGELOG.md"><code>CHANGELOG.md</code></a> file.</p>
+<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2>
+<p>Put this in your <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[dependencies]
+chrono = &quot;0.4&quot;
+</code></pre>
+<h3 id="features" class="section-header"><a href="#features">Features</a></h3>
+<p>Chrono supports various runtime environments and operating systems, and has
+several features that may be enabled or disabled.</p>
+<p>Default features:</p>
+<ul>
+<li><code>alloc</code>: Enable features that depend on allocation (primarily string formatting)</li>
+<li><code>std</code>: Enables functionality that depends on the standard library. This
+is a superset of <code>alloc</code> and adds interoperation with standard library types
+and traits.</li>
+<li><code>clock</code>: enables reading the system time (<code>now</code>), independent of whether
+<code>std::time::SystemTime</code> is present, depends on having a libc.</li>
+</ul>
+<p>Optional features:</p>
+<ul>
+<li><code>wasmbind</code>: Enable integration with <a href="https://github.com/rustwasm/wasm-bindgen">wasm-bindgen</a> and its <code>js-sys</code> project</li>
+<li><a href="https://github.com/serde-rs/serde"><code>serde</code></a>: Enable serialization/deserialization via serde.</li>
+<li><code>unstable-locales</code>: Enable localization. This adds various methods with a
+<code>_localized</code> suffix. The implementation and API may change or even be
+removed in a patch release. Feedback welcome.</li>
+</ul>
+<p>See the <a href="https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#choosing-features">cargo docs</a> for examples of specifying features.</p>
+<h2 id="overview" class="section-header"><a href="#overview">Overview</a></h2><h3 id="duration" class="section-header"><a href="#duration">Duration</a></h3>
+<p>Chrono currently uses its own <a href="struct.Duration.html" title="Duration"><code>Duration</code></a> type to represent the magnitude
+of a time span. Since this has the same name as the newer, standard type for
+duration, the reference will refer this type as <code>OldDuration</code>.</p>
+<p>Note that this is an “accurate” duration represented as seconds and
+nanoseconds and does not represent “nominal” components such as days or
+months.</p>
+<p>When the <code>oldtime</code> feature is enabled, <a href="struct.Duration.html" title="Duration"><code>Duration</code></a> is an alias for the
+<a href="https://docs.rs/time/0.1.40/time/struct.Duration.html"><code>time::Duration</code></a>
+type from v0.1 of the time crate. time v0.1 is deprecated, so new code
+should disable the <code>oldtime</code> feature and use the <code>chrono::Duration</code> type
+instead. The <code>oldtime</code> feature is enabled by default for backwards
+compatibility, but future versions of Chrono are likely to remove the
+feature entirely.</p>
+<p>Chrono does not yet natively support
+the standard <a href="https://doc.rust-lang.org/std/time/struct.Duration.html"><code>Duration</code></a> type,
+but it will be supported in the future.
+Meanwhile you can convert between two types with
+<a href="https://docs.rs/time/0.1.40/time/struct.Duration.html#method.from_std"><code>Duration::from_std</code></a>
+and
+<a href="https://docs.rs/time/0.1.40/time/struct.Duration.html#method.to_std"><code>Duration::to_std</code></a>
+methods.</p>
+<h3 id="date-and-time" class="section-header"><a href="#date-and-time">Date and Time</a></h3>
+<p>Chrono provides a
+<a href="./struct.DateTime.html"><strong><code>DateTime</code></strong></a>
+type to represent a date and a time in a timezone.</p>
+<p>For more abstract moment-in-time tracking such as internal timekeeping
+that is unconcerned with timezones, consider
+<a href="https://doc.rust-lang.org/std/time/struct.SystemTime.html"><code>time::SystemTime</code></a>,
+which tracks your system clock, or
+<a href="https://doc.rust-lang.org/std/time/struct.Instant.html"><code>time::Instant</code></a>, which
+is an opaque but monotonically-increasing representation of a moment in time.</p>
+<p><code>DateTime</code> is timezone-aware and must be constructed from
+the <a href="./offset/trait.TimeZone.html"><strong><code>TimeZone</code></strong></a> object,
+which defines how the local date is converted to and back from the UTC date.
+There are three well-known <code>TimeZone</code> implementations:</p>
+<ul>
+<li>
+<p><a href="./offset/struct.Utc.html"><strong><code>Utc</code></strong></a> specifies the UTC time zone. It is most efficient.</p>
+</li>
+<li>
+<p><a href="./offset/struct.Local.html"><strong><code>Local</code></strong></a> specifies the system local time zone.</p>
+</li>
+<li>
+<p><a href="./offset/struct.FixedOffset.html"><strong><code>FixedOffset</code></strong></a> specifies
+an arbitrary, fixed time zone such as UTC+09:00 or UTC-10:30.
+This often results from the parsed textual date and time.
+Since it stores the most information and does not depend on the system environment,
+you would want to normalize other <code>TimeZone</code>s into this type.</p>
+</li>
+</ul>
+<p><code>DateTime</code>s with different <code>TimeZone</code> types are distinct and do not mix,
+but can be converted to each other using
+the <a href="./struct.DateTime.html#method.with_timezone"><code>DateTime::with_timezone</code></a> method.</p>
+<p>You can get the current date and time in the UTC time zone
+(<a href="./offset/struct.Utc.html#method.now"><code>Utc::now()</code></a>)
+or in the local time zone
+(<a href="./offset/struct.Local.html#method.now"><code>Local::now()</code></a>).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">utc</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Utc::now</span>();       <span class="comment">// e.g. `2014-11-28T12:45:59.324310806Z`</span>
+<span class="kw">let</span> <span class="ident">local</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Local</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Local::now</span>(); <span class="comment">// e.g. `2014-11-28T21:45:59.324310806+09:00`</span></pre></div>
+<p>Alternatively, you can create your own date and time.
+This is a bit verbose due to Rust’s lack of function and method overloading,
+but in turn we get a rich combination of initialization methods.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">chrono::offset::LocalResult</span>;
+
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>); <span class="comment">// `2014-07-08T09:10:11Z`</span>
+<span class="comment">// July 8 is 188th day of the year 2014 (`o` for &quot;ordinal&quot;)</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>.<span class="ident">yo</span>(<span class="number">2014</span>, <span class="number">189</span>).<span class="ident">and_hms</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>));
+<span class="comment">// July 8 is Tuesday in ISO week 28 of the year 2014.</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>.<span class="ident">isoywd</span>(<span class="number">2014</span>, <span class="number">28</span>, <span class="ident">Weekday::Tue</span>).<span class="ident">and_hms</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>));
+
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_milli</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>); <span class="comment">// `2014-07-08T09:10:11.012Z`</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_micro</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12_000</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_nano</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12_000_000</span>));
+
+<span class="comment">// dynamic verification</span>
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_opt</span>(<span class="number">21</span>, <span class="number">15</span>, <span class="number">33</span>),
+           <span class="ident">LocalResult::Single</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms</span>(<span class="number">21</span>, <span class="number">15</span>, <span class="number">33</span>)));
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_opt</span>(<span class="number">80</span>, <span class="number">15</span>, <span class="number">33</span>), <span class="ident">LocalResult::None</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">38</span>).<span class="ident">and_hms_opt</span>(<span class="number">21</span>, <span class="number">15</span>, <span class="number">33</span>), <span class="ident">LocalResult::None</span>);
+
+<span class="comment">// other time zone objects can be used to construct a local datetime.</span>
+<span class="comment">// obviously, `local_dt` is normally different from `dt`, but `fixed_dt` should be identical.</span>
+<span class="kw">let</span> <span class="ident">local_dt</span> <span class="op">=</span> <span class="ident">Local</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_milli</span>(<span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>);
+<span class="kw">let</span> <span class="ident">fixed_dt</span> <span class="op">=</span> <span class="ident">FixedOffset::east</span>(<span class="number">9</span> <span class="op">*</span> <span class="number">3600</span>).<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">8</span>).<span class="ident">and_hms_milli</span>(<span class="number">18</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>, <span class="ident">fixed_dt</span>);</pre></div>
+<p>Various properties are available to the date and time, and can be altered individually.
+Most of them are defined in the traits <a href="./trait.Datelike.html"><code>Datelike</code></a> and
+<a href="./trait.Timelike.html"><code>Timelike</code></a> which you should <code>use</code> before.
+Addition and subtraction is also supported.
+The following illustrates most supported operations to the date and time:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">chrono::Duration</span>;
+
+<span class="comment">// assume this returned `2014-11-28T21:45:59.324310806+09:00`:</span>
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">FixedOffset::east</span>(<span class="number">9</span><span class="kw-2">*</span><span class="number">3600</span>).<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms_nano</span>(<span class="number">21</span>, <span class="number">45</span>, <span class="number">59</span>, <span class="number">324310806</span>);
+
+<span class="comment">// property accessors</span>
+<span class="macro">assert_eq!</span>((<span class="ident">dt</span>.<span class="ident">year</span>(), <span class="ident">dt</span>.<span class="ident">month</span>(), <span class="ident">dt</span>.<span class="ident">day</span>()), (<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>));
+<span class="macro">assert_eq!</span>((<span class="ident">dt</span>.<span class="ident">month0</span>(), <span class="ident">dt</span>.<span class="ident">day0</span>()), (<span class="number">10</span>, <span class="number">27</span>)); <span class="comment">// for unfortunate souls</span>
+<span class="macro">assert_eq!</span>((<span class="ident">dt</span>.<span class="ident">hour</span>(), <span class="ident">dt</span>.<span class="ident">minute</span>(), <span class="ident">dt</span>.<span class="ident">second</span>()), (<span class="number">21</span>, <span class="number">45</span>, <span class="number">59</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">weekday</span>(), <span class="ident">Weekday::Fri</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">weekday</span>().<span class="ident">number_from_monday</span>(), <span class="number">5</span>); <span class="comment">// Mon=1, ..., Sun=7</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">ordinal</span>(), <span class="number">332</span>); <span class="comment">// the day of year</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">num_days_from_ce</span>(), <span class="number">735565</span>); <span class="comment">// the number of days from and including Jan 1, 1</span>
+
+<span class="comment">// time zone accessor and manipulation</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">offset</span>().<span class="ident">fix</span>().<span class="ident">local_minus_utc</span>(), <span class="number">9</span> <span class="op">*</span> <span class="number">3600</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">timezone</span>(), <span class="ident">FixedOffset::east</span>(<span class="number">9</span> <span class="op">*</span> <span class="number">3600</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">with_timezone</span>(<span class="kw-2">&amp;</span><span class="ident">Utc</span>), <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms_nano</span>(<span class="number">12</span>, <span class="number">45</span>, <span class="number">59</span>, <span class="number">324310806</span>));
+
+<span class="comment">// a sample of property manipulations (validates dynamically)</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">with_day</span>(<span class="number">29</span>).<span class="ident">unwrap</span>().<span class="ident">weekday</span>(), <span class="ident">Weekday::Sat</span>); <span class="comment">// 2014-11-29 is Saturday</span>
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">with_day</span>(<span class="number">32</span>), <span class="prelude-val">None</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">with_year</span>(<span class="op">-</span><span class="number">300</span>).<span class="ident">unwrap</span>().<span class="ident">num_days_from_ce</span>(), <span class="op">-</span><span class="number">109606</span>); <span class="comment">// November 29, 301 BCE</span>
+
+<span class="comment">// arithmetic operations</span>
+<span class="kw">let</span> <span class="ident">dt1</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">14</span>).<span class="ident">and_hms</span>(<span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>);
+<span class="kw">let</span> <span class="ident">dt2</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">14</span>).<span class="ident">and_hms</span>(<span class="number">10</span>, <span class="number">9</span>, <span class="number">8</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt1</span>.<span class="ident">signed_duration_since</span>(<span class="ident">dt2</span>), <span class="ident">Duration::seconds</span>(<span class="op">-</span><span class="number">2</span> <span class="op">*</span> <span class="number">3600</span> <span class="op">+</span> <span class="number">2</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">dt2</span>.<span class="ident">signed_duration_since</span>(<span class="ident">dt1</span>), <span class="ident">Duration::seconds</span>(<span class="number">2</span> <span class="op">*</span> <span class="number">3600</span> <span class="op">-</span> <span class="number">2</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>) <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">1_000_000_000</span>),
+           <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2001</span>, <span class="number">9</span>, <span class="number">9</span>).<span class="ident">and_hms</span>(<span class="number">1</span>, <span class="number">46</span>, <span class="number">40</span>));
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>) <span class="op">-</span> <span class="ident">Duration::seconds</span>(<span class="number">1_000_000_000</span>),
+           <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">1938</span>, <span class="number">4</span>, <span class="number">24</span>).<span class="ident">and_hms</span>(<span class="number">22</span>, <span class="number">13</span>, <span class="number">20</span>));</pre></div>
+<h3 id="formatting-and-parsing" class="section-header"><a href="#formatting-and-parsing">Formatting and Parsing</a></h3>
+<p>Formatting is done via the <a href="./struct.DateTime.html#method.format"><code>format</code></a> method,
+which format is equivalent to the familiar <code>strftime</code> format.</p>
+<p>See <a href="./format/strftime/index.html#specifiers"><code>format::strftime</code></a>
+documentation for full syntax and list of specifiers.</p>
+<p>The default <code>to_string</code> method and <code>{:?}</code> specifier also give a reasonable representation.
+Chrono also provides <a href="./struct.DateTime.html#method.to_rfc2822"><code>to_rfc2822</code></a> and
+<a href="./struct.DateTime.html#method.to_rfc3339"><code>to_rfc3339</code></a> methods
+for well-known formats.</p>
+<p>Chrono now also provides date formatting in almost any language without the
+help of an additional C library. This functionality is under the feature
+<code>unstable-locales</code>:</p>
+<pre><code class="language-text">chrono { version = &quot;0.4&quot;, features = [&quot;unstable-locales&quot;]
+</code></pre>
+<p>The <code>unstable-locales</code> feature requires and implies at least the <code>alloc</code> feature.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms</span>(<span class="number">12</span>, <span class="number">0</span>, <span class="number">9</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">format</span>(<span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>).<span class="ident">to_string</span>(), <span class="string">&quot;2014-11-28 12:00:09&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">format</span>(<span class="string">&quot;%a %b %e %T %Y&quot;</span>).<span class="ident">to_string</span>(), <span class="string">&quot;Fri Nov 28 12:00:09 2014&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">format_localized</span>(<span class="string">&quot;%A %e %B %Y, %T&quot;</span>, <span class="ident">Locale::fr_BE</span>).<span class="ident">to_string</span>(), <span class="string">&quot;vendredi 28 novembre 2014, 12:00:09&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">format</span>(<span class="string">&quot;%a %b %e %T %Y&quot;</span>).<span class="ident">to_string</span>(), <span class="ident">dt</span>.<span class="ident">format</span>(<span class="string">&quot;%c&quot;</span>).<span class="ident">to_string</span>());
+
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">to_string</span>(), <span class="string">&quot;2014-11-28 12:00:09 UTC&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">to_rfc2822</span>(), <span class="string">&quot;Fri, 28 Nov 2014 12:00:09 +0000&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>(), <span class="string">&quot;2014-11-28T12:00:09+00:00&quot;</span>);
+<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">dt</span>), <span class="string">&quot;2014-11-28T12:00:09Z&quot;</span>);
+
+<span class="comment">// Note that milli/nanoseconds are only printed if they are non-zero</span>
+<span class="kw">let</span> <span class="ident">dt_nano</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms_nano</span>(<span class="number">12</span>, <span class="number">0</span>, <span class="number">9</span>, <span class="number">1</span>);
+<span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">dt_nano</span>), <span class="string">&quot;2014-11-28T12:00:09.000000001Z&quot;</span>);</pre></div>
+<p>Parsing can be done with three methods:</p>
+<ol>
+<li>
+<p>The standard <a href="https://doc.rust-lang.org/std/str/trait.FromStr.html"><code>FromStr</code></a> trait
+(and <a href="https://doc.rust-lang.org/std/primitive.str.html#method.parse"><code>parse</code></a> method
+on a string) can be used for parsing <code>DateTime&lt;FixedOffset&gt;</code>, <code>DateTime&lt;Utc&gt;</code> and
+<code>DateTime&lt;Local&gt;</code> values. This parses what the <code>{:?}</code>
+(<a href="https://doc.rust-lang.org/std/fmt/trait.Debug.html"><code>std::fmt::Debug</code></a>)
+format specifier prints, and requires the offset to be present.</p>
+</li>
+<li>
+<p><a href="./struct.DateTime.html#method.parse_from_str"><code>DateTime::parse_from_str</code></a> parses
+a date and time with offsets and returns <code>DateTime&lt;FixedOffset&gt;</code>.
+This should be used when the offset is a part of input and the caller cannot guess that.
+It <em>cannot</em> be used when the offset can be missing.
+<a href="./struct.DateTime.html#method.parse_from_rfc2822"><code>DateTime::parse_from_rfc2822</code></a>
+and
+<a href="./struct.DateTime.html#method.parse_from_rfc3339"><code>DateTime::parse_from_rfc3339</code></a>
+are similar but for well-known formats.</p>
+</li>
+<li>
+<p><a href="./offset/trait.TimeZone.html#method.datetime_from_str"><code>Offset::datetime_from_str</code></a> is
+similar but returns <code>DateTime</code> of given offset.
+When the explicit offset is missing from the input, it simply uses given offset.
+It issues an error when the input contains an explicit offset different
+from the current offset.</p>
+</li>
+</ol>
+<p>More detailed control over the parsing process is available via
+<a href="./format/index.html"><code>format</code></a> module.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms</span>(<span class="number">12</span>, <span class="number">0</span>, <span class="number">9</span>);
+<span class="kw">let</span> <span class="ident">fixed_dt</span> <span class="op">=</span> <span class="ident">dt</span>.<span class="ident">with_timezone</span>(<span class="kw-2">&amp;</span><span class="ident">FixedOffset::east</span>(<span class="number">9</span><span class="kw-2">*</span><span class="number">3600</span>));
+
+<span class="comment">// method 1</span>
+<span class="macro">assert_eq!</span>(<span class="string">&quot;2014-11-28T12:00:09Z&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="prelude-val">Ok</span>(<span class="ident">dt</span>.<span class="ident">clone</span>()));
+<span class="macro">assert_eq!</span>(<span class="string">&quot;2014-11-28T21:00:09+09:00&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="prelude-val">Ok</span>(<span class="ident">dt</span>.<span class="ident">clone</span>()));
+<span class="macro">assert_eq!</span>(<span class="string">&quot;2014-11-28T21:00:09+09:00&quot;</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">FixedOffset</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="prelude-val">Ok</span>(<span class="ident">fixed_dt</span>.<span class="ident">clone</span>()));
+
+<span class="comment">// method 2</span>
+<span class="macro">assert_eq!</span>(<span class="ident">DateTime::parse_from_str</span>(<span class="string">&quot;2014-11-28 21:00:09 +09:00&quot;</span>, <span class="string">&quot;%Y-%m-%d %H:%M:%S %z&quot;</span>),
+           <span class="prelude-val">Ok</span>(<span class="ident">fixed_dt</span>.<span class="ident">clone</span>()));
+<span class="macro">assert_eq!</span>(<span class="ident">DateTime::parse_from_rfc2822</span>(<span class="string">&quot;Fri, 28 Nov 2014 21:00:09 +0900&quot;</span>),
+           <span class="prelude-val">Ok</span>(<span class="ident">fixed_dt</span>.<span class="ident">clone</span>()));
+<span class="macro">assert_eq!</span>(<span class="ident">DateTime::parse_from_rfc3339</span>(<span class="string">&quot;2014-11-28T21:00:09+09:00&quot;</span>), <span class="prelude-val">Ok</span>(<span class="ident">fixed_dt</span>.<span class="ident">clone</span>()));
+
+<span class="comment">// method 3</span>
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="string">&quot;2014-11-28 12:00:09&quot;</span>, <span class="string">&quot;%Y-%m-%d %H:%M:%S&quot;</span>), <span class="prelude-val">Ok</span>(<span class="ident">dt</span>.<span class="ident">clone</span>()));
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="string">&quot;Fri Nov 28 12:00:09 2014&quot;</span>, <span class="string">&quot;%a %b %e %T %Y&quot;</span>), <span class="prelude-val">Ok</span>(<span class="ident">dt</span>.<span class="ident">clone</span>()));
+
+<span class="comment">// oops, the year is missing!</span>
+<span class="macro">assert!</span>(<span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="string">&quot;Fri Nov 28 12:00:09&quot;</span>, <span class="string">&quot;%a %b %e %T %Y&quot;</span>).<span class="ident">is_err</span>());
+<span class="comment">// oops, the format string does not include the year at all!</span>
+<span class="macro">assert!</span>(<span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="string">&quot;Fri Nov 28 12:00:09&quot;</span>, <span class="string">&quot;%a %b %e %T&quot;</span>).<span class="ident">is_err</span>());
+<span class="comment">// oops, the weekday is incorrect!</span>
+<span class="macro">assert!</span>(<span class="ident">Utc</span>.<span class="ident">datetime_from_str</span>(<span class="string">&quot;Sat Nov 28 12:00:09 2014&quot;</span>, <span class="string">&quot;%a %b %e %T %Y&quot;</span>).<span class="ident">is_err</span>());</pre></div>
+<p>Again : See <a href="./format/strftime/index.html#specifiers"><code>format::strftime</code></a>
+documentation for full syntax and list of specifiers.</p>
+<h3 id="conversion-from-and-to-epoch-timestamps" class="section-header"><a href="#conversion-from-and-to-epoch-timestamps">Conversion from and to EPOCH timestamps</a></h3>
+<p>Use <a href="./offset/trait.TimeZone.html#method.timestamp"><code>Utc.timestamp(seconds, nanoseconds)</code></a>
+to construct a <a href="./struct.DateTime.html"><code>DateTime&lt;Utc&gt;</code></a> from a UNIX timestamp
+(seconds, nanoseconds that passed since January 1st 1970).</p>
+<p>Use <a href="./struct.DateTime.html#method.timestamp"><code>DateTime.timestamp</code></a> to get the timestamp (in seconds)
+from a <a href="./struct.DateTime.html"><code>DateTime</code></a>. Additionally, you can use
+<a href="./struct.DateTime.html#method.timestamp_subsec_nanos"><code>DateTime.timestamp_subsec_nanos</code></a>
+to get the number of additional number of nanoseconds.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// We need the trait in scope to use Utc::timestamp().</span>
+<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
+
+<span class="comment">// Construct a datetime from epoch:</span>
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">timestamp</span>(<span class="number">1_500_000_000</span>, <span class="number">0</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">to_rfc2822</span>(), <span class="string">&quot;Fri, 14 Jul 2017 02:40:00 +0000&quot;</span>);
+
+<span class="comment">// Get epoch value from a datetime:</span>
+<span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">DateTime::parse_from_rfc2822</span>(<span class="string">&quot;Fri, 14 Jul 2017 02:40:00 +0000&quot;</span>).<span class="ident">unwrap</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">dt</span>.<span class="ident">timestamp</span>(), <span class="number">1_500_000_000</span>);</pre></div>
+<h3 id="individual-date" class="section-header"><a href="#individual-date">Individual date</a></h3>
+<p>Chrono also provides an individual date type (<a href="./struct.Date.html"><strong><code>Date</code></strong></a>).
+It also has time zones attached, and have to be constructed via time zones.
+Most operations available to <code>DateTime</code> are also available to <code>Date</code> whenever appropriate.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">chrono::offset::LocalResult</span>;
+
+<span class="macro">assert_eq!</span>(<span class="ident">Utc::today</span>(), <span class="ident">Utc::now</span>().<span class="ident">date</span>());
+<span class="macro">assert_eq!</span>(<span class="ident">Local::today</span>(), <span class="ident">Local::now</span>().<span class="ident">date</span>());
+
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">weekday</span>(), <span class="ident">Weekday::Fri</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd_opt</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">31</span>), <span class="ident">LocalResult::None</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2014</span>, <span class="number">11</span>, <span class="number">28</span>).<span class="ident">and_hms_milli</span>(<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>).<span class="ident">format</span>(<span class="string">&quot;%H%M%S&quot;</span>).<span class="ident">to_string</span>(),
+           <span class="string">&quot;070809&quot;</span>);</pre></div>
+<p>There is no timezone-aware <code>Time</code> due to the lack of usefulness and also the complexity.</p>
+<p><code>DateTime</code> has <a href="./struct.DateTime.html#method.date"><code>date</code></a> method
+which returns a <code>Date</code> which represents its date component.
+There is also a <a href="./struct.DateTime.html#method.time"><code>time</code></a> method,
+which simply returns a naive local time described below.</p>
+<h3 id="naive-date-and-time" class="section-header"><a href="#naive-date-and-time">Naive date and time</a></h3>
+<p>Chrono provides naive counterparts to <code>Date</code>, (non-existent) <code>Time</code> and <code>DateTime</code>
+as <a href="./naive/struct.NaiveDate.html"><strong><code>NaiveDate</code></strong></a>,
+<a href="./naive/struct.NaiveTime.html"><strong><code>NaiveTime</code></strong></a> and
+<a href="./naive/struct.NaiveDateTime.html"><strong><code>NaiveDateTime</code></strong></a> respectively.</p>
+<p>They have almost equivalent interfaces as their timezone-aware twins,
+but are not associated to time zones obviously and can be quite low-level.
+They are mostly useful for building blocks for higher-level types.</p>
+<p>Timezone-aware <code>DateTime</code> and <code>Date</code> types have two methods returning naive versions:
+<a href="./struct.DateTime.html#method.naive_local"><code>naive_local</code></a> returns
+a view to the naive local time,
+and <a href="./struct.DateTime.html#method.naive_utc"><code>naive_utc</code></a> returns
+a view to the naive UTC time.</p>
+<h2 id="limitations" class="section-header"><a href="#limitations">Limitations</a></h2>
+<p>Only proleptic Gregorian calendar (i.e. extended to support older dates) is supported.
+Be very careful if you really have to deal with pre-20C dates, they can be in Julian or others.</p>
+<p>Date types are limited in about +/- 262,000 years from the common epoch.
+Time types are limited in the nanosecond accuracy.</p>
+<p><a href="./naive/struct.NaiveTime.html#leap-second-handling">Leap seconds are supported in the representation but
+Chrono doesn’t try to make use of them</a>.
+(The main reason is that leap seconds are not really predictable.)
+Almost <em>every</em> operation over the possible leap seconds will ignore them.
+Consider using <code>NaiveDateTime</code> with the implicit TAI (International Atomic Time) scale
+if you want.</p>
+<p>Chrono inherently does not support an inaccurate or partial date and time representation.
+Any operation that can be ambiguous will return <code>None</code> in such cases.
+For example, “a month later” of 2014-01-30 is not well-defined
+and consequently <code>Utc.ymd(2014, 1, 30).with_month(2)</code> returns <code>None</code>.</p>
+<p>Non ISO week handling is not yet supported.
+For now you can use the <a href="https://crates.io/crates/chrono_ext">chrono_ext</a>
+crate (<a href="https://github.com/bcourtine/chrono-ext/">sources</a>).</p>
+<p>Advanced time zone handling is not yet supported.
+For now you can try the <a href="https://github.com/chronotope/chrono-tz/">Chrono-tz</a> crate instead.</p>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-left import-item"><code>pub use format::<a class="struct" href="format/struct.ParseError.html" title="struct chrono::format::ParseError">ParseError</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use format::<a class="type" href="format/type.ParseResult.html" title="type chrono::format::ParseResult">ParseResult</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use naive::<a class="struct" href="naive/struct.IsoWeek.html" title="struct chrono::naive::IsoWeek">IsoWeek</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use naive::<a class="struct" href="naive/struct.NaiveDate.html" title="struct chrono::naive::NaiveDate">NaiveDate</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use naive::<a class="struct" href="naive/struct.NaiveDateTime.html" title="struct chrono::naive::NaiveDateTime">NaiveDateTime</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use naive::<a class="struct" href="naive/struct.NaiveTime.html" title="struct chrono::naive::NaiveTime">NaiveTime</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="struct" href="offset/struct.Local.html" title="struct chrono::offset::Local">Local</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="struct" href="offset/struct.FixedOffset.html" title="struct chrono::offset::FixedOffset">FixedOffset</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="enum" href="offset/enum.LocalResult.html" title="enum chrono::offset::LocalResult">LocalResult</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="trait" href="offset/trait.Offset.html" title="trait chrono::offset::Offset">Offset</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="trait" href="offset/trait.TimeZone.html" title="trait chrono::offset::TimeZone">TimeZone</a>;</code></div><div class="item-right docblock-short"></div><div class="item-left import-item"><code>pub use offset::<a class="struct" href="offset/struct.Utc.html" title="struct chrono::offset::Utc">Utc</a>;</code></div><div class="item-right docblock-short"></div></div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="format/index.html" title="chrono::format mod">format</a></div><div class="item-right docblock-short"><p>Formatting (and parsing) utilities for date and time.</p>
+</div><div class="item-left module-item"><a class="mod" href="naive/index.html" title="chrono::naive mod">naive</a></div><div class="item-right docblock-short"><p>Date and time types unconcerned with timezones.</p>
+</div><div class="item-left module-item"><a class="mod" href="offset/index.html" title="chrono::offset mod">offset</a></div><div class="item-right docblock-short"><p>The time zone, which calculates offsets from the local time to UTC.</p>
+</div><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="chrono::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>A convenience module appropriate for glob imports (<code>use chrono::prelude::*;</code>).</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Date.html" title="chrono::Date struct">Date</a></div><div class="item-right docblock-short"><p>ISO 8601 calendar date with time zone.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.DateTime.html" title="chrono::DateTime struct">DateTime</a></div><div class="item-right docblock-short"><p>ISO 8601 combined date and time with time zone.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Duration.html" title="chrono::Duration struct">Duration</a></div><div class="item-right docblock-short"><p>ISO 8601 time duration with nanosecond precision.
+This also allows for the negative duration; see individual methods for details.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParseMonthError.html" title="chrono::ParseMonthError struct">ParseMonthError</a></div><div class="item-right docblock-short"><p>An error resulting from reading <code>&lt;Month&gt;</code> value with <code>FromStr</code>.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.ParseWeekdayError.html" title="chrono::ParseWeekdayError struct">ParseWeekdayError</a></div><div class="item-right docblock-short"><p>An error resulting from reading <code>Weekday</code> value with <code>FromStr</code>.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Month.html" title="chrono::Month enum">Month</a></div><div class="item-right docblock-short"><p>The month of the year.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.RoundingError.html" title="chrono::RoundingError enum">RoundingError</a></div><div class="item-right docblock-short"><p>An error from rounding by <code>Duration</code></p>
+</div><div class="item-left module-item"><a class="enum" href="enum.SecondsFormat.html" title="chrono::SecondsFormat enum">SecondsFormat</a></div><div class="item-right docblock-short"><p>Specific formatting options for seconds. This may be extended in the
+future, so exhaustive matching in external code is not recommended.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Weekday.html" title="chrono::Weekday enum">Weekday</a></div><div class="item-right docblock-short"><p>The day of week.</p>
+</div></div><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="constant" href="constant.MAX_DATE.html" title="chrono::MAX_DATE constant">MAX_DATE</a></div><div class="item-right docblock-short"><p>The maximum possible <code>Date</code>.</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.MAX_DATETIME.html" title="chrono::MAX_DATETIME constant">MAX_DATETIME</a></div><div class="item-right docblock-short"><p>The maximum possible <code>DateTime&lt;Utc&gt;</code>.</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.MIN_DATE.html" title="chrono::MIN_DATE constant">MIN_DATE</a></div><div class="item-right docblock-short"><p>The minimum possible <code>Date</code>.</p>
+</div><div class="item-left module-item"><a class="constant" href="constant.MIN_DATETIME.html" title="chrono::MIN_DATETIME constant">MIN_DATETIME</a></div><div class="item-right docblock-short"><p>The minimum possible <code>DateTime&lt;Utc&gt;</code>.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Datelike.html" title="chrono::Datelike trait">Datelike</a></div><div class="item-right docblock-short"><p>The common set of methods for date component.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.DurationRound.html" title="chrono::DurationRound trait">DurationRound</a></div><div class="item-right docblock-short"><p>Extension trait for rounding or truncating a DateTime by a Duration.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.SubsecRound.html" title="chrono::SubsecRound trait">SubsecRound</a></div><div class="item-right docblock-short"><p>Extension trait for subsecond rounding or truncation to a maximum number
+of digits. Rounding can be used to decrease the error variance when
+serializing/persisting to lower precision. Truncation is the default
+behavior in Chrono display formatting.  Either can be used to guarantee
+equality (e.g. for testing) when round-tripping through a lower precision
+format.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.Timelike.html" title="chrono::Timelike trait">Timelike</a></div><div class="item-right docblock-short"><p>The common set of methods for time component.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="chrono" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from simdjson. Originally ported to Rust by the developers of simd-json.rs, but now heavily improved."><meta name="keywords" content="rust, rustlang, rust-lang, simdutf8"><title>simdutf8 - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../simdutf8/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate simdutf8</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.1.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all simdutf8's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><div id="sidebar-vars" data-name="simdutf8" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">simdutf8</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/simdutf8/lib.rs.html#1-107" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Blazingly fast API-compatible UTF-8 validation for Rust using SIMD extensions, based on the implementation from
+<a href="https://github.com/simdjson/simdjson">simdjson</a>. Originally ported to Rust by the developers of <a href="https://simd-json.rs">simd-json.rs</a>, but now heavily improved.</p>
+<h2 id="quick-start" class="section-header"><a href="#quick-start">Quick start</a></h2>
+<p>Add the dependency to your Cargo.toml file:</p>
+<pre><code class="language-toml">[dependencies]
+simdutf8 = { version = &quot;0.1.3&quot; }
+</code></pre>
+<p>or on ARM64 with Rust Nightly:</p>
+<pre><code class="language-toml">[dependencies]
+simdutf8 = { version = &quot;0.1.3&quot;, features = [&quot;aarch64_neon&quot;] }
+</code></pre>
+<p>Use <a href="basic/fn.from_utf8.html" title="basic::from_utf8()"><code>basic::from_utf8()</code></a> as a drop-in replacement for <code>std::str::from_utf8()</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">simdutf8::basic::from_utf8</span>;
+
+<span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">from_utf8</span>(<span class="string">b&quot;I \xE2\x9D\xA4\xEF\xB8\x8F UTF-8!&quot;</span>).<span class="ident">unwrap</span>());</pre></div>
+<p>If you need detailed information on validation failures, use <a href="compat/fn.from_utf8.html" title="compat::from_utf8()"><code>compat::from_utf8()</code></a>
+instead.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">simdutf8::compat::from_utf8</span>;
+
+<span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">from_utf8</span>(<span class="string">b&quot;I \xE2\x9D\xA4\xEF\xB8 UTF-8!&quot;</span>).<span class="ident">unwrap_err</span>();
+<span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">valid_up_to</span>(), <span class="number">5</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">err</span>.<span class="ident">error_len</span>(), <span class="prelude-val">Some</span>(<span class="number">2</span>));</pre></div>
+<h2 id="apis" class="section-header"><a href="#apis">APIs</a></h2><h3 id="basic-flavor" class="section-header"><a href="#basic-flavor">Basic flavor</a></h3>
+<p>Use the <code>basic</code> API flavor for maximum speed. It is fastest on valid UTF-8, but only checks
+for errors after processing the whole byte sequence and does not provide detailed information if the data
+is not valid UTF-8. <a href="basic/struct.Utf8Error.html" title="basic::Utf8Error"><code>basic::Utf8Error</code></a> is a zero-sized error struct.</p>
+<h3 id="compat-flavor" class="section-header"><a href="#compat-flavor">Compat flavor</a></h3>
+<p>The <code>compat</code> flavor is fully API-compatible with <code>std::str::from_utf8()</code>. In particular, <a href="compat/fn.from_utf8.html" title="compat::from_utf8()"><code>compat::from_utf8()</code></a>
+returns a <a href="compat/struct.Utf8Error.html" title="compat::Utf8Error"><code>compat::Utf8Error</code></a>, which has <a href="compat/struct.Utf8Error.html#method.valid_up_to"><code>valid_up_to()</code></a> and
+<a href="compat/struct.Utf8Error.html#method.error_len"><code>error_len()</code></a> methods. The first is useful for verification of streamed data. The
+second is useful e.g. for replacing invalid byte sequences with a replacement character.</p>
+<p>It also fails early: errors are checked on the fly as the string is processed and once
+an invalid UTF-8 sequence is encountered, it returns without processing the rest of the data.
+This comes at a slight performance penalty compared to the <a href="basic/index.html" title="basic"><code>basic</code></a> API even if the input is valid UTF-8.</p>
+<h2 id="implementation-selection" class="section-header"><a href="#implementation-selection">Implementation selection</a></h2><h3 id="x86" class="section-header"><a href="#x86">X86</a></h3>
+<p>The fastest implementation is selected at runtime using the <code>std::is_x86_feature_detected!</code> macro, unless the CPU
+targeted by the compiler supports the fastest available implementation.
+So if you compile with <code>RUSTFLAGS=&quot;-C target-cpu=native&quot;</code> on a recent x86-64 machine, the AVX 2 implementation is selected at
+compile-time and runtime selection is disabled.</p>
+<p>For no-std support (compiled with <code>--no-default-features</code>) the implementation is always selected at compile time based on
+the targeted CPU. Use <code>RUSTFLAGS=&quot;-C target-feature=+avx2&quot;</code> for the AVX 2 implementation or <code>RUSTFLAGS=&quot;-C target-feature=+sse4.2&quot;</code>
+for the SSE 4.2 implementation.</p>
+<h3 id="arm64" class="section-header"><a href="#arm64">ARM64</a></h3>
+<p>For ARM64 support Nightly Rust is needed and the crate feature <code>aarch64_neon</code> needs to be enabled. CAVE: If this features is
+not turned on the non-SIMD std library implementation is used.</p>
+<h3 id="access-to-low-level-functionality" class="section-header"><a href="#access-to-low-level-functionality">Access to low-level functionality</a></h3>
+<p>If you want to be able to call a SIMD implementation directly, use the <code>public_imp</code> feature flag. The validation
+implementations are then accessible via [<code>basic::imp</code>] and [<code>compat::imp</code>]. Traits facilitating streaming validation are available
+there as well.</p>
+<h2 id="optimisation-flags" class="section-header"><a href="#optimisation-flags">Optimisation flags</a></h2>
+<p>Do not use <a href="https://doc.rust-lang.org/cargo/reference/profiles.html"><code>opt-level = &quot;z&quot;</code></a>, which prevents inlining and makes
+the code quite slow.</p>
+<h2 id="minimum-supported-rust-version-msrv" class="section-header"><a href="#minimum-supported-rust-version-msrv">Minimum Supported Rust Version (MSRV)</a></h2>
+<p>This crate’s minimum supported Rust version is 1.38.0.</p>
+<h2 id="algorithm" class="section-header"><a href="#algorithm">Algorithm</a></h2>
+<p>See Validating UTF-8 In Less Than One Instruction Per Byte, Software: Practice and Experience 51 (5), 2021
+<a href="https://arxiv.org/abs/2010.03090">https://arxiv.org/abs/2010.03090</a></p>
+</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="basic/index.html" title="simdutf8::basic mod">basic</a></div><div class="item-right docblock-short"><p>The <code>basic</code> API flavor provides barebones UTF-8 checking at the highest speed.</p>
+</div><div class="item-left module-item"><a class="mod" href="compat/index.html" title="simdutf8::compat mod">compat</a></div><div class="item-right docblock-short"><p>The <code>compat</code> API flavor provides full compatibility with <a href="https://doc.rust-lang.org/nightly/core/str/converts/fn.from_utf8.html" title="std::str::from_utf8()"><code>std::str::from_utf8()</code></a> and detailed validation errors.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="simdutf8" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

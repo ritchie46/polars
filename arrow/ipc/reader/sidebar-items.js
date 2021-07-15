@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["read_dictionary","Read the dictionary from the buffer and provided metadata, updating the `dictionaries_by_field` with the resulting dictionary"],["read_record_batch","Creates a record batch from binary data using the `ipc::RecordBatch` indexes and the `Schema`"]],"struct":[["FileReader","Arrow File reader"],["StreamReader","Arrow Stream reader"]]});

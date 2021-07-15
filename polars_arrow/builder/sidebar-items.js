@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BooleanArrayBuilder","Array builder for fixed-width primitive types"],["BooleanBufferBuilder",""],["NoNullLargeStringBuilder",""]],"type":[["LargeStringBuilder",""]]});

@@ -1,0 +1,489 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generic trait for floating point numbers that works with `no_std`."><meta name="keywords" content="rust, rustlang, rust-lang, FloatCore"><title>FloatCore in num_traits::float - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../num_traits/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Trait FloatCore</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.classify">classify</a><a href="#tymethod.epsilon">epsilon</a><a href="#tymethod.infinity">infinity</a><a href="#tymethod.integer_decode">integer_decode</a><a href="#tymethod.max_value">max_value</a><a href="#tymethod.min_positive_value">min_positive_value</a><a href="#tymethod.min_value">min_value</a><a href="#tymethod.nan">nan</a><a href="#tymethod.neg_infinity">neg_infinity</a><a href="#tymethod.neg_zero">neg_zero</a><a href="#tymethod.to_degrees">to_degrees</a><a href="#tymethod.to_radians">to_radians</a></div><a class="sidebar-title" href="#provided-methods">Provided Methods</a><div class="sidebar-links"><a href="#method.abs">abs</a><a href="#method.ceil">ceil</a><a href="#method.floor">floor</a><a href="#method.fract">fract</a><a href="#method.is_finite">is_finite</a><a href="#method.is_infinite">is_infinite</a><a href="#method.is_nan">is_nan</a><a href="#method.is_normal">is_normal</a><a href="#method.is_sign_negative">is_sign_negative</a><a href="#method.is_sign_positive">is_sign_positive</a><a href="#method.max">max</a><a href="#method.min">min</a><a href="#method.powi">powi</a><a href="#method.recip">recip</a><a href="#method.round">round</a><a href="#method.signum">signum</a><a href="#method.trunc">trunc</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-FloatCore-for-f32">f32</a><a href="#impl-FloatCore-for-f64">f64</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class="location">Other items in<br><a href="../index.html">num_traits</a>::<wbr><a href="index.html">float</a></p><div id="sidebar-vars" data-name="FloatCore" data-ty="trait" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Trait <a href="../index.html">num_traits</a>::<wbr><a href="index.html">float</a>::<wbr><a class="trait" href="#">FloatCore</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/num_traits/float.rs.html#16-747" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><pre class="rust trait">pub trait FloatCore: <a class="trait" href="../trait.Num.html" title="trait num_traits::Num">Num</a> + <a class="trait" href="../cast/trait.NumCast.html" title="trait num_traits::cast::NumCast">NumCast</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/arith/trait.Neg.html" title="trait core::ops::arith::Neg">Neg</a>&lt;Output = Self&gt; + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html" title="trait core::cmp::PartialOrd">PartialOrd</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> {
+<details class="rustdoc-toggle type-contents-toggle"><summary class="hideme"><span>Show methods</span></summary>    fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.epsilon" class="fnname">epsilon</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a>;
+<div class="item-spacer"></div>    fn <a href="#tymethod.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.to_radians" class="fnname">to_radians</a>(self) -&gt; Self;
+<div class="item-spacer"></div>    fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>;
+
+    fn <a href="#method.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.floor" class="fnname">floor</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.ceil" class="fnname">ceil</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.round" class="fnname">round</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.trunc" class="fnname">trunc</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.fract" class="fnname">fract</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.abs" class="fnname">abs</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.signum" class="fnname">signum</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> { ... }
+<div class="item-spacer"></div>    fn <a href="#method.min" class="fnname">min</a>(self, other: Self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.max" class="fnname">max</a>(self, other: Self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.recip" class="fnname">recip</a>(self) -&gt; Self { ... }
+<div class="item-spacer"></div>    fn <a href="#method.powi" class="fnname">powi</a>(self, exp: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self { ... }
+</details>}</pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generic trait for floating point numbers that works with <code>no_std</code>.</p>
+<p>This trait implements a subset of the <code>Float</code> trait.</p>
+</div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="tymethod.infinity" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#32" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns positive infinity.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::infinity</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="ident">f64::INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.neg_infinity" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#49" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns negative infinity.</p>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::neg_infinity</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::NEG_INFINITY</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.nan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#66" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns NaN.</p>
+<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>() {
+    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">T::nan</span>();
+    <span class="macro">assert!</span>(<span class="ident">n</span> <span class="op">!</span><span class="op">=</span> <span class="ident">n</span>);
+}
+
+<span class="ident">check</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>();
+<span class="ident">check</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>();</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.neg_zero" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#85" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns <code>-0.0</code>.</p>
+<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">T</span>) {
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">T::neg_zero</span>();
+    <span class="macro">assert!</span>(<span class="ident">z</span>.<span class="ident">is_zero</span>());
+    <span class="macro">assert!</span>(<span class="ident">T::one</span>() <span class="op">/</span> <span class="ident">z</span> <span class="op">=</span><span class="op">=</span> <span class="ident">n</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::NEG_INFINITY</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.min_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#102" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest finite value that this type can represent.</p>
+<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::min_value</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::MIN</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.min_positive_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#119" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest positive, normalized value that this type can represent.</p>
+<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::min_positive_value</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::MIN_POSITIVE</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.epsilon" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#136" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns epsilon, a small positive value.</p>
+<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::epsilon</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::EPSILON</span>);
+<span class="ident">check</span>(<span class="ident">f64::EPSILON</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.max_value" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#153" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div></summary><div class="docblock"><p>Returns the largest finite value that this type can represent.</p>
+<h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">T::max_value</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>);
+<span class="ident">check</span>(<span class="ident">f64::MAX</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.classify" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#269" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div></summary><div class="docblock"><p>Returns the floating point category of the number. If only one property
+is going to be tested, it is generally faster to use the specific
+predicate instead.</p>
+<h1 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+<span class="kw">use</span> <span class="ident">std::num::FpCategory</span>;
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">c</span>: <span class="ident">FpCategory</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">classify</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">c</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">FpCategory::Infinite</span>);
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="ident">FpCategory::Normal</span>);
+<span class="ident">check</span>(<span class="ident">f64::NAN</span>, <span class="ident">FpCategory::Nan</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>, <span class="ident">FpCategory::Normal</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">FpCategory::Subnormal</span>);
+<span class="ident">check</span>(<span class="number">0.0f64</span>, <span class="ident">FpCategory::Zero</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.to_degrees" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#704" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Converts to degrees, assuming the number is in radians.</p>
+<h1 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">rad</span>: <span class="ident">T</span>, <span class="ident">deg</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">rad</span>.<span class="ident">to_degrees</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">deg</span>);
+}
+
+<span class="ident">check</span>(<span class="number">0.0f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="ident">f32::consts::PI</span>, <span class="number">180.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::consts::FRAC_PI_4</span>, <span class="number">45.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::INFINITY</span>, <span class="ident">f64::INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.to_radians" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#723" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Converts to radians, assuming the number is in degrees.</p>
+<h1 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">deg</span>: <span class="ident">T</span>, <span class="ident">rad</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">deg</span>.<span class="ident">to_radians</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">rad</span>);
+}
+
+<span class="ident">check</span>(<span class="number">0.0f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">180.0</span>, <span class="ident">f32::consts::PI</span>);
+<span class="ident">check</span>(<span class="number">45.0</span>, <span class="ident">f64::consts::FRAC_PI_4</span>);
+<span class="ident">check</span>(<span class="ident">f64::INFINITY</span>, <span class="ident">f64::INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.integer_decode" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#746" title="goto source code">[src]</a></div><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div></summary><div class="docblock"><p>Returns the mantissa, base 2 exponent, and sign as integers, respectively.
+The original number can be recovered by <code>sign * mantissa * 2 ^ exponent</code>.</p>
+<h1 id="examples-11" class="section-header"><a href="#examples-11">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">m</span>: <span class="ident">u64</span>, <span class="ident">e</span>: <span class="ident">i16</span>, <span class="ident">s</span>:<span class="ident">i8</span>) {
+    <span class="kw">let</span> (<span class="ident">mantissa</span>, <span class="ident">exponent</span>, <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">integer_decode</span>();
+    <span class="macro">assert_eq!</span>(<span class="ident">mantissa</span>, <span class="ident">m</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">exponent</span>, <span class="ident">e</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">sign</span>, <span class="ident">s</span>);
+}
+
+<span class="ident">check</span>(<span class="number">2.0f32</span>, <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">23</span>, <span class="op">-</span><span class="number">22</span>, <span class="number">1</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">2.0f32</span>, <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">23</span>, <span class="op">-</span><span class="number">22</span>, <span class="op">-</span><span class="number">1</span>);
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">23</span>, <span class="number">105</span>, <span class="number">1</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">52</span>, <span class="number">972</span>, <span class="op">-</span><span class="number">1</span>);</pre></div>
+</div></details></div><h2 id="provided-methods" class="small-section-header">Provided methods<a href="#provided-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="method.is_nan" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#173-175" title="goto source code">[src]</a></div><code>fn <a href="#method.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if the number is NaN.</p>
+<h1 id="examples-12" class="section-header"><a href="#examples-12">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_nan</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::NAN</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::NAN</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="number">0.0f64</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.is_infinite" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#197-199" title="goto source code">[src]</a></div><code>fn <a href="#method.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if the number is infinite.</p>
+<h1 id="examples-13" class="section-header"><a href="#examples-13">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_infinite</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f32::NEG_INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f32::NAN</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="number">0.0f64</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.is_finite" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#220-222" title="goto source code">[src]</a></div><code>fn <a href="#method.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if the number is neither infinite or NaN.</p>
+<h1 id="examples-14" class="section-header"><a href="#examples-14">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_finite</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::NAN</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.is_normal" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#243-245" title="goto source code">[src]</a></div><code>fn <a href="#method.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if the number is neither zero, infinite, subnormal or NaN.</p>
+<h1 id="examples-15" class="section-header"><a href="#examples-15">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_normal</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="number">0.0f64</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.floor" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#294-303" title="goto source code">[src]</a></div><code>fn <a href="#method.floor" class="fnname">floor</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the largest integer less than or equal to a number.</p>
+<h1 id="examples-16" class="section-header"><a href="#examples-16">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">floor</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="number">0.9f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">1.1f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.9f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.1f64</span>, <span class="op">-</span><span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.ceil" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#328-337" title="goto source code">[src]</a></div><code>fn <a href="#method.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the smallest integer greater than or equal to a number.</p>
+<h1 id="examples-17" class="section-header"><a href="#examples-17">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">ceil</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="number">0.9f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">1.1f32</span>, <span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.9f64</span>, <span class="op">-</span><span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.1f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.round" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#361-380" title="goto source code">[src]</a></div><code>fn <a href="#method.round" class="fnname">round</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the nearest integer to a number. Round half-way cases away from <code>0.0</code>.</p>
+<h1 id="examples-18" class="section-header"><a href="#examples-18">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">round</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="number">0.4f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">0.5f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">0.6f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.4f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.5f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.6f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.trunc" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#405-412" title="goto source code">[src]</a></div><code>fn <a href="#method.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Return the integer part of a number.</p>
+<h1 id="examples-19" class="section-header"><a href="#examples-19">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">trunc</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="number">0.9f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">1.1f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.9f64</span>, <span class="op">-</span><span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.1f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="ident">f64::MIN</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.fract" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#437-443" title="goto source code">[src]</a></div><code>fn <a href="#method.fract" class="fnname">fract</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the fractional part of a number.</p>
+<h1 id="examples-20" class="section-header"><a href="#examples-20">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">fract</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">0.75f32</span>, <span class="number">0.75</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">1.25f32</span>, <span class="number">0.25</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.75f64</span>, <span class="op">-</span><span class="number">0.75</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.25f64</span>, <span class="op">-</span><span class="number">0.25</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="number">0.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.abs" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#466-474" title="goto source code">[src]</a></div><code>fn <a href="#method.abs" class="fnname">abs</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Computes the absolute value of <code>self</code>. Returns <code>FloatCore::nan()</code> if the
+number is <code>FloatCore::nan()</code>.</p>
+<h1 id="examples-21" class="section-header"><a href="#examples-21">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="ident">f32::INFINITY</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="ident">f64::MAX</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.signum" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#500-508" title="goto source code">[src]</a></div><code>fn <a href="#method.signum" class="fnname">signum</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns a number that represents the sign of <code>self</code>.</p>
+<ul>
+<li><code>1.0</code> if the number is positive, <code>+0.0</code> or <code>FloatCore::infinity()</code></li>
+<li><code>-1.0</code> if the number is negative, <code>-0.0</code> or <code>FloatCore::neg_infinity()</code></li>
+<li><code>FloatCore::nan()</code> if the number is <code>FloatCore::nan()</code></li>
+</ul>
+<h1 id="examples-22" class="section-header"><a href="#examples-22">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">signum</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">3.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">0.0f32</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">3.0f64</span>, <span class="op">-</span><span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN</span>, <span class="op">-</span><span class="number">1.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.is_sign_positive" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#533-535" title="goto source code">[src]</a></div><code>fn <a href="#method.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if <code>self</code> is positive, including <code>+0.0</code> and
+<code>FloatCore::infinity()</code>, and since Rust 1.20 also
+<code>FloatCore::nan()</code>.</p>
+<h1 id="examples-23" class="section-header"><a href="#examples-23">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_sign_positive</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="number">0.0f32</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="ident">f64::NAN</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.is_sign_negative" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#560-563" title="goto source code">[src]</a></div><code>fn <a href="#method.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div></summary><div class="docblock"><p>Returns <code>true</code> if <code>self</code> is negative, including <code>-0.0</code> and
+<code>FloatCore::neg_infinity()</code>, and since Rust 1.20 also
+<code>-FloatCore::nan()</code>.</p>
+<h1 id="examples-24" class="section-header"><a href="#examples-24">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">p</span>: <span class="ident">bool</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">is_sign_negative</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">p</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f32::MAX</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="number">0.0f32</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::NEG_INFINITY</span>, <span class="bool-val">true</span>);
+<span class="ident">check</span>(<span class="ident">f64::MIN_POSITIVE</span>, <span class="bool-val">false</span>);
+<span class="ident">check</span>(<span class="ident">f64::NAN</span>, <span class="bool-val">false</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.min" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#585-597" title="goto source code">[src]</a></div><code>fn <a href="#method.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the minimum of the two numbers.</p>
+<p>If one of the arguments is NaN, then the other argument is returned.</p>
+<h1 id="examples-25" class="section-header"><a href="#examples-25">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>, <span class="ident">min</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">min</span>(<span class="ident">y</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">min</span>);
+}
+
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">2.0</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="ident">f32::NAN</span>, <span class="number">2.0</span>, <span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f64</span>, <span class="op">-</span><span class="number">2.0</span>, <span class="op">-</span><span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f64</span>, <span class="ident">f64::NAN</span>, <span class="number">1.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.max" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#619-631" title="goto source code">[src]</a></div><code>fn <a href="#method.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the maximum of the two numbers.</p>
+<p>If one of the arguments is NaN, then the other argument is returned.</p>
+<h1 id="examples-26" class="section-header"><a href="#examples-26">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>, <span class="ident">max</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">max</span>(<span class="ident">y</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">max</span>);
+}
+
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="number">2.0</span>, <span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="ident">f32::NAN</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="number">2.0</span>, <span class="number">2.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="ident">f64::NAN</span>, <span class="op">-</span><span class="number">1.0</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.recip" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#652-654" title="goto source code">[src]</a></div><code>fn <a href="#method.recip" class="fnname">recip</a>(self) -&gt; Self</code></div></summary><div class="docblock"><p>Returns the reciprocal (multiplicative inverse) of the number.</p>
+<h1 id="examples-27" class="section-header"><a href="#examples-27">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">f32</span>, <span class="ident">f64</span>};
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">y</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">recip</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">y</span>);
+    <span class="macro">assert!</span>(<span class="ident">y</span>.<span class="ident">recip</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>);
+}
+
+<span class="ident">check</span>(<span class="ident">f32::INFINITY</span>, <span class="number">0.0</span>);
+<span class="ident">check</span>(<span class="number">2.0f32</span>, <span class="number">0.5</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.25f64</span>, <span class="op">-</span><span class="number">4.0</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">0.0f64</span>, <span class="ident">f64::NEG_INFINITY</span>);</pre></div>
+</div></details><details class="rustdoc-toggle" open><summary><div id="method.powi" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#676-685" title="goto source code">[src]</a></div><code>fn <a href="#method.powi" class="fnname">powi</a>(self, exp: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div></summary><div class="docblock"><p>Raise a number to an integer power.</p>
+<p>Using this function is generally faster than using <code>powf</code></p>
+<h1 id="examples-28" class="section-header"><a href="#examples-28">Examples</a></h1>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">num_traits::float::FloatCore</span>;
+
+<span class="kw">fn</span> <span class="ident">check</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">FloatCore</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="ident">T</span>, <span class="ident">exp</span>: <span class="ident">i32</span>, <span class="ident">powi</span>: <span class="ident">T</span>) {
+    <span class="macro">assert!</span>(<span class="ident">x</span>.<span class="ident">powi</span>(<span class="ident">exp</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">powi</span>);
+}
+
+<span class="ident">check</span>(<span class="number">9.0f32</span>, <span class="number">2</span>, <span class="number">81.0</span>);
+<span class="ident">check</span>(<span class="number">1.0f32</span>, <span class="op">-</span><span class="number">2</span>, <span class="number">1.0</span>);
+<span class="ident">check</span>(<span class="number">10.0f64</span>, <span class="number">20</span>, <span class="number">1e20</span>);
+<span class="ident">check</span>(<span class="number">4.0f64</span>, <span class="op">-</span><span class="number">2</span>, <span class="number">0.0625</span>);
+<span class="ident">check</span>(<span class="op">-</span><span class="number">1.0f64</span>, <span class="ident">std::i32::MIN</span>, <span class="number">1.0</span>);</pre></div>
+</div></details></div><h2 id="foreign-impls" class="small-section-header">Implementations on Foreign Types<a href="#foreign-impls" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-FloatCore-for-f32" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#749-821" title="goto source code">[src]</a></div><a href="#impl-FloatCore-for-f32" class="anchor"></a><code class="in-band">impl <a class="trait" href="trait.FloatCore.html" title="trait num_traits::float::FloatCore">FloatCore</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></code></div></summary><div class="impl-items"><div id="method.infinity" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.infinity" class="anchor"></a><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div><div id="method.neg_infinity" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.neg_infinity" class="anchor"></a><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div><div id="method.nan" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.nan" class="anchor"></a><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div><div id="method.neg_zero" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.neg_zero" class="anchor"></a><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div><div id="method.min_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.min_value" class="anchor"></a><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div><div id="method.min_positive_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.min_positive_value" class="anchor"></a><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div><div id="method.epsilon" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.epsilon" class="anchor"></a><code>fn <a href="#tymethod.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div><div id="method.max_value" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#750-759" title="goto source code">[src]</a></div><a href="#method.max_value" class="anchor"></a><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div><div id="method.integer_decode" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#762-764" title="goto source code">[src]</a></div><a href="#method.integer_decode" class="anchor"></a><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.is_nan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_nan-1" class="anchor"></a><code>fn <a href="#method.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_infinite-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_infinite-1" class="anchor"></a><code>fn <a href="#method.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_finite-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_finite-1" class="anchor"></a><code>fn <a href="#method.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_normal-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_normal-1" class="anchor"></a><code>fn <a href="#method.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.classify" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.classify" class="anchor"></a><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div><div id="method.floor-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.floor-1" class="anchor"></a><code>fn <a href="#method.floor" class="fnname">floor</a>(self) -&gt; Self</code></div><div id="method.ceil-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.ceil-1" class="anchor"></a><code>fn <a href="#method.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div><div id="method.round-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.round-1" class="anchor"></a><code>fn <a href="#method.round" class="fnname">round</a>(self) -&gt; Self</code></div><div id="method.trunc-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.trunc-1" class="anchor"></a><code>fn <a href="#method.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div><div id="method.fract-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.fract-1" class="anchor"></a><code>fn <a href="#method.fract" class="fnname">fract</a>(self) -&gt; Self</code></div><div id="method.abs-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.abs-1" class="anchor"></a><code>fn <a href="#method.abs" class="fnname">abs</a>(self) -&gt; Self</code></div><div id="method.signum-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.signum-1" class="anchor"></a><code>fn <a href="#method.signum" class="fnname">signum</a>(self) -&gt; Self</code></div><div id="method.is_sign_positive-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_sign_positive-1" class="anchor"></a><code>fn <a href="#method.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_sign_negative-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.is_sign_negative-1" class="anchor"></a><code>fn <a href="#method.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.min-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.min-1" class="anchor"></a><code>fn <a href="#method.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div><div id="method.max-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.max-1" class="anchor"></a><code>fn <a href="#method.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div><div id="method.recip-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.recip-1" class="anchor"></a><code>fn <a href="#method.recip" class="fnname">recip</a>(self) -&gt; Self</code></div><div id="method.powi-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.powi-1" class="anchor"></a><code>fn <a href="#method.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div><div id="method.to_degrees" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.to_degrees" class="anchor"></a><code>fn <a href="#tymethod.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div><div id="method.to_radians" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#799-820" title="goto source code">[src]</a></div><a href="#method.to_radians" class="anchor"></a><code>fn <a href="#tymethod.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-FloatCore-for-f64" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#823-896" title="goto source code">[src]</a></div><a href="#impl-FloatCore-for-f64" class="anchor"></a><code class="in-band">impl <a class="trait" href="trait.FloatCore.html" title="trait num_traits::float::FloatCore">FloatCore</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></code></div></summary><div class="impl-items"><div id="method.infinity-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.infinity-1" class="anchor"></a><code>fn <a href="#tymethod.infinity" class="fnname">infinity</a>() -&gt; Self</code></div><div id="method.neg_infinity-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.neg_infinity-1" class="anchor"></a><code>fn <a href="#tymethod.neg_infinity" class="fnname">neg_infinity</a>() -&gt; Self</code></div><div id="method.nan-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.nan-1" class="anchor"></a><code>fn <a href="#tymethod.nan" class="fnname">nan</a>() -&gt; Self</code></div><div id="method.neg_zero-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.neg_zero-1" class="anchor"></a><code>fn <a href="#tymethod.neg_zero" class="fnname">neg_zero</a>() -&gt; Self</code></div><div id="method.min_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.min_value-1" class="anchor"></a><code>fn <a href="#tymethod.min_value" class="fnname">min_value</a>() -&gt; Self</code></div><div id="method.min_positive_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.min_positive_value-1" class="anchor"></a><code>fn <a href="#tymethod.min_positive_value" class="fnname">min_positive_value</a>() -&gt; Self</code></div><div id="method.epsilon-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.epsilon-1" class="anchor"></a><code>fn <a href="#tymethod.epsilon" class="fnname">epsilon</a>() -&gt; Self</code></div><div id="method.max_value-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#824-833" title="goto source code">[src]</a></div><a href="#method.max_value-1" class="anchor"></a><code>fn <a href="#tymethod.max_value" class="fnname">max_value</a>() -&gt; Self</code></div><div id="method.integer_decode-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#836-838" title="goto source code">[src]</a></div><a href="#method.integer_decode-1" class="anchor"></a><code>fn <a href="#tymethod.integer_decode" class="fnname">integer_decode</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></div><div id="method.is_nan-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_nan-2" class="anchor"></a><code>fn <a href="#method.is_nan" class="fnname">is_nan</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_infinite-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_infinite-2" class="anchor"></a><code>fn <a href="#method.is_infinite" class="fnname">is_infinite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_finite-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_finite-2" class="anchor"></a><code>fn <a href="#method.is_finite" class="fnname">is_finite</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_normal-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_normal-2" class="anchor"></a><code>fn <a href="#method.is_normal" class="fnname">is_normal</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.classify-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.classify-1" class="anchor"></a><code>fn <a href="#tymethod.classify" class="fnname">classify</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/num/enum.FpCategory.html" title="enum core::num::FpCategory">FpCategory</a></code></div><div id="method.floor-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.floor-2" class="anchor"></a><code>fn <a href="#method.floor" class="fnname">floor</a>(self) -&gt; Self</code></div><div id="method.ceil-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.ceil-2" class="anchor"></a><code>fn <a href="#method.ceil" class="fnname">ceil</a>(self) -&gt; Self</code></div><div id="method.round-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.round-2" class="anchor"></a><code>fn <a href="#method.round" class="fnname">round</a>(self) -&gt; Self</code></div><div id="method.trunc-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.trunc-2" class="anchor"></a><code>fn <a href="#method.trunc" class="fnname">trunc</a>(self) -&gt; Self</code></div><div id="method.fract-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.fract-2" class="anchor"></a><code>fn <a href="#method.fract" class="fnname">fract</a>(self) -&gt; Self</code></div><div id="method.abs-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.abs-2" class="anchor"></a><code>fn <a href="#method.abs" class="fnname">abs</a>(self) -&gt; Self</code></div><div id="method.signum-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.signum-2" class="anchor"></a><code>fn <a href="#method.signum" class="fnname">signum</a>(self) -&gt; Self</code></div><div id="method.is_sign_positive-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_sign_positive-2" class="anchor"></a><code>fn <a href="#method.is_sign_positive" class="fnname">is_sign_positive</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.is_sign_negative-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.is_sign_negative-2" class="anchor"></a><code>fn <a href="#method.is_sign_negative" class="fnname">is_sign_negative</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></div><div id="method.min-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.min-2" class="anchor"></a><code>fn <a href="#method.min" class="fnname">min</a>(self, other: Self) -&gt; Self</code></div><div id="method.max-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.max-2" class="anchor"></a><code>fn <a href="#method.max" class="fnname">max</a>(self, other: Self) -&gt; Self</code></div><div id="method.recip-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.recip-2" class="anchor"></a><code>fn <a href="#method.recip" class="fnname">recip</a>(self) -&gt; Self</code></div><div id="method.powi-2" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.powi-2" class="anchor"></a><code>fn <a href="#method.powi" class="fnname">powi</a>(self, n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; Self</code></div><div id="method.to_degrees-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.to_degrees-1" class="anchor"></a><code>fn <a href="#tymethod.to_degrees" class="fnname">to_degrees</a>(self) -&gt; Self</code></div><div id="method.to_radians-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/num_traits/float.rs.html#874-895" title="goto source code">[src]</a></div><a href="#method.to_radians-1" class="anchor"></a><code>fn <a href="#tymethod.to_radians" class="fnname">to_radians</a>(self) -&gt; Self</code></div></div></details><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><script type="text/javascript" src="../../implementors/num_traits/float/trait.FloatCore.js" async></script></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="num_traits" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script>
+</body></html>

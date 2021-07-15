@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Interface to the operating system’s random number generator."><meta name="keywords" content="rust, rustlang, rust-lang, getrandom"><title>getrandom - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="https:&#x2F;&#x2F;www.rust-lang.org&#x2F;favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../getrandom/index.html'><div class='logo-container rust-logo'><img src='https:&#x2F;&#x2F;www.rust-lang.org&#x2F;logos&#x2F;rust-logo-128x128-blk.png' alt='logo'></div></a><p class="location">Crate getrandom</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.2.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all getrandom's items</p></a><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="getrandom" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">getrandom</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/getrandom/lib.rs.html#9-247" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Interface to the operating system’s random number generator.</p>
+<h1 id="supported-targets" class="section-header"><a href="#supported-targets">Supported targets</a></h1><table><thead><tr><th>Target</th><th>Target Triple</th><th>Implementation</th></tr></thead><tbody>
+<tr><td>Linux, Android</td><td><code>*‑linux‑*</code></td><td><a href="http://man7.org/linux/man-pages/man2/getrandom.2.html"><code>getrandom</code></a> system call if available, otherwise <a href="http://man7.org/linux/man-pages/man4/urandom.4.html"><code>/dev/urandom</code></a> after successfully polling <code>/dev/random</code></td></tr>
+<tr><td>Windows</td><td><code>*‑windows‑*</code></td><td><a href="https://docs.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom"><code>BCryptGenRandom</code></a></td></tr>
+<tr><td>macOS</td><td><code>*‑apple‑darwin</code></td><td><a href="https://www.unix.com/man-page/mojave/2/getentropy/"><code>getentropy()</code></a> if available, otherwise <a href="https://www.unix.com/man-page/mojave/4/random/"><code>/dev/random</code></a> (identical to <code>/dev/urandom</code>)</td></tr>
+<tr><td>iOS</td><td><code>*‑apple‑ios</code></td><td><a href="https://developer.apple.com/documentation/security/1399291-secrandomcopybytes?language=objc"><code>SecRandomCopyBytes</code></a></td></tr>
+<tr><td>FreeBSD</td><td><code>*‑freebsd</code></td><td><a href="https://www.freebsd.org/cgi/man.cgi?query=getrandom&amp;manpath=FreeBSD+12.0-stable"><code>getrandom()</code></a> if available, otherwise <a href="https://www.freebsd.org/cgi/man.cgi?query=random&amp;sektion=4"><code>kern.arandom</code></a></td></tr>
+<tr><td>OpenBSD</td><td><code>*‑openbsd</code></td><td><a href="https://man.openbsd.org/getentropy.2"><code>getentropy</code></a></td></tr>
+<tr><td>NetBSD</td><td><code>*‑netbsd</code></td><td><a href="https://man.netbsd.org/sysctl.7"><code>kern.arandom</code></a></td></tr>
+<tr><td>Dragonfly BSD</td><td><code>*‑dragonfly</code></td><td><a href="https://leaf.dragonflybsd.org/cgi/web-man?command=getrandom"><code>getrandom()</code></a> if available, otherwise <a href="https://leaf.dragonflybsd.org/cgi/web-man?command=random&amp;section=4"><code>/dev/random</code></a></td></tr>
+<tr><td>Solaris, illumos</td><td><code>*‑solaris</code>, <code>*‑illumos</code></td><td><a href="https://docs.oracle.com/cd/E88353_01/html/E37841/getrandom-2.html"><code>getrandom()</code></a> if available, otherwise <a href="https://docs.oracle.com/cd/E86824_01/html/E54777/random-7d.html"><code>/dev/random</code></a></td></tr>
+<tr><td>Fuchsia OS</td><td><code>*‑fuchsia</code></td><td><a href="https://fuchsia.dev/fuchsia-src/zircon/syscalls/cprng_draw"><code>cprng_draw</code></a></td></tr>
+<tr><td>Redox</td><td><code>*‑redox</code></td><td><a href="https://github.com/redox-os/randd/blob/master/src/main.rs"><code>rand:</code></a></td></tr>
+<tr><td>Haiku</td><td><code>*‑haiku</code></td><td><code>/dev/random</code> (identical to <code>/dev/urandom</code>)</td></tr>
+<tr><td>SGX</td><td><code>x86_64‑*‑sgx</code></td><td><a href="https://software.intel.com/en-us/articles/intel-digital-random-number-generator-drng-software-implementation-guide">RDRAND</a></td></tr>
+<tr><td>VxWorks</td><td><code>*‑wrs‑vxworks‑*</code></td><td><code>randABytes</code> after checking entropy pool initialization with <code>randSecure</code></td></tr>
+<tr><td>Emscripten</td><td><code>*‑emscripten</code></td><td><code>/dev/random</code> (identical to <code>/dev/urandom</code>)</td></tr>
+<tr><td>WASI</td><td><code>wasm32‑wasi</code></td><td><a href="https://github.com/WebAssembly/WASI/blob/main/phases/snapshot/docs.md#-random_getbuf-pointeru8-buf_len-size---errno"><code>random_get</code></a></td></tr>
+<tr><td>Web Browser</td><td><code>wasm32‑*‑unknown</code></td><td><a href="https://www.w3.org/TR/WebCryptoAPI/#Crypto-method-getRandomValues"><code>Crypto.getRandomValues()</code></a>, see <a href="#webassembly-support">WebAssembly support</a></td></tr>
+<tr><td>Node.js</td><td><code>wasm32‑*‑unknown</code></td><td><a href="https://nodejs.org/api/crypto.html#crypto_crypto_randombytes_size_callback"><code>crypto.randomBytes</code></a>, see <a href="#webassembly-support">WebAssembly support</a></td></tr>
+</tbody></table>
+<p>There is no blanket implementation on <code>unix</code> targets that reads from
+<code>/dev/urandom</code>. This ensures all supported targets are using the recommended
+interface and respect maximum buffer sizes.</p>
+<p>Pull Requests that add support for new targets to <code>getrandom</code> are always welcome.</p>
+<h2 id="unsupported-targets" class="section-header"><a href="#unsupported-targets">Unsupported targets</a></h2>
+<p>By default, <code>getrandom</code> will not compile on unsupported targets, but certain
+features allow a user to select a “fallback” implementation if no supported
+implementation exists.</p>
+<p>All of the below mechanisms only affect unsupported
+targets. Supported targets will <em>always</em> use their supported implementations.
+This prevents a crate from overriding a secure source of randomness
+(either accidentally or intentionally).</p>
+<h3 id="rdrand-on-x86" class="section-header"><a href="#rdrand-on-x86">RDRAND on x86</a></h3>
+<p><em>If the <code>&quot;rdrand&quot;</code> Cargo feature is enabled</em>, <code>getrandom</code> will fallback to using
+the <a href="https://software.intel.com/en-us/articles/intel-digital-random-number-generator-drng-software-implementation-guide"><code>RDRAND</code></a> instruction to get randomness on <code>no_std</code> <code>x86</code>/<code>x86_64</code>
+targets. This feature has no effect on other CPU architectures.</p>
+<h3 id="webassembly-support" class="section-header"><a href="#webassembly-support">WebAssembly support</a></h3>
+<p>This crate fully supports the
+<a href="https://github.com/CraneStation/wasi"><code>wasm32-wasi</code></a> and
+<a href="https://www.hellorust.com/setup/emscripten/"><code>wasm32-unknown-emscripten</code></a>
+targets. However, the <code>wasm32-unknown-unknown</code> target (i.e. the target used
+by <code>wasm-pack</code>) is not automatically
+supported since, from the target name alone, we cannot deduce which
+JavaScript interface is in use (or if JavaScript is available at all).</p>
+<p>Instead, <em>if the <code>&quot;js&quot;</code> Cargo feature is enabled</em>, this crate will assume
+that you are building for an environment containing JavaScript, and will
+call the appropriate methods. Both web browser (main window and Web Workers)
+and Node.js environments are supported, invoking the methods
+<a href="#supported-targets">described above</a> using the
+<a href="https://github.com/rust-lang/rust-bindgen">wasm-bindgen</a> toolchain.</p>
+<p>This feature has no effect on targets other than <code>wasm32-unknown-unknown</code>.</p>
+<h3 id="custom-implementations" class="section-header"><a href="#custom-implementations">Custom implementations</a></h3>
+<p>The [<code>register_custom_getrandom!</code>] macro allows a user to mark their own
+function as the backing implementation for <a href="fn.getrandom.html" title="getrandom"><code>getrandom</code></a>. See the macro’s
+documentation for more information about writing and registering your own
+custom implementations.</p>
+<p>Note that registering a custom implementation only has an effect on targets
+that would otherwise not compile. Any supported targets (including those
+using <code>&quot;rdrand&quot;</code> and <code>&quot;js&quot;</code> Cargo features) continue using their normal
+implementations even if a function is registered.</p>
+<h3 id="indirect-dependencies" class="section-header"><a href="#indirect-dependencies">Indirect Dependencies</a></h3>
+<p>If <code>getrandom</code> is not a direct dependency of your crate, you can still
+enable any of the above fallback behaviors by enabling the relevant
+feature in your root crate’s <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[dependencies]
+getrandom = { version = &quot;0.2&quot;, features = [&quot;js&quot;] }
+</code></pre>
+<h2 id="early-boot" class="section-header"><a href="#early-boot">Early boot</a></h2>
+<p>Sometimes, early in the boot process, the OS has not collected enough
+entropy to securely seed its RNG. This is especially common on virtual
+machines, where standard “random” events are hard to come by.</p>
+<p>Some operating system interfaces always block until the RNG is securely
+seeded. This can take anywhere from a few seconds to more than a minute.
+A few (Linux, NetBSD and Solaris) offer a choice between blocking and
+getting an error; in these cases, we always choose to block.</p>
+<p>On Linux (when the <code>getrandom</code> system call is not available), reading from
+<code>/dev/urandom</code> never blocks, even when the OS hasn’t collected enough
+entropy yet. To avoid returning low-entropy bytes, we first poll
+<code>/dev/random</code> and only switch to <code>/dev/urandom</code> once this has succeeded.</p>
+<h2 id="error-handling" class="section-header"><a href="#error-handling">Error handling</a></h2>
+<p>We always choose failure over returning insecure “random” bytes. In general,
+on supported platforms, failure is highly unlikely, though not impossible.
+If an error does occur, then it is likely that it will occur on every call to
+<code>getrandom</code>, hence after the first successful call one can be reasonably
+confident that no errors will occur.</p>
+</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="getrandom::Error struct">Error</a></div><div class="item-right docblock-short"><p>A small and <code>no_std</code> compatible error type</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.getrandom.html" title="getrandom::getrandom fn">getrandom</a></div><div class="item-right docblock-short"><p>Fill <code>dest</code> with random bytes from the system’s preferred random number
+source.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="getrandom" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

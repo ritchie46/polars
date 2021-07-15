@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["FastLog2",""],["FastLog2f64",""],["FastLog2u16",""],["FastLog2u32",""],["FastLog2u64",""],["FastPow2",""],["Log2FloorNonZero",""],["brotli_max_size_t",""],["brotli_max_uint32_t",""],["brotli_max_uint8_t",""],["brotli_min_size_t",""],["brotli_min_uint32_t",""],["xFastLog2u16",""]],"type":[["floatX",""]]});

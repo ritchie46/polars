@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["from_utf8","Analogue to [`std::str::from_utf8()`]."],["from_utf8_mut","Analogue to [`std::str::from_utf8_mut()`]."]],"struct":[["Utf8Error","Simple zero-sized UTF-8 error."]]});

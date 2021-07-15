@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["BrotliClusterHistograms",""],["BrotliHistogramBitCostDistance",""],["BrotliHistogramCombine",""],["BrotliHistogramReindex",""],["BrotliHistogramRemap",""]],"struct":[["HistogramPair",""]]});

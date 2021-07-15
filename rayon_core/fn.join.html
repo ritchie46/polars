@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Takes two closures and potentially runs them in parallel. It returns a pair of the results from those closures."><meta name="keywords" content="rust, rustlang, rust-lang, join"><title>join in rayon_core - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../rayon_core/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">rayon_core</a></p><div id="sidebar-vars" data-name="join" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="index.html">rayon_core</a>::<wbr><a class="fn" href="#">join</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/rayon_core/join/mod.rs.html#93-106" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn join&lt;A, B, RA, RB&gt;(oper_a: A, oper_b: B) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>RA, RB<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;A: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; RA + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;B: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; RB + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RA: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;RB: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>,&nbsp;</span></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Takes two closures and <em>potentially</em> runs them in parallel. It
+returns a pair of the results from those closures.</p>
+<p>Conceptually, calling <code>join()</code> is similar to spawning two threads,
+one executing each of the two closures. However, the
+implementation is quite different and incurs very low
+overhead. The underlying technique is called “work stealing”: the
+Rayon runtime uses a fixed pool of worker threads and attempts to
+only execute code in parallel when there are idle CPUs to handle
+it.</p>
+<p>When <code>join</code> is called from outside the thread pool, the calling
+thread will block while the closures execute in the pool.  When
+<code>join</code> is called within the pool, the calling thread still actively
+participates in the thread pool. It will begin by executing closure
+A (on the current thread). While it is doing that, it will advertise
+closure B as being available for other threads to execute. Once closure A
+has completed, the current thread will try to execute closure B;
+if however closure B has been stolen, then it will look for other work
+while waiting for the thief to fully execute closure B. (This is the
+typical work-stealing strategy).</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>This example uses join to perform a quick-sort (note this is not a
+particularly optimized implementation: if you <strong>actually</strong> want to
+sort for real, you should prefer <a href="../rayon/slice/trait.ParallelSliceMut.html#method.par_sort">the <code>par_sort</code> method</a> offered
+by Rayon).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">5</span>, <span class="number">1</span>, <span class="number">8</span>, <span class="number">22</span>, <span class="number">0</span>, <span class="number">44</span>];
+<span class="ident">quick_sort</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>);
+<span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">22</span>, <span class="number">44</span>]);
+
+<span class="kw">fn</span> <span class="ident">quick_sort</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">PartialOrd</span><span class="op">+</span><span class="ident">Send</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>]) {
+   <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+       <span class="kw">let</span> <span class="ident">mid</span> <span class="op">=</span> <span class="ident">partition</span>(<span class="ident">v</span>);
+       <span class="kw">let</span> (<span class="ident">lo</span>, <span class="ident">hi</span>) <span class="op">=</span> <span class="ident">v</span>.<span class="ident">split_at_mut</span>(<span class="ident">mid</span>);
+       <span class="ident">rayon::join</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">quick_sort</span>(<span class="ident">lo</span>),
+                   <span class="op">|</span><span class="op">|</span> <span class="ident">quick_sort</span>(<span class="ident">hi</span>));
+   }
+}
+
+<span class="comment">// Partition rearranges all items `&lt;=` to the pivot</span>
+<span class="comment">// item (arbitrary selected to be the last item in the slice)</span>
+<span class="comment">// to the first half of the slice. It then returns the</span>
+<span class="comment">// &quot;dividing point&quot; where the pivot is placed.</span>
+<span class="kw">fn</span> <span class="ident">partition</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">PartialOrd</span><span class="op">+</span><span class="ident">Send</span><span class="op">&gt;</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="ident">pivot</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">pivot</span> {
+        <span class="kw">if</span> <span class="ident">v</span>[<span class="ident">j</span>] <span class="op">&lt;</span><span class="op">=</span> <span class="ident">v</span>[<span class="ident">pivot</span>] {
+            <span class="ident">v</span>.<span class="ident">swap</span>(<span class="ident">i</span>, <span class="ident">j</span>);
+            <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+    }
+    <span class="ident">v</span>.<span class="ident">swap</span>(<span class="ident">i</span>, <span class="ident">pivot</span>);
+    <span class="ident">i</span>
+}</pre></div>
+<h1 id="warning-about-blocking-io" class="section-header"><a href="#warning-about-blocking-io">Warning about blocking I/O</a></h1>
+<p>The assumption is that the closures given to <code>join()</code> are
+CPU-bound tasks that do not perform I/O or other blocking
+operations. If you do perform I/O, and that I/O should block
+(e.g., waiting for a network request), the overall performance may
+be poor.  Moreover, if you cause one closure to be blocked waiting
+on another (for example, using a channel), that could lead to a
+deadlock.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>No matter what happens, both closures will always be executed.  If
+a single closure panics, whether it be the first or second
+closure, that panic will be propagated and hence <code>join()</code> will
+panic with the same panic value. If both closures panic, <code>join()</code>
+will panic with the panic value from the first closure.</p>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="rayon_core" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

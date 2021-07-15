@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Define a type that supports parsing and printing a given identifier as if it were a keyword."><meta name="keywords" content="rust, rustlang, rust-lang, custom_keyword"><title>custom_keyword in syn - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../syn/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location">Other items in<br><a href="index.html">syn</a></p><div id="sidebar-vars" data-name="custom_keyword" data-ty="macro" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Macro <a href="index.html">syn</a>::<wbr><a class="macro" href="#">custom_keyword</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/syn/custom_keyword.rs.html#90-120" title="goto source code">[src]</a></span></h1><div class="docblock type-decl"><div class="example-wrap"><pre class="rust macro">
+<span class="macro">macro_rules!</span> <span class="ident">custom_keyword</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> { ... };
+}</pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Define a type that supports parsing and printing a given identifier as if it
+were a keyword.</p>
+<h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
+<p>As a convention, it is recommended that this macro be invoked within a
+module called <code>kw</code> or <code>keyword</code> and that the resulting parser be invoked
+with a <code>kw::</code> or <code>keyword::</code> prefix.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">mod</span> <span class="ident">kw</span> {
+    <span class="macro">syn::custom_keyword!</span>(<span class="ident">whatever</span>);
+}</pre></div>
+<p>The generated syntax tree node supports the following operations just like
+any built-in keyword token.</p>
+<ul>
+<li>
+<p><a href="parse/struct.ParseBuffer.html#method.peek">Peeking</a> — <code>input.peek(kw::whatever)</code></p>
+</li>
+<li>
+<p><a href="parse/struct.ParseBuffer.html#method.parse">Parsing</a> — <code>input.parse::&lt;kw::whatever&gt;()?</code></p>
+</li>
+<li>
+<p><a href="../quote/to_tokens/trait.ToTokens.html">Printing</a> — <code>quote!( ... #whatever_token ... )</code></p>
+</li>
+<li>
+<p>Construction from a <a href="../proc_macro2/struct.Span.html"><code>Span</code></a> — <code>let whatever_token = kw::whatever(sp)</code></p>
+</li>
+<li>
+<p>Field access to its span — <code>let sp = whatever_token.span</code></p>
+</li>
+</ul>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<p>This example parses input that looks like <code>bool = true</code> or <code>str = &quot;value&quot;</code>.
+The key must be either the identifier <code>bool</code> or the identifier <code>str</code>. If
+<code>bool</code>, the value may be either <code>true</code> or <code>false</code>. If <code>str</code>, the value may
+be any string literal.</p>
+<p>The symbols <code>bool</code> and <code>str</code> are not reserved keywords in Rust so these are
+not considered keywords in the <code>syn::token</code> module. Like any other
+identifier that is not a keyword, these can be declared as custom keywords
+by crates that need to use them as such.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">syn</span>::{<span class="ident">LitBool</span>, <span class="ident">LitStr</span>, <span class="prelude-ty">Result</span>, <span class="ident">Token</span>};
+<span class="kw">use</span> <span class="ident">syn::parse</span>::{<span class="ident">Parse</span>, <span class="ident">ParseStream</span>};
+
+<span class="kw">mod</span> <span class="ident">kw</span> {
+    <span class="macro">syn::custom_keyword!</span>(<span class="ident">bool</span>);
+    <span class="macro">syn::custom_keyword!</span>(<span class="ident">str</span>);
+}
+
+<span class="kw">enum</span> <span class="ident">Argument</span> {
+    <span class="ident">Bool</span> {
+        <span class="ident">bool_token</span>: <span class="ident">kw::bool</span>,
+        <span class="ident">eq_token</span>: <span class="macro">Token!</span>[<span class="op">=</span>],
+        <span class="ident">value</span>: <span class="ident">LitBool</span>,
+    },
+    <span class="ident">Str</span> {
+        <span class="ident">str_token</span>: <span class="ident">kw::str</span>,
+        <span class="ident">eq_token</span>: <span class="macro">Token!</span>[<span class="op">=</span>],
+        <span class="ident">value</span>: <span class="ident">LitStr</span>,
+    },
+}
+
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">Argument</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lookahead</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">lookahead1</span>();
+        <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">kw::bool</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">Argument::Bool</span> {
+                <span class="ident">bool_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">kw::bool</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
+                <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+                <span class="ident">value</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            })
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lookahead</span>.<span class="ident">peek</span>(<span class="ident">kw::str</span>) {
+            <span class="prelude-val">Ok</span>(<span class="ident">Argument::Str</span> {
+                <span class="ident">str_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">kw::str</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
+                <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+                <span class="ident">value</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            })
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">lookahead</span>.<span class="ident">error</span>())
+        }
+    }
+}</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="syn" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

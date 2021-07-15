@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Extra iterator adaptors, functions and macros."><meta name="keywords" content="rust, rustlang, rust-lang, itertools"><title>itertools - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../itertools/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate itertools</p><div class="block version"><div class="narrow-helper"></div><p>Version 0.10.1</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all itertools's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="itertools" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">itertools</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/itertools/lib.rs.html#1-3539" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Extra iterator adaptors, functions and macros.</p>
+<p>To extend <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> with methods in this crate, import
+the <a href="trait.Itertools.html" title="Itertools"><code>Itertools</code></a> trait:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;</pre></div>
+<p>Now, new methods like <a href="trait.Itertools.html#method.interleave"><code>interleave</code></a>
+are available on all iterators:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
+
+<span class="kw">let</span> <span class="ident">it</span> <span class="op">=</span> (<span class="number">1</span>..<span class="number">3</span>).<span class="ident">interleave</span>(<span class="macro">vec!</span>[<span class="op">-</span><span class="number">1</span>, <span class="op">-</span><span class="number">2</span>]);
+<span class="ident">itertools::assert_equal</span>(<span class="ident">it</span>, <span class="macro">vec!</span>[<span class="number">1</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">2</span>, <span class="op">-</span><span class="number">2</span>]);</pre></div>
+<p>Most iterator methods are also provided as functions (with the benefit
+that they convert parameters using <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html" title="IntoIterator"><code>IntoIterator</code></a>):</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">itertools::interleave</span>;
+
+<span class="kw">for</span> <span class="ident">elt</span> <span class="kw">in</span> <span class="ident">interleave</span>(<span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]) {
+    <span class="comment">/* loop body */</span>
+}</pre></div>
+<h2 id="crate-features" class="section-header"><a href="#crate-features">Crate Features</a></h2>
+<ul>
+<li><code>use_std</code>
+<ul>
+<li>Enabled by default.</li>
+<li>Disable to compile itertools using <code>#![no_std]</code>. This disables
+any items that depend on collections (like <code>group_by</code>, <code>unique</code>,
+<code>kmerge</code>, <code>join</code> and many more).</li>
+</ul>
+</li>
+</ul>
+<h2 id="rust-version" class="section-header"><a href="#rust-version">Rust Version</a></h2>
+<p>This version of itertools requires Rust 1.32 or later.</p>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-left import-item"><code>pub use crate::<a class="mod" href="structs/index.html" title="mod itertools::structs">structs</a>::*;</code></div><div class="item-right docblock-short"></div></div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="structs/index.html" title="itertools::structs mod">structs</a></div><div class="item-right docblock-short"><p>The concrete iterator types.</p>
+</div><div class="item-left module-item"><a class="mod" href="traits/index.html" title="itertools::traits mod">traits</a></div><div class="item-right docblock-short"><p>Traits helpful for using certain <code>Itertools</code> methods in generic contexts.</p>
+</div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.chain.html" title="itertools::chain macro">chain</a></div><div class="item-right docblock-short"><p><a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#method.chain">Chain</a> zero or more iterators together into one sequence.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.iproduct.html" title="itertools::iproduct macro">iproduct</a></div><div class="item-right docblock-short"><p>Create an iterator over the “cartesian product” of iterators.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.izip.html" title="itertools::izip macro">izip</a></div><div class="item-right docblock-short"><p>Create an iterator running multiple iterators in lockstep.</p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Diff.html" title="itertools::Diff enum">Diff</a></div><div class="item-right docblock-short"><p>A type returned by the <a href="fn.diff_with.html" title="diff_with"><code>diff_with</code></a> function.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Either.html" title="itertools::Either enum">Either</a></div><div class="item-right docblock-short"><p>The enum <code>Either</code> with variants <code>Left</code> and <code>Right</code> is a general purpose
+sum type with two cases.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.EitherOrBoth.html" title="itertools::EitherOrBoth enum">EitherOrBoth</a></div><div class="item-right docblock-short"><p>Value that either holds a single A or B, or both.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.FoldWhile.html" title="itertools::FoldWhile enum">FoldWhile</a></div><div class="item-right docblock-short"><p>An enum used for controlling the execution of <code>fold_while</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.MinMaxResult.html" title="itertools::MinMaxResult enum">MinMaxResult</a></div><div class="item-right docblock-short"><p><code>MinMaxResult</code> is an enum returned by <code>minmax</code>.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Position.html" title="itertools::Position enum">Position</a></div><div class="item-right docblock-short"><p>A value yielded by <code>WithPosition</code>.
+Indicates the position of this element in the iterator results.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Itertools.html" title="itertools::Itertools trait">Itertools</a></div><div class="item-right docblock-short"><p>An <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="Iterator"><code>Iterator</code></a> blanket implementation that provides extra adaptors and
+methods.</p>
+</div><div class="item-left module-item"><a class="trait" href="trait.PeekingNext.html" title="itertools::PeekingNext trait">PeekingNext</a></div><div class="item-right docblock-short"><p>An iterator that allows peeking at an element before deciding to accept it.</p>
+</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.all.html" title="itertools::all fn">all</a></div><div class="item-right docblock-short"><p>Test whether the predicate holds for all elements in the iterable.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.any.html" title="itertools::any fn">any</a></div><div class="item-right docblock-short"><p>Test whether the predicate holds for any elements in the iterable.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.assert_equal.html" title="itertools::assert_equal fn">assert_equal</a></div><div class="item-right docblock-short"><p>Assert that two iterables produce equal sequences, with the same
+semantics as <a href="fn.equal.html"><code>equal(a, b)</code></a>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.chain.html" title="itertools::chain fn">chain</a></div><div class="item-right docblock-short"><p>Create an iterator that first iterates <code>i</code> and then <code>j</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.cloned.html" title="itertools::cloned fn">cloned</a></div><div class="item-right docblock-short"><p>Create an iterator that clones each element from &amp;T to T</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.concat.html" title="itertools::concat fn">concat</a></div><div class="item-right docblock-short"><p>Combine all an iterator’s elements into one element by using <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.Extend.html" title="Extend"><code>Extend</code></a>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.cons_tuples.html" title="itertools::cons_tuples fn">cons_tuples</a></div><div class="item-right docblock-short"><p>Create an iterator that maps for example iterators of
+<code>((A, B), C)</code> to <code>(A, B, C)</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.diff_with.html" title="itertools::diff_with fn">diff_with</a></div><div class="item-right docblock-short"><p>Compares every element yielded by both <code>i</code> and <code>j</code> with the given function in lock-step and
+returns a <a href="enum.Diff.html" title="Diff"><code>Diff</code></a> which describes how <code>j</code> differs from <code>i</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.enumerate.html" title="itertools::enumerate fn">enumerate</a></div><div class="item-right docblock-short"><p>Iterate <code>iterable</code> with a running index.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.equal.html" title="itertools::equal fn">equal</a></div><div class="item-right docblock-short"><p>Return <code>true</code> if both iterables produce equal sequences
+(elements pairwise equal and sequences of the same length),
+<code>false</code> otherwise.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.fold.html" title="itertools::fold fn">fold</a></div><div class="item-right docblock-short"><p>Perform a fold operation over the iterable.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.interleave.html" title="itertools::interleave fn">interleave</a></div><div class="item-right docblock-short"><p>Create an iterator that interleaves elements in <code>i</code> and <code>j</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.iterate.html" title="itertools::iterate fn">iterate</a></div><div class="item-right docblock-short"><p>Creates a new iterator that infinitely applies function to value and yields results.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.join.html" title="itertools::join fn">join</a></div><div class="item-right docblock-short"><p>Combine all iterator elements into one String, seperated by <code>sep</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.kmerge.html" title="itertools::kmerge fn">kmerge</a></div><div class="item-right docblock-short"><p>Create an iterator that merges elements of the contained iterators using
+the ordering function.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.kmerge_by.html" title="itertools::kmerge_by fn">kmerge_by</a></div><div class="item-right docblock-short"><p>Create an iterator that merges elements of the contained iterators.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.max.html" title="itertools::max fn">max</a></div><div class="item-right docblock-short"><p>Return the maximum value of the iterable.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.merge.html" title="itertools::merge fn">merge</a></div><div class="item-right docblock-short"><p>Create an iterator that merges elements in <code>i</code> and <code>j</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.merge_join_by.html" title="itertools::merge_join_by fn">merge_join_by</a></div><div class="item-right docblock-short"><p>Return an iterator adaptor that merge-joins items from the two base iterators in ascending order.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.min.html" title="itertools::min fn">min</a></div><div class="item-right docblock-short"><p>Return the minimum value of the iterable.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.multipeek.html" title="itertools::multipeek fn">multipeek</a></div><div class="item-right docblock-short"><p>An iterator adaptor that allows the user to peek at multiple <code>.next()</code>
+values without advancing the base iterator.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.multizip.html" title="itertools::multizip fn">multizip</a></div><div class="item-right docblock-short"><p>An iterator that generalizes <em>.zip()</em> and allows running multiple iterators in lockstep.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.partition.html" title="itertools::partition fn">partition</a></div><div class="item-right docblock-short"><p>Partition a sequence using predicate <code>pred</code> so that elements
+that map to <code>true</code> are placed before elements which map to <code>false</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.peek_nth.html" title="itertools::peek_nth fn">peek_nth</a></div><div class="item-right docblock-short"><p>A drop-in replacement for <a href="https://doc.rust-lang.org/nightly/core/iter/adapters/peekable/struct.Peekable.html" title="std::iter::Peekable"><code>std::iter::Peekable</code></a> which adds a <code>peek_nth</code>
+method allowing the user to <code>peek</code> at a value several iterations forward
+without advancing the base iterator.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.process_results.html" title="itertools::process_results fn">process_results</a></div><div class="item-right docblock-short"><p>“Lift” a function of the values of an iterator so that it can process
+an iterator of <code>Result</code> values instead.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.put_back.html" title="itertools::put_back fn">put_back</a></div><div class="item-right docblock-short"><p>Create an iterator where you can put back a single item</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.put_back_n.html" title="itertools::put_back_n fn">put_back_n</a></div><div class="item-right docblock-short"><p>Create an iterator where you can put back multiple values to the front
+of the iteration.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.rciter.html" title="itertools::rciter fn">rciter</a></div><div class="item-right docblock-short"><p>Return an iterator inside a <code>Rc&lt;RefCell&lt;_&gt;&gt;</code> wrapper.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.repeat_call.html" title="itertools::repeat_call fn">repeat_call</a><span class="stab deprecated" title="">Deprecated</span></div><div class="item-right docblock-short"><p>An iterator source that produces elements indefinitely by calling
+a given closure.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.repeat_n.html" title="itertools::repeat_n fn">repeat_n</a></div><div class="item-right docblock-short"><p>Create an iterator that produces <code>n</code> repetitions of <code>element</code>.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.rev.html" title="itertools::rev fn">rev</a></div><div class="item-right docblock-short"><p>Iterate <code>iterable</code> in reverse.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.sorted.html" title="itertools::sorted fn">sorted</a></div><div class="item-right docblock-short"><p>Sort all iterator elements into a new iterator in ascending order.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.unfold.html" title="itertools::unfold fn">unfold</a></div><div class="item-right docblock-short"><p>Creates a new unfold source with the specified closure as the “iterator
+function” and an initial state to eventually pass to the closure</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.zip.html" title="itertools::zip fn">zip</a></div><div class="item-right docblock-short"><p>Iterate <code>i</code> and <code>j</code> in lock step.</p>
+</div><div class="item-left module-item"><a class="fn" href="fn.zip_eq.html" title="itertools::zip_eq fn">zip_eq</a></div><div class="item-right docblock-short"><p>Iterate <code>i</code> and <code>j</code> in lock step.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="itertools" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

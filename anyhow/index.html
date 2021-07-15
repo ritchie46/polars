@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="github crates-io docs-rs"><meta name="keywords" content="rust, rustlang, rust-lang, anyhow"><title>anyhow - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg"><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../anyhow/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate anyhow</p><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.42</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all anyhow's items</p></a><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><div id="sidebar-vars" data-name="anyhow" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">anyhow</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/anyhow/lib.rs.html#1-657" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p><a href="https://github.com/dtolnay/anyhow"><img src="https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github" alt="github" /></a> <a href="https://crates.io/crates/anyhow"><img src="https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&amp;labelColor=555555&amp;logo=rust" alt="crates-io" /></a> <a href="https://docs.rs/anyhow"><img src="https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logoColor=white&amp;logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K" alt="docs-rs" /></a></p>
+<br>
+<p>This library provides <a href="struct.Error.html" title="Error"><code>anyhow::Error</code></a>, a trait object based error
+type for easy idiomatic error handling in Rust applications.</p>
+<br>
+<h1 id="details" class="section-header"><a href="#details">Details</a></h1>
+<ul>
+<li>
+<p>Use <code>Result&lt;T, anyhow::Error&gt;</code>, or equivalently <code>anyhow::Result&lt;T&gt;</code>, as
+the return type of any fallible function.</p>
+<p>Within the function, use <code>?</code> to easily propagate any error that implements
+the <code>std::error::Error</code> trait.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+
+<span class="kw">fn</span> <span class="ident">get_cluster_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ClusterMap</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="string">&quot;cluster.json&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">map</span>: <span class="ident">ClusterMap</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">map</span>)
+}</pre></div>
+</li>
+<li>
+<p>Attach context to help the person troubleshooting the error understand
+where things went wrong. A low-level error like “No such file or
+directory” can be annoying to debug without more context about what higher
+level step the application was in the middle of.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ...
+    <span class="ident">it</span>.<span class="ident">detach</span>().<span class="ident">context</span>(<span class="string">&quot;Failed to detach the important thing&quot;</span>)<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">std::fs::read</span>(<span class="ident">path</span>)
+        .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;Failed to read instrs from {}&quot;</span>, <span class="ident">path</span>))<span class="question-mark">?</span>;
+    ...
+}</pre></div>
+<pre><code class="language-console">Error: Failed to read instrs from ./path/to/instrs.json
+
+Caused by:
+    No such file or directory (os error 2)
+</code></pre>
+</li>
+<li>
+<p>Downcasting is supported and can be by value, by shared reference, or by
+mutable reference as needed.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// If the error was caused by redaction, then return a</span>
+<span class="comment">// tombstone instead of the content.</span>
+<span class="kw">match</span> <span class="ident">root_cause</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">DataStoreError</span><span class="op">&gt;</span>() {
+    <span class="prelude-val">Some</span>(<span class="ident">DataStoreError::Censored</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Poll::Ready</span>(<span class="ident">REDACTED_CONTENT</span>)),
+    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>),
+}</pre></div>
+</li>
+<li>
+<p>If using the nightly channel, a backtrace is captured and printed with the
+error if the underlying error type does not already provide its own. In
+order to see backtraces, they must be enabled through the environment
+variables described in <a href="https://doc.rust-lang.org/std/backtrace/index.html#environment-variables"><code>std::backtrace</code></a>:</p>
+<ul>
+<li>If you want panics and errors to both have backtraces, set
+<code>RUST_BACKTRACE=1</code>;</li>
+<li>If you want only errors to have backtraces, set <code>RUST_LIB_BACKTRACE=1</code>;</li>
+<li>If you want only panics to have backtraces, set <code>RUST_BACKTRACE=1</code> and
+<code>RUST_LIB_BACKTRACE=0</code>.</li>
+</ul>
+<p>The tracking issue for this feature is <a href="https://github.com/rust-lang/rust/issues/53487">rust-lang/rust#53487</a>.</p>
+</li>
+<li>
+<p>Anyhow works with any error type that has an impl of <code>std::error::Error</code>,
+including ones defined in your crate. We do not bundle a <code>derive(Error)</code>
+macro but you can write the impls yourself or use a standalone macro like
+<a href="https://github.com/dtolnay/thiserror">thiserror</a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Error</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FormatError</span> {
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Invalid header (expected {expected:?}, got {found:?})&quot;</span>)]</span>
+    <span class="ident">InvalidHeader</span> {
+        <span class="ident">expected</span>: <span class="ident">String</span>,
+        <span class="ident">found</span>: <span class="ident">String</span>,
+    },
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Missing attribute: {0}&quot;</span>)]</span>
+    <span class="ident">MissingAttribute</span>(<span class="ident">String</span>),
+}</pre></div>
+</li>
+<li>
+<p>One-off error messages can be constructed using the <code>anyhow!</code> macro, which
+supports string interpolation and produces an <code>anyhow::Error</code>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Missing attribute: {}&quot;</span>, <span class="ident">missing</span>));</pre></div>
+<p>A <code>bail!</code> macro is provided as a shorthand for the same early return.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="macro">bail!</span>(<span class="string">&quot;Missing attribute: {}&quot;</span>, <span class="ident">missing</span>);</pre></div>
+</li>
+</ul>
+<br>
+<h1 id="no-std-support" class="section-header"><a href="#no-std-support">No-std support</a></h1>
+<p>In no_std mode, the same API is almost all available and works the same way.
+To depend on Anyhow in no_std mode, disable our default enabled “std”
+feature in Cargo.toml. A global allocator is required.</p>
+<pre><code class="language-toml">[dependencies]
+anyhow = { version = &quot;1.0&quot;, default-features = false }
+</code></pre>
+<p>Since the <code>?</code>-based error conversions would normally rely on the
+<code>std::error::Error</code> trait which is only available through std, no_std mode
+will require an explicit <code>.map_err(Error::msg)</code> when working with a
+non-Anyhow error type inside a function that returns Anyhow’s error type.</p>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<div class="item-table"><div class="item-left import-item"><code>pub use <a class="macro" href="macro.anyhow.html" title="macro anyhow::anyhow">anyhow</a> as format_err;</code></div><div class="item-right docblock-short"></div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="macro" href="macro.anyhow.html" title="anyhow::anyhow macro">anyhow</a></div><div class="item-right docblock-short"><p>Construct an ad-hoc error from a string or existing non-<code>anyhow</code> error
+value.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.bail.html" title="anyhow::bail macro">bail</a></div><div class="item-right docblock-short"><p>Return early with an error.</p>
+</div><div class="item-left module-item"><a class="macro" href="macro.ensure.html" title="anyhow::ensure macro">ensure</a></div><div class="item-right docblock-short"><p>Return early with an error if a condition is not satisfied.</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Chain.html" title="anyhow::Chain struct">Chain</a></div><div class="item-right docblock-short"><p>Iterator of a chain of source errors.</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.Error.html" title="anyhow::Error struct">Error</a></div><div class="item-right docblock-short"><p>The <code>Error</code> type, a wrapper around a dynamic error type.</p>
+</div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="trait" href="trait.Context.html" title="anyhow::Context trait">Context</a></div><div class="item-right docblock-short"><p>Provides the <code>context</code> method for <code>Result</code>.</p>
+</div></div><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="type" href="type.Result.html" title="anyhow::Result type">Result</a></div><div class="item-right docblock-short"><p><code>Result&lt;T, Error&gt;</code></p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="anyhow" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script>
+</body></html>

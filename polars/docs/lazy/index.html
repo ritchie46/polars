@@ -1,0 +1,212 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Polars Lazy cookbook"><meta name="keywords" content="rust, rustlang, rust-lang, lazy"><title>polars::docs::lazy - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../polars/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module lazy</p><div class="sidebar-elems"><div id="sidebar-vars" data-name="lazy" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">polars</a>::<wbr><a href="../index.html">docs</a>::<wbr><a class="mod" href="#">lazy</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/polars/docs/lazy.rs.html#1-251" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h1 id="polars-lazy-cookbook" class="section-header"><a href="#polars-lazy-cookbook">Polars Lazy cookbook</a></h1>
+<p>This page should serve a cookbook to quickly get you started with polars’ query engine.
+The lazy API allows you to create complex well performing queries on top of Polars eager.</p>
+<h2 id="tree-of-contents" class="section-header"><a href="#tree-of-contents">Tree Of Contents</a></h2>
+<ul>
+<li><a href="#start-a-lazy-computation">Start a lazy computation</a></li>
+<li><a href="#filter">Filter</a></li>
+<li><a href="#sort">Sort</a></li>
+<li><a href="#groupby">GroupBy</a></li>
+<li><a href="#joins">Joins</a></li>
+<li><a href="#conditionally-apply">Conditionally apply</a></li>
+</ul>
+<h2 id="start-a-lazy-computation" class="section-header"><a href="#start-a-lazy-computation">Start a lazy computation</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;a&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;b&quot;</span>)]
+]<span class="question-mark">?</span>;
+<span class="comment">// from an eager DataFrame</span>
+<span class="kw">let</span> <span class="ident">lf</span>: <span class="ident">LazyFrame</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">lazy</span>();
+
+<span class="comment">// scan a csv file lazily</span>
+<span class="kw">let</span> <span class="ident">lf</span>: <span class="ident">LazyFrame</span> <span class="op">=</span> <span class="ident">LazyCsvReader::new</span>(<span class="string">&quot;some_path&quot;</span>.<span class="ident">into</span>())
+                    .<span class="ident">has_header</span>(<span class="bool-val">true</span>)
+                    .<span class="ident">finish</span>();
+
+<span class="comment">// scan a parquet file lazily</span>
+<span class="kw">let</span> <span class="ident">lf</span>: <span class="ident">LazyFrame</span> <span class="op">=</span> <span class="ident">LazyFrame::new_from_parquet</span>(<span class="string">&quot;some_path&quot;</span>.<span class="ident">into</span>(), <span class="prelude-val">None</span>, <span class="bool-val">true</span>);
+</pre></div>
+<h2 id="filter" class="section-header"><a href="#filter">Filter</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;a&quot;</span>), <span class="prelude-val">Some</span>(<span class="string">&quot;b&quot;</span>)]
+]<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">filtered</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">lazy</span>()
+    .<span class="ident">filter</span>(<span class="ident">col</span>(<span class="string">&quot;a&quot;</span>).<span class="ident">gt</span>(<span class="ident">lit</span>(<span class="number">2</span>)))
+    .<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="comment">// filtered:</span>
+
+<span class="comment">// ╭─────┬─────╮</span>
+<span class="comment">// │ a   ┆ b   │</span>
+<span class="comment">// │ --- ┆ --- │</span>
+<span class="comment">// │ i64 ┆ str │</span>
+<span class="comment">// ╞═════╪═════╡</span>
+<span class="comment">// │ 3   ┆ &quot;c&quot; │</span>
+<span class="comment">// ╰─────┴─────╯</span>
+</pre></div>
+<h2 id="sort" class="section-header"><a href="#sort">Sort</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+    <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>]
+]<span class="question-mark">?</span>;
+<span class="comment">// sort this DataFrame by multiple columns</span>
+
+<span class="comment">// ordering of the columns</span>
+<span class="kw">let</span> <span class="ident">reverse</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="bool-val">true</span>, <span class="bool-val">false</span>];
+
+<span class="kw">let</span> <span class="ident">sorted</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">lazy</span>()
+    .<span class="ident">sort_by_exprs</span>(<span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;b&quot;</span>), <span class="ident">col</span>(<span class="string">&quot;a&quot;</span>)], <span class="ident">reverse</span>)
+    .<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="comment">// sorted:</span>
+
+<span class="comment">// ╭─────┬─────╮</span>
+<span class="comment">// │ a   ┆ b   │</span>
+<span class="comment">// │ --- ┆ --- │</span>
+<span class="comment">// │ i64 ┆ str │</span>
+<span class="comment">// ╞═════╪═════╡</span>
+<span class="comment">// │ 1   ┆ &quot;a&quot; │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 2   ┆ &quot;a&quot; │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┤</span>
+<span class="comment">// │ 3   ┆ &quot;b&quot; │</span>
+<span class="comment">// ╰─────┴─────╯</span>
+</pre></div>
+<h2 id="groupby" class="section-header"><a href="#groupby">Groupby</a></h2>
+<p>This example is from the polars <a href="https://pola-rs.github.io/polars-book/user-guide/howcani/df/groupby.html">user guide</a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+
+ <span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="ident">LazyCsvReader::new</span>(<span class="string">&quot;reddit.csv&quot;</span>.<span class="ident">into</span>())
+    .<span class="ident">has_header</span>(<span class="bool-val">true</span>)
+    .<span class="ident">with_delimiter</span>(<span class="string">b&#39;,&#39;</span>)
+    .<span class="ident">finish</span>()
+    .<span class="ident">groupby</span>(<span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;comment_karma&quot;</span>)])
+    .<span class="ident">agg</span>(<span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;name&quot;</span>).<span class="ident">n_unique</span>().<span class="ident">alias</span>(<span class="string">&quot;unique_names&quot;</span>), <span class="ident">col</span>(<span class="string">&quot;link_karma&quot;</span>).<span class="ident">max</span>()])
+    <span class="comment">// take only 100 rows.</span>
+    .<span class="ident">fetch</span>(<span class="number">100</span>)<span class="question-mark">?</span>;</pre></div>
+<h2 id="joins" class="section-header"><a href="#joins">Joins</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+<span class="kw">let</span> <span class="ident">df_a</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;a&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>],
+    <span class="string">&quot;b&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;c&quot;</span>],
+    <span class="string">&quot;c&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+]<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">df_b</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;foo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>],
+    <span class="string">&quot;bar&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;c&quot;</span>],
+    <span class="string">&quot;ham&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="string">&quot;let&quot;</span>, <span class="string">&quot;var&quot;</span>, <span class="string">&quot;const&quot;</span>]
+]<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">lf_a</span> <span class="op">=</span> <span class="ident">df_a</span>.<span class="ident">clone</span>().<span class="ident">lazy</span>();
+<span class="kw">let</span> <span class="ident">lf_b</span> <span class="op">=</span> <span class="ident">df_b</span>.<span class="ident">clone</span>().<span class="ident">lazy</span>();
+
+<span class="kw">let</span> <span class="ident">joined</span> <span class="op">=</span> <span class="ident">lf_a</span>.<span class="ident">join</span>(<span class="ident">lf_b</span>, <span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;a&quot;</span>)], <span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;foo&quot;</span>)], <span class="ident">JoinType::Outer</span>).<span class="ident">collect</span>()<span class="question-mark">?</span>;
+<span class="comment">// joined:</span>
+
+<span class="comment">// ╭─────┬─────┬─────┬──────┬─────────╮</span>
+<span class="comment">// │ b   ┆ c   ┆ a   ┆ bar  ┆ ham     │</span>
+<span class="comment">// │ --- ┆ --- ┆ --- ┆ ---  ┆ ---     │</span>
+<span class="comment">// │ str ┆ i64 ┆ i64 ┆ str  ┆ str     │</span>
+<span class="comment">// ╞═════╪═════╪═════╪══════╪═════════╡</span>
+<span class="comment">// │ &quot;a&quot; ┆ 0   ┆ 1   ┆ &quot;a&quot;  ┆ &quot;let&quot;   │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ &quot;a&quot; ┆ 0   ┆ 1   ┆ &quot;c&quot;  ┆ &quot;var&quot;   │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ &quot;a&quot; ┆ 0   ┆ 1   ┆ &quot;c&quot;  ┆ &quot;const&quot; │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ &quot;b&quot; ┆ 1   ┆ 2   ┆ null ┆ null    │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ &quot;c&quot; ┆ 2   ┆ 1   ┆ null ┆ null    │</span>
+<span class="comment">// ├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ &quot;c&quot; ┆ 3   ┆ 1   ┆ null ┆ null    │</span>
+<span class="comment">// ╰─────┴─────┴─────┴──────┴─────────╯</span>
+
+<span class="comment">// other join syntax options</span>
+<span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">lf_a</span>.<span class="ident">inner_join</span>(<span class="ident">lf_b</span>, <span class="ident">col</span>(<span class="string">&quot;a&quot;</span>), <span class="ident">col</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">lf_a</span>.<span class="ident">left_join</span>(<span class="ident">lf_b</span>, <span class="ident">col</span>(<span class="string">&quot;a&quot;</span>), <span class="ident">col</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">lf_a</span>.<span class="ident">outer_join</span>(<span class="ident">lf_b</span>, <span class="ident">col</span>(<span class="string">&quot;a&quot;</span>), <span class="ident">col</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">joined_with_builder</span> <span class="op">=</span> <span class="ident">lf_a</span>.<span class="ident">join_builder</span>()
+    .<span class="ident">with</span>(<span class="ident">lf_b</span>)
+    .<span class="ident">left_on</span>(<span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;a&quot;</span>)])
+    .<span class="ident">right_on</span>(<span class="macro">vec!</span>[<span class="ident">col</span>(<span class="string">&quot;foo&quot;</span>)])
+    .<span class="ident">how</span>(<span class="ident">JoinType::Inner</span>)
+    .<span class="ident">force_parallel</span>(<span class="bool-val">true</span>)
+    .<span class="ident">finish</span>()
+    .<span class="ident">collect</span>()<span class="question-mark">?</span>;
+</pre></div>
+<h2 id="conditionally-apply" class="section-header"><a href="#conditionally-apply">Conditionally apply</a></h2>
+<p>If we want to create a new column based on some condition, we can use the <code>.when()/.then()/.otherwise()</code> expressions.</p>
+<ul>
+<li><code>when</code> - accpets a predicate epxression</li>
+<li><code>then</code> - expression to use when <code>predicate == true</code></li>
+<li><code>otherwise</code> - expression to use when <code>predicate == false</code></li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">polars::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">polars::df</span>;
+<span class="kw">let</span> <span class="ident">df</span> <span class="op">=</span> <span class="macro">df!</span>[
+    <span class="string">&quot;range&quot;</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>],
+    <span class="string">&quot;left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="number">0</span>..<span class="number">10</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;foo&quot;</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+    <span class="string">&quot;right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="number">0</span>..<span class="number">10</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+]<span class="question-mark">?</span>;
+
+<span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">df</span>.<span class="ident">lazy</span>()
+    .<span class="ident">with_column</span>(<span class="ident">when</span>(<span class="ident">col</span>(<span class="string">&quot;range&quot;</span>).<span class="ident">gt_eq</span>(<span class="ident">lit</span>(<span class="number">5</span>)))
+        .<span class="ident">then</span>(<span class="ident">col</span>(<span class="string">&quot;left&quot;</span>))
+        .<span class="ident">otherwise</span>(<span class="ident">col</span>(<span class="string">&quot;right&quot;</span>)).<span class="ident">alias</span>(<span class="string">&quot;foo_or_bar&quot;</span>)
+    ).<span class="ident">collect</span>()<span class="question-mark">?</span>;
+
+<span class="comment">// new:</span>
+
+<span class="comment">// ╭───────┬───────┬───────┬────────────╮</span>
+<span class="comment">// │ range ┆ left  ┆ right ┆ foo_or_bar │</span>
+<span class="comment">// │ ---   ┆ ---   ┆ ---   ┆ ---        │</span>
+<span class="comment">// │ i64   ┆ str   ┆ str   ┆ str        │</span>
+<span class="comment">// ╞═══════╪═══════╪═══════╪════════════╡</span>
+<span class="comment">// │ 0     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;bar&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 1     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;bar&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 2     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;bar&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 3     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;bar&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ ...   ┆ ...   ┆ ...   ┆ ...        │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 5     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;foo&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 6     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;foo&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 7     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;foo&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 8     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;foo&quot;      │</span>
+<span class="comment">// ├╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌┤</span>
+<span class="comment">// │ 9     ┆ &quot;foo&quot; ┆ &quot;bar&quot; ┆ &quot;foo&quot;      │</span>
+<span class="comment">// ╰───────┴───────┴───────┴────────────╯</span>
+</pre></div>
+</div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="polars" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
+    <script src="../../../main.js"></script>
+</body></html>
