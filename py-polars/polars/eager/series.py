@@ -1558,7 +1558,7 @@ class Series:
         """
         Hash the Series.
 
-        The hash value is of type `Date64`
+        The hash value is of type `UInt64`
 
         Parameters
         ----------

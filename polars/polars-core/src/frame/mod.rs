@@ -1637,9 +1637,9 @@ impl DataFrame {
 
     /// Hash and combine the row values
     #[cfg(feature = "row_hash")]
-    pub fn hash_rows(&self) -> Result<UInt64Chunked> {
+    pub fn hash_rows(&self, hasher_builder: Option<RandomState>) -> Result<UInt64Chunked> {
         let dfs = split_df(self, POOL.current_num_threads())?;
-        let (cas, _) = df_rows_to_hashes_threaded(&dfs, None);
+        let (cas, _) = df_rows_to_hashes_threaded(&dfs, hasher_builder);
 
         let mut iter = cas.into_iter();
         let mut acc_ca = iter.next().unwrap();

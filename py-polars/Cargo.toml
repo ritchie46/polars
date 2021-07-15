@@ -1,6 +1,6 @@
 [package]
 name = "py-polars"
-version = "0.8.11"
+version = "0.8.12"
 authors = ["ritchie46 <ritchie46@gmail.com>"]
 edition = "2018"
 readme = "README.md"
