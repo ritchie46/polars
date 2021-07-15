@@ -261,12 +261,9 @@ def dtype_to_ctype(dtype: Type[DataType]) -> Type[_SimpleCData]:  # noqa: F821
 
 
 def dtype_to_int(dtype: Type[DataType]) -> int:
-    i = 0
-    for dt in DTYPES:
-        if dt == dtype:
-            return i
-        i += 1
-    else:
+    try:
+        return DTYPES.index(dtype)
+    except ValueError:
         raise NotImplementedError
 
 
