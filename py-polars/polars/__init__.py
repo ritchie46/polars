@@ -1,7 +1,8 @@
-from polars.eager.frame import DataFrame  # noqa: F401
-from polars.eager.series import Series  # noqa: F401
-from polars.lazy.expr import Expr  # noqa: F401
-from polars.lazy.frame import LazyFrame  # noqa: F401
+# mypy needs these imported explicitly
+from polars.eager.frame import DataFrame, wrap_df  # noqa: F401
+from polars.eager.series import Series, wrap_s  # noqa: F401
+from polars.lazy.expr import Expr, wrap_expr  # noqa: F401
+from polars.lazy.frame import LazyFrame, wrap_ldf  # noqa: F401
 
 from . import datatypes, eager, functions, io, lazy
 from .datatypes import *  # noqa: F401, F403
