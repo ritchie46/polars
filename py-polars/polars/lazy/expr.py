@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional, Sequence, Type, Union
 import polars as pl
 
 from ..datatypes import Boolean, DataType, Date32, Date64, Float64, Int64, Utf8
-from .expr_functions import UDF, col, lit
+from .functions import UDF, col, lit
 
 try:
     from ..polars import PyExpr
@@ -16,7 +16,6 @@ except ImportError:
     __pdoc__ = {"wrap_expr": False}
 
 __all__ = [
-    "wrap_expr",
     "Expr",
     "ExprStringNameSpace",
     "ExprDateTimeNameSpace",

@@ -260,16 +260,6 @@ def dtype_to_ctype(dtype: Type[DataType]) -> Type[_SimpleCData]:  # noqa: F821
     return ptr_type
 
 
-def dtype_to_int(dtype: Type[DataType]) -> int:
-    i = 0
-    for dt in DTYPES:
-        if dt == dtype:
-            return i
-        i += 1
-    else:
-        raise NotImplementedError
-
-
 def pytype_to_polars_type(data_type: Type[Any]) -> Type[DataType]:
     polars_type: Type[DataType]
     if data_type == int:

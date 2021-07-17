@@ -441,7 +441,7 @@ def test_concat():
     assert pl.concat([df, df]).shape == (6, 3)
 
     # check if a remains unchanged
-    a = pl.from_rows(((1, 2), (1, 2)))
+    a = pl.DataFrame.from_rows(((1, 2), (1, 2)))
     _ = pl.concat([a, a, a])
     assert a.shape == (2, 2)
 
@@ -700,12 +700,14 @@ def test_to_json(df):
 
 
 def test_from_rows():
-    df = pl.from_rows([[1, 2, "foo"], [2, 3, "bar"]], column_name_mapping={1: "foo"})
+    df = pl.DataFrame.from_rows(
+        [[1, 2, "foo"], [2, 3, "bar"]], column_name_mapping={1: "foo"}
+    )
     assert df.frame_equal(
         pl.DataFrame({"column_0": [1, 2], "foo": [2, 3], "column_2": ["foo", "bar"]})
     )
 
-    df = pl.from_rows(
+    df = pl.DataFrame.from_rows(
         [[1, datetime.fromtimestamp(100)], [2, datetime.fromtimestamp(2398754908)]],
         column_name_mapping={1: "foo"},
     )

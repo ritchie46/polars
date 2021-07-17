@@ -49,7 +49,6 @@ except ImportError:
 
 __all__ = [
     "Series",
-    "wrap_s",
 ]
 
 
@@ -524,7 +523,7 @@ class Series:
         """
         Cast this Series to a DataFrame.
         """
-        return pl.wrap_df(PyDataFrame([self._s]))
+        return pl.eager.frame.wrap_df(PyDataFrame([self._s]))
 
     @property
     def dtype(self) -> Type[DataType]:
@@ -637,13 +636,13 @@ class Series:
         """
         Get dummy variables.
         """
-        return pl.wrap_df(self._s.to_dummies())
+        return pl.eager.frame.wrap_df(self._s.to_dummies())
 
     def value_counts(self) -> "pl.DataFrame":
         """
         Count the unique values in a Series.
         """
-        return pl.wrap_df(self._s.value_counts())
+        return pl.eager.frame.wrap_df(self._s.value_counts())
 
     @property
     def name(self) -> str:

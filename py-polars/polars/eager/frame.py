@@ -5,7 +5,6 @@ import os
 import typing as tp
 from io import BytesIO, StringIO
 from pathlib import Path
-from types import TracebackType
 from typing import (
     Any,
     BinaryIO,
@@ -34,12 +33,10 @@ from ..utils import _process_null_values, coerce_arrow
 
 try:
     from ..polars import PyDataFrame, PySeries
-    from ..polars import toggle_string_cache as pytoggle_string_cache
 except ImportError:
     import warnings
 
     warnings.warn("binary files missing")
-
 
 try:
     import pandas as pd
@@ -48,9 +45,6 @@ except ImportError:
 
 __all__ = [
     "DataFrame",
-    "wrap_df",
-    "StringCache",
-    "toggle_string_cache",
 ]
 
 
@@ -131,7 +125,7 @@ class DataFrame:
     @staticmethod
     def from_rows(
         rows: Sequence[Sequence[Any]],
-        column_names: Optional[tp.List[str]] = None,
+        column_names: Optional[Sequence[str]] = None,
         column_name_mapping: Optional[Dict[int, str]] = None,
     ) -> "DataFrame":
         """
@@ -154,7 +148,7 @@ class DataFrame:
         self = DataFrame.__new__(DataFrame)
         self._df = PyDataFrame.read_rows(rows)
         if column_names is not None:
-            self.columns = column_names
+            self.columns = list(column_names)
         if column_name_mapping is not None:
             for i, name in column_name_mapping.items():
                 s = self[:, i]
@@ -608,7 +602,7 @@ class DataFrame:
         Access columns as attribute.
         """
         try:
-            return pl.wrap_s(self._df.column(item))
+            return pl.eager.series.wrap_s(self._df.column(item))
         except RuntimeError:
             raise AttributeError(f"{item} not found")
 
@@ -673,7 +667,7 @@ class DataFrame:
                 # df[:, unknown]
                 series = self.__getitem__(col_selection)
                 # s[:]
-                pl.wrap_s(series[row_selection])
+                pl.eager.series.wrap_s(series[row_selection])
 
             # df[2, :] (select row as df)
             if isinstance(row_selection, int):
@@ -706,7 +700,7 @@ class DataFrame:
         # select single column
         # df["foo"]
         if isinstance(item, str):
-            return pl.wrap_s(self._df.column(item))
+            return pl.eager.series.wrap_s(self._df.column(item))
 
         # df[idx]
         if isinstance(item, int):
@@ -1012,7 +1006,7 @@ class DataFrame:
                     columns.append(s)
             return pl.DataFrame(columns)
 
-        summary = pl.concat(
+        summary = pl.eager.functions.concat(
             [
                 describe_cast(self.mean()),
                 describe_cast(self.std()),
@@ -1503,7 +1497,7 @@ class DataFrame:
         return_dtype
             Output type of the operation. If none given, Polars tries to infer the type.
         """
-        return pl.wrap_s(self._df.apply(f, return_dtype))
+        return pl.eager.series.wrap_s(self._df.apply(f, return_dtype))
 
     def with_column(self, column: Union["pl.Series", "pl.Expr"]) -> "DataFrame":
         """
@@ -1608,7 +1602,7 @@ class DataFrame:
         name
             Column to drop.
         """
-        return pl.wrap_s(self._df.drop_in_place(name))
+        return pl.eager.series.wrap_s(self._df.drop_in_place(name))
 
     def select_at_idx(self, idx: int) -> "pl.Series":
         """
@@ -1619,7 +1613,7 @@ class DataFrame:
         idx
             Location of selection.
         """
-        return pl.wrap_s(self._df.select_at_idx(idx))
+        return pl.eager.series.wrap_s(self._df.select_at_idx(idx))
 
     def clone(self) -> "DataFrame":
         """
@@ -1631,7 +1625,7 @@ class DataFrame:
         """
         Get the DataFrame as a List of Series.
         """
-        return list(map(lambda s: pl.wrap_s(s), self._df.get_columns()))
+        return list(map(lambda s: pl.eager.series.wrap_s(s), self._df.get_columns()))
 
     def fill_none(self, strategy: Union[str, "pl.Expr"]) -> "DataFrame":
         """
@@ -1737,13 +1731,13 @@ class DataFrame:
         """
         Get a mask of all duplicated rows in this DataFrame.
         """
-        return pl.wrap_s(self._df.is_duplicated())
+        return pl.eager.series.wrap_s(self._df.is_duplicated())
 
     def is_unique(self) -> "pl.Series":
         """
         Get a mask of all unique rows in this DataFrame.
         """
-        return pl.wrap_s(self._df.is_unique())
+        return pl.eager.series.wrap_s(self._df.is_unique())
 
     def lazy(self) -> "pl.LazyFrame":
         """
@@ -1759,7 +1753,7 @@ class DataFrame:
 
         Lazy operations are advised because they allow for query optimization and more parallelization.
         """
-        return pl.wrap_ldf(self._df.lazy())
+        return pl.lazy.frame.wrap_ldf(self._df.lazy())
 
     def select(
         self, exprs: Union[str, "pl.Expr", Sequence[str], Sequence["pl.Expr"]]
@@ -1806,7 +1800,7 @@ class DataFrame:
         if axis == 0:
             return wrap_df(self._df.max())
         if axis == 1:
-            return pl.wrap_s(self._df.hmax()).to_frame()
+            return pl.eager.series.wrap_s(self._df.hmax()).to_frame()
         raise ValueError("Axis should be 0 or 1.")
 
     def min(self, axis: int = 0) -> "DataFrame":
@@ -1816,7 +1810,7 @@ class DataFrame:
         if axis == 0:
             return wrap_df(self._df.min())
         if axis == 1:
-            return pl.wrap_s(self._df.hmin()).to_frame()
+            return pl.eager.series.wrap_s(self._df.hmin()).to_frame()
         raise ValueError("Axis should be 0 or 1.")
 
     def sum(self, axis: int = 0) -> "DataFrame":
@@ -1826,7 +1820,7 @@ class DataFrame:
         if axis == 0:
             return wrap_df(self._df.sum())
         if axis == 1:
-            return pl.wrap_s(self._df.hsum()).to_frame()
+            return pl.eager.series.wrap_s(self._df.hsum()).to_frame()
         raise ValueError("Axis should be 0 or 1.")
 
     def mean(self, axis: int = 0) -> "DataFrame":
@@ -1836,7 +1830,7 @@ class DataFrame:
         if axis == 0:
             return wrap_df(self._df.mean())
         if axis == 1:
-            return pl.wrap_s(self._df.hmean()).to_frame()
+            return pl.eager.series.wrap_s(self._df.hmean()).to_frame()
         raise ValueError("Axis should be 0 or 1.")
 
     def std(self) -> "DataFrame":
@@ -2041,7 +2035,7 @@ class DataFrame:
 
         Hash value is UInt64
         """
-        return pl.wrap_s(self._df.hash_rows())
+        return pl.eager.series.wrap_s(self._df.hash_rows())
 
 
 class GroupBy:
@@ -2538,33 +2532,3 @@ class GBSelection:
             df[name] = s
 
         return df
-
-
-class StringCache:
-    """
-    Context manager that allows data sources to share the same categorical features.
-    This will temporarily cache the string categories until the context manager is finished.
-    """
-
-    def __init__(self) -> None:
-        pass
-
-    def __enter__(self) -> "StringCache":
-        pytoggle_string_cache(True)
-        return self
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> None:
-        pytoggle_string_cache(False)
-
-
-def toggle_string_cache(toggle: bool) -> None:
-    """
-    Turn on/off the global string cache. This ensures that casts to Categorical types have the categories when string
-    values are equal.
-    """
-    pytoggle_string_cache(toggle)
