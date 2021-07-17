@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 import pyarrow as pa
 
@@ -93,7 +93,7 @@ def repeat(
 
 def from_rows(
     rows: Sequence[Sequence[Any]],
-    column_names: Optional[List[str]] = None,
+    column_names: Optional[Sequence[str]] = None,
     column_name_mapping: Optional[Dict[int, str]] = None,
 ) -> "pl.DataFrame":
     """

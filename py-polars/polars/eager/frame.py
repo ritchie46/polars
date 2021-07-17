@@ -125,7 +125,7 @@ class DataFrame:
     @staticmethod
     def from_rows(
         rows: Sequence[Sequence[Any]],
-        column_names: Optional[tp.List[str]] = None,
+        column_names: Optional[Sequence[str]] = None,
         column_name_mapping: Optional[Dict[int, str]] = None,
     ) -> "DataFrame":
         """
@@ -148,7 +148,7 @@ class DataFrame:
         self = DataFrame.__new__(DataFrame)
         self._df = PyDataFrame.read_rows(rows)
         if column_names is not None:
-            self.columns = column_names
+            self.columns = list(column_names)
         if column_name_mapping is not None:
             for i, name in column_name_mapping.items():
                 s = self[:, i]
