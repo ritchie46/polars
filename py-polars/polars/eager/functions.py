@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import pyarrow as pa
 
@@ -9,6 +9,7 @@ __all__ = [
     "concat",
     "repeat",
     "arg_where",
+    "from_rows",
 ]
 
 
@@ -88,3 +89,27 @@ def repeat(
         return s
     else:
         return pl.Series.from_arrow(name, pa.repeat(val, n))
+
+
+def from_rows(
+    rows: Sequence[Sequence[Any]],
+    column_names: Optional[List[str]] = None,
+    column_name_mapping: Optional[Dict[int, str]] = None,
+) -> "pl.DataFrame":
+    """
+    Create a DataFrame from rows. This should only be used as a last resort, as this is more expensive than
+    creating from columnar data.
+    Parameters
+    ----------
+    rows
+        rows.
+    column_names
+        column names to use for the DataFrame.
+    column_name_mapping
+        map column index to a new name:
+        Example:
+        ```python
+            column_mapping: {0: "first_column, 3: "fourth column"}
+        ```
+    """
+    return pl.DataFrame.from_rows(rows, column_names, column_name_mapping)
